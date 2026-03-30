@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useAppState } from './AppStateProvider'
 
 const NAV = [
   {
@@ -14,7 +15,7 @@ const NAV = [
     icon: '🤝',
     label: 'Connect',
     sub: [
-      { href: '/connect/feedback',    icon: '💡', label: 'Feedback' },
+      { href: '/connect/feedback',    icon: '💡', label: 'Forum' },
       { href: '/connect/marketplace', icon: '🏪', label: 'Marketplace' },
       { href: '/connect/messages',    icon: '💬', label: 'Messages' },
       { href: '/connect/vault',       icon: '🔐', label: 'The Vault' },
@@ -38,6 +39,7 @@ const NAV = [
 
 export default function Sidebar() {
   const pathname = usePathname()
+  const { theme, setTheme } = useAppState()
   const isActive    = (href: string) => pathname === href
   const isParentActive = (href: string) => pathname.startsWith(href)
 
@@ -83,7 +85,7 @@ export default function Sidebar() {
                   padding: '9px 12px', borderRadius: '8px',
                   textDecoration: 'none',
                   fontFamily: 'var(--font-display)', fontSize: '14px', fontWeight: 700,
-                  color: parentActive ? '#fff' : 'rgba(255,255,255,.42)',
+                  color: parentActive ? '#fff' : 'rgba(255,255,255,.68)',
                   background: parentActive ? 'rgba(22,163,74,.16)' : 'transparent',
                   borderLeft: parentActive ? '2px solid var(--green)' : '2px solid transparent',
                   transition: 'all .15s',
@@ -108,7 +110,7 @@ export default function Sidebar() {
                           textDecoration: 'none',
                           fontFamily: 'var(--font-display)', fontSize: '13px',
                           fontWeight: subActive ? 700 : 500,
-                          color: subActive ? '#22c55e' : 'rgba(255,255,255,.36)',
+                          color: subActive ? '#22c55e' : 'rgba(255,255,255,.62)',
                           background: subActive ? 'rgba(34,197,94,.1)' : 'transparent',
                           transition: 'all .15s',
                           marginBottom: '1px',
@@ -149,34 +151,37 @@ export default function Sidebar() {
               <div style={{ fontSize: '11px', color: 'rgba(255,255,255,.3)', marginTop: '1px' }}>Profile</div>
             </div>
           </Link>
-          <Link href="/settings" style={{
-            width: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            borderRadius: '8px', textDecoration: 'none',
-            color: 'rgba(255,255,255,.75)', border: '1px solid rgba(255,255,255,.14)',
-          }}>
-            ⚙️
-          </Link>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 6px', marginTop: '2px' }}>
-          <button style={{ border: '1px solid rgba(255,255,255,.14)', width: '44px', height: '36px', borderRadius: '8px', background: 'transparent', color: 'rgba(255,255,255,.72)', cursor: 'pointer' }}>
-            🌙
-          </button>
           <Link href="/connect/messages" style={{
-            width: '44px', height: '36px',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            width: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center',
             borderRadius: '8px', textDecoration: 'none',
             color: 'rgba(255,255,255,.75)', border: '1px solid rgba(255,255,255,.14)',
             background: 'rgba(37,99,235,.16)',
           }}>
             💬
           </Link>
-          <Link href="/" style={{
-            width: '44px', height: '36px',
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 6px', marginTop: '2px', gap: '8px' }}>
+          <button
+            onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
+            style={{ border: '1px solid rgba(255,255,255,.14)', flex: 1, height: '36px', borderRadius: '8px', background: 'transparent', color: 'rgba(255,255,255,.72)', cursor: 'pointer' }}
+          >
+            {theme === 'light' ? '🌙' : '☀️'}
+          </button>
+          <Link href="/settings" style={{
+            flex: 1, height: '36px',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             borderRadius: '8px', textDecoration: 'none',
             color: 'rgba(255,255,255,.75)', border: '1px solid rgba(255,255,255,.14)',
           }}>
-            🚪
+            ⚙️
+          </Link>
+          <Link href="/" style={{
+            flex: 1, height: '36px',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            borderRadius: '8px', textDecoration: 'none',
+            color: 'rgba(255,255,255,.75)', border: '1px solid rgba(255,255,255,.14)',
+          }}>
+            ⎋
           </Link>
         </div>
       </div>

@@ -38,25 +38,26 @@ const FOUNDERS = [
 
 export default function MarketplacePage() {
   const [activeSkill, setActiveSkill] = useState('All')
-  const [visibleMode, setVisibleMode] = useState<'visible' | 'stealth'>('visible')
+  const [search, setSearch] = useState('')
+  const filteredFounders = FOUNDERS.filter((f) =>
+    (activeSkill === 'All' || f.skills.includes(activeSkill)) &&
+    `${f.name} ${f.skills.join(' ')} ${f.looking}`.toLowerCase().includes(search.toLowerCase())
+  )
 
   return (
     <div style={{ width: '100%' }}>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
         <div style={{ background: 'linear-gradient(135deg, #e8f0fe 0%, #dbeafe 100%)', border: '1px solid rgba(37,99,235,.18)', borderRadius: '12px', padding: '16px' }}>
           <div style={{ fontSize: '11px', letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--blue)', marginBottom: '8px', fontWeight: 700, fontFamily: 'var(--font-display)' }}>POST YOUR FOUNDER CARD</div>
-          <div style={{ fontWeight: 700, marginBottom: '8px', fontFamily: 'var(--font-display)' }}>Post your founder card</div>
-          <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
-            <button onClick={() => setVisibleMode('visible')} style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid var(--border)', background: visibleMode === 'visible' ? 'var(--blue)' : 'var(--surface)', color: visibleMode === 'visible' ? '#fff' : 'var(--text2)', fontWeight: 700, cursor: 'pointer' }}>Visible</button>
-            <button onClick={() => setVisibleMode('stealth')} style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid var(--border)', background: visibleMode === 'stealth' ? 'var(--text)' : 'var(--surface)', color: visibleMode === 'stealth' ? '#fff' : 'var(--text2)', fontWeight: 700, cursor: 'pointer' }}>Stealth</button>
-          </div>
-          <input placeholder="One-line pitch" style={{ width: '100%', marginBottom: '8px', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)' }} />
-          <input placeholder="Role or skills you need" style={{ width: '100%', marginBottom: '8px', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)' }} />
+          <input placeholder="Your role (Dev, Design, Sales...)" style={{ width: '100%', marginBottom: '8px', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)' }} />
+          <input placeholder="Location" style={{ width: '100%', marginBottom: '8px', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)' }} />
+          <input placeholder="Skill tags (3-5)" style={{ width: '100%', marginBottom: '8px', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)' }} />
+          <textarea placeholder="One-line pitch and what you need" rows={3} style={{ width: '100%', marginBottom: '8px', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)', resize: 'vertical' }} />
           <button style={{ padding: '10px 14px', borderRadius: '8px', border: 'none', background: 'var(--blue)', color: '#fff', fontWeight: 700 }}>Publish profile</button>
         </div>
         <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '12px', padding: '16px', boxShadow: 'var(--shadow-sm)' }}>
           <div style={{ fontWeight: 700, marginBottom: '8px', fontFamily: 'var(--font-display)' }}>Search + filter</div>
-          <input placeholder="Search by role, skill, or location..." style={{ width: '100%', marginBottom: '10px', padding: '9px 10px', borderRadius: '8px', border: '1px solid var(--border)' }} />
+          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search by role, skill, or location..." style={{ width: '100%', marginBottom: '10px', padding: '9px 10px', borderRadius: '8px', border: '1px solid var(--border)' }} />
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px', flexWrap: 'wrap' }}>
         {SKILLS.map((s) => (
           <button key={s} onClick={() => setActiveSkill(s)} style={{
@@ -70,13 +71,13 @@ export default function MarketplacePage() {
         ))}
           </div>
           <div style={{ fontSize: '12px', color: 'var(--text3)' }}>
-            {FOUNDERS.length} founders available
+            {filteredFounders.length} founders available
           </div>
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-        {FOUNDERS.map((f) => (
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '12px', maxHeight: '58vh', overflowY: 'auto', paddingRight: '4px' }}>
+        {filteredFounders.map((f) => (
           <div key={f.id} style={{
             background: 'var(--card)', border: '1px solid var(--border)',
             borderRadius: '14px', padding: '22px',

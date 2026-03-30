@@ -169,8 +169,8 @@ export default function DuelPage() {
             </div>
             {[
               { label: 'Entries so far', value: '342' },
-              { label: 'Avg entry length', value: '11 words' },
-              { label: 'Your ELO at stake', value: '±22 pts' },
+              { label: 'Prize pool', value: 'Top 1/2/3 + Top 10 rewards' },
+              { label: 'Scoring model', value: 'No ELO loss this phase' },
               { label: 'Closes', value: 'Sunday 11:59 PM' },
             ].map((row, i, arr) => (
               <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '11px 18px', borderBottom: i < arr.length - 1 ? '1px solid var(--border)' : 'none' }}>
@@ -184,6 +184,7 @@ export default function DuelPage() {
           <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '14px', overflow: 'hidden', boxShadow: 'var(--shadow-sm)' }}>
             <div style={{ padding: '14px 18px', borderBottom: '1px solid var(--border)' }}>
               <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text)', fontFamily: 'var(--font-display)' }}>🏆 LAST WEEK&apos;S WINNERS</span>
+              <div style={{ fontSize: '11px', color: 'var(--text3)', marginTop: '4px' }}>Prompt: &ldquo;Name a startup that helps remote teams stay focused&rdquo;</div>
             </div>
             {[
               { rank: '🥇', name: 'DesignWolf', entry: '"Taste the Grid" — won with +31 ELO' },
@@ -193,7 +194,7 @@ export default function DuelPage() {
               <div key={i} style={{ padding: '12px 18px', borderBottom: i < arr.length - 1 ? '1px solid var(--border)' : 'none' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
                   <span style={{ fontSize: '14px' }}>{w.rank}</span>
-                    <Link href="/profile" style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text)', fontFamily: 'var(--font-display)', textDecoration: 'none' }}>{w.name}</Link>
+                  <Link href="/profile" style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text)', fontFamily: 'var(--font-display)', textDecoration: 'none' }}>{w.name}</Link>
                 </div>
                 <div style={{ fontSize: '12px', color: 'var(--text3)', fontStyle: 'italic' }}>{w.entry}</div>
               </div>

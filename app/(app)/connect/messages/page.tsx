@@ -102,6 +102,13 @@ export default function MessagesPage() {
         <div style={{ padding: '14px 16px', borderTop: '1px solid var(--border)', display: 'flex', gap: '10px' }}>
           <input
             value={input} onChange={e => setInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && input.trim()) {
+                setMessages((prev) => [...prev, { id: prev.length + 1, self: true, text: input, time: 'now' }])
+                setInput('')
+                setThreads((prev) => prev.map((t) => t.id === activeThread ? { ...t, preview: input, time: 'now' } : t))
+              }
+            }}
             placeholder="Write a message…"
             style={{ flex: 1, padding: '10px 14px', borderRadius: '9px', border: '1px solid var(--border)', background: 'var(--surface)', fontSize: '13px', color: 'var(--text)', outline: 'none', fontFamily: 'var(--font-body)' }}
           />

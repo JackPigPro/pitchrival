@@ -1,9 +1,10 @@
 'use client'
 
 import { useState } from 'react'
+import { useAppState } from '../../../components/AppStateProvider'
 
 export default function SettingsPage() {
-  const [darkMode, setDarkMode] = useState(true)
+  const { theme, setTheme, brightness, setBrightness } = useAppState()
   const [emailNotifications, setEmailNotifications] = useState(true)
   const [productUpdates, setProductUpdates] = useState(true)
 
@@ -11,9 +12,9 @@ export default function SettingsPage() {
     <div style={{ padding: '28px 32px', width: '100%' }}>
       <h1 style={{ fontSize: '30px', fontWeight: 800, fontFamily: 'var(--font-display)', marginBottom: '6px' }}>Settings</h1>
       <p style={{ color: 'var(--text2)', marginBottom: '16px' }}>Global preferences for your account and app behavior.</p>
-      <div style={{ maxWidth: '720px', background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '12px', overflow: 'hidden' }}>
+      <div style={{ maxWidth: '720px', background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '12px', overflow: 'hidden', boxShadow: 'var(--shadow-sm)' }}>
         {[
-          { key: 'Dark mode', value: darkMode, setter: setDarkMode },
+          { key: 'Dark mode', value: theme === 'dark', setter: (next: boolean) => setTheme(next ? 'dark' : 'light') },
           { key: 'Email notifications', value: emailNotifications, setter: setEmailNotifications },
           { key: 'Product updates', value: productUpdates, setter: setProductUpdates },
         ].map((item) => (
@@ -24,6 +25,17 @@ export default function SettingsPage() {
             </button>
           </div>
         ))}
+        <div style={{ padding: '14px 16px' }}>
+          <div style={{ fontWeight: 600, marginBottom: '8px' }}>Brightness</div>
+          <input
+            type="range"
+            min={75}
+            max={120}
+            value={brightness}
+            onChange={(e) => setBrightness(Number(e.target.value))}
+            style={{ width: '100%' }}
+          />
+        </div>
       </div>
     </div>
   )

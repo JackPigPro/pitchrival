@@ -63,55 +63,73 @@ export default function ConnectSection({ onComingSoon }: ConnectSectionProps) {
             <button className="cb-new-btn">+ Post Idea</button>
           </div>
 
-          {/* Idea post card */}
-          <div className="idea-post">
-            <div className="ip-top">
-              <div className="ip-av b">S</div>
-              <div>
-                <div className="ip-name">Sarah K.</div>
+          {activeTab === '💡 Idea Feed' && (
+            <>
+              <div className="idea-post">
+                <div className="ip-top">
+                  <div className="ip-av b">S</div>
+                  <div><div className="ip-name">Sarah K.</div></div>
+                  <div className="ip-elo">Forum · Feedback</div>
+                </div>
+                <div className="ip-badge seeking">🔍 Seeking Feedback</div>
+                <div className="ip-text">
+                  &ldquo;ParkShare — imagine Airbnb for empty driveways. Homeowners rent spots during peak hours.
+                  Testing in Phoenix first. Does this work?&rdquo;
+                </div>
+                <div className="ip-actions">
+                  <button className="ip-action-btn">👍 24</button>
+                  <button className="ip-action-btn primary">💬 Reply</button>
+                  <div className="ip-count">7 replies</div>
+                </div>
               </div>
-              <div className="ip-elo">Innovator · ELO 1,340</div>
-            </div>
-            <div className="ip-badge seeking">🔍 Seeking Feedback</div>
-            <div className="ip-text">
-              &ldquo;ParkShare — imagine Airbnb for empty driveways. Homeowners rent their spots during peak hours.
-              Testing in Phoenix first. Does this work?&rdquo;
-            </div>
-            <div className="ip-actions">
-              <button className="ip-action-btn">👍 24</button>
-              <button className="ip-action-btn primary">💬 Reply</button>
-              <button className="ip-action-btn primary">🤝 Co-found</button>
-              <div className="ip-count">7 replies</div>
-            </div>
-          </div>
-
-          {/* Co-founder match card */}
-          <div className="cf-match-card">
-            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '8px' }}>
-              <div>
-                <div className="cf-match-pct">94%</div>
-                <div className="cf-match-label">Co-founder match</div>
+              <div className="idea-post" style={{ borderLeft: '3px solid var(--blue)' }}>
+                <div className="ip-name">Trending in Forum</div>
+                <div className="ip-text">How should first-time founders validate demand in under 72 hours?</div>
               </div>
-              <div style={{ fontSize: '22px' }}>🤝</div>
-            </div>
-            <div className="cf-match-profile">
-              <div className="cf-match-av">M</div>
-              <div className="cf-match-info">
-                <div className="cf-match-name">Marcus T.</div>
-                <div className="cf-match-meta">Full-stack dev · ELO 1,218 · 3 months building</div>
+            </>
+          )}
+          {activeTab === '🤝 Co-Founders' && (
+            <div className="cf-match-card">
+              <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '8px' }}>
+                <div>
+                  <div className="cf-match-pct">94%</div>
+                  <div className="cf-match-label">Co-founder match</div>
+                </div>
+                <div style={{ fontSize: '22px' }}>🤝</div>
+              </div>
+              <div className="cf-match-profile">
+                <div className="cf-match-av">M</div>
+                <div className="cf-match-info">
+                  <div className="cf-match-name">Marcus T.</div>
+                  <div className="cf-match-meta">Full-stack dev · 3 months building</div>
+                </div>
+              </div>
+              <div className="cf-skills">
+                <div className="cf-skill">React</div>
+                <div className="cf-skill">Python</div>
+                <div className="cf-skill">Fintech</div>
+                <div className="cf-skill">Edtech</div>
+              </div>
+              <div className="cf-actions">
+                <button className="cf-btn accept" style={{ transition: 'none' }}>✓ Connect</button>
+                <button className="cf-btn skip">Skip</button>
               </div>
             </div>
-            <div className="cf-skills">
-              <div className="cf-skill">React</div>
-              <div className="cf-skill">Python</div>
-              <div className="cf-skill">Fintech</div>
-              <div className="cf-skill">Edtech</div>
+          )}
+          {activeTab === '💬 Chat' && (
+            <div className="idea-post" style={{ borderLeft: '3px solid var(--green)' }}>
+              <div className="ip-top">
+                <div className="ip-av g">M</div>
+                <div><div className="ip-name">Marcus T.</div></div>
+                <div className="ip-elo">Online</div>
+              </div>
+              <div className="ip-text">Saw your idea in forum. Want to build together? I can hop on a quick call tonight.</div>
+              <div className="ip-actions">
+                <button className="ip-action-btn primary">Open Chat</button>
+                <button className="ip-action-btn">View Profile</button>
+              </div>
             </div>
-            <div className="cf-actions">
-              <button className="cf-btn accept">✓ Connect</button>
-              <button className="cf-btn skip">Skip</button>
-            </div>
-          </div>
+          )}
         </div>
       </div>
     </div>

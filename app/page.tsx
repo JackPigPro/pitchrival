@@ -52,8 +52,8 @@ export default function Home() {
       <CompeteSection onComingSoon={handleShowComingSoon} />
       <LearnSection onComingSoon={handleShowComingSoon} />
       <Schools onComingSoon={handleShowComingSoon} />
-      <section style={{ padding: '64px 24px', background: 'var(--bg)' }}>
-        <div style={{ maxWidth: '980px', margin: '0 auto', background: 'linear-gradient(135deg, var(--dark2), #1a2e40)', border: '1px solid rgba(255,255,255,.08)', borderRadius: '18px', padding: '34px', color: '#fff' }}>
+      <section style={{ padding: '64px 24px', backgroundImage: 'linear-gradient(rgba(21,128,61,.065) 1px, transparent 1px), linear-gradient(90deg, rgba(21,128,61,.065) 1px, transparent 1px)', backgroundSize: '48px 48px' }}>
+        <div style={{ maxWidth: '980px', margin: '0 auto', background: 'linear-gradient(135deg, var(--dark2), #1a2e40)', border: '1px solid rgba(255,255,255,.08)', borderRadius: '18px', padding: '34px', color: '#fff', position: 'relative', overflow: 'hidden' }}>
           <div style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: 'rgba(34,197,94,.8)', marginBottom: '10px', fontFamily: 'var(--font-display)' }}>
             Final Call To Action
           </div>
@@ -64,8 +64,8 @@ export default function Home() {
             Jump in, ship your first idea, and get real feedback in minutes.
           </p>
           <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-            <Link href="/home" className="nav-signup" style={{ textDecoration: 'none' }}>Sign Up Free</Link>
-            <Link href="/home" className="nav-login" style={{ textDecoration: 'none' }}>Sign In</Link>
+            <Link href="/home" className="nav-signup" style={{ textDecoration: 'none', background: 'linear-gradient(135deg, #16a34a, #22c55e)' }}>Sign Up Free</Link>
+            <Link href="/home" className="nav-login" style={{ textDecoration: 'none', background: 'rgba(255,255,255,.08)', color: '#fff', borderColor: 'rgba(255,255,255,.22)' }}>Sign In</Link>
           </div>
         </div>
       </section>

@@ -7,7 +7,6 @@ interface CompeteSectionProps {
 }
 
 export default function CompeteSection({ onComingSoon }: CompeteSectionProps) {
-  // Countdown timer — starts at 47s and counts down for the demo visual
   const [seconds, setSeconds] = useState(47)
 
   useEffect(() => {
@@ -31,15 +30,15 @@ export default function CompeteSection({ onComingSoon }: CompeteSectionProps) {
       {/* Text side */}
       <div className="feature-text">
         <div className="ft-label g">⚔️ Compete</div>
-        <h2 className="ft-h2">Prove your skills.<br />Every single day.</h2>
+        <h2 className="ft-h2">Build your rank.<br />Every single week.</h2>
         <p className="ft-desc">
-          Get matched with someone at your exact skill level. Same prompt. Same clock.
-          Judges are other users waiting for their own match — completely anonymous, zero bias.
+          Phase 1 starts with weekly founder competitions. One prompt, one submission window,
+          community judging, and leaderboard movement.
         </p>
         <div className="ft-bullets">
           <div className="ft-b">
             <div className="ft-b-dot g"></div>
-            <span>10 game modes — logo design, pitching, naming, copywriting, and more</span>
+            <span>Weekly prompt format for Phase 1 launch</span>
           </div>
           <div className="ft-b">
             <div className="ft-b-dot g"></div>
@@ -47,7 +46,7 @@ export default function CompeteSection({ onComingSoon }: CompeteSectionProps) {
           </div>
           <div className="ft-b">
             <div className="ft-b-dot g"></div>
-            <span>Daily challenges, weekly tournaments, live leaderboards</span>
+            <span>Weekly tournament, rewards, and live leaderboard</span>
           </div>
           <div className="ft-b">
             <div className="ft-b-dot g"></div>
@@ -79,33 +78,19 @@ export default function CompeteSection({ onComingSoon }: CompeteSectionProps) {
             </div>
           </div>
 
-          {/* VS row */}
-          <div className="ma-vs-row">
-            <div className="ma-player-card you">
-              <div className="ma-player-top">
-                <div className="ma-av you">J</div>
-                <div>
-                  <div className="ma-pname">you</div>
-                  <div className="ma-pelo">ELO 1,240</div>
-                </div>
+          <div className="ma-player-card you">
+            <div className="ma-player-top">
+              <div className="ma-av you">J</div>
+              <div>
+                <div className="ma-pname">your weekly submission</div>
+                <div className="ma-pelo">Draft open · closes Sunday</div>
               </div>
-              <div className="ma-canvas">Your design canvas</div>
             </div>
-            <div className="ma-vs-badge">VS</div>
-            <div className="ma-player-card opp">
-              <div className="ma-player-top">
-                <div className="ma-av opp">?</div>
-                <div>
-                  <div className="ma-pname">opponent</div>
-                  <div className="ma-pelo">ELO 1,218</div>
-                </div>
-              </div>
-              <div className="ma-canvas">Opponent working…</div>
-            </div>
+            <div className="ma-canvas">Write and submit your entry</div>
           </div>
 
           {/* Submit button */}
-          <button className="ma-submit">Submit Your Design →</button>
+          <button className="ma-submit">Submit Weekly Entry →</button>
 
           {/* Mini leaderboard */}
           <div className="ma-lb">

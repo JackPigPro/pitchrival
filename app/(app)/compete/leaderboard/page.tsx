@@ -18,7 +18,7 @@ const LEADERBOARDS = {
   daily: [
     { rank: 1, name: 'QuickPitch', elo: 1564 }, { rank: 2, name: 'NeonBrush', elo: 1542 }, { rank: 3, name: 'LogoPilot', elo: 1529 },
     { rank: 4, name: 'FoundrFox', elo: 1498 }, { rank: 5, name: 'DeckNinja', elo: 1477 }, { rank: 6, name: 'SprintWave', elo: 1440 },
-    { rank: 7, name: 'PitchQueen', elo: 1416 }, { rank: 8, name: 'CodeNomad', elo: 1398 }, { rank: 9, name: 'IdeaForge', elo: 1360 }, { rank: 10, name: 'JordanRivera', elo: 1335 },
+    { rank: 7, name: 'PitchQueen', elo: 1416 }, { rank: 8, name: 'CodeNomad', elo: 1398 }, { rank: 9, name: 'IdeaForge', elo: 1360 }, { rank: 10, name: 'Jordan Rivera', elo: 1335 },
   ],
   weekly: [
     { rank: 1, name: 'DesignWolf', elo: 1891 }, { rank: 2, name: 'NeonBrush', elo: 1756 }, { rank: 3, name: 'StartupSage', elo: 1698 },
@@ -72,20 +72,23 @@ export default function LeaderboardPage() {
                     alignItems: 'center', gap: '0',
                     padding: '13px 22px',
                     borderBottom: i < leaders.length - 1 ? '1px solid var(--border)' : 'none',
+                    background: row.name === 'Jordan Rivera' ? 'var(--green-tint)' : 'transparent',
                   }}>
                     <div style={{ fontSize: i < 3 ? '18px' : '13px', fontWeight: 700, color: 'var(--text3)', fontFamily: 'var(--font-display)' }}>
                       {row.rank === 1 ? '🥇' : row.rank === 2 ? '🥈' : row.rank === 3 ? '🥉' : `#${row.rank}`}
                     </div>
-                    <Link href="/profile" style={{ fontSize: '13px', fontWeight: 600, color: tier.color, textDecoration: 'none' }}>{row.name}</Link>
+                    <Link href="/profile" style={{ fontSize: '13px', fontWeight: 600, color: tier.color, textDecoration: 'none' }}>{row.name}{row.name === 'Jordan Rivera' ? ' (You)' : ''}</Link>
                     <div style={{ fontSize: '13px', fontWeight: 800, color: 'var(--text)', fontFamily: 'var(--font-display)' }}>{row.elo.toLocaleString()}</div>
                     <div style={{ fontSize: '11px', fontWeight: 700, color: tier.color, fontFamily: 'var(--font-display)' }}>{tier.label}</div>
                 </div>
               )
             })}
-            <div style={{ padding: '10px 22px', borderTop: '1px solid var(--border)', background: 'var(--green-tint)', display: 'flex', justifyContent: 'space-between' }}>
-              <span style={{ color: 'var(--green)', fontWeight: 700 }}>#{yourStat.rank} YOU</span>
-              <span style={{ color: 'var(--green)', fontWeight: 700 }}>{yourStat.elo.toLocaleString()}</span>
-            </div>
+            {yourStat.rank > 10 && (
+              <div style={{ padding: '10px 22px', borderTop: '1px solid var(--border)', background: 'var(--green-tint)', display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ color: 'var(--green)', fontWeight: 700 }}>#{yourStat.rank} YOU</span>
+                <span style={{ color: 'var(--green)', fontWeight: 700 }}>{yourStat.elo.toLocaleString()}</span>
+              </div>
+            )}
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '14px', overflow: 'hidden', boxShadow: 'var(--shadow-sm)' }}>

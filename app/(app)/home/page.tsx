@@ -1,11 +1,21 @@
 import Link from 'next/link'
 
 export default function HomePage() {
+  const messages = [
+    'Execution beats overthinking.',
+    'Ship small, learn fast, repeat.',
+    'Build what users ask for, not what ego wants.',
+    'Momentum compounds when you show up daily.',
+  ]
+  const motivational = messages[new Date().getDate() % messages.length]
   return (
     <div style={{ padding: '28px 32px', width: '100%' }}>
       <div style={{ marginBottom: '24px' }}>
         <h1 style={{ fontSize: '34px', fontWeight: 800, letterSpacing: '-1px', fontFamily: 'var(--font-display)' }}>Welcome back, Jordan</h1>
-        <p style={{ color: 'var(--text2)' }}>Build loud. Learn fast. Ship this week.</p>
+        <p style={{ color: 'var(--text2)' }}>{motivational}</p>
+        <div style={{ display: 'inline-flex', marginTop: '8px', fontSize: '12px', background: 'var(--green-tint)', color: 'var(--green)', border: '1px solid rgba(22,163,74,.2)', borderRadius: '999px', padding: '4px 10px', fontWeight: 700 }}>
+          🔥 6-day streak
+        </div>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', width: '100%' }}>
@@ -47,7 +57,7 @@ export default function HomePage() {
             </Link>
           </div>
           <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '12px', padding: '18px', boxShadow: 'var(--shadow-sm)' }}>
-            <div style={{ fontWeight: 700, marginBottom: '10px', fontFamily: 'var(--font-display)' }}>COMPETE SNAPSHOT</div>
+            <div style={{ fontWeight: 700, marginBottom: '10px', fontFamily: 'var(--font-display)' }}>COMPETE SNAPSHOT (WEEKLY)</div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '10px' }}>
               <div style={{ border: '1px solid var(--border)', borderRadius: '8px', padding: '10px', background: 'var(--surface)' }}>
                 <div style={{ fontSize: '11px', color: 'var(--text3)' }}>ENTRIES</div>

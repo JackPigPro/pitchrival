@@ -41,14 +41,17 @@ export default function Hero({ onScrollTo }: HeroProps) {
       </div>
 
       {/* Main headline */}
+      <div style={{ marginBottom: '8px', fontSize: '11px', letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--text3)', fontFamily: 'var(--font-display)' }}>
+        Built by founders, for founders
+      </div>
       <h1 className="hero-h1">
         Stop watching,<br /><em>start building.</em>
       </h1>
 
       {/* Subtitle */}
       <p className="hero-sub">
-        Share your idea and get real feedback. Compete 1v1 and build your rank.
-        Learn how to actually start a company — all free, all in one place.
+        Share your idea, get real feedback, and join weekly founder challenges.
+        Learn how to actually start a company in one focused MVP platform.
       </p>
 
       {/* CTA buttons - UPDATED TO USE LINK */}

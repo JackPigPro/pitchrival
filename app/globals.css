@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
 @import "tailwindcss";
 
@@ -37,8 +37,19 @@
   --shadow-sm:    0 1px 3px rgba(0,0,0,.07);
   --shadow:       0 4px 18px rgba(0,0,0,.09);
   --shadow-lg:    0 16px 48px rgba(0,0,0,.13);
-  --font-display: 'Syne', sans-serif;
+  --font-display: 'Sora', sans-serif;
   --font-body:    'Inter', sans-serif;
+}
+body[data-theme='dark'] {
+  --bg: #0b1220;
+  --surface: #111a2d;
+  --card: #101a2c;
+  --card2: #13203a;
+  --border: #23314b;
+  --border2: #314565;
+  --text: #ecf3ff;
+  --text2: #b8c4d9;
+  --text3: #8092b0;
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -152,7 +163,7 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
 .hdc-chip.b { background: var(--blue-tint); color: var(--blue); }
 .hero-h1 {
   position: relative; z-index: 1;
-  font-size: 76px; font-weight: 800; line-height: .93;
+  font-size: 72px; font-weight: 800; line-height: .98;
   letter-spacing: -3.5px; margin-bottom: 22px; color: var(--text);
   font-family: var(--font-display);
 }
@@ -178,6 +189,9 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
   letter-spacing: -.1px;
 }
 .btn-cta-ghost:hover { border-color: var(--text); }
+button:hover, .nav-login:hover, .nav-signup:hover, .ft-cta:hover, .pc-cta:hover, .schools-btn-p:hover, .schools-btn-g:hover, .pricing-cta:hover {
+  filter: brightness(1.08);
+}
 .hero-proof {
   position: relative; z-index: 1;
   display: flex; align-items: center; gap: 20px; justify-content: center;
