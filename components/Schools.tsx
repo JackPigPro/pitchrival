@@ -62,24 +62,8 @@ export default function Schools({ onComingSoon }: SchoolsProps) {
           </div>
         </div>
 
-        {/* Bottom stat bar */}
-        <div className="schools-stats">
-          <div className="ss-stat">
-            <div className="ss-num g">4k+</div>
-            <div className="ss-label">Students on platform</div>
-          </div>
-          <div className="ss-stat">
-            <div className="ss-num b">120+</div>
-            <div className="ss-label">Classrooms active</div>
-          </div>
-          <div className="ss-stat">
-            <div className="ss-num p">18</div>
-            <div className="ss-label">States represented</div>
-          </div>
-          <div className="ss-stat">
-            <div className="ss-num">Free</div>
-            <div className="ss-label">For teachers to start</div>
-          </div>
+        <div style={{ color: 'rgba(255,255,255,.45)', fontSize: '13px' }}>
+          Built for classrooms, clubs, and incubators that want founder-level practice.
         </div>
       </div>
     </section>

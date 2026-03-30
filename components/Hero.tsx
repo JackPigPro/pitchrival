@@ -3,11 +3,10 @@
 import Link from 'next/link' // 1. Added the Link import
 
 interface HeroProps {
-  onComingSoon: () => void
   onScrollTo: (id: string) => void
 }
 
-export default function Hero({ onComingSoon, onScrollTo }: HeroProps) {
+export default function Hero({ onScrollTo }: HeroProps) {
   return (
     <section className="hero" id="top">
       <div className="hero-bg"></div>
@@ -37,7 +36,7 @@ export default function Hero({ onComingSoon, onScrollTo }: HeroProps) {
       <div className="hero-deco-card hdc-4">
         <div className="hdc-badge o">💡 Idea</div>
         <div className="hdc-val o">7 replies</div>
-        <div className="hdc-text">"ParkShare — Airbnb for driveways"</div>
+        <div className="hdc-text">&ldquo;ParkShare — Airbnb for driveways&rdquo;</div>
         <div className="hdc-meta">2 co-founder requests received</div>
       </div>
 
@@ -74,11 +73,9 @@ export default function Hero({ onComingSoon, onScrollTo }: HeroProps) {
       <div className="hero-proof">
         <span><strong>48,200</strong> founders</span>
         <span className="proof-dot"></span>
-        <span><strong>2.4M</strong> matches played</span>
+        <span><strong>2.4M</strong> founder matches</span>
         <span className="proof-dot"></span>
-        <span className="live">
-          <div className="live-dot"></div>&nbsp;342 live right now
-        </span>
+        <span className="live"><strong>2.4M</strong> Founder matches</span>
       </div>
 
       {/* Pillar cards */}

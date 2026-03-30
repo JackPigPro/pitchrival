@@ -2,10 +2,12 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useAppState } from '../../../../components/AppStateProvider'
 
 export default function DuelPage() {
+  const { duelDraft } = useAppState()
   const [submitted, setSubmitted] = useState(false)
-  const [entry, setEntry] = useState('')
+  const [entry, setEntry] = useState(duelDraft)
   const [secondsLeft, setSecondsLeft] = useState(6 * 3600 + 14 * 60) // 6h 14m
 
   useEffect(() => {
@@ -19,7 +21,7 @@ export default function DuelPage() {
   const timeStr = `${h}h ${m.toString().padStart(2, '0')}m ${s.toString().padStart(2, '0')}s`
 
   return (
-    <div style={{ maxWidth: '860px' }}>
+    <div style={{ width: '100%' }}>
 
       {/* Arena banner */}
       <div style={{
@@ -38,7 +40,7 @@ export default function DuelPage() {
                 ⚡ THE WEEKLY DUEL · WEEK 14
               </div>
               <div style={{ fontSize: '13px', color: 'rgba(255,255,255,.38)' }}>
-                342 founders have entered · Closes Sunday at midnight
+                342 entries submitted · Closes Sunday at midnight
               </div>
             </div>
             {/* Countdown */}
@@ -62,7 +64,7 @@ export default function DuelPage() {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: '24px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1.5fr .9fr', gap: '24px' }}>
 
         {/* Submission area */}
         <div>
@@ -191,7 +193,7 @@ export default function DuelPage() {
               <div key={i} style={{ padding: '12px 18px', borderBottom: i < arr.length - 1 ? '1px solid var(--border)' : 'none' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
                   <span style={{ fontSize: '14px' }}>{w.rank}</span>
-                  <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text)', fontFamily: 'var(--font-display)' }}>{w.name}</span>
+                    <Link href="/profile" style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text)', fontFamily: 'var(--font-display)', textDecoration: 'none' }}>{w.name}</Link>
                 </div>
                 <div style={{ fontSize: '12px', color: 'var(--text3)', fontStyle: 'italic' }}>{w.entry}</div>
               </div>

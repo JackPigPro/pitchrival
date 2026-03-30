@@ -3,11 +3,10 @@
 import Link from 'next/link'
 
 interface NavbarProps {
-  onComingSoon: () => void
   onScrollTo: (id: string) => void
 }
 
-export default function Navbar({ onComingSoon, onScrollTo }: NavbarProps) {
+export default function Navbar({ onScrollTo }: NavbarProps) {
   return (
     <nav className="nav">
       <a className="nav-brand" href="#top">
@@ -19,7 +18,6 @@ export default function Navbar({ onComingSoon, onScrollTo }: NavbarProps) {
         <button className="nav-link" onClick={() => onScrollTo('connect')}>Connect</button>
         <button className="nav-link" onClick={() => onScrollTo('compete')}>Compete</button>
         <button className="nav-link" onClick={() => onScrollTo('learn')}>Learn</button>
-        <button className="nav-link" onClick={() => onScrollTo('pricing')}>Pricing</button>
         <button className="nav-link" onClick={() => onScrollTo('schools')}>Schools</button>
       </div>
 

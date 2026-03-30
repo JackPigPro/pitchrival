@@ -1,121 +1,107 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
+import { useAppState } from '../../../../components/AppStateProvider'
 
-const IDEAS = [
+const POSTS = [
   {
-    id: 1, avatar: 'S', avatarColor: 'var(--blue-mid)', avatarText: 'var(--blue)',
-    name: 'Sarah K.', elo: 'Innovator · ELO 1,340',
-    badge: '🔍 Seeking Feedback', badgeStyle: { background: 'var(--blue-tint)', color: 'var(--blue)', border: '1px solid rgba(37,99,235,.2)' },
-    title: 'ParkShare — Airbnb for empty driveways',
-    text: 'Homeowners rent their spots during peak hours. Testing in Phoenix first. Anyone validated a hyperlocal marketplace before?',
-    upvotes: 24, replies: 7, cofounders: 2, time: '2h ago',
+    id: 1,
+    name: 'Sarah K.',
+    topic: 'feedback',
+    title: 'ParkShare onboarding flow',
+    text: 'Need blunt feedback on first-time user onboarding. Where does this break trust?',
+    likes: 24,
+    comments: 7,
   },
   {
-    id: 2, avatar: 'M', avatarColor: 'var(--green-mid)', avatarText: 'var(--green)',
-    name: 'Marcus T.', elo: 'Founder · ELO 1,218',
-    badge: '🤝 Looking for Co-Founder', badgeStyle: { background: 'var(--green-tint)', color: 'var(--green)', border: '1px solid rgba(22,163,74,.2)' },
-    title: 'AI tutoring for community college students',
-    text: 'GPT-powered study assistant that adapts to your community college textbooks. Need a technical co-founder who\'s worked in edtech.',
-    upvotes: 38, replies: 12, cofounders: 5, time: '5h ago',
-  },
-  {
-    id: 3, avatar: 'P', avatarColor: 'var(--purple-mid)', avatarText: 'var(--purple)',
-    name: 'Priya K.', elo: 'Visionary · ELO 1,456',
-    badge: '🔍 Seeking Feedback', badgeStyle: { background: 'var(--blue-tint)', color: 'var(--blue)', border: '1px solid rgba(37,99,235,.2)' },
-    title: 'Campus gig economy — students helping students',
-    text: 'A Fiverr-like platform where college students offer micro-services to each other. Moving, tutoring, errands. Tested at ASU with 80 users.',
-    upvotes: 61, replies: 19, cofounders: 3, time: '1d ago',
+    id: 2,
+    name: 'Priya K.',
+    topic: 'idea',
+    title: 'Campus gig marketplace',
+    text: 'Would you use this as a student? Looking for edge-case concerns.',
+    likes: 15,
+    comments: 4,
   },
 ]
 
 export default function FeedbackPage() {
-  const [filter, setFilter] = useState<'all' | 'feedback' | 'cofounder'>('all')
-
-  const filtered = IDEAS.filter(i => {
-    if (filter === 'feedback') return i.badge.includes('Feedback')
-    if (filter === 'cofounder') return i.badge.includes('Co-Founder')
-    return true
-  })
+  const { forumDraft, setForumDraft } = useAppState()
+  const [topic, setTopic] = useState<'question' | 'idea' | 'feedback'>('question')
+  const [title, setTitle] = useState('')
+  const [body, setBody] = useState(forumDraft)
+  const [openId, setOpenId] = useState<number | null>(null)
+  const [posts, setPosts] = useState(POSTS)
 
   return (
-    <div style={{ maxWidth: '820px' }}>
-      {/* Toolbar */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
-        <div style={{ display: 'flex', gap: '6px' }}>
-          {(['all', 'feedback', 'cofounder'] as const).map((f) => (
-            <button key={f} onClick={() => setFilter(f)} style={{
-              padding: '7px 16px', borderRadius: '7px',
-              border: '1px solid var(--border)',
-              background: filter === f ? 'var(--text)' : 'var(--card)',
-              color: filter === f ? '#fff' : 'var(--text2)',
-              fontSize: '13px', fontWeight: 700, cursor: 'pointer',
-              fontFamily: 'var(--font-display)',
-              transition: 'all .15s',
-            }}>
-              {f === 'all' ? 'All Ideas' : f === 'feedback' ? '🔍 Seeking Feedback' : '🤝 Co-Founder Wanted'}
-            </button>
-          ))}
+    <div style={{ width: '100%' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+        <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '12px', padding: '16px' }}>
+          <div style={{ display: 'flex', gap: '8px', marginBottom: '10px' }}>
+            {(['question', 'idea', 'feedback'] as const).map((t) => (
+              <button key={t} onClick={() => setTopic(t)} style={{ padding: '6px 10px', borderRadius: '6px', border: '1px solid var(--border)', background: topic === t ? 'var(--text)' : 'var(--surface)', color: topic === t ? '#fff' : 'var(--text2)', fontWeight: 700, cursor: 'pointer' }}>{t}</button>
+            ))}
+          </div>
+          <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Topic title" style={{ width: '100%', marginBottom: '8px', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)' }} />
+          <textarea value={body} onChange={(e) => { setBody(e.target.value); setForumDraft(e.target.value) }} placeholder="Write your post details..." rows={5} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)', resize: 'vertical' }} />
+          <button onClick={() => {
+            if (!title.trim() || !body.trim()) return
+            setPosts((prev) => [{ id: Date.now(), name: 'Jordan Rivera', topic, title, text: body, likes: 0, comments: 0 }, ...prev])
+            setTitle('')
+            setBody('')
+            setForumDraft('')
+          }} style={{ marginTop: '10px', padding: '10px 14px', borderRadius: '8px', border: 'none', background: 'var(--blue)', color: '#fff', fontWeight: 700, cursor: 'pointer' }}>
+            Post
+          </button>
         </div>
-        <button style={{
-          padding: '9px 22px', borderRadius: '8px',
-          background: 'linear-gradient(135deg, #16a34a, #22c55e)',
-          border: 'none', color: '#fff',
-          fontSize: '13px', fontWeight: 700, cursor: 'pointer',
-          fontFamily: 'var(--font-display)',
-          boxShadow: '0 2px 10px rgba(21,128,61,.3)',
-        }}>
-          + Post Your Idea
-        </button>
+        <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '12px', padding: '16px' }}>
+          <div style={{ fontWeight: 700, marginBottom: '8px', fontFamily: 'var(--font-display)' }}>Quick jumps</div>
+          <Link href="/connect/messages" style={{ display: 'block', textDecoration: 'none', color: 'var(--text2)', padding: '8px 0' }}>Open messages →</Link>
+          <Link href="/connect/vault" style={{ display: 'block', textDecoration: 'none', color: 'var(--text2)', padding: '8px 0' }}>Open vault draft →</Link>
+          <Link href="/connect/marketplace" style={{ display: 'block', textDecoration: 'none', color: 'var(--text2)', padding: '8px 0' }}>Browse marketplace →</Link>
+        </div>
       </div>
 
-      {/* Idea cards */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-        {filtered.map((idea) => (
-          <div key={idea.id} style={{
+        {posts.map((post) => (
+          <div key={post.id} style={{
             background: 'var(--card)', border: '1px solid var(--border)',
             borderRadius: '14px', padding: '22px',
             boxShadow: 'var(--shadow-sm)',
-            transition: 'box-shadow .2s, transform .2s',
-            cursor: 'pointer',
           }}>
-            {/* Author */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
-              <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: idea.avatarColor, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', fontWeight: 800, color: idea.avatarText, fontFamily: 'var(--font-display)', flexShrink: 0 }}>
-                {idea.avatar}
+              <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--blue-mid)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', fontWeight: 800, color: 'var(--blue)', fontFamily: 'var(--font-display)', flexShrink: 0 }}>
+                {post.name[0]}
               </div>
               <div>
-                <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text)', fontFamily: 'var(--font-display)' }}>{idea.name}</div>
+                <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text)', fontFamily: 'var(--font-display)' }}>{post.name}</div>
               </div>
-              <div style={{ marginLeft: 'auto', fontSize: '11px', color: 'var(--text3)', background: 'var(--surface)', padding: '2px 8px', borderRadius: '4px' }}>{idea.elo}</div>
+              <div style={{ marginLeft: 'auto', fontSize: '10px', textTransform: 'uppercase', color: 'var(--text3)' }}>{post.topic}</div>
             </div>
-
-            {/* Badge */}
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '10px', fontWeight: 700, padding: '3px 9px', borderRadius: '5px', marginBottom: '10px', fontFamily: 'var(--font-display)', ...idea.badgeStyle }}>
-              {idea.badge}
-            </div>
-
-            {/* Content */}
             <div style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text)', fontFamily: 'var(--font-display)', marginBottom: '6px', letterSpacing: '-.2px' }}>
-              {idea.title}
+              {post.title}
             </div>
             <p style={{ fontSize: '13px', color: 'var(--text2)', lineHeight: 1.6, marginBottom: '14px' }}>
-              {idea.text}
+              {openId === post.id ? post.text : `${post.text.slice(0, 110)}...`}
             </p>
-
-            {/* Actions */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <button style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '6px 12px', borderRadius: '6px', border: '1px solid var(--border)', background: 'var(--surface)', cursor: 'pointer', fontSize: '12px', fontWeight: 600, color: 'var(--text2)', fontFamily: 'var(--font-body)' }}>
-                👍 {idea.upvotes}
+                👍 {post.likes}
               </button>
               <button style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '6px 12px', borderRadius: '6px', border: '1px solid rgba(37,99,235,.2)', background: 'var(--blue-tint)', cursor: 'pointer', fontSize: '12px', fontWeight: 600, color: 'var(--blue)', fontFamily: 'var(--font-body)' }}>
-                💬 {idea.replies} replies
+                💬 {post.comments} comments
               </button>
-              <button style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '6px 12px', borderRadius: '6px', border: '1px solid rgba(37,99,235,.2)', background: 'var(--blue-tint)', cursor: 'pointer', fontSize: '12px', fontWeight: 600, color: 'var(--blue)', fontFamily: 'var(--font-body)' }}>
-                🤝 Co-found
+              <button onClick={() => setOpenId(openId === post.id ? null : post.id)} style={{ marginLeft: 'auto', fontSize: '12px', background: 'transparent', border: 'none', color: 'var(--blue)', cursor: 'pointer' }}>
+                {openId === post.id ? 'Back to forum' : 'Open thread'}
               </button>
-              <span style={{ marginLeft: 'auto', fontSize: '11px', color: 'var(--text3)' }}>{idea.time}</span>
             </div>
+            {openId === post.id && (
+              <div style={{ marginTop: '12px', borderTop: '1px solid var(--border)', paddingTop: '12px' }}>
+                <div style={{ fontSize: '12px', color: 'var(--text3)', marginBottom: '8px' }}>Comments</div>
+                <div style={{ fontSize: '13px', color: 'var(--text2)', marginBottom: '10px' }}>Strong idea. Focus your first launch on one neighborhood only.</div>
+                <input placeholder="Write a comment..." style={{ width: '100%', padding: '9px 10px', borderRadius: '8px', border: '1px solid var(--border)' }} />
+              </div>
+            )}
           </div>
         ))}
       </div>

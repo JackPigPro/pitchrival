@@ -18,10 +18,6 @@ export default function Footer({ onComingSoon, onScrollTo }: FooterProps) {
           <div className="sf-brand-desc">
             Share your idea. Build your rank. Find your co-founder. Learn how to do it all — free.
           </div>
-          <div className="sf-live-pill">
-            <div className="sf-live-dot"></div>
-            <span className="sf-live-text">342 founders active right now</span>
-          </div>
           <div className="sf-stats-row">
             <div className="sf-stat">
               <div className="sf-stat-num g">48k+</div>
@@ -42,10 +38,9 @@ export default function Footer({ onComingSoon, onScrollTo }: FooterProps) {
         <div>
           <div className="sf-col-title">Explore</div>
           <div className="sf-col-links">
-            <a href="#connect" onClick={(e) => { e.preventDefault(); onScrollTo('connect') }}>Connect &amp; Ideas</a>
-            <a href="#compete" onClick={(e) => { e.preventDefault(); onScrollTo('compete') }}>Compete &amp; Rankings</a>
-            <a href="#learn" onClick={(e) => { e.preventDefault(); onScrollTo('learn') }}>Learn &amp; Courses</a>
-            <a href="#pricing" onClick={(e) => { e.preventDefault(); onScrollTo('pricing') }}>Pricing</a>
+            <a href="#connect" onClick={(e) => { e.preventDefault(); onScrollTo('connect') }}>Connect</a>
+            <a href="#compete" onClick={(e) => { e.preventDefault(); onScrollTo('compete') }}>Compete</a>
+            <a href="#learn" onClick={(e) => { e.preventDefault(); onScrollTo('learn') }}>Learn</a>
             <a href="#schools" onClick={(e) => { e.preventDefault(); onScrollTo('schools') }}>Schools</a>
           </div>
         </div>
@@ -55,7 +50,6 @@ export default function Footer({ onComingSoon, onScrollTo }: FooterProps) {
           <div className="sf-col-title">Company</div>
           <div className="sf-col-links">
             <a href="#" onClick={(e) => { e.preventDefault(); onComingSoon() }}>About PitchRival</a>
-            <a href="#" onClick={(e) => { e.preventDefault(); onComingSoon() }}>Blog</a>
             <a href="#" onClick={(e) => { e.preventDefault(); onComingSoon() }}>Privacy Policy</a>
             <a href="#" onClick={(e) => { e.preventDefault(); onComingSoon() }}>Terms of Service</a>
             <a href="#" onClick={(e) => { e.preventDefault(); onComingSoon() }}>Contact</a>

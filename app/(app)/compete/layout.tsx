@@ -1,9 +1,7 @@
-import CompeteNav from '../../../components/CompeteNav'
-
 export default function CompeteLayout({ children }: { children: React.ReactNode }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-      <div style={{ padding: '28px 48px 20px', background: 'var(--card)', borderBottom: '1px solid var(--border)' }}>
+      <div style={{ padding: '28px 32px 20px', background: 'var(--card)', borderBottom: '1px solid var(--border)' }}>
         <div style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '3px', textTransform: 'uppercase', color: 'var(--green)', fontFamily: 'var(--font-display)', marginBottom: '4px' }}>
           ⚔️ COMPETE
         </div>
@@ -11,8 +9,7 @@ export default function CompeteLayout({ children }: { children: React.ReactNode 
           Prove your skills. Every single week.
         </h1>
       </div>
-      <CompeteNav />
-      <div style={{ flex: 1, padding: '32px 48px' }}>
+      <div style={{ flex: 1, padding: '24px 32px' }}>
         {children}
       </div>
     </div>

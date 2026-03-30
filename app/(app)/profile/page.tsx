@@ -1,4 +1,7 @@
+'use client'
+
 import Link from 'next/link'
+import { useState } from 'react'
 
 const matchHistory = [
   { mode: '⚔️ Logo Design',  result: 'Win',  vs: 'NeonBrush',   elo: '+18', date: '2h ago' },
@@ -9,8 +12,9 @@ const matchHistory = [
 ]
 
 export default function ProfilePage() {
+  const [messagesPublic, setMessagesPublic] = useState(true)
   return (
-    <div style={{ padding: '40px 48px', maxWidth: '960px', width: '100%' }}>
+    <div style={{ padding: '28px 32px', width: '100%' }}>
 
       {/* Public identity card */}
       <div style={{
@@ -43,6 +47,7 @@ export default function ProfilePage() {
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', background: 'rgba(22,163,74,.15)', border: '1px solid rgba(22,163,74,.3)', borderRadius: '20px', padding: '4px 12px', fontSize: '11px', fontWeight: 700, color: '#22c55e', fontFamily: 'var(--font-display)' }}>
                 🏅 INNOVATOR
               </div>
+              <button style={{ marginLeft: 'auto', border: '1px solid rgba(255,255,255,.2)', background: 'rgba(255,255,255,.08)', color: '#fff', borderRadius: '8px', padding: '8px 12px', cursor: 'pointer' }}>✏️ Edit profile</button>
             </div>
             <p style={{ fontSize: '14px', color: 'rgba(255,255,255,.48)', marginBottom: '16px' }}>
               Building at the intersection of fintech &amp; edtech · Phoenix, AZ
@@ -85,7 +90,7 @@ export default function ProfilePage() {
         ))}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: '24px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: '24px' }}>
 
         {/* Match history */}
         <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '14px', overflow: 'hidden', boxShadow: 'var(--shadow-sm)' }}>
@@ -116,10 +121,7 @@ export default function ProfilePage() {
           ))}
         </div>
 
-        {/* Right: Vault link + settings */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-
-          {/* Vault CTA */}
           <Link href="/connect/vault" style={{
             display: 'flex', alignItems: 'center', gap: '14px',
             padding: '20px',
@@ -138,28 +140,24 @@ export default function ProfilePage() {
             <span style={{ marginLeft: 'auto', color: 'var(--purple)', fontSize: '16px' }}>→</span>
           </Link>
 
-          {/* Settings panel */}
           <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '14px', overflow: 'hidden', boxShadow: 'var(--shadow-sm)' }}>
             <div style={{ padding: '14px 18px', borderBottom: '1px solid var(--border)' }}>
-              <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text)', fontFamily: 'var(--font-display)' }}>⚙️ SETTINGS</span>
+              <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text)', fontFamily: 'var(--font-display)' }}>PUBLIC PROFILE CONTROLS</span>
             </div>
-            {[
-              { label: 'Edit Bio & Skills', icon: '✏️' },
-              { label: 'Notification Preferences', icon: '🔔' },
-              { label: 'Privacy Settings', icon: '🛡️' },
-              { label: 'Log Out', icon: '🚪' },
-            ].map((item, i, arr) => (
-              <div key={item.label} style={{
-                display: 'flex', alignItems: 'center', gap: '12px',
-                padding: '13px 18px',
-                borderBottom: i < arr.length - 1 ? '1px solid var(--border)' : 'none',
-                cursor: 'pointer',
-              }}>
-                <span style={{ fontSize: '15px' }}>{item.icon}</span>
-                <span style={{ fontSize: '13px', color: 'var(--text2)', fontWeight: 500 }}>{item.label}</span>
-                <span style={{ marginLeft: 'auto', fontSize: '12px', color: 'var(--text3)' }}>→</span>
-              </div>
-            ))}
+            <div style={{ padding: '13px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span style={{ fontSize: '13px', color: 'var(--text2)', fontWeight: 500 }}>Allow direct messages</span>
+              <button onClick={() => setMessagesPublic((v) => !v)} style={{ padding: '6px 10px', borderRadius: '8px', border: '1px solid var(--border)', background: messagesPublic ? 'var(--green-tint)' : 'var(--surface)', color: messagesPublic ? 'var(--green)' : 'var(--text3)', cursor: 'pointer' }}>
+                {messagesPublic ? 'Public' : 'Private'}
+              </button>
+            </div>
+            <div style={{ padding: '13px 18px', borderTop: '1px solid var(--border)' }}>
+              <button disabled={!messagesPublic} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: 'none', background: messagesPublic ? 'var(--blue)' : 'var(--surface)', color: messagesPublic ? '#fff' : 'var(--text3)', cursor: messagesPublic ? 'pointer' : 'not-allowed', fontWeight: 700 }}>
+                Message this founder
+              </button>
+            </div>
+            <div style={{ padding: '13px 18px', borderTop: '1px solid var(--border)' }}>
+              <Link href="/settings" style={{ fontSize: '13px', color: 'var(--blue)', textDecoration: 'none' }}>Open full settings →</Link>
+            </div>
           </div>
         </div>
       </div>

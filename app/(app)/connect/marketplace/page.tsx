@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 
 const SKILLS = ['All', 'Engineering', 'Design', 'Marketing', 'Finance', 'Operations']
 
@@ -37,11 +38,24 @@ const FOUNDERS = [
 
 export default function MarketplacePage() {
   const [activeSkill, setActiveSkill] = useState('All')
+  const [visibleMode, setVisibleMode] = useState<'visible' | 'stealth'>('visible')
 
   return (
-    <div style={{ maxWidth: '900px' }}>
-      {/* Filters */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '28px', flexWrap: 'wrap' }}>
+    <div style={{ width: '100%' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+        <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '12px', padding: '16px' }}>
+          <div style={{ fontWeight: 700, marginBottom: '8px', fontFamily: 'var(--font-display)' }}>Post your founder card</div>
+          <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+            <button onClick={() => setVisibleMode('visible')} style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid var(--border)', background: visibleMode === 'visible' ? 'var(--blue)' : 'var(--surface)', color: visibleMode === 'visible' ? '#fff' : 'var(--text2)', fontWeight: 700, cursor: 'pointer' }}>Visible</button>
+            <button onClick={() => setVisibleMode('stealth')} style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid var(--border)', background: visibleMode === 'stealth' ? 'var(--text)' : 'var(--surface)', color: visibleMode === 'stealth' ? '#fff' : 'var(--text2)', fontWeight: 700, cursor: 'pointer' }}>Stealth</button>
+          </div>
+          <input placeholder="One-line pitch" style={{ width: '100%', marginBottom: '8px', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)' }} />
+          <input placeholder="Role or skills you need" style={{ width: '100%', marginBottom: '8px', padding: '10px', borderRadius: '8px', border: '1px solid var(--border)' }} />
+          <button style={{ padding: '10px 14px', borderRadius: '8px', border: 'none', background: 'var(--blue)', color: '#fff', fontWeight: 700 }}>Publish profile</button>
+        </div>
+        <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '12px', padding: '16px' }}>
+          <div style={{ fontWeight: 700, marginBottom: '8px', fontFamily: 'var(--font-display)' }}>Search + filter</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px', flexWrap: 'wrap' }}>
         {SKILLS.map((s) => (
           <button key={s} onClick={() => setActiveSkill(s)} style={{
             padding: '7px 16px', borderRadius: '20px',
@@ -52,12 +66,13 @@ export default function MarketplacePage() {
             fontFamily: 'var(--font-display)', transition: 'all .15s',
           }}>{s}</button>
         ))}
-        <div style={{ marginLeft: 'auto', fontSize: '12px', color: 'var(--text3)' }}>
-          {FOUNDERS.length} founders available
+          </div>
+          <div style={{ fontSize: '12px', color: 'var(--text3)' }}>
+            {FOUNDERS.length} founders available
+          </div>
         </div>
       </div>
 
-      {/* Cards grid */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
         {FOUNDERS.map((f) => (
           <div key={f.id} style={{
@@ -100,11 +115,11 @@ export default function MarketplacePage() {
 
             <div style={{ display: 'flex', gap: '8px' }}>
               <button style={{ flex: 1, padding: '9px', borderRadius: '8px', background: 'linear-gradient(135deg, var(--blue), #3b82f6)', border: 'none', color: '#fff', fontSize: '12px', fontWeight: 700, cursor: 'pointer', fontFamily: 'var(--font-display)' }}>
-                ✓ Connect
+                Quick Message
               </button>
-              <button style={{ flex: 1, padding: '9px', borderRadius: '8px', background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text2)', fontSize: '12px', fontWeight: 700, cursor: 'pointer', fontFamily: 'var(--font-display)' }}>
+              <Link href="/profile" style={{ flex: 1, padding: '9px', borderRadius: '8px', background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text2)', fontSize: '12px', fontWeight: 700, fontFamily: 'var(--font-display)', textDecoration: 'none', textAlign: 'center' }}>
                 View Profile
-              </button>
+              </Link>
             </div>
           </div>
         ))}

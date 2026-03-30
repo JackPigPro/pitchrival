@@ -3,10 +3,10 @@ export default function Testimonials() {
     <section className="testimonials-section" id="testimonials">
       <div className="t-inner">
         <div className="t-header">
-          <div className="t-header-label">Real people. Real results.</div>
-          <div className="t-header-title">48,000 founders<br />can&apos;t be wrong.</div>
+          <div className="t-header-label">Builders are shipping daily.</div>
+          <div className="t-header-title">Proof from the community,<br />plus what&apos;s happening now.</div>
           <div className="t-header-sub">
-            From DECA students to AP Business classrooms to first-time founders building in stealth.
+            Social proof up front: real testimonials and a recent activity mini-feed from inside the platform.
           </div>
         </div>
 
@@ -16,9 +16,8 @@ export default function Testimonials() {
           <div>
             <p className="t-featured-quote">
               &ldquo;I replaced written business reports with PitchRival challenges this semester.
-              Students compete anonymously, get honest peer feedback, and retain the skills because
-              they&apos;re actually using them under pressure. My top student went from a struggling
-              presenter to ranked #12 in her state. I&apos;m never going back.&rdquo;
+              Students compete anonymously, get honest peer feedback, and actually stay engaged.
+              This feels like a real startup lab, not just another worksheet.&rdquo;
             </p>
             <div className="t-featured-author">
               <div className="t-featured-av">R</div>
@@ -34,8 +33,7 @@ export default function Testimonials() {
           </div>
         </div>
 
-        {/* Testimonial grid */}
-        <div className="t-grid">
+        <div className="t-grid" style={{ marginBottom: '20px' }}>
           <div className="testimonial">
             <div className="t-stars">★★★★★</div>
             <p className="t-quote">
@@ -78,6 +76,34 @@ export default function Testimonials() {
                 <div className="t-name">Jordan R., 16</div>
                 <div className="t-meta">DECA member · Innovator rank · 3 tournament wins</div>
               </div>
+            </div>
+          </div>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1.25fr .75fr', gap: '16px' }}>
+          <div className="testimonial">
+            <div style={{ fontSize: '11px', letterSpacing: '2px', textTransform: 'uppercase', color: 'rgba(34,197,94,.75)', fontFamily: 'var(--font-display)', marginBottom: '12px' }}>
+              Recent Activity Mini-Feed
+            </div>
+            {[
+              'Jordan sent a Vault draft to Weekly Duel',
+              'Aisha posted feedback request in the forum',
+              'Marcus opened 2 new co-founder conversations',
+              'Priya won Weekly Duel and moved up 3 ranks',
+            ].map((item) => (
+              <div key={item} style={{ display: 'flex', gap: '8px', padding: '9px 0', borderBottom: '1px solid rgba(255,255,255,.08)', color: 'rgba(255,255,255,.72)', fontSize: '13px' }}>
+                <span style={{ color: '#22c55e' }}>•</span>
+                <span>{item}</span>
+              </div>
+            ))}
+          </div>
+          <div className="testimonial">
+            <div style={{ fontSize: '11px', letterSpacing: '2px', textTransform: 'uppercase', color: 'rgba(96,165,250,.8)', fontFamily: 'var(--font-display)', marginBottom: '10px' }}>
+              Right Now
+            </div>
+            <div style={{ fontSize: '32px', fontWeight: 800, color: '#fff', fontFamily: 'var(--font-display)' }}>2.4M</div>
+            <div style={{ color: 'rgba(255,255,255,.6)', marginBottom: '12px' }}>Founder matches made</div>
+            <div style={{ color: 'rgba(255,255,255,.65)', fontSize: '13px', lineHeight: 1.6 }}>
+              The feedback loop is active before users even scroll into Connect/Compete/Learn.
             </div>
           </div>
         </div>

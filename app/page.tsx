@@ -1,13 +1,13 @@
 'use client'
 
 import { useState, useCallback } from 'react'
+import Link from 'next/link'
 import Navbar from '../components/Navbar'
 import Hero from '../components/Hero'
+import Testimonials from '../components/Testimonials'
 import ConnectSection from '../components/ConnectSection'
 import CompeteSection from '../components/CompeteSection'
 import LearnSection from '../components/LearnSection'
-import Testimonials from '../components/Testimonials'
-import Pricing from '../components/Pricing'
 import Schools from '../components/Schools'
 import Footer from '../components/Footer'
 import ComingSoon from '../components/ComingSoon'
@@ -42,22 +42,33 @@ export default function Home() {
   return (
     <div id="landing">
       <Navbar
-        onComingSoon={handleShowComingSoon}
         onScrollTo={scrollToCenter}
       />
       <Hero
-        onComingSoon={handleShowComingSoon}
         onScrollTo={scrollToCenter}
       />
+      <Testimonials />
       <ConnectSection onComingSoon={handleShowComingSoon} />
       <CompeteSection onComingSoon={handleShowComingSoon} />
       <LearnSection onComingSoon={handleShowComingSoon} />
-      <Testimonials />
-      <Pricing
-        onComingSoon={handleShowComingSoon}
-        onScrollTo={scrollToCenter}
-      />
       <Schools onComingSoon={handleShowComingSoon} />
+      <section style={{ padding: '64px 24px', background: 'var(--bg)' }}>
+        <div style={{ maxWidth: '980px', margin: '0 auto', background: 'linear-gradient(135deg, var(--dark2), #1a2e40)', border: '1px solid rgba(255,255,255,.08)', borderRadius: '18px', padding: '34px', color: '#fff' }}>
+          <div style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: 'rgba(34,197,94,.8)', marginBottom: '10px', fontFamily: 'var(--font-display)' }}>
+            Final Call To Action
+          </div>
+          <h3 style={{ fontSize: '34px', fontWeight: 800, letterSpacing: '-1px', margin: '0 0 10px', fontFamily: 'var(--font-display)' }}>
+            Ready to find your founder match?
+          </h3>
+          <p style={{ color: 'rgba(255,255,255,.65)', marginBottom: '18px' }}>
+            Jump in, ship your first idea, and get real feedback in minutes.
+          </p>
+          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+            <Link href="/home" className="nav-signup" style={{ textDecoration: 'none' }}>Sign Up Free</Link>
+            <Link href="/home" className="nav-login" style={{ textDecoration: 'none' }}>Sign In</Link>
+          </div>
+        </div>
+      </section>
       <Footer
         onComingSoon={handleShowComingSoon}
         onScrollTo={scrollToCenter}

@@ -1,6 +1,9 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { useAppState } from '../../../../components/AppStateProvider'
 
 const PRIVATE_IDEAS = [
   { id: 1, title: 'ParkShare v2 — B2B pivot', note: 'Targeting commercial property managers instead of homeowners. Much better margins.', updated: '1h ago', draftForDuel: false },
@@ -13,10 +16,13 @@ const DUEL_DRAFTS = [
 ]
 
 export default function VaultPage() {
+  const router = useRouter()
+  const { setDuelDraft, setForumDraft } = useAppState()
   const [tab, setTab] = useState<'ideas' | 'drafts'>('ideas')
+  const [editorText, setEditorText] = useState('My next startup note...')
 
   return (
-    <div style={{ maxWidth: '820px' }}>
+    <div style={{ width: '100%' }}>
       {/* Tab switcher */}
       <div style={{ display: 'flex', gap: '0', marginBottom: '28px', background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '10px', overflow: 'hidden', width: 'fit-content', boxShadow: 'var(--shadow-sm)' }}>
         {(['ideas', 'drafts'] as const).map((t) => (
@@ -35,18 +41,35 @@ export default function VaultPage() {
       </div>
 
       {tab === 'ideas' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-          {/* New idea button */}
-          <button style={{
-            display: 'flex', alignItems: 'center', gap: '10px',
-            padding: '16px 20px', borderRadius: '12px',
-            border: '2px dashed var(--border)', background: 'transparent',
-            cursor: 'pointer', color: 'var(--text3)',
-            fontSize: '13px', fontWeight: 700, fontFamily: 'var(--font-display)',
-            transition: 'all .15s',
-          }}>
-            + Add Private Idea
-          </button>
+        <div style={{ display: 'grid', gridTemplateColumns: '1.1fr .9fr', gap: '14px' }}>
+          <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '12px', overflow: 'hidden' }}>
+            <div style={{ display: 'flex', gap: '8px', padding: '10px', borderBottom: '1px solid var(--border)', background: 'var(--surface)' }}>
+              <button style={{ padding: '6px 10px', borderRadius: '6px', border: '1px solid var(--border)', background: '#fff', fontWeight: 700 }}>B</button>
+              <button style={{ padding: '6px 10px', borderRadius: '6px', border: '1px solid var(--border)', background: '#fff', fontStyle: 'italic' }}>I</button>
+              <button style={{ padding: '6px 10px', borderRadius: '6px', border: '1px solid var(--border)', background: '#fff' }}>• List</button>
+            </div>
+            <textarea value={editorText} onChange={(e) => setEditorText(e.target.value)} rows={14} style={{ width: '100%', border: 'none', outline: 'none', padding: '14px', background: '#fff', fontSize: '14px', lineHeight: 1.6 }} />
+            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 12px', borderTop: '1px solid var(--border)' }}>
+              <button onClick={() => { setDuelDraft(editorText); router.push('/compete/duel') }} style={{ padding: '9px 12px', borderRadius: '8px', border: 'none', background: 'var(--green)', color: '#fff', fontWeight: 700, cursor: 'pointer' }}>
+                Send to Duel
+              </button>
+              <button onClick={() => { setForumDraft(editorText); router.push('/connect/feedback') }} style={{ padding: '9px 12px', borderRadius: '8px', border: '1px solid var(--border)', background: 'var(--surface)', fontWeight: 700, cursor: 'pointer' }}>
+                Send to Feedback
+              </button>
+            </div>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '12px', padding: '14px' }}>
+              <div style={{ fontWeight: 700, marginBottom: '8px', fontFamily: 'var(--font-display)' }}>Folders</div>
+              {['Duel Drafts', 'Random Thoughts', 'Crazy Ideas'].map((folder) => (
+                <div key={folder} style={{ padding: '8px 0', borderBottom: '1px solid var(--border)', color: 'var(--text2)' }}>{folder}</div>
+              ))}
+            </div>
+            <div style={{ background: 'var(--purple-tint)', border: '1px solid rgba(124,58,237,.2)', borderRadius: '12px', padding: '14px' }}>
+              <div style={{ fontSize: '12px', color: 'var(--purple)', fontWeight: 700, marginBottom: '6px' }}>Private by default</div>
+              <div style={{ fontSize: '13px', color: 'var(--text2)' }}>Vault stays private unless you choose to publish to duel or feedback.</div>
+            </div>
+          </div>
 
           {PRIVATE_IDEAS.map((idea) => (
             <div key={idea.id} style={{
@@ -60,7 +83,7 @@ export default function VaultPage() {
                 <div style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text)', fontFamily: 'var(--font-display)' }}>{idea.title}</div>
                 <div style={{ display: 'flex', gap: '6px' }}>
                   <button style={{ fontSize: '11px', padding: '4px 10px', borderRadius: '5px', background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text3)', cursor: 'pointer', fontFamily: 'var(--font-display)', fontWeight: 600 }}>Edit</button>
-                  <button style={{ fontSize: '11px', padding: '4px 10px', borderRadius: '5px', background: 'var(--green-tint)', border: '1px solid rgba(22,163,74,.2)', color: 'var(--green)', cursor: 'pointer', fontFamily: 'var(--font-display)', fontWeight: 600 }}>Publish</button>
+                  <button onClick={() => { setForumDraft(idea.note); router.push('/connect/feedback') }} style={{ fontSize: '11px', padding: '4px 10px', borderRadius: '5px', background: 'var(--green-tint)', border: '1px solid rgba(22,163,74,.2)', color: 'var(--green)', cursor: 'pointer', fontFamily: 'var(--font-display)', fontWeight: 600 }}>Publish</button>
                 </div>
               </div>
               <p style={{ fontSize: '13px', color: 'var(--text2)', lineHeight: 1.6, marginBottom: '10px' }}>{idea.note}</p>
@@ -93,22 +116,23 @@ export default function VaultPage() {
                 <button style={{ flex: 1, padding: '10px', borderRadius: '8px', background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text2)', fontSize: '13px', fontWeight: 700, cursor: 'pointer', fontFamily: 'var(--font-display)' }}>
                   ✏️ Keep Editing
                 </button>
-                <button style={{ flex: 1, padding: '10px', borderRadius: '8px', background: 'linear-gradient(135deg, #16a34a, #22c55e)', border: 'none', color: '#fff', fontSize: '13px', fontWeight: 700, cursor: 'pointer', fontFamily: 'var(--font-display)' }}>
+                <button onClick={() => { setDuelDraft(draft.draft); router.push('/compete/duel') }} style={{ flex: 1, padding: '10px', borderRadius: '8px', background: 'linear-gradient(135deg, #16a34a, #22c55e)', border: 'none', color: '#fff', fontSize: '13px', fontWeight: 700, cursor: 'pointer', fontFamily: 'var(--font-display)' }}>
                   ⚔️ Submit to Duel
                 </button>
               </div>
             </div>
           ))}
 
-          <button style={{
+          <Link href="/compete/duel" style={{
             display: 'flex', alignItems: 'center', gap: '10px',
             padding: '16px 20px', borderRadius: '12px',
             border: '2px dashed var(--border)', background: 'transparent',
-            cursor: 'pointer', color: 'var(--text3)',
+            color: 'var(--text3)',
             fontSize: '13px', fontWeight: 700, fontFamily: 'var(--font-display)',
+            textDecoration: 'none',
           }}>
             + Start a New Draft
-          </button>
+          </Link>
         </div>
       )}
     </div>

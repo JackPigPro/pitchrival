@@ -10,11 +10,6 @@ const NAV = [
     label: 'Home',
   },
   {
-    href: '/profile',
-    icon: '👤',
-    label: 'Profile',
-  },
-  {
     href: '/connect',
     icon: '🤝',
     label: 'Connect',
@@ -133,37 +128,56 @@ export default function Sidebar() {
 
       {/* User footer */}
       <div style={{ padding: '12px 10px 16px', borderTop: '1px solid rgba(255,255,255,.07)' }}>
-        <div style={{
-          display: 'flex', alignItems: 'center', gap: '6px',
-          padding: '7px 10px', borderRadius: '8px',
-          background: 'rgba(22,163,74,.09)',
-          border: '1px solid rgba(22,163,74,.18)',
-          marginBottom: '10px',
-        }}>
-          <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#22c55e', boxShadow: '0 0 6px rgba(34,197,94,.6)', animation: 'lpulse 1.5s infinite', flexShrink: 0 }}></div>
-          <span style={{ fontSize: '12px', fontWeight: 700, color: '#22c55e', fontFamily: 'var(--font-display)' }}>
-            ELO 1,240 · Innovator
-          </span>
+        <div style={{ display: 'flex', gap: '8px', marginBottom: '10px' }}>
+          <Link href="/profile" style={{
+            flex: 1,
+            display: 'flex', alignItems: 'center', gap: '10px',
+            padding: '8px 10px', borderRadius: '8px',
+            textDecoration: 'none', transition: 'background .15s',
+          }}>
+            <div style={{
+              width: '34px', height: '34px', borderRadius: '50%',
+              background: 'linear-gradient(135deg, #16a34a, #22c55e)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: '14px', fontWeight: 800, color: '#fff',
+              fontFamily: 'var(--font-display)', flexShrink: 0,
+            }}>J</div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: '13px', fontWeight: 700, color: '#fff', fontFamily: 'var(--font-display)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                Jordan Rivera
+              </div>
+              <div style={{ fontSize: '11px', color: 'rgba(255,255,255,.3)', marginTop: '1px' }}>Profile</div>
+            </div>
+          </Link>
+          <Link href="/settings" style={{
+            width: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            borderRadius: '8px', textDecoration: 'none',
+            color: 'rgba(255,255,255,.75)', border: '1px solid rgba(255,255,255,.14)',
+          }}>
+            ⚙️
+          </Link>
         </div>
-
-        <Link href="/profile" style={{
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 6px' }}>
+          <button style={{ border: '1px solid rgba(255,255,255,.14)', width: '44px', height: '36px', borderRadius: '8px', background: 'transparent', color: 'rgba(255,255,255,.72)', cursor: 'pointer' }}>
+            🌙
+          </button>
+          <Link href="/" style={{
+            width: '44px', height: '36px',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            borderRadius: '8px', textDecoration: 'none',
+            color: 'rgba(255,255,255,.75)', border: '1px solid rgba(255,255,255,.14)',
+          }}>
+            🚪
+          </Link>
+        </div>
+        <Link href="/connect/messages" style={{
           display: 'flex', alignItems: 'center', gap: '10px',
           padding: '8px 10px', borderRadius: '8px',
           textDecoration: 'none', transition: 'background .15s',
+          marginTop: '10px',
         }}>
-          <div style={{
-            width: '34px', height: '34px', borderRadius: '50%',
-            background: 'linear-gradient(135deg, #16a34a, #22c55e)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: '14px', fontWeight: 800, color: '#fff',
-            fontFamily: 'var(--font-display)', flexShrink: 0,
-          }}>J</div>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: '13px', fontWeight: 700, color: '#fff', fontFamily: 'var(--font-display)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              Jordan Rivera
-            </div>
-            <div style={{ fontSize: '11px', color: 'rgba(255,255,255,.3)', marginTop: '1px' }}>View profile →</div>
-          </div>
+          <div style={{ width: '34px', height: '34px', borderRadius: '8px', background: 'rgba(37,99,235,.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>💬</div>
+          <div style={{ fontSize: '12px', color: 'rgba(255,255,255,.75)', fontFamily: 'var(--font-display)', fontWeight: 700 }}>Messages</div>
         </Link>
       </div>
     </aside>
