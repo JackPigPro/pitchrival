@@ -157,10 +157,19 @@ export default function Sidebar() {
             ⚙️
           </Link>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 6px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 6px', marginTop: '2px' }}>
           <button style={{ border: '1px solid rgba(255,255,255,.14)', width: '44px', height: '36px', borderRadius: '8px', background: 'transparent', color: 'rgba(255,255,255,.72)', cursor: 'pointer' }}>
             🌙
           </button>
+          <Link href="/connect/messages" style={{
+            width: '44px', height: '36px',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            borderRadius: '8px', textDecoration: 'none',
+            color: 'rgba(255,255,255,.75)', border: '1px solid rgba(255,255,255,.14)',
+            background: 'rgba(37,99,235,.16)',
+          }}>
+            💬
+          </Link>
           <Link href="/" style={{
             width: '44px', height: '36px',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -170,15 +179,6 @@ export default function Sidebar() {
             🚪
           </Link>
         </div>
-        <Link href="/connect/messages" style={{
-          display: 'flex', alignItems: 'center', gap: '10px',
-          padding: '8px 10px', borderRadius: '8px',
-          textDecoration: 'none', transition: 'background .15s',
-          marginTop: '10px',
-        }}>
-          <div style={{ width: '34px', height: '34px', borderRadius: '8px', background: 'rgba(37,99,235,.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>💬</div>
-          <div style={{ fontSize: '12px', color: 'rgba(255,255,255,.75)', fontFamily: 'var(--font-display)', fontWeight: 700 }}>Messages</div>
-        </Link>
       </div>
     </aside>
   )

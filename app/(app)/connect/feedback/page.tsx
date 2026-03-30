@@ -36,7 +36,8 @@ export default function FeedbackPage() {
   return (
     <div style={{ width: '100%' }}>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
-        <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '12px', padding: '16px' }}>
+        <div style={{ background: 'linear-gradient(135deg, #e8f0fe 0%, #dbeafe 100%)', border: '1px solid rgba(37,99,235,.18)', borderRadius: '12px', padding: '16px' }}>
+          <div style={{ fontSize: '11px', letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--blue)', marginBottom: '8px', fontWeight: 700, fontFamily: 'var(--font-display)' }}>HIGH-SPEED FORUM</div>
           <div style={{ display: 'flex', gap: '8px', marginBottom: '10px' }}>
             {(['question', 'idea', 'feedback'] as const).map((t) => (
               <button key={t} onClick={() => setTopic(t)} style={{ padding: '6px 10px', borderRadius: '6px', border: '1px solid var(--border)', background: topic === t ? 'var(--text)' : 'var(--surface)', color: topic === t ? '#fff' : 'var(--text2)', fontWeight: 700, cursor: 'pointer' }}>{t}</button>
@@ -54,11 +55,22 @@ export default function FeedbackPage() {
             Post
           </button>
         </div>
-        <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '12px', padding: '16px' }}>
-          <div style={{ fontWeight: 700, marginBottom: '8px', fontFamily: 'var(--font-display)' }}>Quick jumps</div>
-          <Link href="/connect/messages" style={{ display: 'block', textDecoration: 'none', color: 'var(--text2)', padding: '8px 0' }}>Open messages →</Link>
-          <Link href="/connect/vault" style={{ display: 'block', textDecoration: 'none', color: 'var(--text2)', padding: '8px 0' }}>Open vault draft →</Link>
-          <Link href="/connect/marketplace" style={{ display: 'block', textDecoration: 'none', color: 'var(--text2)', padding: '8px 0' }}>Browse marketplace →</Link>
+        <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '12px', padding: '16px', boxShadow: 'var(--shadow-sm)' }}>
+          <div style={{ fontWeight: 700, marginBottom: '8px', fontFamily: 'var(--font-display)' }}>LIVE BOARD SNAPSHOT</div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+            <div style={{ border: '1px solid var(--border)', background: 'var(--surface)', borderRadius: '8px', padding: '10px' }}>
+              <div style={{ fontSize: '10px', color: 'var(--text3)' }}>NEW TODAY</div>
+              <div style={{ fontSize: '20px', fontWeight: 800, fontFamily: 'var(--font-display)', color: 'var(--blue)' }}>18</div>
+            </div>
+            <div style={{ border: '1px solid var(--border)', background: 'var(--surface)', borderRadius: '8px', padding: '10px' }}>
+              <div style={{ fontSize: '10px', color: 'var(--text3)' }}>AVG RESPONSE</div>
+              <div style={{ fontSize: '20px', fontWeight: 800, fontFamily: 'var(--font-display)', color: 'var(--blue)' }}>9m</div>
+            </div>
+          </div>
+          <div style={{ marginTop: '10px', display: 'flex', gap: '8px' }}>
+            <Link href="/connect/messages" style={{ flex: 1, textAlign: 'center', textDecoration: 'none', color: 'var(--text2)', padding: '8px', border: '1px solid var(--border)', borderRadius: '8px' }}>Messages</Link>
+            <Link href="/connect/vault" style={{ flex: 1, textAlign: 'center', textDecoration: 'none', color: 'var(--text2)', padding: '8px', border: '1px solid var(--border)', borderRadius: '8px' }}>Vault</Link>
+          </div>
         </div>
       </div>
 

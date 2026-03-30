@@ -41,55 +41,53 @@ export default function VaultPage() {
       </div>
 
       {tab === 'ideas' && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1.1fr .9fr', gap: '14px' }}>
-          <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '12px', overflow: 'hidden' }}>
-            <div style={{ display: 'flex', gap: '8px', padding: '10px', borderBottom: '1px solid var(--border)', background: 'var(--surface)' }}>
-              <button style={{ padding: '6px 10px', borderRadius: '6px', border: '1px solid var(--border)', background: '#fff', fontWeight: 700 }}>B</button>
-              <button style={{ padding: '6px 10px', borderRadius: '6px', border: '1px solid var(--border)', background: '#fff', fontStyle: 'italic' }}>I</button>
-              <button style={{ padding: '6px 10px', borderRadius: '6px', border: '1px solid var(--border)', background: '#fff' }}>• List</button>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1.1fr .9fr', gap: '14px' }}>
+            <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '12px', overflow: 'hidden', boxShadow: 'var(--shadow-sm)' }}>
+              <div style={{ display: 'flex', gap: '8px', padding: '10px', borderBottom: '1px solid var(--border)', background: 'var(--surface)' }}>
+                <button style={{ padding: '6px 10px', borderRadius: '6px', border: '1px solid var(--border)', background: '#fff', fontWeight: 700 }}>B</button>
+                <button style={{ padding: '6px 10px', borderRadius: '6px', border: '1px solid var(--border)', background: '#fff', fontStyle: 'italic' }}>I</button>
+                <button style={{ padding: '6px 10px', borderRadius: '6px', border: '1px solid var(--border)', background: '#fff' }}>• List</button>
+              </div>
+              <textarea value={editorText} onChange={(e) => setEditorText(e.target.value)} rows={14} style={{ width: '100%', border: 'none', outline: 'none', padding: '14px', background: '#fff', fontSize: '14px', lineHeight: 1.6 }} />
+              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 12px', borderTop: '1px solid var(--border)' }}>
+                <button onClick={() => { setDuelDraft(editorText); router.push('/compete/duel') }} style={{ padding: '9px 12px', borderRadius: '8px', border: 'none', background: 'var(--green)', color: '#fff', fontWeight: 700, cursor: 'pointer' }}>
+                  Send to Duel
+                </button>
+                <button onClick={() => { setForumDraft(editorText); router.push('/connect/feedback') }} style={{ padding: '9px 12px', borderRadius: '8px', border: '1px solid var(--border)', background: 'var(--surface)', fontWeight: 700, cursor: 'pointer' }}>
+                  Send to Feedback
+                </button>
+              </div>
             </div>
-            <textarea value={editorText} onChange={(e) => setEditorText(e.target.value)} rows={14} style={{ width: '100%', border: 'none', outline: 'none', padding: '14px', background: '#fff', fontSize: '14px', lineHeight: 1.6 }} />
-            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 12px', borderTop: '1px solid var(--border)' }}>
-              <button onClick={() => { setDuelDraft(editorText); router.push('/compete/duel') }} style={{ padding: '9px 12px', borderRadius: '8px', border: 'none', background: 'var(--green)', color: '#fff', fontWeight: 700, cursor: 'pointer' }}>
-                Send to Duel
-              </button>
-              <button onClick={() => { setForumDraft(editorText); router.push('/connect/feedback') }} style={{ padding: '9px 12px', borderRadius: '8px', border: '1px solid var(--border)', background: 'var(--surface)', fontWeight: 700, cursor: 'pointer' }}>
-                Send to Feedback
-              </button>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '12px', padding: '14px' }}>
+                <div style={{ fontWeight: 700, marginBottom: '8px', fontFamily: 'var(--font-display)' }}>Folders</div>
+                {['Duel Drafts', 'Random Thoughts', 'Crazy Ideas'].map((folder) => (
+                  <div key={folder} style={{ padding: '8px 0', borderBottom: '1px solid var(--border)', color: 'var(--text2)' }}>{folder}</div>
+                ))}
+              </div>
+              <div style={{ background: 'var(--purple-tint)', border: '1px solid rgba(124,58,237,.2)', borderRadius: '12px', padding: '14px' }}>
+                <div style={{ fontSize: '12px', color: 'var(--purple)', fontWeight: 700, marginBottom: '6px' }}>Private by default</div>
+                <div style={{ fontSize: '13px', color: 'var(--text2)' }}>Vault stays private unless you choose to publish to duel or feedback.</div>
+              </div>
             </div>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '12px', padding: '14px' }}>
-              <div style={{ fontWeight: 700, marginBottom: '8px', fontFamily: 'var(--font-display)' }}>Folders</div>
-              {['Duel Drafts', 'Random Thoughts', 'Crazy Ideas'].map((folder) => (
-                <div key={folder} style={{ padding: '8px 0', borderBottom: '1px solid var(--border)', color: 'var(--text2)' }}>{folder}</div>
-              ))}
-            </div>
-            <div style={{ background: 'var(--purple-tint)', border: '1px solid rgba(124,58,237,.2)', borderRadius: '12px', padding: '14px' }}>
-              <div style={{ fontSize: '12px', color: 'var(--purple)', fontWeight: 700, marginBottom: '6px' }}>Private by default</div>
-              <div style={{ fontSize: '13px', color: 'var(--text2)' }}>Vault stays private unless you choose to publish to duel or feedback.</div>
-            </div>
-          </div>
-
-          {PRIVATE_IDEAS.map((idea) => (
-            <div key={idea.id} style={{
-              background: 'var(--card)', border: '1px solid var(--border)',
-              borderRadius: '12px', padding: '20px',
-              boxShadow: 'var(--shadow-sm)',
-              borderLeft: '3px solid var(--purple)',
-              position: 'relative',
-            }}>
-              <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '8px' }}>
-                <div style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text)', fontFamily: 'var(--font-display)' }}>{idea.title}</div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
+            {PRIVATE_IDEAS.map((idea) => (
+              <div key={idea.id} style={{
+                background: 'var(--card)', border: '1px solid var(--border)',
+                borderRadius: '12px', padding: '16px',
+                boxShadow: 'var(--shadow-sm)', borderLeft: '3px solid var(--purple)',
+              }}>
+                <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text)', fontFamily: 'var(--font-display)', marginBottom: '6px' }}>{idea.title}</div>
+                <p style={{ fontSize: '12px', color: 'var(--text2)', lineHeight: 1.6, marginBottom: '10px' }}>{idea.note}</p>
                 <div style={{ display: 'flex', gap: '6px' }}>
                   <button style={{ fontSize: '11px', padding: '4px 10px', borderRadius: '5px', background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text3)', cursor: 'pointer', fontFamily: 'var(--font-display)', fontWeight: 600 }}>Edit</button>
                   <button onClick={() => { setForumDraft(idea.note); router.push('/connect/feedback') }} style={{ fontSize: '11px', padding: '4px 10px', borderRadius: '5px', background: 'var(--green-tint)', border: '1px solid rgba(22,163,74,.2)', color: 'var(--green)', cursor: 'pointer', fontFamily: 'var(--font-display)', fontWeight: 600 }}>Publish</button>
                 </div>
               </div>
-              <p style={{ fontSize: '13px', color: 'var(--text2)', lineHeight: 1.6, marginBottom: '10px' }}>{idea.note}</p>
-              <div style={{ fontSize: '11px', color: 'var(--text3)' }}>🔒 Private · Updated {idea.updated}</div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       )}
 

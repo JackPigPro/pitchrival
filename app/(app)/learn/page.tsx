@@ -1,4 +1,7 @@
+'use client'
+
 import Link from 'next/link'
+import { useState } from 'react'
 
 const COURSES = [
   { icon: '📢', title: 'How to Market With No Money',         lessons: 9,  status: 'in-progress', progress: 35 },
@@ -10,6 +13,7 @@ const COURSES = [
 ]
 
 export default function LearnPage() {
+  const [notified, setNotified] = useState(false)
   return (
     <div style={{ position: 'relative', minHeight: 'calc(100vh - 180px)', width: '100%' }}>
       <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', backgroundImage: 'linear-gradient(rgba(124,58,237,.06) 1px, transparent 1px), linear-gradient(90deg, rgba(124,58,237,.06) 1px, transparent 1px)', backgroundSize: '42px 42px' }} />
@@ -71,8 +75,8 @@ export default function LearnPage() {
             <p style={{ fontSize: '15px', color: 'rgba(255,255,255,.48)', lineHeight: 1.65, marginBottom: '18px' }}>
               We&apos;re building structured courses with real exercises — not videos you forget. Built for first-time founders who want to actually do the thing.
             </p>
-            <button style={{ padding: '10px 16px', borderRadius: '8px', border: 'none', background: '#a78bfa', color: '#0f172a', fontWeight: 700, marginBottom: '18px', cursor: 'pointer' }}>
-              Notify me when this drops
+            <button onClick={() => setNotified(true)} style={{ padding: '10px 16px', borderRadius: '8px', border: 'none', background: notified ? '#22c55e' : '#a78bfa', color: notified ? '#fff' : '#0f172a', fontWeight: 700, marginBottom: '18px', cursor: 'pointer' }}>
+              {notified ? '✓ Will notify you' : 'Notify me when this drops'}
             </button>
 
             <Link href="/home" style={{
