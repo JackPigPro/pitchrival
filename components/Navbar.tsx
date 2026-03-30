@@ -1,5 +1,7 @@
 'use client'
 
+import Link from 'next/link'
+
 interface NavbarProps {
   onComingSoon: () => void
   onScrollTo: (id: string) => void
@@ -22,8 +24,21 @@ export default function Navbar({ onComingSoon, onScrollTo }: NavbarProps) {
       </div>
 
       <div className="nav-right">
-        <button className="nav-login" onClick={onComingSoon}>Log In</button>
-        <button className="nav-signup" onClick={onComingSoon}>Sign Up</button>
+        <Link 
+          href="/home" 
+          className="nav-login" 
+          style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}
+        >
+          Log In
+        </Link>
+
+        <Link 
+          href="/home" 
+          className="nav-signup" 
+          style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}
+        >
+          Sign Up
+        </Link>
       </div>
     </nav>
   )

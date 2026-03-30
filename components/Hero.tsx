@@ -1,5 +1,7 @@
 'use client'
 
+import Link from 'next/link' // 1. Added the Link import
+
 interface HeroProps {
   onComingSoon: () => void
   onScrollTo: (id: string) => void
@@ -50,10 +52,22 @@ export default function Hero({ onComingSoon, onScrollTo }: HeroProps) {
         Learn how to actually start a company — all free, all in one place.
       </p>
 
-      {/* CTA buttons */}
+      {/* CTA buttons - UPDATED TO USE LINK */}
       <div className="hero-actions">
-        <button className="btn-cta-primary" onClick={onComingSoon}>⚡ Get Started Free</button>
-        <button className="btn-cta-ghost" onClick={onComingSoon}>Sign In →</button>
+        <Link 
+          href="/home" 
+          className="btn-cta-primary" 
+          style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
+        >
+          ⚡ Get Started Free
+        </Link>
+        <Link 
+          href="/home" 
+          className="btn-cta-ghost" 
+          style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
+        >
+          Sign In →
+        </Link>
       </div>
 
       {/* Social proof */}
@@ -125,7 +139,7 @@ export default function Hero({ onComingSoon, onScrollTo }: HeroProps) {
                   <div className="pc-cf-bio">Full-stack dev looking to build in fintech or edtech.</div>
                   <div className="pc-cf-skills">
                     <div className="pc-cf-skill">React</div>
-                    <div className="pc-cf-skill">Python</div>
+                    <div className="pc-cf-skill) skill">Python</div>
                     <div className="pc-cf-skill">Fintech</div>
                   </div>
                 </div>
