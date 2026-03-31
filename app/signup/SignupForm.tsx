@@ -13,6 +13,7 @@ export default function SignupForm() {
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [googleLoading, setGoogleLoading] = useState(false)
 
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -44,6 +45,24 @@ export default function SignupForm() {
     setSuccess('Check your email to verify your account, then sign in.')
   }
 
+  const onGoogleSignup = async () => {
+    setGoogleLoading(true)
+    setError(null)
+    setSuccess(null)
+
+    const { error: oauthError } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    })
+
+    if (oauthError) {
+      setError(oauthError.message)
+      setGoogleLoading(false)
+    }
+  }
+
   return (
     <form
       onSubmit={onSubmit}
@@ -66,6 +85,52 @@ export default function SignupForm() {
       </div>
       <h1 style={{ margin: 0, fontSize: '34px', fontWeight: 800, letterSpacing: '-1px', fontFamily: 'var(--font-display)' }}>Create your account</h1>
       <p style={{ color: 'rgba(255,255,255,.62)', marginTop: '10px', marginBottom: '18px' }}>Sign up with your email and password to start building.</p>
+
+      <button
+        type="button"
+        onClick={onGoogleSignup}
+        disabled={googleLoading || loading}
+        style={{
+          width: '100%',
+          marginBottom: '14px',
+          padding: '11px 12px',
+          borderRadius: '10px',
+          border: '1px solid rgba(255,255,255,.2)',
+          background: 'rgba(255,255,255,.08)',
+          color: '#fff',
+          fontWeight: 700,
+          cursor: 'pointer',
+          fontFamily: 'var(--font-display)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '10px',
+        }}
+      >
+        <span
+          style={{
+            width: '18px',
+            height: '18px',
+            borderRadius: '50%',
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: '#fff',
+            color: '#111827',
+            fontSize: '12px',
+            fontWeight: 900,
+          }}
+        >
+          G
+        </span>
+        {googleLoading ? 'Connecting to Google...' : 'Continue with Google'}
+      </button>
+
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
+        <div style={{ height: '1px', flex: 1, background: 'rgba(255,255,255,.18)' }} />
+        <span style={{ fontSize: '11px', color: 'rgba(255,255,255,.45)', letterSpacing: '1px', textTransform: 'uppercase' }}>or</span>
+        <div style={{ height: '1px', flex: 1, background: 'rgba(255,255,255,.18)' }} />
+      </div>
 
       <label style={{ display: 'block', marginBottom: '7px', color: 'rgba(255,255,255,.88)', fontWeight: 600, fontSize: '14px' }}>Email</label>
       <input
@@ -126,7 +191,7 @@ export default function SignupForm() {
 
       <button
         type="submit"
-        disabled={loading}
+        disabled={loading || googleLoading}
         style={{
           width: '100%',
           padding: '12px',
