@@ -1,7 +1,6 @@
 'use client'
 
 import { FormEvent, useState } from 'react'
-import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
 
@@ -9,25 +8,52 @@ export default function LoginForm() {
   const router = useRouter()
   const supabase = createClient()
   const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const [code, setCode] = useState('')
+  const [step, setStep] = useState<'email' | 'code'>('email')
   const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [googleLoading, setGoogleLoading] = useState(false)
 
-  const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
+  const onContinueWithEmail = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     setLoading(true)
     setError(null)
+    setSuccess(null)
 
-    const { error: signInError } = await supabase.auth.signInWithPassword({
+    const { error: otpError } = await supabase.auth.signInWithOtp({
       email,
-      password,
+      options: {
+        shouldCreateUser: true,
+      },
     })
 
     setLoading(false)
 
-    if (signInError) {
-      setError(signInError.message)
+    if (otpError) {
+      setError(otpError.message)
+      return
+    }
+
+    setStep('code')
+    setSuccess('We sent a 6-digit code to your email.')
+  }
+
+  const onVerifyCode = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    setLoading(true)
+    setError(null)
+
+    const { error: verifyError } = await supabase.auth.verifyOtp({
+      email,
+      token: code,
+      type: 'email',
+    })
+
+    setLoading(false)
+
+    if (verifyError) {
+      setError('Invalid or expired code. Please try again.')
       return
     }
 
@@ -52,6 +78,15 @@ export default function LoginForm() {
     }
   }
 
+  const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    if (step === 'email') {
+      await onContinueWithEmail(event)
+      return
+    }
+
+    await onVerifyCode(event)
+  }
+
   return (
     <form
       onSubmit={onSubmit}
@@ -70,55 +105,14 @@ export default function LoginForm() {
       }}
     >
       <div style={{ fontSize: '11px', letterSpacing: '2px', textTransform: 'uppercase', color: 'rgba(34,197,94,.82)', marginBottom: '10px', fontFamily: 'var(--font-display)', fontWeight: 700 }}>
-        Welcome Back
+        Magic Link OTP
       </div>
-      <h1 style={{ margin: 0, fontSize: '34px', fontWeight: 800, letterSpacing: '-1px', fontFamily: 'var(--font-display)' }}>Log in to PitchRival</h1>
-      <p style={{ color: 'rgba(255,255,255,.62)', marginTop: '10px', marginBottom: '18px' }}>Use your email and password to access your feed.</p>
-
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gap: '8px',
-          background: 'rgba(255,255,255,.05)',
-          border: '1px solid rgba(255,255,255,.14)',
-          borderRadius: '10px',
-          padding: '4px',
-          marginBottom: '14px',
-        }}
-      >
-        <Link
-          href="/login"
-          style={{
-            textDecoration: 'none',
-            textAlign: 'center',
-            borderRadius: '8px',
-            padding: '8px 10px',
-            background: 'rgba(34,197,94,.18)',
-            color: '#fff',
-            fontWeight: 700,
-            fontSize: '13px',
-            fontFamily: 'var(--font-display)',
-          }}
-        >
-          Sign In
-        </Link>
-        <Link
-          href="/signup"
-          style={{
-            textDecoration: 'none',
-            textAlign: 'center',
-            borderRadius: '8px',
-            padding: '8px 10px',
-            color: 'rgba(255,255,255,.72)',
-            fontWeight: 700,
-            fontSize: '13px',
-            fontFamily: 'var(--font-display)',
-          }}
-        >
-          Sign Up
-        </Link>
-      </div>
+      <h1 style={{ margin: 0, fontSize: '34px', fontWeight: 800, letterSpacing: '-1px', fontFamily: 'var(--font-display)' }}>Continue to PitchRival</h1>
+      <p style={{ color: 'rgba(255,255,255,.62)', marginTop: '10px', marginBottom: '18px' }}>
+        {step === 'email'
+          ? 'Enter your email and we will send a 6-digit code.'
+          : `Enter the 6-digit code sent to ${email}.`}
+      </p>
 
       <button
         type="button"
@@ -156,45 +150,58 @@ export default function LoginForm() {
         <div style={{ height: '1px', flex: 1, background: 'rgba(255,255,255,.18)' }} />
       </div>
 
-      <label style={{ display: 'block', marginBottom: '7px', color: 'rgba(255,255,255,.88)', fontWeight: 600, fontSize: '14px' }}>Email</label>
-      <input
-        type="email"
-        value={email}
-        onChange={(event) => setEmail(event.target.value)}
-        required
-        placeholder="you@example.com"
-        style={{
-          width: '100%',
-          marginBottom: '14px',
-          padding: '12px',
-          borderRadius: '10px',
-          border: '1px solid rgba(255,255,255,.16)',
-          background: 'rgba(255,255,255,.06)',
-          color: '#fff',
-          outline: 'none',
-        }}
-      />
-
-      <label style={{ display: 'block', marginBottom: '7px', color: 'rgba(255,255,255,.88)', fontWeight: 600, fontSize: '14px' }}>Password</label>
-      <input
-        type="password"
-        value={password}
-        onChange={(event) => setPassword(event.target.value)}
-        required
-        placeholder="Enter password"
-        style={{
-          width: '100%',
-          marginBottom: '14px',
-          padding: '12px',
-          borderRadius: '10px',
-          border: '1px solid rgba(255,255,255,.16)',
-          background: 'rgba(255,255,255,.06)',
-          color: '#fff',
-          outline: 'none',
-        }}
-      />
+      {step === 'email' ? (
+        <>
+          <label style={{ display: 'block', marginBottom: '7px', color: 'rgba(255,255,255,.88)', fontWeight: 600, fontSize: '14px' }}>Email</label>
+          <input
+            type="email"
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+            required
+            placeholder="you@example.com"
+            style={{
+              width: '100%',
+              marginBottom: '14px',
+              padding: '12px',
+              borderRadius: '10px',
+              border: '1px solid rgba(255,255,255,.16)',
+              background: 'rgba(255,255,255,.06)',
+              color: '#fff',
+              outline: 'none',
+            }}
+          />
+        </>
+      ) : (
+        <>
+          <label style={{ display: 'block', marginBottom: '7px', color: 'rgba(255,255,255,.88)', fontWeight: 600, fontSize: '14px' }}>6-digit code</label>
+          <input
+            type="text"
+            value={code}
+            onChange={(event) => setCode(event.target.value.replace(/\D/g, '').slice(0, 6))}
+            required
+            inputMode="numeric"
+            autoComplete="one-time-code"
+            pattern="[0-9]{6}"
+            placeholder="123456"
+            style={{
+              width: '100%',
+              marginBottom: '14px',
+              padding: '12px',
+              borderRadius: '10px',
+              border: '1px solid rgba(255,255,255,.16)',
+              background: 'rgba(255,255,255,.06)',
+              color: '#fff',
+              outline: 'none',
+              letterSpacing: '6px',
+              fontWeight: 700,
+              textAlign: 'center',
+            }}
+          />
+        </>
+      )}
 
       {error && <p style={{ color: '#fca5a5', marginTop: 0, marginBottom: '10px', fontSize: '14px' }}>{error}</p>}
+      {success && <p style={{ color: '#86efac', marginTop: 0, marginBottom: '10px', fontSize: '14px' }}>{success}</p>}
 
       <button
         type="submit"
@@ -212,12 +219,33 @@ export default function LoginForm() {
           boxShadow: '0 8px 20px rgba(21,128,61,.28)',
         }}
       >
-        {loading ? 'Signing in...' : 'Sign in'}
+        {loading ? 'Please wait...' : step === 'email' ? 'Continue' : 'Verify code'}
       </button>
-
-      <p style={{ marginBottom: 0, marginTop: '14px', color: 'rgba(255,255,255,.62)' }}>
-        Need an account? <Link href="/signup" style={{ color: '#60a5fa', fontWeight: 700, textDecoration: 'none' }}>Create one</Link>
-      </p>
+      {step === 'code' && (
+        <button
+          type="button"
+          disabled={loading || googleLoading}
+          onClick={() => {
+            setStep('email')
+            setCode('')
+            setSuccess(null)
+            setError(null)
+          }}
+          style={{
+            width: '100%',
+            marginTop: '10px',
+            padding: '10px',
+            borderRadius: '10px',
+            border: '1px solid rgba(255,255,255,.16)',
+            background: 'transparent',
+            color: 'rgba(255,255,255,.8)',
+            fontWeight: 600,
+            cursor: 'pointer',
+          }}
+        >
+          Use a different email
+        </button>
+      )}
     </form>
   )
 }

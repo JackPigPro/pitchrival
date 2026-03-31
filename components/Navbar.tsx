@@ -31,7 +31,7 @@ export default function Navbar({ onScrollTo }: NavbarProps) {
         </Link>
 
         <Link 
-          href="/signup" 
+          href="/login" 
           className="nav-signup" 
           style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}
         >
