@@ -92,7 +92,7 @@ export default function Sidebar() {
           <button
             onClick={async () => {
               await supabase.auth.signOut()
-              router.push('/login')
+              router.push('/')
               router.refresh()
             }}
             style={{
