@@ -15,7 +15,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Check if user needs onboarding
-  if (pathname === '/dashboard') {
+  if (pathname === '/') {
     const { data: profile } = await supabase
       .from('profiles')
       .select('onboarding_complete')
@@ -39,7 +39,7 @@ export async function middleware(request: NextRequest) {
 
     if (profile?.onboarding_complete) {
       const redirectUrl = request.nextUrl.clone()
-      redirectUrl.pathname = '/dashboard'
+      redirectUrl.pathname = '/'
       return NextResponse.redirect(redirectUrl)
     }
   }
@@ -49,7 +49,7 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/dashboard',
+    '/',
     '/onboarding',
   ],
 }

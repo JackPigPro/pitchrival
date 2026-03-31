@@ -1,5 +1,7 @@
 'use client'
 
+import Link from 'next/link'
+
 interface FooterProps {
   onComingSoon: () => void
   onScrollTo: (id: string) => void
@@ -49,10 +51,10 @@ export default function Footer({ onComingSoon, onScrollTo }: FooterProps) {
         <div>
           <div className="sf-col-title">Company</div>
           <div className="sf-col-links">
-            <a href="#" onClick={(e) => { e.preventDefault(); onComingSoon() }}>About PitchRival</a>
-            <a href="#" onClick={(e) => { e.preventDefault(); onComingSoon() }}>Privacy Policy</a>
-            <a href="#" onClick={(e) => { e.preventDefault(); onComingSoon() }}>Terms of Service</a>
-            <a href="#" onClick={(e) => { e.preventDefault(); onComingSoon() }}>Contact</a>
+            <Link href="/about">About PitchRival</Link>
+            <Link href="/privacy">Privacy Policy</Link>
+            <Link href="/terms">Terms of Service</Link>
+            <Link href="/contact">Contact</Link>
           </div>
         </div>
       </div>

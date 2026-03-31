@@ -11,7 +11,8 @@ export default function OnboardingPage() {
   const [username, setUsername] = useState('')
   const [ageConfirmed, setAgeConfirmed] = useState(false)
   const [agreedToTerms, setAgreedToTerms] = useState(false)
-  const [usernameStatus, setUsernameStatus] = useState<'checking' | 'available' | 'taken' | null>(null)
+  const [usernameStatus, setUsernameStatus] = useState<'checking' | 'available' | 'taken' | 'invalid' | null>(null)
+  const [usernameError, setUsernameError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -19,8 +20,30 @@ export default function OnboardingPage() {
   useEffect(() => {
     if (!username.trim()) {
       setUsernameStatus(null)
+      setUsernameError(null)
       return
     }
+
+    // Validate username rules
+    const validationRules = [
+      {
+        test: username.length <= 15,
+        message: 'Username must be 15 characters or less'
+      },
+      {
+        test: /^[a-z0-9]+$/.test(username),
+        message: 'Username can only contain lowercase letters and numbers'
+      }
+    ]
+
+    const failedRule = validationRules.find(rule => !rule.test)
+    if (failedRule) {
+      setUsernameStatus('invalid')
+      setUsernameError(failedRule.message)
+      return
+    }
+
+    setUsernameError(null)
 
     const checkUsername = async () => {
       setUsernameStatus('checking')
@@ -76,12 +99,11 @@ export default function OnboardingPage() {
         throw profileError
       }
 
-      // Redirect to dashboard
-      router.push('/dashboard')
+      // Instant redirect without waiting for loading state
+      router.push('/')
       router.refresh()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred')
-    } finally {
       setLoading(false)
     }
   }
@@ -156,9 +178,10 @@ export default function OnboardingPage() {
               <input
                 type="text"
                 value={username}
-                onChange={(event) => setUsername(event.target.value)}
+                onChange={(event) => setUsername(event.target.value.toLowerCase().replace(/[^a-z0-9]/g, ''))}
                 required
                 placeholder="Choose a username"
+                maxLength={15}
                 style={{
                   width: '100%',
                   padding: '12px',
@@ -184,6 +207,7 @@ export default function OnboardingPage() {
                   {usernameStatus === 'checking' && '⏳'}
                   {usernameStatus === 'available' && '✅'}
                   {usernameStatus === 'taken' && '❌'}
+                  {usernameStatus === 'invalid' && '❌'}
                 </div>
               )}
             </div>
@@ -195,6 +219,11 @@ export default function OnboardingPage() {
             {usernameStatus === 'available' && (
               <p style={{ color: '#86efac', marginTop: '4px', marginBottom: 0, fontSize: '12px' }}>
                 Username available
+              </p>
+            )}
+            {usernameStatus === 'invalid' && usernameError && (
+              <p style={{ color: '#fca5a5', marginTop: '4px', marginBottom: 0, fontSize: '12px' }}>
+                {usernameError}
               </p>
             )}
           </div>

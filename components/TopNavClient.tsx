@@ -211,17 +211,23 @@ export default function TopNavClient({
         </div>
 
         <>
-          <a
-            className="topnav-link"
-            href="/#learn"
-            onClick={(e) => {
-              e.preventDefault()
-              scrollToLandingSection('learn', 'center')
-            }}
-            style={menuItemStyle}
-          >
-            Learn
-          </a>
+          {isLoggedIn ? (
+            <Link href="/learn" className="topnav-link" style={menuItemStyle}>
+              Learn
+            </Link>
+          ) : (
+            <a
+              className="topnav-link"
+              href="/#learn"
+              onClick={(e) => {
+                e.preventDefault()
+                scrollToLandingSection('learn', 'top')
+              }}
+              style={menuItemStyle}
+            >
+              Learn
+            </a>
+          )}
           {isLoggedIn ? (
             <Link href="/schools" className="topnav-link" style={menuItemStyle}>
               Schools

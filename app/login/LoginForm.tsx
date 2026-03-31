@@ -72,7 +72,7 @@ export default function LoginForm({ mode }: { mode: 'login' | 'signup' }) {
       .eq('id', user.id)
       .single()
 
-    const redirectTo = profile?.onboarding_complete ? '/dashboard' : '/onboarding'
+    const redirectTo = profile?.onboarding_complete ? '/' : '/onboarding'
     router.push(redirectTo)
     router.refresh()
   }
@@ -84,7 +84,7 @@ export default function LoginForm({ mode }: { mode: 'login' | 'signup' }) {
     const { error: oauthError } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/auth/callback?next=/dashboard`,
+        redirectTo: `${window.location.origin}/auth/callback?next=/`,
       },
     })
 
