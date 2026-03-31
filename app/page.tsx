@@ -64,8 +64,8 @@ export default function Home() {
             Jump in, ship your first idea, and get real feedback in minutes.
           </p>
           <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-            <Link href="/login" className="nav-signup" style={{ textDecoration: 'none', background: 'linear-gradient(135deg, #16a34a, #22c55e)' }}>Sign Up Free</Link>
-            <Link href="/login" className="nav-login" style={{ textDecoration: 'none', background: 'rgba(255,255,255,.08)', color: '#fff', borderColor: 'rgba(255,255,255,.22)' }}>Sign In</Link>
+            <Link href="/login?mode=signup" className="nav-signup" style={{ textDecoration: 'none', background: 'linear-gradient(135deg, #16a34a, #22c55e)' }}>Sign Up Free</Link>
+            <Link href="/login?mode=login" className="nav-login" style={{ textDecoration: 'none', background: 'rgba(255,255,255,.08)', color: '#fff', borderColor: 'rgba(255,255,255,.22)' }}>Sign In</Link>
           </div>
         </div>
       </section>

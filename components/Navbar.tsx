@@ -23,7 +23,7 @@ export default function Navbar({ onScrollTo }: NavbarProps) {
 
       <div className="nav-right">
         <Link 
-          href="/login" 
+          href="/login?mode=login" 
           className="nav-login" 
           style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}
         >
@@ -31,7 +31,7 @@ export default function Navbar({ onScrollTo }: NavbarProps) {
         </Link>
 
         <Link 
-          href="/login" 
+          href="/login?mode=signup" 
           className="nav-signup" 
           style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}
         >

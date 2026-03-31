@@ -1,11 +1,12 @@
 'use client'
 
 import { FormEvent, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
 
 export default function LoginForm() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const supabase = createClient()
   const [email, setEmail] = useState('')
   const [code, setCode] = useState('')
@@ -107,7 +108,9 @@ export default function LoginForm() {
       <div style={{ fontSize: '11px', letterSpacing: '2px', textTransform: 'uppercase', color: 'rgba(34,197,94,.82)', marginBottom: '10px', fontFamily: 'var(--font-display)', fontWeight: 700 }}>
         Magic Link OTP
       </div>
-      <h1 style={{ margin: 0, fontSize: '34px', fontWeight: 800, letterSpacing: '-1px', fontFamily: 'var(--font-display)' }}>Continue to PitchRival</h1>
+      <h1 style={{ margin: 0, fontSize: '34px', fontWeight: 800, letterSpacing: '-1px', fontFamily: 'var(--font-display)' }}>
+        {searchParams.get('mode') === 'signup' ? 'Create your account' : 'Welcome back'}
+      </h1>
       <p style={{ color: 'rgba(255,255,255,.62)', marginTop: '10px', marginBottom: '18px' }}>
         {step === 'email'
           ? 'Enter your email and we will send a 6-digit code.'
