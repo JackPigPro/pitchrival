@@ -93,26 +93,22 @@ export default function LoginForm({ mode }: { mode: 'login' | 'signup' }) {
       style={{
         width: '100%',
         maxWidth: '420px',
-        border: '1px solid rgba(255,255,255,.14)',
+        border: '1px solid var(--border)',
         borderRadius: '16px',
         padding: '28px',
-        background: 'rgba(10,14,26,.82)',
-        backdropFilter: 'blur(8px)',
-        boxShadow: '0 18px 45px rgba(0,0,0,.28)',
-        color: '#fff',
+        background: 'var(--card)',
+        boxShadow: 'var(--shadow-lg)',
+        color: 'var(--text)',
         position: 'relative',
         zIndex: 1,
       }}
     >
-      <div style={{ fontSize: '11px', letterSpacing: '2px', textTransform: 'uppercase', color: 'rgba(34,197,94,.82)', marginBottom: '10px', fontFamily: 'var(--font-display)', fontWeight: 700 }}>
-        Magic Link OTP
-      </div>
       <h1 style={{ margin: 0, fontSize: '34px', fontWeight: 800, letterSpacing: '-1px', fontFamily: 'var(--font-display)' }}>
-        {mode === 'signup' ? 'Create your account' : 'Welcome back'}
+        {mode === 'signup' ? 'Create Your Account' : 'Welcome Back'}
       </h1>
-      <p style={{ color: 'rgba(255,255,255,.62)', marginTop: '10px', marginBottom: '18px' }}>
+      <p style={{ color: 'var(--text2)', marginTop: '10px', marginBottom: '18px' }}>
         {step === 'email'
-          ? 'Enter your email and we will send a 6-digit code.'
+          ? 'Enter your email to continue.'
           : `Enter the 6-digit code sent to ${email}.`}
       </p>
 
@@ -125,9 +121,9 @@ export default function LoginForm({ mode }: { mode: 'login' | 'signup' }) {
           marginBottom: '14px',
           padding: '11px 12px',
           borderRadius: '10px',
-          border: '1px solid rgba(255,255,255,.2)',
-          background: 'rgba(255,255,255,.08)',
-          color: '#fff',
+          border: '1px solid var(--border2)',
+          background: 'var(--surface)',
+          color: 'var(--text)',
           fontWeight: 700,
           cursor: 'pointer',
           fontFamily: 'var(--font-display)',
@@ -147,14 +143,14 @@ export default function LoginForm({ mode }: { mode: 'login' | 'signup' }) {
       </button>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
-        <div style={{ height: '1px', flex: 1, background: 'rgba(255,255,255,.18)' }} />
-        <span style={{ fontSize: '11px', color: 'rgba(255,255,255,.45)', letterSpacing: '1px', textTransform: 'uppercase' }}>or</span>
-        <div style={{ height: '1px', flex: 1, background: 'rgba(255,255,255,.18)' }} />
+        <div style={{ height: '1px', flex: 1, background: 'var(--border)' }} />
+        <span style={{ fontSize: '11px', color: 'var(--text3)', letterSpacing: '1px', textTransform: 'uppercase' }}>or</span>
+        <div style={{ height: '1px', flex: 1, background: 'var(--border)' }} />
       </div>
 
       {step === 'email' ? (
         <>
-          <label style={{ display: 'block', marginBottom: '7px', color: 'rgba(255,255,255,.88)', fontWeight: 600, fontSize: '14px' }}>Email</label>
+          <label style={{ display: 'block', marginBottom: '7px', color: 'var(--text)', fontWeight: 600, fontSize: '14px' }}>Email</label>
           <input
             type="email"
             value={email}
@@ -166,16 +162,16 @@ export default function LoginForm({ mode }: { mode: 'login' | 'signup' }) {
               marginBottom: '14px',
               padding: '12px',
               borderRadius: '10px',
-              border: '1px solid rgba(255,255,255,.16)',
-              background: 'rgba(255,255,255,.06)',
-              color: '#fff',
+              border: '1px solid var(--border2)',
+              background: 'var(--card)',
+              color: 'var(--text)',
               outline: 'none',
             }}
           />
         </>
       ) : (
         <>
-          <label style={{ display: 'block', marginBottom: '7px', color: 'rgba(255,255,255,.88)', fontWeight: 600, fontSize: '14px' }}>6-digit code</label>
+          <label style={{ display: 'block', marginBottom: '7px', color: 'var(--text)', fontWeight: 600, fontSize: '14px' }}>6-digit code</label>
           <input
             type="text"
             value={code}
@@ -190,9 +186,9 @@ export default function LoginForm({ mode }: { mode: 'login' | 'signup' }) {
               marginBottom: '14px',
               padding: '12px',
               borderRadius: '10px',
-              border: '1px solid rgba(255,255,255,.16)',
-              background: 'rgba(255,255,255,.06)',
-              color: '#fff',
+              border: '1px solid var(--border2)',
+              background: 'var(--card)',
+              color: 'var(--text)',
               outline: 'none',
               letterSpacing: '6px',
               fontWeight: 700,
@@ -238,9 +234,9 @@ export default function LoginForm({ mode }: { mode: 'login' | 'signup' }) {
             marginTop: '10px',
             padding: '10px',
             borderRadius: '10px',
-            border: '1px solid rgba(255,255,255,.16)',
+            border: '1px solid var(--border2)',
             background: 'transparent',
-            color: 'rgba(255,255,255,.8)',
+            color: 'var(--text2)',
             fontWeight: 600,
             cursor: 'pointer',
           }}

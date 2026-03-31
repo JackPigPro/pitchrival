@@ -1,3 +1,3 @@
 export default function LearnPage() {
-  return null
+  return <main className="blank-page" />
 }

@@ -1,4 +1,4 @@
 export default function SchoolsPage() {
-  return null
+  return <main className="blank-page" />
 }
 

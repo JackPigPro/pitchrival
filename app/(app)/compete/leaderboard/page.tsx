@@ -1,3 +1,3 @@
 export default function LeaderboardPage() {
-  return null
+  return <main className="blank-page" />
 }

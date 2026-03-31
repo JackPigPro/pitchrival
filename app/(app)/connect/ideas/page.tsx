@@ -1,4 +1,4 @@
 export default function IdeasPage() {
-  return null
+  return <main className="blank-page" />
 }
 

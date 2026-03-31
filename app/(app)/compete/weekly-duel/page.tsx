@@ -1,4 +1,4 @@
 export default function WeeklyDuelPage() {
-  return null
+  return <main className="blank-page" />
 }
 

@@ -1,4 +1,4 @@
 export default function CoFounderMatchPage() {
-  return null
+  return <main className="blank-page" />
 }
 

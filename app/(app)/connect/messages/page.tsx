@@ -1,3 +1,3 @@
 export default function MessagesPage() {
-  return null
+  return <main className="blank-page" />
 }

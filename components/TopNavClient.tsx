@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { createClient } from '@/utils/supabase/client'
 
 export default function TopNavClient({
@@ -77,6 +77,20 @@ export default function TopNavClient({
         : rect.top + window.scrollY - navOffset
     window.scrollTo({ top: Math.max(0, targetTop), behavior: 'smooth' })
   }
+
+  useEffect(() => {
+    if (!isOnLanding || typeof window === 'undefined') return
+    if (window.location.hash !== '#learn') return
+    const timer = window.setTimeout(() => {
+      const el = document.getElementById('learn')
+      if (!el) return
+      const rect = el.getBoundingClientRect()
+      const targetTop =
+        rect.top + window.scrollY - (window.innerHeight / 2 - rect.height / 2)
+      window.scrollTo({ top: Math.max(0, targetTop), behavior: 'smooth' })
+    }, 30)
+    return () => window.clearTimeout(timer)
+  }, [isOnLanding, pathname])
 
   const hoverZoneStyle: React.CSSProperties = {
     position: 'relative',
@@ -196,28 +210,23 @@ export default function TopNavClient({
           </div>
         </div>
 
-        {isLoggedIn ? (
-          <>
-            <Link href="/learn" className="topnav-link" style={menuItemStyle}>
-              Learn
-            </Link>
+        <>
+          <a
+            className="topnav-link"
+            href="/#learn"
+            onClick={(e) => {
+              e.preventDefault()
+              scrollToLandingSection('learn', 'center')
+            }}
+            style={menuItemStyle}
+          >
+            Learn
+          </a>
+          {isLoggedIn ? (
             <Link href="/schools" className="topnav-link" style={menuItemStyle}>
               Schools
             </Link>
-          </>
-        ) : (
-          <>
-            <a
-              className="topnav-link"
-              href="/#learn"
-              onClick={(e) => {
-                e.preventDefault()
-                scrollToLandingSection('learn', 'center')
-              }}
-              style={menuItemStyle}
-            >
-              Learn
-            </a>
+          ) : (
             <a
               className="topnav-link"
               href="/#schools"
@@ -229,8 +238,8 @@ export default function TopNavClient({
             >
               Schools
             </a>
-          </>
-        )}
+          )}
+        </>
       </div>
 
       <div className="nav-right">

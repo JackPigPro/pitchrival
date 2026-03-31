@@ -27,14 +27,13 @@ export default function LearnSection({ onComingSoon }: LearnSectionProps) {
   return (
     <div id="learn" className="feature-section fs-learn">
       <div className="fs-label p">📚 Learn</div>
-      <div style={{ position: 'absolute', right: '20px', top: '16px', fontSize: '12px', fontWeight: 800, letterSpacing: '2.5px', textTransform: 'uppercase', background: 'linear-gradient(135deg, #7c3aed, #a855f7)', color: '#fff', padding: '9px 14px', borderRadius: '999px', zIndex: 3, boxShadow: '0 6px 18px rgba(124,58,237,.35)' }}>
-        Coming Soon
-      </div>
-
       {/* Text side */}
       <div className="feature-text">
         <div className="ft-label p">📚 Learn</div>
-        <h2 className="ft-h2">Learn how to<br />actually build.</h2>
+        <h2 className="ft-h2">
+          Learn how to<br />actually build.
+          <span className="inline-coming-soon">Coming soon</span>
+        </h2>
         <p className="ft-desc">
           Coming soon for Phase 1: structured startup lessons with practical execution tasks,
           challenge-aligned prompts, and guided founder workflows.

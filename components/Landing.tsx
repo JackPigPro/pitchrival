@@ -52,42 +52,43 @@ export default function Landing() {
       <Schools onComingSoon={handleShowComingSoon} />
       <section
         style={{
-          padding: '64px 24px',
+          padding: '120px 24px 86px',
           backgroundImage:
             'linear-gradient(rgba(21,128,61,.065) 1px, transparent 1px), linear-gradient(90deg, rgba(21,128,61,.065) 1px, transparent 1px)',
           backgroundSize: '48px 48px',
+          textAlign: 'center',
         }}
       >
         <div
           style={{
-            maxWidth: '980px',
+            maxWidth: '760px',
             margin: '0 auto',
-            background: '#fff',
-            border: '1px solid var(--border)',
-            borderRadius: '18px',
-            padding: '34px',
             position: 'relative',
-            overflow: 'hidden',
-            boxShadow: 'var(--shadow-sm)',
+            zIndex: 1,
           }}
         >
+          <div style={{ marginBottom: '10px', fontSize: '13px', letterSpacing: '2.4px', textTransform: 'uppercase', color: 'var(--text3)', fontFamily: 'var(--font-display)', fontWeight: 700 }}>
+            Built by founders, for founders
+          </div>
           <h3
             style={{
-              fontSize: '52px',
+              fontSize: '78px',
               fontWeight: 800,
-              letterSpacing: '-2px',
-              lineHeight: 1.02,
-              margin: '0 0 14px',
+              letterSpacing: '-3.5px',
+              lineHeight: '.95',
+              margin: '0 0 20px',
               color: 'var(--text)',
               fontFamily: 'var(--font-display)',
             }}
           >
-            Stop watching,<br />start building.
+            Stop watching,<br />
+            <span style={{ color: 'var(--green)' }}>start building.</span>
           </h3>
-          <p style={{ color: 'var(--text2)', marginBottom: '20px', fontWeight: 600 }}>
-            Jump in, ship your first idea, and get real feedback in minutes.
+          <p style={{ color: 'var(--text2)', marginBottom: '28px', fontSize: '18px', lineHeight: 1.65 }}>
+            Share your idea, get real feedback, and join weekly founder challenges.
+            Learn how to actually start a company in one focused MVP platform.
           </p>
-          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center' }}>
             <Link
               href="/login?mode=signup"
               className="btn-cta-primary"
@@ -110,7 +111,7 @@ export default function Landing() {
                 justifyContent: 'center',
               }}
             >
-              Sign In
+              Sign In →
             </Link>
           </div>
         </div>

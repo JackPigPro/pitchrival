@@ -10,15 +10,13 @@ export default function Schools({ onComingSoon }: SchoolsProps) {
       <div className="schools-glow"></div>
       <div className="schools-glow-2"></div>
       <div className="schools-inner">
-        <div style={{ display: 'inline-flex', fontSize: '12px', fontWeight: 800, letterSpacing: '2.5px', textTransform: 'uppercase', background: 'linear-gradient(135deg, #7c3aed, #a855f7)', color: '#fff', padding: '9px 14px', borderRadius: '999px', marginBottom: '14px', border: '1px solid rgba(196,181,253,.3)', boxShadow: '0 6px 18px rgba(124,58,237,.35)' }}>
-          Coming Soon
-        </div>
         <div className="schools-top">
           {/* Left: copy */}
           <div className="schools-left">
             <div className="schools-label">For Educators</div>
             <div className="schools-title">
-              PitchRival<br />for <em>Schools.</em>
+              PitchRival<br />for <em>Schools.</em>{' '}
+              <span className="inline-coming-soon schools">Coming soon</span>
             </div>
             <p className="schools-sub">
               Bring the energy of real entrepreneurship into your classroom. Create lessons, run
