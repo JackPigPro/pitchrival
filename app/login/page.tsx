@@ -21,6 +21,7 @@ export default async function LoginPage({
         overflow: 'hidden',
       }}
     >
+      <style>{`.nav{display:none !important}`}</style>
       <div
         style={{
           position: 'absolute',

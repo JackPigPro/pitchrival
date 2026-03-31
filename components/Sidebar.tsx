@@ -2,7 +2,6 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { useAppState } from './AppStateProvider'
 import { createClient } from '@/utils/supabase/client'
 
 const NAV = [
@@ -21,7 +20,6 @@ const NAV = [
 export default function Sidebar() {
   const pathname = usePathname()
   const router = useRouter()
-  const { theme, setTheme } = useAppState()
   const supabase = createClient()
   const isActive = (href: string) => pathname === href
 
@@ -83,12 +81,6 @@ export default function Sidebar() {
       {/* User footer */}
       <div style={{ padding: '12px 10px 16px', borderTop: '1px solid rgba(255,255,255,.07)' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 6px', marginTop: '2px', gap: '8px' }}>
-          <button
-            onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
-            style={{ border: '1px solid rgba(255,255,255,.14)', flex: 1, height: '36px', borderRadius: '8px', background: 'transparent', color: 'rgba(255,255,255,.72)', cursor: 'pointer' }}
-          >
-            {theme === 'light' ? '🌙' : '☀️'}
-          </button>
           <button
             onClick={async () => {
               await supabase.auth.signOut()
