@@ -14,11 +14,42 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(redirectUrl)
   }
 
+  // Check if user needs onboarding
+  if (pathname === '/dashboard') {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('onboarding_complete')
+      .eq('id', user.id)
+      .single()
+
+    if (!profile?.onboarding_complete) {
+      const redirectUrl = request.nextUrl.clone()
+      redirectUrl.pathname = '/onboarding'
+      return NextResponse.redirect(redirectUrl)
+    }
+  }
+
+  // Redirect users who have completed onboarding away from /onboarding
+  if (pathname === '/onboarding') {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('onboarding_complete')
+      .eq('id', user.id)
+      .single()
+
+    if (profile?.onboarding_complete) {
+      const redirectUrl = request.nextUrl.clone()
+      redirectUrl.pathname = '/dashboard'
+      return NextResponse.redirect(redirectUrl)
+    }
+  }
+
   return response
 }
 
 export const config = {
   matcher: [
     '/dashboard',
+    '/onboarding',
   ],
 }

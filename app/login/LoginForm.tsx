@@ -57,7 +57,23 @@ export default function LoginForm({ mode }: { mode: 'login' | 'signup' }) {
       return
     }
 
-    router.push('/dashboard')
+    // Get current user
+    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    
+    if (userError || !user) {
+      setError('Authentication error')
+      return
+    }
+
+    // Check if user has completed onboarding
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('onboarding_complete')
+      .eq('id', user.id)
+      .single()
+
+    const redirectTo = profile?.onboarding_complete ? '/dashboard' : '/onboarding'
+    router.push(redirectTo)
     router.refresh()
   }
 
