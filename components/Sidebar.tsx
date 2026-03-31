@@ -1,47 +1,29 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useAppState } from './AppStateProvider'
+import { createClient } from '@/utils/supabase/client'
 
 const NAV = [
   {
-    href: '/home',
-    icon: '🏠',
-    label: 'Home',
+    href: '/dashboard',
+    icon: '📰',
+    label: 'Feed',
   },
   {
-    href: '/connect',
-    icon: '🤝',
-    label: 'Connect',
-    sub: [
-      { href: '/connect/feedback',    icon: '💡', label: 'Forum' },
-      { href: '/connect/marketplace', icon: '🏪', label: 'Marketplace' },
-      { href: '/connect/messages',    icon: '💬', label: 'Messages' },
-      { href: '/connect/vault',       icon: '🔐', label: 'The Vault' },
-    ],
-  },
-  {
-    href: '/compete',
-    icon: '⚔️',
-    label: 'Compete',
-    sub: [
-      { href: '/compete/duel',        icon: '🏟️', label: 'Weekly Duel' },
-      { href: '/compete/leaderboard', icon: '🏆', label: 'Leaderboard' },
-    ],
-  },
-  {
-    href: '/learn',
-    icon: '📚',
-    label: 'Learn',
+    href: '/profile',
+    icon: '👤',
+    label: 'Profile',
   },
 ]
 
 export default function Sidebar() {
   const pathname = usePathname()
+  const router = useRouter()
   const { theme, setTheme } = useAppState()
-  const isActive    = (href: string) => pathname === href
-  const isParentActive = (href: string) => pathname.startsWith(href)
+  const supabase = createClient()
+  const isActive = (href: string) => pathname === href
 
   return (
     <aside style={{
@@ -73,56 +55,26 @@ export default function Sidebar() {
       {/* Nav items */}
       <nav style={{ flex: 1, padding: '12px 10px', overflowY: 'auto' }}>
         {NAV.map((item) => {
-          const parentActive = item.sub ? isParentActive(item.href) : isActive(item.href)
-          const linkTarget   = item.sub ? item.sub[0].href : item.href
+          const active = isActive(item.href)
 
           return (
             <div key={item.href} style={{ marginBottom: '2px' }}>
               <Link
-                href={linkTarget}
+                href={item.href}
                 style={{
                   display: 'flex', alignItems: 'center', gap: '10px',
                   padding: '9px 12px', borderRadius: '8px',
                   textDecoration: 'none',
                   fontFamily: 'var(--font-display)', fontSize: '14px', fontWeight: 700,
-                  color: parentActive ? '#fff' : 'rgba(255,255,255,.68)',
-                  background: parentActive ? 'rgba(22,163,74,.16)' : 'transparent',
-                  borderLeft: parentActive ? '2px solid var(--green)' : '2px solid transparent',
+                  color: active ? '#fff' : 'rgba(255,255,255,.68)',
+                  background: active ? 'rgba(22,163,74,.16)' : 'transparent',
+                  borderLeft: active ? '2px solid var(--green)' : '2px solid transparent',
                   transition: 'all .15s',
                 }}
               >
                 <span style={{ fontSize: '16px', flexShrink: 0 }}>{item.icon}</span>
                 {item.label}
               </Link>
-
-              {/* Sub-tabs — only shown when parent is active */}
-              {item.sub && parentActive && (
-                <div style={{ paddingLeft: '16px', marginTop: '2px', marginBottom: '4px' }}>
-                  {item.sub.map((sub) => {
-                    const subActive = isActive(sub.href)
-                    return (
-                      <Link
-                        key={sub.href}
-                        href={sub.href}
-                        style={{
-                          display: 'flex', alignItems: 'center', gap: '8px',
-                          padding: '7px 12px', borderRadius: '7px',
-                          textDecoration: 'none',
-                          fontFamily: 'var(--font-display)', fontSize: '13px',
-                          fontWeight: subActive ? 700 : 500,
-                          color: subActive ? '#22c55e' : 'rgba(255,255,255,.62)',
-                          background: subActive ? 'rgba(34,197,94,.1)' : 'transparent',
-                          transition: 'all .15s',
-                          marginBottom: '1px',
-                        }}
-                      >
-                        <span style={{ fontSize: '12px' }}>{sub.icon}</span>
-                        {sub.label}
-                      </Link>
-                    )
-                  })}
-                </div>
-              )}
             </div>
           )
         })}
@@ -130,36 +82,6 @@ export default function Sidebar() {
 
       {/* User footer */}
       <div style={{ padding: '12px 10px 16px', borderTop: '1px solid rgba(255,255,255,.07)' }}>
-        <div style={{ display: 'flex', gap: '8px', marginBottom: '10px' }}>
-          <Link href="/profile" style={{
-            flex: 1,
-            display: 'flex', alignItems: 'center', gap: '10px',
-            padding: '8px 10px', borderRadius: '8px',
-            textDecoration: 'none', transition: 'background .15s',
-          }}>
-            <div style={{
-              width: '34px', height: '34px', borderRadius: '50%',
-              background: 'linear-gradient(135deg, #16a34a, #22c55e)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: '14px', fontWeight: 800, color: '#fff',
-              fontFamily: 'var(--font-display)', flexShrink: 0,
-            }}>J</div>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: '13px', fontWeight: 700, color: '#fff', fontFamily: 'var(--font-display)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                Jordan Rivera
-              </div>
-              <div style={{ fontSize: '11px', color: 'rgba(255,255,255,.3)', marginTop: '1px' }}>Profile</div>
-            </div>
-          </Link>
-          <Link href="/connect/messages" style={{
-            width: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            borderRadius: '8px', textDecoration: 'none',
-            color: 'rgba(255,255,255,.75)', border: '1px solid rgba(255,255,255,.14)',
-            background: 'rgba(37,99,235,.16)',
-          }}>
-            💬
-          </Link>
-        </div>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 6px', marginTop: '2px', gap: '8px' }}>
           <button
             onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
@@ -167,22 +89,22 @@ export default function Sidebar() {
           >
             {theme === 'light' ? '🌙' : '☀️'}
           </button>
-          <Link href="/settings" style={{
+          <button
+            onClick={async () => {
+              await supabase.auth.signOut()
+              router.push('/login')
+              router.refresh()
+            }}
+            style={{
             flex: 1, height: '36px',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             borderRadius: '8px', textDecoration: 'none',
             color: 'rgba(255,255,255,.75)', border: '1px solid rgba(255,255,255,.14)',
+            background: 'transparent',
+            cursor: 'pointer',
           }}>
-            ⚙️
-          </Link>
-          <Link href="/" style={{
-            flex: 1, height: '36px',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            borderRadius: '8px', textDecoration: 'none',
-            color: 'rgba(255,255,255,.75)', border: '1px solid rgba(255,255,255,.14)',
-          }}>
-            ⎋
-          </Link>
+            Sign out
+          </button>
         </div>
       </div>
     </aside>
