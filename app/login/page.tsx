@@ -1,6 +1,13 @@
 import LoginForm from './LoginForm'
 
-export default function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ mode?: string }>
+}) {
+  const sp = await searchParams
+  const mode = sp.mode === 'signup' ? 'signup' : 'login'
+
   return (
     <main
       style={{
@@ -24,7 +31,7 @@ export default function LoginPage() {
           pointerEvents: 'none',
         }}
       />
-      <LoginForm />
+      <LoginForm mode={mode} />
     </main>
   )
 }

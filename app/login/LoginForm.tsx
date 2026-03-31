@@ -1,12 +1,11 @@
 'use client'
 
 import { FormEvent, useState } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
 
-export default function LoginForm() {
+export default function LoginForm({ mode }: { mode: 'login' | 'signup' }) {
   const router = useRouter()
-  const searchParams = useSearchParams()
   const supabase = createClient()
   const [email, setEmail] = useState('')
   const [code, setCode] = useState('')
@@ -109,7 +108,7 @@ export default function LoginForm() {
         Magic Link OTP
       </div>
       <h1 style={{ margin: 0, fontSize: '34px', fontWeight: 800, letterSpacing: '-1px', fontFamily: 'var(--font-display)' }}>
-        {searchParams.get('mode') === 'signup' ? 'Create your account' : 'Welcome back'}
+        {mode === 'signup' ? 'Create your account' : 'Welcome back'}
       </h1>
       <p style={{ color: 'rgba(255,255,255,.62)', marginTop: '10px', marginBottom: '18px' }}>
         {step === 'email'
