@@ -11,16 +11,21 @@ export default function SignupForm() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     setLoading(true)
     setError(null)
+    setSuccess(null)
 
     const { data, error: signUpError } = await supabase.auth.signUp({
       email,
       password,
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
+      },
     })
 
     setLoading(false)
@@ -36,8 +41,7 @@ export default function SignupForm() {
       return
     }
 
-    router.push('/login')
-    router.refresh()
+    setSuccess('Check your email to verify your account, then sign in.')
   }
 
   return (
@@ -103,6 +107,22 @@ export default function SignupForm() {
       />
 
       {error && <p style={{ color: '#fca5a5', marginTop: 0, marginBottom: '10px', fontSize: '14px' }}>{error}</p>}
+      {success && (
+        <p
+          style={{
+            color: '#86efac',
+            marginTop: 0,
+            marginBottom: '10px',
+            fontSize: '14px',
+            background: 'rgba(22,163,74,.15)',
+            border: '1px solid rgba(22,163,74,.35)',
+            borderRadius: '10px',
+            padding: '10px 12px',
+          }}
+        >
+          {success}
+        </p>
+      )}
 
       <button
         type="submit"
