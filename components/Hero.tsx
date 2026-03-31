@@ -57,14 +57,14 @@ export default function Hero({ onScrollTo }: HeroProps) {
       {/* CTA buttons - UPDATED TO USE LINK */}
       <div className="hero-actions">
         <Link 
-          href="/home" 
+          href="/login?mode=signup" 
           className="btn-cta-primary" 
           style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
         >
           ⚡ Get Started Free
         </Link>
         <Link 
-          href="/home" 
+          href="/login?mode=login" 
           className="btn-cta-ghost" 
           style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
         >
