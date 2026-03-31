@@ -41,7 +41,7 @@ export default function Hero({ onScrollTo }: HeroProps) {
       </div>
 
       {/* Main headline */}
-      <div style={{ marginBottom: '8px', fontSize: '11px', letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--text3)', fontFamily: 'var(--font-display)' }}>
+      <div style={{ marginBottom: '10px', fontSize: '13px', letterSpacing: '2.4px', textTransform: 'uppercase', color: 'var(--text3)', fontFamily: 'var(--font-display)', fontWeight: 700 }}>
         Built by founders, for founders
       </div>
       <h1 className="hero-h1">
@@ -78,7 +78,7 @@ export default function Hero({ onScrollTo }: HeroProps) {
         <span className="proof-dot"></span>
         <span><strong>2.4M</strong> founder matches</span>
         <span className="proof-dot"></span>
-        <span className="live"><strong>2.4M</strong> Founder matches</span>
+        <span className="live"><strong>18k+</strong> weekly competitors active</span>
       </div>
 
       {/* Pillar cards */}

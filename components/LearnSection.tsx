@@ -27,7 +27,7 @@ export default function LearnSection({ onComingSoon }: LearnSectionProps) {
   return (
     <div id="learn" className="feature-section fs-learn">
       <div className="fs-label p">📚 Learn</div>
-      <div style={{ position: 'absolute', right: '20px', top: '16px', fontSize: '10px', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', background: 'var(--purple)', color: '#fff', padding: '5px 10px', borderRadius: '999px', zIndex: 3 }}>
+      <div style={{ position: 'absolute', right: '20px', top: '16px', fontSize: '12px', fontWeight: 800, letterSpacing: '2.5px', textTransform: 'uppercase', background: 'linear-gradient(135deg, #7c3aed, #a855f7)', color: '#fff', padding: '9px 14px', borderRadius: '999px', zIndex: 3, boxShadow: '0 6px 18px rgba(124,58,237,.35)' }}>
         Coming Soon
       </div>
 

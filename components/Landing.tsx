@@ -28,6 +28,11 @@ export default function Landing() {
     const el = document.getElementById(id)
     if (!el) return
     const elRect = el.getBoundingClientRect()
+    const navOffset = 76
+    if (id === 'schools') {
+      window.scrollTo({ top: Math.max(0, elRect.top + window.scrollY - navOffset), behavior: 'smooth' })
+      return
+    }
     const elCenter = elRect.top + window.scrollY + elRect.height / 2
     const viewportCenter = window.innerHeight / 2
     window.scrollTo({ top: elCenter - viewportCenter, behavior: 'smooth' })
@@ -57,61 +62,52 @@ export default function Landing() {
           style={{
             maxWidth: '980px',
             margin: '0 auto',
-            background: 'linear-gradient(135deg, var(--dark2), #1a2e40)',
-            border: '1px solid rgba(255,255,255,.08)',
+            background: '#fff',
+            border: '1px solid var(--border)',
             borderRadius: '18px',
             padding: '34px',
-            color: '#fff',
             position: 'relative',
             overflow: 'hidden',
+            boxShadow: 'var(--shadow-sm)',
           }}
         >
-          <div
-            style={{
-              fontSize: '11px',
-              fontWeight: 700,
-              letterSpacing: '2px',
-              textTransform: 'uppercase',
-              color: 'rgba(34,197,94,.8)',
-              marginBottom: '10px',
-              fontFamily: 'var(--font-display)',
-            }}
-          >
-            Final Call To Action
-          </div>
           <h3
             style={{
-              fontSize: '34px',
+              fontSize: '52px',
               fontWeight: 800,
-              letterSpacing: '-1px',
-              margin: '0 0 10px',
+              letterSpacing: '-2px',
+              lineHeight: 1.02,
+              margin: '0 0 14px',
+              color: 'var(--text)',
               fontFamily: 'var(--font-display)',
             }}
           >
-            Ready to find your founder match?
+            Stop watching,<br />start building.
           </h3>
-          <p style={{ color: 'rgba(255,255,255,.65)', marginBottom: '18px' }}>
+          <p style={{ color: 'var(--text2)', marginBottom: '20px', fontWeight: 600 }}>
             Jump in, ship your first idea, and get real feedback in minutes.
           </p>
           <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
             <Link
               href="/login?mode=signup"
-              className="nav-signup"
+              className="btn-cta-primary"
               style={{
                 textDecoration: 'none',
-                background: 'linear-gradient(135deg, #16a34a, #22c55e)',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
               }}
             >
-              Sign Up Free
+              ⚡ Get Started Free
             </Link>
             <Link
               href="/login?mode=login"
-              className="nav-login"
+              className="btn-cta-ghost"
               style={{
                 textDecoration: 'none',
-                background: 'rgba(255,255,255,.08)',
-                color: '#fff',
-                borderColor: 'rgba(255,255,255,.22)',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
               }}
             >
               Sign In

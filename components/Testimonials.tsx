@@ -3,10 +3,10 @@ export default function Testimonials() {
     <section className="testimonials-section" id="testimonials">
       <div className="t-inner">
         <div className="t-header">
-          <div className="t-header-label">Builders are shipping daily.</div>
-          <div className="t-header-title">Proof from the community,<br />plus what&apos;s happening now.</div>
+          <div className="t-header-label">Community voices</div>
+          <div className="t-header-title">What founders say<br />after shipping.</div>
           <div className="t-header-sub">
-            Social proof up front: real testimonials and a recent activity mini-feed from inside the platform.
+            Real feedback from students, founders, and builders using PitchRival.
           </div>
         </div>
 
@@ -79,33 +79,10 @@ export default function Testimonials() {
             </div>
           </div>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1.25fr .75fr', gap: '16px' }}>
-          <div className="testimonial">
-            <div style={{ fontSize: '11px', letterSpacing: '2px', textTransform: 'uppercase', color: 'rgba(34,197,94,.75)', fontFamily: 'var(--font-display)', marginBottom: '12px' }}>
-              Recent Activity Mini-Feed
-            </div>
-            {[
-              'Jordan sent a Vault draft to Weekly Duel',
-              'Aisha posted feedback request in the forum',
-              'Marcus opened 2 new co-founder conversations',
-              'Priya won Weekly Duel and moved up 3 ranks',
-            ].map((item) => (
-              <div key={item} style={{ display: 'flex', gap: '8px', padding: '9px 0', borderBottom: '1px solid rgba(255,255,255,.08)', color: 'rgba(255,255,255,.72)', fontSize: '13px' }}>
-                <span style={{ color: '#22c55e' }}>•</span>
-                <span>{item}</span>
-              </div>
-            ))}
-          </div>
-          <div className="testimonial">
-            <div style={{ fontSize: '11px', letterSpacing: '2px', textTransform: 'uppercase', color: 'rgba(96,165,250,.8)', fontFamily: 'var(--font-display)', marginBottom: '10px' }}>
-              Right Now
-            </div>
-            <div style={{ fontSize: '32px', fontWeight: 800, color: '#fff', fontFamily: 'var(--font-display)' }}>2.4M</div>
-            <div style={{ color: 'rgba(255,255,255,.6)', marginBottom: '12px' }}>Founder matches made</div>
-            <div style={{ color: 'rgba(255,255,255,.65)', fontSize: '13px', lineHeight: 1.6 }}>
-              The feedback loop is active before users even scroll into Connect/Compete/Learn.
-            </div>
-          </div>
+        <div className="testimonial">
+          <p className="t-quote" style={{ marginBottom: 0 }}>
+            “This platform makes startup practice feel real, focused, and fun. We come here to build, not just talk.”
+          </p>
         </div>
       </div>
     </section>

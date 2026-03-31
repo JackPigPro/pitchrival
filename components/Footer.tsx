@@ -28,8 +28,8 @@ export default function Footer({ onComingSoon, onScrollTo }: FooterProps) {
               <div className="sf-stat-label">Matches</div>
             </div>
             <div className="sf-stat">
-              <div className="sf-stat-num p">340+</div>
-              <div className="sf-stat-label">Teams formed</div>
+              <div className="sf-stat-num p">18k+</div>
+              <div className="sf-stat-label">Weekly competitors active</div>
             </div>
           </div>
         </div>

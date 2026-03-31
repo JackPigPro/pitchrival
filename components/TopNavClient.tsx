@@ -86,9 +86,24 @@ export default function TopNavClient({
     marginBottom: '-10px',
   }
 
+  const handleNavPageClick = () => {
+    setOpen(null)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
   return (
     <nav className="nav">
-      <Link className="nav-brand" href="/" style={{ textDecoration: 'none' }}>
+      <Link
+        className="nav-brand"
+        href="/"
+        onClick={(e) => {
+          if (isOnLanding) {
+            e.preventDefault()
+            window.scrollTo({ top: 0, behavior: 'smooth' })
+          }
+        }}
+        style={{ textDecoration: 'none' }}
+      >
         <div className="nav-logo">P</div>
         <span className="nav-name">PitchRival</span>
       </Link>
@@ -127,13 +142,13 @@ export default function TopNavClient({
               pointerEvents: open === 'connect' ? 'auto' : 'none',
             }}
           >
-            <Link href="/connect/cofounder-match" className="topnav-dropdown-link" style={dropdownLinkStyle}>
+            <Link href="/connect/cofounder-match" scroll className="topnav-dropdown-link" style={dropdownLinkStyle} onClick={handleNavPageClick}>
               Co-founder Match
             </Link>
-            <Link href="/connect/messages" className="topnav-dropdown-link" style={dropdownLinkStyle}>
+            <Link href="/connect/messages" scroll className="topnav-dropdown-link" style={dropdownLinkStyle} onClick={handleNavPageClick}>
               Messages
             </Link>
-            <Link href="/connect/ideas" className="topnav-dropdown-link" style={dropdownLinkStyle}>
+            <Link href="/connect/ideas" scroll className="topnav-dropdown-link" style={dropdownLinkStyle} onClick={handleNavPageClick}>
               Ideas
             </Link>
           </div>
@@ -172,10 +187,10 @@ export default function TopNavClient({
               pointerEvents: open === 'compete' ? 'auto' : 'none',
             }}
           >
-            <Link href="/compete/weekly-duel" className="topnav-dropdown-link" style={dropdownLinkStyle}>
+            <Link href="/compete/weekly-duel" scroll className="topnav-dropdown-link" style={dropdownLinkStyle} onClick={handleNavPageClick}>
               Weekly Duel
             </Link>
-            <Link href="/compete/leaderboard" className="topnav-dropdown-link" style={dropdownLinkStyle}>
+            <Link href="/compete/leaderboard" scroll className="topnav-dropdown-link" style={dropdownLinkStyle} onClick={handleNavPageClick}>
               Leaderboard
             </Link>
           </div>
