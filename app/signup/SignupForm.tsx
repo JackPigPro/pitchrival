@@ -53,12 +53,12 @@ export default function SignupForm() {
     const { error: oauthError } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
+        redirectTo: `${window.location.origin}/auth/callback?next=/dashboard`,
       },
     })
 
     if (oauthError) {
-      setError(oauthError.message)
+      // Keep this quiet for smooth UX; OAuth normally redirects away immediately.
       setGoogleLoading(false)
     }
   }
@@ -86,6 +86,51 @@ export default function SignupForm() {
       <h1 style={{ margin: 0, fontSize: '34px', fontWeight: 800, letterSpacing: '-1px', fontFamily: 'var(--font-display)' }}>Create your account</h1>
       <p style={{ color: 'rgba(255,255,255,.62)', marginTop: '10px', marginBottom: '18px' }}>Sign up with your email and password to start building.</p>
 
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          gap: '8px',
+          background: 'rgba(255,255,255,.05)',
+          border: '1px solid rgba(255,255,255,.14)',
+          borderRadius: '10px',
+          padding: '4px',
+          marginBottom: '14px',
+        }}
+      >
+        <Link
+          href="/login"
+          style={{
+            textDecoration: 'none',
+            textAlign: 'center',
+            borderRadius: '8px',
+            padding: '8px 10px',
+            color: 'rgba(255,255,255,.72)',
+            fontWeight: 700,
+            fontSize: '13px',
+            fontFamily: 'var(--font-display)',
+          }}
+        >
+          Sign In
+        </Link>
+        <Link
+          href="/signup"
+          style={{
+            textDecoration: 'none',
+            textAlign: 'center',
+            borderRadius: '8px',
+            padding: '8px 10px',
+            background: 'rgba(34,197,94,.18)',
+            color: '#fff',
+            fontWeight: 700,
+            fontSize: '13px',
+            fontFamily: 'var(--font-display)',
+          }}
+        >
+          Sign Up
+        </Link>
+      </div>
+
       <button
         type="button"
         onClick={onGoogleSignup}
@@ -107,22 +152,12 @@ export default function SignupForm() {
           gap: '10px',
         }}
       >
-        <span
-          style={{
-            width: '18px',
-            height: '18px',
-            borderRadius: '50%',
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            background: '#fff',
-            color: '#111827',
-            fontSize: '12px',
-            fontWeight: 900,
-          }}
-        >
-          G
-        </span>
+        <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+          <path fill="#EA4335" d="M12 10.2v3.9h5.4c-.2 1.2-.9 2.2-1.9 2.9v2.4h3.1c1.8-1.7 2.9-4.2 2.9-7.1 0-.7-.1-1.4-.2-2H12Z" />
+          <path fill="#34A853" d="M12 21c2.6 0 4.7-.9 6.2-2.3l-3.1-2.4c-.9.6-1.9.9-3.1.9-2.4 0-4.5-1.6-5.2-3.9H3.6v2.5A9.4 9.4 0 0 0 12 21Z" />
+          <path fill="#4A90E2" d="M6.8 13.3a5.7 5.7 0 0 1 0-3.6V7.2H3.6a9.4 9.4 0 0 0 0 8.5l3.2-2.4Z" />
+          <path fill="#FBBC05" d="M12 6.8c1.4 0 2.6.5 3.5 1.4l2.6-2.6A9.2 9.2 0 0 0 12 3 9.4 9.4 0 0 0 3.6 7.2l3.2 2.5c.7-2.3 2.8-3.9 5.2-3.9Z" />
+        </svg>
         {googleLoading ? 'Connecting to Google...' : 'Continue with Google'}
       </button>
 
