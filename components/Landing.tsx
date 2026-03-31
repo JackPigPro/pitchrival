@@ -8,7 +8,7 @@ import ConnectSection from './ConnectSection'
 import CompeteSection from './CompeteSection'
 import LearnSection from './LearnSection'
 import Schools from './Schools'
-import ConditionalFooter from './ConditionalFooter'
+import Footer from './Footer'
 import ComingSoon from './ComingSoon'
 
 export default function Landing() {
@@ -116,7 +116,7 @@ export default function Landing() {
           </div>
         </div>
       </section>
-      <ConditionalFooter onComingSoon={handleShowComingSoon} onScrollTo={scrollToCenter} />
+      <Footer onComingSoon={handleShowComingSoon} onScrollTo={scrollToCenter} />
     </div>
   )
 }

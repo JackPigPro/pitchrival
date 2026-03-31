@@ -9,6 +9,7 @@ export default function OnboardingPage() {
   const router = useRouter()
   const supabase = createClient()
   const [username, setUsername] = useState('')
+  const [displayUsername, setDisplayUsername] = useState('')
   const [ageConfirmed, setAgeConfirmed] = useState(false)
   const [agreedToTerms, setAgreedToTerms] = useState(false)
   const [usernameStatus, setUsernameStatus] = useState<'checking' | 'available' | 'taken' | 'invalid' | null>(null)
@@ -31,8 +32,8 @@ export default function OnboardingPage() {
         message: 'Username must be 15 characters or less'
       },
       {
-        test: /^[a-z0-9]+$/.test(username),
-        message: 'Username can only contain lowercase letters and numbers'
+        test: /^[a-zA-Z0-9]+$/.test(username),
+        message: 'Username can only contain letters and numbers'
       }
     ]
 
@@ -47,10 +48,11 @@ export default function OnboardingPage() {
 
     const checkUsername = async () => {
       setUsernameStatus('checking')
+      // Check in lowercase for case-insensitive comparison
       const { data, error } = await supabase
         .from('profiles')
         .select('username')
-        .eq('username', username.trim())
+        .eq('username', username.trim().toLowerCase())
         .single()
 
       if (error && error.code !== 'PGRST116') { // PGRST116 is "not found"
@@ -89,7 +91,7 @@ export default function OnboardingPage() {
         .from('profiles')
         .upsert({
           id: user.id,
-          username: username.trim(),
+          username: username.trim().toLowerCase(), // Store in lowercase for consistency
           onboarding_complete: true,
           age_confirmed: true,
           agreed_to_terms: true,
@@ -177,8 +179,12 @@ export default function OnboardingPage() {
             <div style={{ position: 'relative' }}>
               <input
                 type="text"
-                value={username}
-                onChange={(event) => setUsername(event.target.value.toLowerCase().replace(/[^a-z0-9]/g, ''))}
+                value={displayUsername}
+                onChange={(event) => {
+                  const value = event.target.value
+                  setDisplayUsername(value)
+                  setUsername(value.replace(/[^a-zA-Z0-9]/g, '')) // Keep only alphanumeric for comparison
+                }}
                 required
                 placeholder="Choose a username"
                 maxLength={15}

@@ -50,9 +50,15 @@ export default async function LoginPage({
       </div>
       <div style={{ position: 'relative', zIndex: 2 }}>
         <LoginForm mode={mode} />
-        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '12px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '12px', width: '100%', maxWidth: '420px' }}>
           <Link href="/" className="auth-back-link">
             ← Back to home
+          </Link>
+          <Link 
+            href={mode === 'signup' ? '/login?mode=login' : '/login?mode=signup'} 
+            className="auth-back-link"
+          >
+            {mode === 'signup' ? 'Sign in instead' : 'Create an account'}
           </Link>
         </div>
       </div>

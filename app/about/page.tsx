@@ -1,15 +1,8 @@
-'use client'
-
-import ConditionalFooter from '@/components/ConditionalFooter'
-
 export default function AboutPage() {
   return (
-    <>
-      <main className="blank-page">
-        <h1>About PitchRival</h1>
-        <p>About content will be added here.</p>
-      </main>
-      <ConditionalFooter />
-    </>
+    <main className="blank-page">
+      <h1>About PitchRival</h1>
+      <p>About content will be added here.</p>
+    </main>
   )
 }

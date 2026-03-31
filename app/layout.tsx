@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import './globals.css'
 import TopNav from '@/components/TopNav'
 import { AppStateProvider } from '@/components/AppStateProvider'
+import PageLayout from '@/components/PageLayout'
 
 export const metadata: Metadata = {
   title: 'PitchRival — Where founders get good.',
@@ -19,7 +20,11 @@ export default function RootLayout({
       <body>
         <AppStateProvider>
           <TopNav />
-          <div style={{ paddingTop: '68px' }}>{children}</div>
+          <div style={{ paddingTop: '68px' }}>
+            <PageLayout>
+              {children}
+            </PageLayout>
+          </div>
         </AppStateProvider>
       </body>
     </html>

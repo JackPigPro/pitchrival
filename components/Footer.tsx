@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { useRouter, usePathname } from 'next/navigation'
 
 interface FooterProps {
   onComingSoon: () => void
@@ -8,6 +9,19 @@ interface FooterProps {
 }
 
 export default function Footer({ onComingSoon, onScrollTo }: FooterProps) {
+  const router = useRouter()
+  const pathname = usePathname()
+
+  const handleLandingNavigation = (sectionId: string) => {
+    if (pathname === '/') {
+      // Already on landing page, just scroll
+      onScrollTo(sectionId)
+    } else {
+      // Navigate to landing page first, then scroll
+      router.push(`/#${sectionId}`)
+    }
+  }
+
   return (
     <footer className="site-footer">
       <div className="sf-top">
@@ -40,10 +54,10 @@ export default function Footer({ onComingSoon, onScrollTo }: FooterProps) {
         <div>
           <div className="sf-col-title">Explore</div>
           <div className="sf-col-links">
-            <a href="#connect" onClick={(e) => { e.preventDefault(); onScrollTo('connect') }}>Connect</a>
-            <a href="#compete" onClick={(e) => { e.preventDefault(); onScrollTo('compete') }}>Compete</a>
-            <a href="#learn" onClick={(e) => { e.preventDefault(); onScrollTo('learn') }}>Learn</a>
-            <a href="#schools" onClick={(e) => { e.preventDefault(); onScrollTo('schools') }}>Schools</a>
+            <a href="#connect" onClick={(e) => { e.preventDefault(); handleLandingNavigation('connect') }}>Connect</a>
+            <a href="#compete" onClick={(e) => { e.preventDefault(); handleLandingNavigation('compete') }}>Compete</a>
+            <a href="#learn" onClick={(e) => { e.preventDefault(); handleLandingNavigation('learn') }}>Learn</a>
+            <a href="#schools" onClick={(e) => { e.preventDefault(); handleLandingNavigation('schools') }}>Schools</a>
           </div>
         </div>
 

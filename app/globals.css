@@ -17,6 +17,7 @@
   --text3:        #909090;
   --green:        #16a34a;
   --green2:       #15803d;
+  --green-light:   #22c55e;
   --green-tint:   #ecfdf5;
   --green-mid:    #d1fae5;
   --blue:         #2563eb;
@@ -192,14 +193,14 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
   display: flex; align-items: center; gap: 8px; transition: all .2s;
   box-shadow: 0 4px 16px rgba(21,128,61,.32); letter-spacing: -.1px;
 }
-.btn-cta-primary:hover { background: var(--green2); transform: translateY(-2px); box-shadow: 0 8px 28px rgba(21,128,61,.35); }
+.btn-cta-primary:hover { background: var(--green-light); transform: translateY(-2px); box-shadow: 0 8px 32px rgba(34,197,94,.4); }
 .btn-cta-ghost {
   background: var(--card); border: 1.5px solid var(--border2); color: var(--text);
   padding: 15px 30px; border-radius: 9px; font-size: 15px; font-weight: 600;
   cursor: pointer; font-family: var(--font-display); transition: all .15s; box-shadow: var(--shadow-sm);
   letter-spacing: -.1px;
 }
-.btn-cta-ghost:hover { border-color: var(--text); }
+.btn-cta-ghost:hover { border-color: var(--green); color: var(--green); background: var(--green-tint); }
 button:hover, .nav-login:hover, .nav-signup:hover, .ft-cta:hover, .pc-cta:hover, .schools-btn-p:hover, .schools-btn-g:hover, .pricing-cta:hover {
   filter: brightness(1.08);
 }
