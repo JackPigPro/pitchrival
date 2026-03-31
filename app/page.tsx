@@ -12,14 +12,15 @@ export default async function HomePage() {
   }
 
   // Check if user has completed onboarding
-  const { data: profile } = await supabase
+  const { data: profile, error } = await supabase
     .from('profiles')
     .select('onboarding_complete')
     .eq('id', user.id)
     .single()
 
-  // Redirect to onboarding if not completed
-  if (!profile?.onboarding_complete) {
+  // Only redirect to onboarding if profile exists but onboarding is not complete
+  // If profile doesn't exist (error), let the user see the landing page
+  if (profile && !profile.onboarding_complete) {
     redirect('/onboarding')
   }
 
