@@ -11,13 +11,19 @@ import Schools from './Schools'
 import Footer from './Footer'
 import ComingSoon from './ComingSoon'
 
-export default function Landing() {
+interface LandingProps {
+  onComingSoon?: () => void
+  onScrollTo?: (id: string) => void
+}
+
+export default function Landing({ onComingSoon, onScrollTo }: LandingProps = {}) {
   const [showComingSoon, setShowComingSoon] = useState(false)
 
   const handleShowComingSoon = useCallback(() => {
     setShowComingSoon(true)
     window.scrollTo(0, 0)
-  }, [])
+    onComingSoon?.()
+  }, [onComingSoon])
 
   const handleShowLanding = useCallback(() => {
     setShowComingSoon(false)
@@ -36,7 +42,8 @@ export default function Landing() {
     const elCenter = elRect.top + window.scrollY + elRect.height / 2
     const viewportCenter = window.innerHeight / 2
     window.scrollTo({ top: elCenter - viewportCenter, behavior: 'smooth' })
-  }, [])
+    onScrollTo?.(id)
+  }, [onScrollTo])
 
   if (showComingSoon) {
     return <ComingSoon onBack={handleShowLanding} />
@@ -116,7 +123,6 @@ export default function Landing() {
           </div>
         </div>
       </section>
-      <Footer onComingSoon={handleShowComingSoon} onScrollTo={scrollToCenter} />
     </div>
   )
 }

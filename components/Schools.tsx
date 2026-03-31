@@ -22,10 +22,6 @@ export default function Schools({ onComingSoon }: SchoolsProps) {
               Bring the energy of real entrepreneurship into your classroom. Create lessons, run
               competitions, track every student&apos;s growth — and watch them actually show up to do the work.
             </p>
-            <div className="schools-cta-row">
-              <button className="schools-btn-p" onClick={onComingSoon}>🏫 Request Early Access</button>
-              <button className="schools-btn-g" onClick={onComingSoon}>Learn more →</button>
-            </div>
           </div>
 
           {/* Right: feature cards grid */}

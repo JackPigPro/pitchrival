@@ -1,4 +1,4 @@
-import Landing from '@/components/Landing'
+import LandingPage from '@/components/LandingPage'
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 
@@ -8,13 +8,13 @@ export default async function HomePage() {
   const user = data.user
 
   if (!user) {
-    return <Landing />
+    return <LandingPage />
   }
 
   // Check if user has completed onboarding
   const { data: profile, error } = await supabase
     .from('profiles')
-    .select('onboarding_complete')
+    .select('onboarding_complete, username')
     .eq('id', user.id)
     .single()
 
@@ -24,7 +24,8 @@ export default async function HomePage() {
     redirect('/onboarding')
   }
 
-  const name =
+  // Use username from profile only if onboarding is complete, otherwise fallback to Google metadata
+  const name = (profile?.onboarding_complete && profile.username) ? profile.username : 
     (user.user_metadata?.name as string | undefined) ??
     (user.user_metadata?.full_name as string | undefined) ??
     (user.email ? user.email.split('@')[0] : 'Founder')

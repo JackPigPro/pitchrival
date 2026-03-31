@@ -1,0 +1,39 @@
+'use client'
+
+import { useState, useCallback } from 'react'
+import Landing from './Landing'
+
+export default function LandingPage() {
+  const [showComingSoon, setShowComingSoon] = useState(false)
+
+  const handleShowComingSoon = useCallback(() => {
+    setShowComingSoon(true)
+    window.scrollTo(0, 0)
+  }, [])
+
+  const handleShowLanding = useCallback(() => {
+    setShowComingSoon(false)
+    window.scrollTo(0, 0)
+  }, [])
+
+  const scrollToCenter = useCallback((id: string) => {
+    const el = document.getElementById(id)
+    if (!el) return
+    const elRect = el.getBoundingClientRect()
+    const navOffset = 76
+    if (id === 'schools') {
+      window.scrollTo({ top: Math.max(0, elRect.top + window.scrollY - navOffset), behavior: 'smooth' })
+      return
+    }
+    const elCenter = elRect.top + window.scrollY + elRect.height / 2
+    const viewportCenter = window.innerHeight / 2
+    window.scrollTo({ top: elCenter - viewportCenter, behavior: 'smooth' })
+  }, [])
+
+  return (
+    <Landing 
+      onComingSoon={handleShowComingSoon}
+      onScrollTo={scrollToCenter}
+    />
+  )
+}
