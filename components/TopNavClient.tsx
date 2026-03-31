@@ -62,14 +62,20 @@ export default function TopNavClient({
   const isLoggedIn = Boolean(user)
   const isOnLanding = pathname === '/'
 
-  const scrollToLandingSection = (id: string) => {
+  const scrollToLandingSection = (id: string, align: 'center' | 'top') => {
     if (!isOnLanding) {
       router.push(`/#${id}`)
       return
     }
     const el = document.getElementById(id)
     if (!el) return
-    el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    const rect = el.getBoundingClientRect()
+    const navOffset = 76
+    const targetTop =
+      align === 'center'
+        ? rect.top + window.scrollY - (window.innerHeight / 2 - rect.height / 2)
+        : rect.top + window.scrollY - navOffset
+    window.scrollTo({ top: Math.max(0, targetTop), behavior: 'smooth' })
   }
 
   const hoverZoneStyle: React.CSSProperties = {
@@ -94,15 +100,16 @@ export default function TopNavClient({
           onMouseLeave={() => setOpen(null)}
         >
           {isLoggedIn ? (
-            <span style={{ ...menuItemStyle, cursor: 'default' }}>
+            <span className="topnav-link" style={{ ...menuItemStyle, cursor: 'default' }}>
               Connect <span style={{ fontSize: '12px', opacity: 0.7 }}>▾</span>
             </span>
           ) : (
             <a
+              className="topnav-link"
               href="/#connect"
               onClick={(e) => {
                 e.preventDefault()
-                scrollToLandingSection('connect')
+                scrollToLandingSection('connect', 'center')
               }}
               style={menuItemStyle}
             >
@@ -120,13 +127,13 @@ export default function TopNavClient({
               pointerEvents: open === 'connect' ? 'auto' : 'none',
             }}
           >
-            <Link href="/connect/cofounder-match" style={dropdownLinkStyle}>
+            <Link href="/connect/cofounder-match" className="topnav-dropdown-link" style={dropdownLinkStyle}>
               Co-founder Match
             </Link>
-            <Link href="/connect/messages" style={dropdownLinkStyle}>
+            <Link href="/connect/messages" className="topnav-dropdown-link" style={dropdownLinkStyle}>
               Messages
             </Link>
-            <Link href="/connect/ideas" style={dropdownLinkStyle}>
+            <Link href="/connect/ideas" className="topnav-dropdown-link" style={dropdownLinkStyle}>
               Ideas
             </Link>
           </div>
@@ -138,15 +145,16 @@ export default function TopNavClient({
           onMouseLeave={() => setOpen(null)}
         >
           {isLoggedIn ? (
-            <span style={{ ...menuItemStyle, cursor: 'default' }}>
+            <span className="topnav-link" style={{ ...menuItemStyle, cursor: 'default' }}>
               Compete <span style={{ fontSize: '12px', opacity: 0.7 }}>▾</span>
             </span>
           ) : (
             <a
+              className="topnav-link"
               href="/#compete"
               onClick={(e) => {
                 e.preventDefault()
-                scrollToLandingSection('compete')
+                scrollToLandingSection('compete', 'center')
               }}
               style={menuItemStyle}
             >
@@ -164,10 +172,10 @@ export default function TopNavClient({
               pointerEvents: open === 'compete' ? 'auto' : 'none',
             }}
           >
-            <Link href="/compete/weekly-duel" style={dropdownLinkStyle}>
+            <Link href="/compete/weekly-duel" className="topnav-dropdown-link" style={dropdownLinkStyle}>
               Weekly Duel
             </Link>
-            <Link href="/compete/leaderboard" style={dropdownLinkStyle}>
+            <Link href="/compete/leaderboard" className="topnav-dropdown-link" style={dropdownLinkStyle}>
               Leaderboard
             </Link>
           </div>
@@ -175,30 +183,32 @@ export default function TopNavClient({
 
         {isLoggedIn ? (
           <>
-            <Link href="/learn" style={menuItemStyle}>
+            <Link href="/learn" className="topnav-link" style={menuItemStyle}>
               Learn
             </Link>
-            <Link href="/schools" style={menuItemStyle}>
+            <Link href="/schools" className="topnav-link" style={menuItemStyle}>
               Schools
             </Link>
           </>
         ) : (
           <>
             <a
+              className="topnav-link"
               href="/#learn"
               onClick={(e) => {
                 e.preventDefault()
-                scrollToLandingSection('learn')
+                scrollToLandingSection('learn', 'center')
               }}
               style={menuItemStyle}
             >
               Learn
             </a>
             <a
+              className="topnav-link"
               href="/#schools"
               onClick={(e) => {
                 e.preventDefault()
-                scrollToLandingSection('schools')
+                scrollToLandingSection('schools', 'top')
               }}
               style={menuItemStyle}
             >

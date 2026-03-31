@@ -109,6 +109,14 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
   box-shadow: 0 2px 10px rgba(21,128,61,.3); letter-spacing: -.1px;
 }
 .nav-signup:hover { background: var(--green2); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(21,128,61,.35); }
+.topnav-link:hover {
+  background: var(--surface);
+  color: var(--text);
+}
+.topnav-dropdown-link:hover {
+  background: var(--surface);
+  color: var(--text);
+}
 
 /* ═══════════════════════════════════════════════════════════
    HERO
