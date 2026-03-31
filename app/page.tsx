@@ -1,5 +1,6 @@
 import Landing from '@/components/Landing'
 import { createClient } from '@/utils/supabase/server'
+import { redirect } from 'next/navigation'
 
 export default async function HomePage() {
   const supabase = await createClient()
@@ -8,6 +9,18 @@ export default async function HomePage() {
 
   if (!user) {
     return <Landing />
+  }
+
+  // Check if user has completed onboarding
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('onboarding_complete')
+    .eq('id', user.id)
+    .single()
+
+  // Redirect to onboarding if not completed
+  if (!profile?.onboarding_complete) {
+    redirect('/onboarding')
   }
 
   const name =
@@ -24,7 +37,7 @@ export default async function HomePage() {
         Welcome, {name}
       </h1>
       <p style={{ color: 'var(--text2)', marginTop: '8px' }}>
-        You’re signed in. Use the navigation above to explore.
+        You're signed in. Use the navigation above to explore.
       </p>
     </main>
   )

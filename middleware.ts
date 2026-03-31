@@ -7,30 +7,8 @@ export async function middleware(request: NextRequest) {
   const user = data.user
   const { pathname, search } = request.nextUrl
 
-  if (!user) {
-    const redirectUrl = request.nextUrl.clone()
-    redirectUrl.pathname = '/login'
-    redirectUrl.search = `?next=${encodeURIComponent(`${pathname}${search}`)}`
-    return NextResponse.redirect(redirectUrl)
-  }
-
-  // Check if user needs onboarding
-  if (pathname === '/') {
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('onboarding_complete')
-      .eq('id', user.id)
-      .single()
-
-    if (!profile?.onboarding_complete) {
-      const redirectUrl = request.nextUrl.clone()
-      redirectUrl.pathname = '/onboarding'
-      return NextResponse.redirect(redirectUrl)
-    }
-  }
-
   // Redirect users who have completed onboarding away from /onboarding
-  if (pathname === '/onboarding') {
+  if (pathname === '/onboarding' && user) {
     const { data: profile } = await supabase
       .from('profiles')
       .select('onboarding_complete')
@@ -49,7 +27,6 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/',
     '/onboarding',
   ],
 }
