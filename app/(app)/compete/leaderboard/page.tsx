@@ -18,7 +18,7 @@ export default async function LeaderboardPage() {
     .select(`
       elo,
       user_id,
-      profiles!inner(
+      profiles (
         username
       )
     `)
@@ -51,10 +51,7 @@ export default async function LeaderboardPage() {
       elo_change,
       new_elo,
       user_id,
-      created_at,
-      profiles!inner(
-        username
-      )
+      created_at
     `)
     .gte('created_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString())
     .order('new_elo', { ascending: false })
@@ -65,22 +62,6 @@ export default async function LeaderboardPage() {
 
   console.log('Daily history raw:', dailyHistory)
 
-  // Transform daily history data
-  const transformedDailyHistory = (dailyHistory || []).map(entry => {
-    const profile = Array.isArray(entry.profiles) ? entry.profiles[0] : entry.profiles
-    return {
-      elo_change: entry.elo_change,
-      new_elo: entry.new_elo || 0,
-      user_id: entry.user_id,
-      created_at: entry.created_at,
-      profiles: {
-        username: profile?.username || 'Unknown'
-      }
-    }
-  })
-
-  console.log('Daily history transformed:', transformedDailyHistory)
-
   // Fetch weekly leaderboard (last 7 days)
   const { data: weeklyHistory, error: weeklyError } = await supabase
     .from('elo_history')
@@ -88,10 +69,7 @@ export default async function LeaderboardPage() {
       elo_change,
       new_elo,
       user_id,
-      created_at,
-      profiles!inner(
-        username
-      )
+      created_at
     `)
     .gte('created_at', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString())
     .order('new_elo', { ascending: false })
@@ -102,52 +80,36 @@ export default async function LeaderboardPage() {
 
   console.log('Weekly history raw:', weeklyHistory)
 
-  // Transform weekly history data
-  const transformedWeeklyHistory = (weeklyHistory || []).map(entry => {
-    const profile = Array.isArray(entry.profiles) ? entry.profiles[0] : entry.profiles
+  // Create user lookup map from allUsers
+  const userLookup = new Map(transformedAllUsers.map(user => [user.user_id, user]))
+
+  // Build complete daily list - start with all users, then add their daily gains
+  const completeDailyList = transformedAllUsers.map(user => {
+    const dailyEntries = (dailyHistory || []).filter(entry => entry.user_id === user.user_id)
+    const totalDailyGain = dailyEntries.reduce((sum, entry) => sum + (entry.elo_change || 0), 0)
+    
     return {
-      elo_change: entry.elo_change,
-      new_elo: entry.new_elo || 0,
-      user_id: entry.user_id,
-      created_at: entry.created_at,
-      profiles: {
-        username: profile?.username || 'Unknown'
-      }
+      elo_change: totalDailyGain,
+      new_elo: user.elo || 0,
+      user_id: user.user_id,
+      created_at: new Date().toISOString(),
+      profiles: user.profiles
     }
-  })
+  }).sort((a, b) => b.new_elo - a.new_elo)
 
-  console.log('Weekly history transformed:', transformedWeeklyHistory)
-
-  // Get all user IDs that have history entries
-  const usersWithHistory = new Set([
-    ...transformedDailyHistory.map(entry => entry.user_id),
-    ...transformedWeeklyHistory.map(entry => entry.user_id)
-  ])
-
-  console.log('Users with history:', Array.from(usersWithHistory))
-
-  // Create a complete user list for daily/weekly that includes users without history
-  const getCompleteUserList = (historyUsers: any[]) => {
-    const historyUserMap = new Map(historyUsers.map(user => [user.user_id, user]))
+  // Build complete weekly list - start with all users, then add their weekly gains
+  const completeWeeklyList = transformedAllUsers.map(user => {
+    const weeklyEntries = (weeklyHistory || []).filter(entry => entry.user_id === user.user_id)
+    const totalWeeklyGain = weeklyEntries.reduce((sum, entry) => sum + (entry.elo_change || 0), 0)
     
-    // Add users without history (with 0 ELO for that period)
-    transformedAllUsers.forEach(user => {
-      if (!historyUserMap.has(user.user_id)) {
-        historyUserMap.set(user.user_id, {
-          elo_change: 0,
-          new_elo: user.elo || 0,
-          user_id: user.user_id,
-          created_at: new Date().toISOString(),
-          profiles: user.profiles
-        })
-      }
-    })
-    
-    return Array.from(historyUserMap.values()).sort((a, b) => b.new_elo - a.new_elo)
-  }
-
-  const completeDailyList = getCompleteUserList(transformedDailyHistory)
-  const completeWeeklyList = getCompleteUserList(transformedWeeklyHistory)
+    return {
+      elo_change: totalWeeklyGain,
+      new_elo: user.elo || 0,
+      user_id: user.user_id,
+      created_at: new Date().toISOString(),
+      profiles: user.profiles
+    }
+  }).sort((a, b) => b.new_elo - a.new_elo)
 
   console.log('Complete daily list:', completeDailyList)
   console.log('Complete weekly list:', completeWeeklyList)
