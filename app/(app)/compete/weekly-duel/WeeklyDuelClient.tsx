@@ -333,7 +333,11 @@ export default function WeeklyDuelClient({
   const top3Winners = pastWinners.slice(0, 3)
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--background)', padding: '0 0 48px 0' }}>
+    <div style={{ 
+      minHeight: '100vh',
+      background: 'var(--bg)',
+      padding: '0 0 48px 0'
+    }}>
       {/* Header - No card background like leaderboard */}
       <div style={{ 
         padding: '32px 24px 24px 24px'
