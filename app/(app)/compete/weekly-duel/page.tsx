@@ -24,15 +24,33 @@ export default async function WeeklyDuelPage() {
     redirect('/login')
   }
 
-  // Fetch current active duel
-  const { data: currentDuel, error: duelError } = await supabase
+  // Fetch current duel (active, voting, or most recent completed)
+  let currentDuel = null
+  let duelError = null
+
+  // Try to get active or voting duel first
+  const { data: activeDuel, error: activeError } = await supabase
     .from('weekly_duel')
     .select('*')
-    .eq('status', 'active')
+    .in('status', ['active', 'voting'])
+    .order('created_at', { ascending: false })
+    .limit(1)
     .single()
 
-  if (duelError) {
-    console.error('Error fetching current duel:', duelError)
+  if (activeDuel && !activeError) {
+    currentDuel = activeDuel
+  } else {
+    // If no active/voting duel, get the most recent completed duel
+    const { data: completedDuel, error: completedError } = await supabase
+      .from('weekly_duel')
+      .select('*')
+      .eq('status', 'completed')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single()
+    
+    currentDuel = completedDuel
+    duelError = completedError
   }
 
   // Fetch user's submission for current duel
@@ -98,7 +116,7 @@ export default async function WeeklyDuelPage() {
     console.error('Error fetching winners with users:', winnersUsersError)
   }
 
-  // Determine current state based on timing
+  // Determine current state based on timing and duel status
   const now = new Date()
   const estTime = new Date(now.toLocaleString("en-US", { timeZone: "America/New_York" }))
   const dayOfWeek = estTime.getDay() // 0 = Sunday, 6 = Saturday
@@ -109,22 +127,29 @@ export default async function WeeklyDuelPage() {
   let votingDeadline: Date | null = null
   
   if (currentDuel) {
-    const startDate = new Date(currentDuel.start_date)
-    const endDate = new Date(currentDuel.end_date)
-    
-    // Active: Sunday 12:00am to Friday 11:59pm EST
-    if (dayOfWeek >= 0 && dayOfWeek <= 5 && hour < 23) { // Sunday-Friday before 11:59pm
-      currentState = 'active'
-      submissionDeadline = endDate
-    }
-    // Voting: Saturday 12:00am to Saturday 11:59pm EST
-    else if (dayOfWeek === 6 && hour < 23) { // Saturday before 11:59pm
-      currentState = 'voting'
-      votingDeadline = new Date(endDate)
-    }
-    // Results: After Saturday 11:59pm EST
-    else {
+    // If duel is already completed, show results regardless of time
+    if (currentDuel.status === 'completed') {
       currentState = 'results'
+    }
+    // Otherwise use time-based logic for active/voting duels
+    else {
+      const startDate = new Date(currentDuel.start_date)
+      const endDate = new Date(currentDuel.end_date)
+      
+      // Active: Sunday 12:00am to Friday 11:59pm EST
+      if (dayOfWeek >= 0 && dayOfWeek <= 5 && hour < 23) { // Sunday-Friday before 11:59pm
+        currentState = 'active'
+        submissionDeadline = endDate
+      }
+      // Voting: Saturday 12:00am to Saturday 11:59pm EST
+      else if (dayOfWeek === 6 && hour < 23) { // Saturday before 11:59pm
+        currentState = 'voting'
+        votingDeadline = new Date(endDate)
+      }
+      // Results: After Saturday 11:59pm EST
+      else {
+        currentState = 'results'
+      }
     }
   } else {
     currentState = 'between'
