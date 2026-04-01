@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
 
     // Get voter's vote weight based on ELO
     const { data: voteWeight } = userStats.elo ? await supabase
-      .rpc('get_vote_weight', { params: { voter_elo: userStats.elo } })
+      .rpc('get_vote_weight', { voter_elo: userStats.elo })
       .single() : { data: null }
 
     if (!voteWeight) {
@@ -69,12 +69,10 @@ export async function POST(request: NextRequest) {
     // Call the submit_vote function
     const { data, error: voteError } = await supabase
       .rpc('submit_vote', { 
-        params: { 
-          voter_id_param: user.id,
-          duel_id_param: duelData?.duel_id,
-          winner_submission_id,
-          loser_submission_id
-        }
+        voter_id_param: user.id,
+        duel_id_param: duelData?.duel_id,
+        winner_submission_id_param: winner_submission_id,
+        loser_submission_id_param: loser_submission_id
       })
 
     if (voteError) {
