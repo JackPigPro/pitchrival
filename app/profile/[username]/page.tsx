@@ -26,7 +26,7 @@ async function ProfileContent({ username }: { username: string }) {
   // Fetch user stats
   const { data: userStats, error: statsError } = await supabase
     .from('user_stats')
-    .select('elo, leaderboard_rank')
+    .select('elo, rank, weekly_duel_entered')
     .eq('user_id', profile.id)
     .single()
 

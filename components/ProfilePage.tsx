@@ -20,7 +20,8 @@ interface Profile {
 
 interface UserStats {
   elo?: number
-  leaderboard_rank?: number
+  rank?: string
+  weekly_duel_entered?: number
 }
 
 interface Idea {
@@ -139,6 +140,80 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
       hash = username.charCodeAt(i) + ((hash << 5) - hash)
     }
     return colors[Math.abs(hash) % colors.length]
+  }
+
+  const getCountryFlag = (countryName?: string) => {
+    if (!countryName) return ''
+    
+    const countryFlags: { [key: string]: string } = {
+      'United States': '🇺🇸',
+      'USA': '🇺🇸',
+      'United Kingdom': '🇬🇧',
+      'UK': '🇬🇧',
+      'Canada': '🇨🇦',
+      'Australia': '🇦🇺',
+      'Germany': '🇩🇪',
+      'France': '🇫🇷',
+      'Italy': '🇮🇹',
+      'Spain': '🇪🇸',
+      'Netherlands': '🇳🇱',
+      'Sweden': '🇸🇪',
+      'Norway': '🇳🇴',
+      'Denmark': '🇩🇰',
+      'Finland': '🇫🇮',
+      'Belgium': '🇧🇪',
+      'Austria': '🇦🇹',
+      'Switzerland': '🇨🇭',
+      'Poland': '🇵🇱',
+      'Ireland': '🇮🇪',
+      'Portugal': '🇵🇹',
+      'Greece': '🇬🇷',
+      'Czech Republic': '🇨🇿',
+      'Hungary': '🇭🇺',
+      'Romania': '🇷🇴',
+      'Bulgaria': '🇧🇬',
+      'Croatia': '🇭🇷',
+      'Slovakia': '🇸🇰',
+      'Slovenia': '🇸🇮',
+      'Estonia': '🇪🇪',
+      'Latvia': '🇱🇻',
+      'Lithuania': '🇱🇹',
+      'Luxembourg': '🇱🇺',
+      'Malta': '🇲🇹',
+      'Cyprus': '🇨🇾',
+      'Japan': '🇯🇵',
+      'China': '🇨🇳',
+      'South Korea': '🇰🇷',
+      'India': '🇮🇳',
+      'Singapore': '🇸🇬',
+      'Hong Kong': '🇭🇰',
+      'Taiwan': '🇹🇼',
+      'Thailand': '🇹🇭',
+      'Malaysia': '🇲🇾',
+      'Indonesia': '🇮🇩',
+      'Philippines': '🇵🇭',
+      'Vietnam': '🇻🇳',
+      'Brazil': '🇧🇷',
+      'Argentina': '🇦🇷',
+      'Chile': '🇨🇱',
+      'Colombia': '🇨🇴',
+      'Peru': '🇵🇪',
+      'Mexico': '🇲🇽',
+      'South Africa': '🇿🇦',
+      'Egypt': '🇪🇬',
+      'Nigeria': '🇳🇬',
+      'Kenya': '🇰🇪',
+      'Morocco': '🇲🇦',
+      'Ghana': '🇬🇭',
+      'UAE': '🇦🇪',
+      'Saudi Arabia': '🇸🇦',
+      'Turkey': '🇹🇷',
+      'Russia': '🇷🇺',
+      'Ukraine': '🇺🇦',
+      'New Zealand': '🇳🇿'
+    }
+    
+    return countryFlags[countryName] || '🌍'
   }
 
   const stageOptions = ['Idea Stage', 'Building MVP', 'Already Launched']
@@ -422,8 +497,8 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
               onClick={() => setIsEditing(true)}
               style={{
                 position: 'absolute',
-                top: '24px',
-                right: '24px',
+                top: '48px',
+                right: '48px',
                 padding: '12px 24px',
                 borderRadius: '10px',
                 border: '1px solid var(--border2)',
@@ -435,7 +510,8 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
                 cursor: 'pointer',
                 transition: 'all 0.2s ease',
                 boxShadow: 'var(--shadow-sm)',
-                letterSpacing: '-0.1px'
+                letterSpacing: '-0.1px',
+                zIndex: 10
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.background = 'var(--green)'
@@ -524,7 +600,7 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
                     alignItems: 'center',
                     gap: '8px'
                   }}>
-                    📍 {currentProfile.location}
+                    {getCountryFlag(currentProfile.location)} {currentProfile.location}
                   </div>
                 )}
 
@@ -738,13 +814,13 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
           gap: '32px', 
           marginBottom: '32px' 
         }}>
-          {/* Left Column: ELO and Rank */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
-            {/* ELO Score Card */}
+          {/* Left Column: Unified Stats Card */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '24px' }}>
+            {/* Unified Stats Card */}
             <div style={{ 
               background: 'var(--card)', 
               borderRadius: '16px', 
-              padding: '32px',
+              padding: '40px',
               border: '1px solid var(--border)',
               boxShadow: 'var(--shadow)',
               textAlign: 'center',
@@ -758,68 +834,60 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
               e.currentTarget.style.transform = 'translateY(0)'
               e.currentTarget.style.boxShadow = 'var(--shadow)'
             }}>
-              <div style={{ 
-                fontSize: '48px', 
-                fontWeight: '800', 
-                color: 'var(--green)', 
-                fontFamily: 'var(--font-display)',
-                marginBottom: '12px'
-              }}>
-                {userStats?.elo || '—'}
+              <div style={{ marginBottom: '24px' }}>
+                <div style={{ 
+                  fontSize: '64px', 
+                  fontWeight: '800', 
+                  color: 'var(--green)', 
+                  fontFamily: 'var(--font-display)',
+                  marginBottom: '8px'
+                }}>
+                  {userStats?.elo || '—'}
+                </div>
+                <div style={{ 
+                  fontSize: '16px', 
+                  color: 'var(--text2)',
+                  fontWeight: '600',
+                  fontFamily: 'var(--font-display)',
+                  letterSpacing: '0.5px',
+                  marginBottom: '20px'
+                }}>
+                  ELO RATING
+                </div>
               </div>
+              
               <div style={{ 
-                fontSize: '14px', 
-                color: 'var(--text2)',
-                fontWeight: '600',
-                fontFamily: 'var(--font-display)',
-                letterSpacing: '0.5px'
-              }}>
-                ELO RATING
-              </div>
-            </div>
-
-            {/* Leaderboard Rank Card */}
-            <div style={{ 
-              background: 'var(--card)', 
-              borderRadius: '16px', 
-              padding: '32px',
-              border: '1px solid var(--border)',
-              boxShadow: 'var(--shadow)',
-              textAlign: 'center',
-              transition: 'all 0.2s ease'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-4px)'
-              e.currentTarget.style.boxShadow = 'var(--shadow-lg)'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)'
-              e.currentTarget.style.boxShadow = 'var(--shadow)'
-            }}>
-              <div style={{ 
-                fontSize: '48px', 
-                fontWeight: '800', 
-                color: 'var(--blue)', 
-                fontFamily: 'var(--font-display)',
-                marginBottom: '12px'
-              }}>
-                {userStats?.leaderboard_rank ? `#${userStats.leaderboard_rank}` : '—'}
-              </div>
-              <div style={{ 
-                fontSize: '14px', 
-                color: 'var(--text2)',
-                fontWeight: '600',
-                fontFamily: 'var(--font-display)',
-                letterSpacing: '0.5px'
-              }}>
-                RANK
+                height: '1px', 
+                background: 'var(--border)', 
+                margin: '20px 0' 
+              }} />
+              
+              <div>
+                <div style={{ 
+                  fontSize: '36px', 
+                  fontWeight: '800', 
+                  color: 'var(--blue)', 
+                  fontFamily: 'var(--font-display)',
+                  marginBottom: '8px'
+                }}>
+                  {userStats?.rank || '—'}
+                </div>
+                <div style={{ 
+                  fontSize: '14px', 
+                  color: 'var(--text2)',
+                  fontWeight: '600',
+                  fontFamily: 'var(--font-display)',
+                  letterSpacing: '0.5px'
+                }}>
+                  RANK TITLE
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Right Column: Join Date and Ideas Count */}
+          {/* Right Column: Co-founder Status, Ideas Posted, and Weekly Duels */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-            {/* Join Date */}
+            {/* Co-founder Status */}
             <div style={{ 
               background: 'var(--card)', 
               borderRadius: '16px', 
@@ -828,53 +896,123 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
               boxShadow: 'var(--shadow)',
               textAlign: 'center',
               transition: 'all 0.2s ease'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-4px)'
-              e.currentTarget.style.boxShadow = 'var(--shadow-lg)'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)'
-              e.currentTarget.style.boxShadow = 'var(--shadow)'
             }}>
-              <div style={{ 
-                fontSize: '32px', 
-                fontWeight: '800', 
-                color: 'var(--gold)', 
-                fontFamily: 'var(--font-display)',
-                marginBottom: '8px'
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '12px',
+                marginBottom: '16px'
               }}>
-                {new Date(currentProfile.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+                <div style={{
+                  width: '48px',
+                  height: '48px',
+                  borderRadius: '50%',
+                  background: currentProfile.status_tags?.includes('Looking for Co-founder') 
+                    ? 'linear-gradient(135deg, var(--green), #22c55e)'
+                    : 'var(--card2)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '20px',
+                  transition: 'all 0.3s ease'
+                }}>
+                  {currentProfile.status_tags?.includes('Looking for Co-founder') ? '🤝' : '👤'}
+                </div>
+                <div style={{ textAlign: 'left' }}>
+                  <div style={{
+                    fontSize: '16px',
+                    fontWeight: '700',
+                    fontFamily: 'var(--font-display)',
+                    color: 'var(--text)',
+                    margin: 0,
+                    marginBottom: '2px',
+                    letterSpacing: '-0.1px'
+                  }}>
+                    {currentProfile.status_tags?.includes('Looking for Co-founder') 
+                      ? 'Looking for Co-founder' 
+                      : 'Not Seeking'}
+                  </div>
+                  <div style={{
+                    fontSize: '12px',
+                    color: 'var(--text2)',
+                    margin: 0,
+                    fontFamily: 'var(--font-body)',
+                    lineHeight: '1.4'
+                  }}>
+                    {currentProfile.status_tags?.includes('Looking for Co-founder') 
+                      ? 'Open to collaboration'
+                      : 'Focused on projects'}
+                  </div>
+                </div>
               </div>
-              <div style={{ 
-                fontSize: '14px', 
-                color: 'var(--text2)',
-                fontWeight: '600',
-                fontFamily: 'var(--font-display)',
-                letterSpacing: '0.5px'
-              }}>
-                JOINED
-              </div>
+              
+              {currentProfile.status_tags?.includes('Looking for Co-founder') && (
+                <a 
+                  href="/connect"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    padding: '10px 20px',
+                    borderRadius: '8px',
+                    background: 'linear-gradient(135deg, var(--blue), #3b82f6)',
+                    color: '#fff',
+                    textDecoration: 'none',
+                    fontSize: '14px',
+                    fontWeight: '700',
+                    fontFamily: 'var(--font-display)',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    boxShadow: 'var(--shadow-sm)',
+                    letterSpacing: '-0.1px'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'linear-gradient(135deg, #1d4ed8, var(--blue))'
+                    e.currentTarget.style.transform = 'translateY(-1px)'
+                    e.currentTarget.style.boxShadow = 'var(--shadow)'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'linear-gradient(135deg, var(--blue), #3b82f6)'
+                    e.currentTarget.style.transform = 'translateY(0)'
+                    e.currentTarget.style.boxShadow = 'var(--shadow-sm)'
+                  }}
+                >
+                  <span style={{ fontSize: '14px' }}>🤝</span>
+                  Find Matches
+                  <span style={{ fontSize: '12px' }}>→</span>
+                </a>
+              )}
             </div>
 
-            {/* Ideas Count */}
-            <div style={{ 
-              background: 'var(--card)', 
-              borderRadius: '16px', 
-              padding: '32px',
-              border: '1px solid var(--border)',
-              boxShadow: 'var(--shadow)',
-              textAlign: 'center',
-              transition: 'all 0.2s ease'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-4px)'
-              e.currentTarget.style.boxShadow = 'var(--shadow-lg)'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)'
-              e.currentTarget.style.boxShadow = 'var(--shadow)'
-            }}>
+            {/* Ideas Posted */}
+            <button
+              onClick={() => {
+                // Handle ideas click - could navigate to ideas page or open modal
+                console.log('Ideas clicked:', ideas.length)
+              }}
+              style={{ 
+                background: 'var(--card)', 
+                borderRadius: '16px', 
+                padding: '32px',
+                border: '1px solid var(--border)',
+                boxShadow: 'var(--shadow)',
+                textAlign: 'center',
+                transition: 'all 0.2s ease',
+                cursor: 'pointer',
+                width: '100%'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-4px)'
+                e.currentTarget.style.boxShadow = 'var(--shadow-lg)'
+                e.currentTarget.style.borderColor = 'var(--purple)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)'
+                e.currentTarget.style.boxShadow = 'var(--shadow)'
+                e.currentTarget.style.borderColor = 'var(--border)'
+              }}>
               <div style={{ 
                 fontSize: '48px', 
                 fontWeight: '800', 
@@ -891,7 +1029,45 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
                 fontFamily: 'var(--font-display)',
                 letterSpacing: '0.5px'
               }}>
-                IDEAS
+                IDEAS POSTED
+              </div>
+            </button>
+
+            {/* Weekly Duels Entered */}
+            <div style={{ 
+              background: 'var(--card)', 
+              borderRadius: '16px', 
+              padding: '32px',
+              border: '1px solid var(--border)',
+              boxShadow: 'var(--shadow)',
+              textAlign: 'center',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-4px)'
+              e.currentTarget.style.boxShadow = 'var(--shadow-lg)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.boxShadow = 'var(--shadow)'
+            }}>
+              <div style={{ 
+                fontSize: '48px', 
+                fontWeight: '800', 
+                color: 'var(--orange)', 
+                fontFamily: 'var(--font-display)',
+                marginBottom: '12px'
+              }}>
+                {userStats?.weekly_duel_entered || 0}
+              </div>
+              <div style={{ 
+                fontSize: '14px', 
+                color: 'var(--text2)',
+                fontWeight: '600',
+                fontFamily: 'var(--font-display)',
+                letterSpacing: '0.5px'
+              }}>
+                WEEKLY DUELS
               </div>
             </div>
           </div>
@@ -899,171 +1075,7 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
 
         {/* BOTTOM SECTION - Full Width */}
         
-        {/* Ideas Section */}
-        <div style={{ 
-          background: 'var(--card)', 
-          borderRadius: '20px', 
-          padding: '48px',
-          border: '1px solid var(--border)',
-          boxShadow: 'var(--shadow-lg)',
-          marginBottom: '32px'
-        }}>
-          <h2 style={{ 
-            fontSize: '24px', 
-            fontWeight: '700', 
-            fontFamily: 'var(--font-display)', 
-            color: 'var(--text)',
-            letterSpacing: '-0.3px',
-            marginBottom: '32px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '12px'
-          }}>
-            💡 Ideas
-          </h2>
-
-          {ideas.length > 0 ? (
-            <div style={{ display: 'grid', gap: '20px' }}>
-              {ideas.map(idea => (
-                <div 
-                  key={idea.id} 
-                  style={{
-                    padding: '32px',
-                    borderRadius: '16px',
-                    background: 'var(--card2)',
-                    border: '1px solid var(--border2)',
-                    transition: 'all 0.3s ease',
-                    cursor: 'pointer',
-                    position: 'relative'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = 'var(--card)'
-                    e.currentTarget.style.borderColor = 'var(--border)'
-                    e.currentTarget.style.transform = 'translateY(-4px)'
-                    e.currentTarget.style.boxShadow = 'var(--shadow-lg)'
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = 'var(--card2)'
-                    e.currentTarget.style.borderColor = 'var(--border2)'
-                    e.currentTarget.style.transform = 'translateY(0)'
-                    e.currentTarget.style.boxShadow = 'none'
-                  }}
-                >
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'flex-start',
-                    gap: '20px',
-                    marginBottom: '16px'
-                  }}>
-                    <div style={{
-                      width: '48px',
-                      height: '48px',
-                      borderRadius: '12px',
-                      background: 'linear-gradient(135deg, var(--purple), #a855f7)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      color: '#fff',
-                      fontSize: '20px',
-                      fontWeight: '700',
-                      fontFamily: 'var(--font-display)',
-                      flexShrink: 0
-                    }}>
-                      💡
-                    </div>
-                    <div style={{ flex: 1 }}>
-                      <h3 style={{ 
-                        fontSize: '20px', 
-                        fontWeight: '700', 
-                        marginBottom: '12px', 
-                        fontFamily: 'var(--font-display)', 
-                        color: 'var(--text)',
-                        letterSpacing: '-0.2px',
-                        margin: 0
-                      }}>
-                        {idea.title}
-                      </h3>
-                      <p style={{ 
-                        color: 'var(--text2)', 
-                        fontSize: '16px', 
-                        lineHeight: '1.6', 
-                        marginBottom: '20px',
-                        margin: '0 0 20px 0',
-                        fontFamily: 'var(--font-body)'
-                      }}>
-                        {idea.description}
-                      </p>
-                    </div>
-                  </div>
-                  <div style={{ 
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    fontSize: '14px', 
-                    color: 'var(--text3)',
-                    fontFamily: 'var(--font-body)',
-                    fontWeight: '500'
-                  }}>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      📅 {new Date(idea.created_at).toLocaleDateString('en-US', { 
-                        year: 'numeric', 
-                        month: 'short', 
-                        day: 'numeric' 
-                      })}
-                    </span>
-                    <span style={{
-                      background: 'var(--purple-tint)',
-                      color: 'var(--purple)',
-                      padding: '6px 12px',
-                      borderRadius: '8px',
-                      fontSize: '12px',
-                      fontWeight: '600',
-                      fontFamily: 'var(--font-display)'
-                    }}>
-                      PUBLIC
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div style={{
-              textAlign: 'center',
-              padding: '80px 40px',
-              borderRadius: '16px',
-              background: 'var(--card2)',
-              border: '1px solid var(--border2)'
-            }}>
-              <div style={{
-                fontSize: '48px',
-                marginBottom: '16px',
-                opacity: 0.5
-              }}>
-                💡
-              </div>
-              <h3 style={{
-                fontSize: '20px',
-                fontWeight: '700',
-                fontFamily: 'var(--font-display)',
-                color: 'var(--text)',
-                marginBottom: '8px',
-                margin: 0
-              }}>
-                No ideas posted yet
-              </h3>
-              <p style={{
-                fontSize: '16px',
-                color: 'var(--text2)',
-                fontFamily: 'var(--font-body)',
-                margin: 0
-              }}>
-                This founder hasn't shared any ideas yet.
-              </p>
-            </div>
-          )}
-        </div>
-
-        {/* Co-founder Match Button */}
+        {/* Joined Date */}
         <div style={{ 
           background: 'var(--card)', 
           borderRadius: '20px', 
@@ -1071,71 +1083,62 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
           border: '1px solid var(--border)',
           boxShadow: 'var(--shadow-lg)',
           textAlign: 'center',
-          position: 'relative',
-          overflow: 'hidden'
+          position: 'relative'
         }}>
           <div style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            height: '4px',
-            background: 'linear-gradient(90deg, var(--blue), var(--green), var(--purple))',
-            opacity: 0.8
-          }} />
-          <h3 style={{
-            fontSize: '24px',
-            fontWeight: '700',
-            fontFamily: 'var(--font-display)',
-            color: 'var(--text)',
-            marginBottom: '16px',
-            letterSpacing: '-0.2px'
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '20px',
+            marginBottom: '24px'
           }}>
-            Looking for a co-founder?
-          </h3>
-          <p style={{
+            <div style={{
+              width: '80px',
+              height: '80px',
+              borderRadius: '50%',
+              background: 'linear-gradient(135deg, var(--gold), #f59e0b)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '32px',
+              boxShadow: 'var(--shadow-lg)'
+            }}>
+              �
+            </div>
+            <div style={{ textAlign: 'left' }}>
+              <div style={{
+                fontSize: '48px',
+                fontWeight: '800',
+                fontFamily: 'var(--font-display)',
+                color: 'var(--gold)',
+                margin: 0,
+                marginBottom: '8px',
+                letterSpacing: '-0.5px'
+              }}>
+                {new Date(currentProfile.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+              </div>
+              <div style={{
+                fontSize: '18px',
+                color: 'var(--text2)',
+                fontWeight: '600',
+                fontFamily: 'var(--font-display)',
+                letterSpacing: '0.5px'
+              }}>
+                MEMBER SINCE
+              </div>
+            </div>
+          </div>
+          
+          <div style={{
             fontSize: '16px',
             color: 'var(--text2)',
-            marginBottom: '32px',
+            fontFamily: 'var(--font-body)',
             lineHeight: '1.6',
-            fontFamily: 'var(--font-body)'
+            maxWidth: '600px',
+            margin: '0 auto'
           }}>
-            Find your perfect match based on skills, goals, and compatibility
-          </p>
-          <a 
-            href="/connect"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '12px',
-              padding: '16px 32px',
-              borderRadius: '12px',
-              background: 'linear-gradient(135deg, var(--blue), #3b82f6)',
-              color: '#fff',
-              textDecoration: 'none',
-              fontSize: '16px',
-              fontWeight: '700',
-              fontFamily: 'var(--font-display)',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              boxShadow: 'var(--shadow)',
-              letterSpacing: '-0.1px'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'linear-gradient(135deg, #1d4ed8, var(--blue))'
-              e.currentTarget.style.transform = 'translateY(-2px)'
-              e.currentTarget.style.boxShadow = 'var(--shadow-lg)'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'linear-gradient(135deg, var(--blue), #3b82f6)'
-              e.currentTarget.style.transform = 'translateY(0)'
-              e.currentTarget.style.boxShadow = 'var(--shadow)'
-            }}
-          >
-            <span style={{ fontSize: '20px' }}>🤝</span>
-            View Co-founder Matches
-            <span style={{ fontSize: '18px' }}>→</span>
-          </a>
+            Building innovative ideas and connecting with founders for {Math.floor((Date.now() - new Date(currentProfile.created_at).getTime()) / (1000 * 60 * 60 * 24 * 30))} months
+          </div>
         </div>
       </div>
     </div>

@@ -101,6 +101,20 @@ export default function OnboardingPage() {
         throw profileError
       }
 
+      // Create user_stats row with default values
+      const { error: statsError } = await supabase
+        .from('user_stats')
+        .upsert({
+          user_id: user.id,
+          elo: 500,
+          rank: 'Builder',
+          weekly_duel_entered: 0
+        })
+
+      if (statsError) {
+        throw statsError
+      }
+
       // Instant redirect without waiting for loading state
       router.push('/')
       router.refresh()
