@@ -293,9 +293,7 @@ export default function WeeklyDuelClient({
     const date = new Date(dateString)
     return date.toLocaleDateString('en-US', { 
       month: 'short', 
-      day: 'numeric', 
-      year: 'numeric',
-      timeZone: 'America/New_York' 
+      day: 'numeric'
     })
   }
 
@@ -304,7 +302,7 @@ export default function WeeklyDuelClient({
     return date.toLocaleTimeString('en-US', { 
       hour: 'numeric', 
       minute: '2-digit',
-      timeZone: 'America/New_York' 
+      hour12: true
     })
   }
 
@@ -335,84 +333,91 @@ export default function WeeklyDuelClient({
   const top3Winners = pastWinners.slice(0, 3)
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--bg)', backgroundImage: 'linear-gradient(rgba(21,128,61,.065) 1px, transparent 1px), linear-gradient(90deg, rgba(21,128,61,.065) 1px, transparent 1px)', backgroundSize: '48px 48px' }}>
+    <div style={{ minHeight: '100vh', background: 'var(--background)', padding: '0 0 48px 0' }}>
+      {/* Header */}
+      <div style={{ 
+        background: 'var(--card)', 
+        borderBottom: '1px solid var(--border)',
+        padding: '32px 0',
+        marginBottom: '32px'
+      }}>
+        <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 24px' }}>
+          <h1 style={{ 
+            fontSize: '32px', 
+            fontWeight: 700, 
+            fontFamily: 'var(--font-display)', 
+            color: 'var(--text)', 
+            margin: '0 0 8px 0',
+            letterSpacing: '-0.02em'
+          }}>
+            Weekly Duel
+          </h1>
+          {currentDuel && (
+            <div style={{ 
+              fontSize: '18px', 
+              fontFamily: 'var(--font-body)', 
+              color: 'var(--text2)',
+              maxWidth: '800px',
+              lineHeight: '1.5'
+            }}>
+              {currentDuel.prompt}
+            </div>
+          )}
+        </div>
+      </div>
+
       {/* Admin Preview Bar */}
       {isAdmin && (
-        <div style={{
-          background: 'var(--surface)',
-          borderBottom: '1px solid var(--border)',
-          padding: '8px 24px',
-          display: 'flex',
+        <div style={{ 
+          background: 'var(--purple-tint)', 
+          border: '1px solid var(--purple)', 
+          borderRadius: '8px', 
+          padding: '16px', 
+          margin: '0 24px 24px 24px',
+          display: 'flex', 
+          justifyContent: 'space-between', 
           alignItems: 'center',
-          justifyContent: 'space-between',
-          fontSize: '14px',
-          fontFamily: 'var(--font-body)'
+          flexWrap: 'wrap',
+          gap: '12px'
         }}>
-          <span style={{ fontWeight: 600, color: 'var(--text)' }}>Admin Preview</span>
-          <div style={{ display: 'flex', gap: '8px' }}>
-            <button
-              onClick={() => setAdminPreviewState('active')}
-              style={{
-                padding: '4px 12px',
-                borderRadius: '4px',
-                border: adminPreviewState === 'active' ? '1px solid var(--purple)' : '1px solid var(--border)',
-                background: adminPreviewState === 'active' ? 'var(--purple-tint)' : 'var(--surface)',
-                color: 'var(--text)',
-                fontSize: '12px',
-                fontFamily: 'var(--font-display)',
-                cursor: 'pointer'
-              }}
-            >
-              Active
-            </button>
-            <button
-              onClick={() => setAdminPreviewState('voting')}
-              style={{
-                padding: '4px 12px',
-                borderRadius: '4px',
-                border: adminPreviewState === 'voting' ? '1px solid var(--purple)' : '1px solid var(--border)',
-                background: adminPreviewState === 'voting' ? 'var(--purple-tint)' : 'var(--surface)',
-                color: 'var(--text)',
-                fontSize: '12px',
-                fontFamily: 'var(--font-display)',
-                cursor: 'pointer'
-              }}
-            >
-              Voting
-            </button>
-            <button
-              onClick={() => setAdminPreviewState('results')}
-              style={{
-                padding: '4px 12px',
-                borderRadius: '4px',
-                border: adminPreviewState === 'results' ? '1px solid var(--purple)' : '1px solid var(--border)',
-                background: adminPreviewState === 'results' ? 'var(--purple-tint)' : 'var(--surface)',
-                color: 'var(--text)',
-                fontSize: '12px',
-                fontFamily: 'var(--font-display)',
-                cursor: 'pointer'
-              }}
-            >
-              Results
-            </button>
-          </div>
-          {adminPreviewState === 'active' && (
-            <button
-              onClick={() => setHasSubmittedPreview(!hasSubmittedPreview)}
-              style={{
-                padding: '4px 12px',
-                borderRadius: '4px',
+          <div style={{ fontSize: '14px', fontFamily: 'var(--font-body)', color: 'var(--text)' }}>
+            <strong>Admin Preview:</strong>
+            <select
+              value={adminPreviewState}
+              onChange={(e) => setAdminPreviewState(e.target.value as 'active' | 'voting' | 'results')}
+              style={{ 
+                margin: '0 8px', 
+                padding: '4px 8px', 
+                borderRadius: '4px', 
                 border: '1px solid var(--border)',
-                background: hasSubmittedPreview ? 'var(--green-tint)' : 'var(--surface)',
+                background: 'var(--card)',
                 color: 'var(--text)',
-                fontSize: '12px',
-                fontFamily: 'var(--font-display)',
-                cursor: 'pointer'
+                fontSize: '14px',
+                fontFamily: 'var(--font-body)'
               }}
             >
-              {hasSubmittedPreview ? 'Submitted' : 'Not Submitted'}
-            </button>
-          )}
+              <option value="active">Active</option>
+              <option value="voting">Voting</option>
+              <option value="results">Results</option>
+            </select>
+            {adminPreviewState === 'active' && (
+              <button
+                onClick={() => setHasSubmittedPreview(!hasSubmittedPreview)}
+                style={{
+                  padding: '4px 12px',
+                  borderRadius: '4px',
+                  border: '1px solid var(--border)',
+                  background: hasSubmittedPreview ? 'var(--green-tint)' : 'var(--surface)',
+                  color: 'var(--text)',
+                  fontSize: '12px',
+                  fontFamily: 'var(--font-display)',
+                  cursor: 'pointer'
+                }}
+              >
+                {hasSubmittedPreview ? 'Submitted' : 'Not Submitted'}
+              </button>
+            )}
+          </div>
           <div style={{ 
             fontSize: '11px', 
             color: 'var(--text2)', 
@@ -431,22 +436,136 @@ export default function WeeklyDuelClient({
         </div>
       )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 400px', gap: '24px', maxWidth: '1400px', margin: '0 auto', padding: '24px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 400px', gap: '24px', maxWidth: '1400px', margin: '0 auto', padding: '0 24px' }}>
+      
+      {/* Left Side */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
         
-        {/* Left Side */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-          
-          {/* Current Prompt */}
-          {currentDuel && (
-            <div style={{ 
-              background: 'var(--card)', 
-              borderRadius: '16px', 
-              padding: '32px',
-              border: '1px solid var(--border)',
-              boxShadow: 'var(--shadow)'
-            }}>
-              <h1 style={{ fontSize: '48px', fontWeight: 800, fontFamily: 'var(--font-display)', color: 'var(--text)', margin: '0 0 16px 0', letterSpacing: '-1px' }}>
-                {currentDuel.prompt}
+        {/* Active State - Submission Form or Confirmation */}
+        {displayState === 'active' && currentDuel && (
+          <div style={{ 
+            background: 'var(--card)', 
+            borderRadius: '16px', 
+            padding: '32px',
+            border: '1px solid var(--border)',
+            boxShadow: 'var(--shadow)'
+          }}>
+            {!displayUserSubmission ? (
+              // Submission Form
+              <div>
+                <h2 style={{ fontSize: '24px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '16px' }}>
+                  Submit Your Entry
+                </h2>
+                <p style={{ fontSize: '16px', fontFamily: 'var(--font-body)', color: 'var(--text2)', marginBottom: '24px', lineHeight: '1.5' }}>
+                  Share your best response to this week's prompt. Be creative and original!
+                </p>
+                
+                <textarea
+                  value={submissionContent}
+                  onChange={(e) => {
+                    setSubmissionContent(e.target.value)
+                    setValidationError('')
+                  }}
+                  placeholder="Type your submission here..."
+                  style={{
+                    width: '100%',
+                    height: '200px',
+                    padding: '16px',
+                    borderRadius: '12px',
+                    border: '1px solid var(--border)',
+                    background: 'var(--surface)',
+                    fontSize: '16px',
+                    fontFamily: 'var(--font-body)',
+                    color: 'var(--text)',
+                    resize: 'vertical',
+                    marginBottom: validationError ? '8px' : '16px'
+                  }}
+                />
+                
+                {validationError && (
+                  <div style={{ 
+                    color: 'var(--red)', 
+                    fontSize: '14px', 
+                    fontFamily: 'var(--font-body)', 
+                    marginBottom: '16px',
+                    padding: '8px 12px',
+                    borderRadius: '6px',
+                    background: 'rgba(239, 68, 68, 0.1)',
+                    border: '1px solid rgba(239, 68, 68, 0.2)'
+                  }}>
+                    {validationError}
+                  </div>
+                )}
+                
+                <button
+                  onClick={handleSubmitSubmission}
+                  disabled={!submissionContent.trim()}
+                  className="btn-cta-primary"
+                  style={{ width: '100%', padding: '16px', fontSize: '16px' }}
+                >
+                  Submit Entry
+                </button>
+              </div>
+            ) : (
+              // Submission Confirmation
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ 
+                  width: '80px', 
+                  height: '80px', 
+                  borderRadius: '50%', 
+                  background: 'var(--green-tint)', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center',
+                  margin: '0 auto 24px auto'
+                }}>
+                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--green)" strokeWidth="2">
+                    <path d="M20 6L9 17l-5-5"/>
+                  </svg>
+                </div>
+                <h2 style={{ fontSize: '24px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '16px' }}>
+                  Entry Submitted!
+                </h2>
+                <p style={{ fontSize: '16px', fontFamily: 'var(--font-body)', color: 'var(--text2)', marginBottom: '24px', lineHeight: '1.5' }}>
+                  Your submission has been received. Voting will begin once the submission period ends.
+                </p>
+                <div style={{ 
+                  padding: '16px', 
+                  borderRadius: '12px', 
+                  background: 'var(--surface)', 
+                  border: '1px solid var(--border)',
+                  textAlign: 'left',
+                  marginBottom: '24px'
+                }}>
+                  <div style={{ fontSize: '14px', color: 'var(--text2)', fontFamily: 'var(--font-body)', marginBottom: '8px' }}>
+                    Your submission:
+                  </div>
+                  <div style={{ 
+                    fontSize: '16px', 
+                    fontFamily: 'var(--font-body)', 
+                    color: 'var(--text)',
+                    whiteSpace: 'pre-wrap',
+                    lineHeight: '1.5'
+                  }}>
+                    {displayUserSubmission.content}
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            {/* Countdown Timer */}
+            {submissionDeadline && (
+              <div style={{ marginTop: '24px' }}>
+                <div style={{ fontSize: '14px', color: 'var(--text2)', fontFamily: 'var(--font-body)', marginBottom: '8px', textAlign: 'center' }}>
+                  Submission period ends in:
+                </div>
+                <div id="countdown" style={{ fontSize: '20px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--purple)', textAlign: 'center', padding: '12px', borderRadius: '8px', background: 'var(--purple-tint)', border: '1px solid var(--purple)' }}>
+                  Loading countdown...
+                </div>
+              </div>
+            )}
+          </div>
+        )}
               </h1>
               
               {/* Countdown Timer */}
@@ -701,22 +820,28 @@ export default function WeeklyDuelClient({
                 <div>
                   <div style={{ fontSize: '12px', color: 'var(--text2)', fontFamily: 'var(--font-body)', marginBottom: '4px' }}>Starts</div>
                   <div style={{ fontSize: '16px', fontWeight: 600, fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
-                    {formatDate(currentDuel.start_date)} at {formatTime(currentDuel.start_date)} EST
+                    {formatDate(currentDuel.start_date)} at {formatTime(currentDuel.start_date)}
                   </div>
                 </div>
                 
                 <div>
                   <div style={{ fontSize: '12px', color: 'var(--text2)', fontFamily: 'var(--font-body)', marginBottom: '4px' }}>Ends</div>
                   <div style={{ fontSize: '16px', fontWeight: 600, fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
-                    {formatDate(currentDuel.end_date)} at {formatTime(currentDuel.end_date)} EST
+                    {formatDate(currentDuel.end_date)} at {formatTime(currentDuel.end_date)}
                   </div>
                 </div>
 
                 <div>
                   <div style={{ fontSize: '12px', color: 'var(--text2)', fontFamily: 'var(--font-body)', marginBottom: '4px' }}>Voting Period</div>
                   <div style={{ fontSize: '16px', fontWeight: 600, fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
-                    {formatDate(currentDuel.end_date)} at {formatTime(currentDuel.end_date)} EST - 
-                    {formatDate(new Date(new Date(currentDuel.end_date).getTime() + 24 * 60 * 60 * 1000).toISOString())} at {formatTime(new Date(new Date(currentDuel.end_date).getTime() + 24 * 60 * 60 * 1000).toISOString())} EST
+                    {formatDate(currentDuel.end_date)} at {formatTime(currentDuel.end_date)} - 
+                    {formatDate(new Date(new Date(currentDuel.end_date).getTime() + 24 * 60 * 60 * 1000).toISOString())} at {formatTime(new Date(new Date(currentDuel.end_date).getTime() + 24 * 60 * 60 * 1000).toISOString())}
+                  </div>
+                </div>
+
+                <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid var(--border)' }}>
+                  <div style={{ fontSize: '11px', color: 'var(--text2)', fontFamily: 'var(--font-body)', fontStyle: 'italic' }}>
+                    (All times EST)
                   </div>
                 </div>
               </div>

@@ -270,9 +270,16 @@ export default function AdminDuelManager() {
     const date = new Date(dateString)
     return date.toLocaleDateString('en-US', { 
       month: 'short', 
-      day: 'numeric', 
-      year: 'numeric',
-      timeZone: 'America/New_York' 
+      day: 'numeric'
+    })
+  }
+
+  const formatTime = (dateString: string) => {
+    const date = new Date(dateString)
+    return date.toLocaleTimeString('en-US', { 
+      hour: 'numeric', 
+      minute: '2-digit',
+      hour12: true
     })
   }
 
@@ -430,7 +437,7 @@ export default function AdminDuelManager() {
               fontFamily: 'var(--font-body)'
             }}>
               <thead>
-                <tr style={{ background: 'var(--surface)' }}>
+                <tr>
                   <th style={{ padding: '12px', textAlign: 'left', borderBottom: '1px solid var(--border)', fontWeight: '600', fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
                     Prompt
                   </th>
@@ -442,9 +449,6 @@ export default function AdminDuelManager() {
                   </th>
                   <th style={{ padding: '12px', textAlign: 'left', borderBottom: '1px solid var(--border)', fontWeight: '600', fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
                     Status
-                  </th>
-                  <th style={{ padding: '12px', textAlign: 'left', borderBottom: '1px solid var(--border)', fontWeight: '600', fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
-                    Actions
                   </th>
                 </tr>
               </thead>
@@ -505,18 +509,6 @@ export default function AdminDuelManager() {
                         </button>
                       )}
                     </td>
-                    <td style={{ padding: '12px', verticalAlign: 'top' }}>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          setSelectedDuel(duel)
-                        }}
-                        className="btn-cta-ghost"
-                        style={{ fontSize: '12px', padding: '6px 12px', marginRight: '8px' }}
-                      >
-                        View Details
-                      </button>
-                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -530,14 +522,17 @@ export default function AdminDuelManager() {
         <div style={{ 
           background: 'var(--card)', 
           borderRadius: '16px', 
-          padding: '32px',
+          padding: '40px',
           border: '1px solid var(--border)',
           boxShadow: 'var(--shadow)',
-          marginTop: '32px'
+          marginTop: '32px',
+          width: 'calc(100% + 48px)',
+          marginLeft: '-24px',
+          marginRight: '-24px'
         }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-            <h2 style={{ fontSize: '20px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--text)', margin: 0 }}>
-              Duel Details: {selectedDuel.prompt.substring(0, 50)}{selectedDuel.prompt.length > 50 ? '...' : ''}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+            <h2 style={{ fontSize: '24px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--text)', margin: 0 }}>
+              Duel Details: {selectedDuel.prompt.substring(0, 100)}{selectedDuel.prompt.length > 100 ? '...' : ''}
             </h2>
             <button
               onClick={() => setSelectedDuel(null)}
@@ -551,8 +546,8 @@ export default function AdminDuelManager() {
           {editingDuel ? (
             // Edit Mode
             <div>
-              <div style={{ marginBottom: '16px' }}>
-                <label style={{ fontSize: '14px', fontWeight: '600', fontFamily: 'var(--font-display)', color: 'var(--text)', display: 'block', marginBottom: '4px' }}>
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ fontSize: '14px', fontWeight: '600', fontFamily: 'var(--font-display)', color: 'var(--text)', display: 'block', marginBottom: '8px' }}>
                   Weekly Prompt
                 </label>
                 <textarea
@@ -561,7 +556,7 @@ export default function AdminDuelManager() {
                   style={{
                     width: '100%',
                     height: '120px',
-                    padding: '12px',
+                    padding: '16px',
                     borderRadius: '8px',
                     border: '1px solid var(--border)',
                     background: 'var(--surface)',
@@ -569,15 +564,15 @@ export default function AdminDuelManager() {
                     fontFamily: 'var(--font-body)',
                     color: 'var(--text)',
                     resize: 'vertical',
-                    marginBottom: '16px'
+                    marginBottom: '20px'
                   }}
                 />
               </div>
               
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
                 <div>
-                  <label style={{ fontSize: '14px', fontWeight: '600', fontFamily: 'var(--font-display)', color: 'var(--text)', display: 'block', marginBottom: '4px' }}>
-                    Start Date (EST)
+                  <label style={{ fontSize: '14px', fontWeight: '600', fontFamily: 'var(--font-display)', color: 'var(--text)', display: 'block', marginBottom: '8px' }}>
+                    Start Date
                   </label>
                   <input
                     type="datetime-local"
@@ -597,8 +592,8 @@ export default function AdminDuelManager() {
                 </div>
                 
                 <div>
-                  <label style={{ fontSize: '14px', fontWeight: '600', fontFamily: 'var(--font-display)', color: 'var(--text)', display: 'block', marginBottom: '4px' }}>
-                    End Date (EST)
+                  <label style={{ fontSize: '14px', fontWeight: '600', fontFamily: 'var(--font-display)', color: 'var(--text)', display: 'block', marginBottom: '8px' }}>
+                    End Date
                   </label>
                   <input
                     type="datetime-local"
@@ -618,8 +613,8 @@ export default function AdminDuelManager() {
                 </div>
               </div>
 
-              <div style={{ marginBottom: '16px' }}>
-                <label style={{ fontSize: '14px', fontWeight: '600', fontFamily: 'var(--font-display)', color: 'var(--text)', display: 'block', marginBottom: '4px' }}>
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ fontSize: '14px', fontWeight: '600', fontFamily: 'var(--font-display)', color: 'var(--text)', display: 'block', marginBottom: '8px' }}>
                   Status
                 </label>
                 <select
@@ -661,80 +656,117 @@ export default function AdminDuelManager() {
               </div>
             </div>
           ) : (
-            // View Mode
+            // View Mode - Show all information by default
             <div>
-              <div style={{ marginBottom: '24px' }}>
-                <h3 style={{ fontSize: '16px', fontWeight: 600, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '12px' }}>
-                  Duel Information
-                </h3>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                  <div>
-                    <div style={{ fontSize: '12px', color: 'var(--text2)', fontFamily: 'var(--font-body)', marginBottom: '4px' }}>Status</div>
-                    <div style={{ 
-                      fontSize: '14px', 
-                      fontWeight: '600', 
-                      fontFamily: 'var(--font-display)', 
-                      color: 'white',
-                      padding: '4px 12px',
-                      borderRadius: '6px',
-                      background: getStatusColor(selectedDuel.status),
-                      display: 'inline-block'
-                    }}>
-                      {getStatusText(selectedDuel.status)}
-                    </div>
+              {/* Duel Information Grid */}
+              <div style={{ 
+                display: 'grid', 
+                gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', 
+                gap: '24px', 
+                marginBottom: '32px',
+                padding: '24px',
+                borderRadius: '12px',
+                background: 'var(--surface)',
+                border: '1px solid var(--border)'
+              }}>
+                <div>
+                  <div style={{ fontSize: '12px', color: 'var(--text2)', fontFamily: 'var(--font-body)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Status</div>
+                  <div style={{ 
+                    fontSize: '16px', 
+                    fontWeight: '600', 
+                    fontFamily: 'var(--font-display)', 
+                    color: 'white',
+                    padding: '6px 16px',
+                    borderRadius: '6px',
+                    background: getStatusColor(selectedDuel.status),
+                    display: 'inline-block'
+                  }}>
+                    {getStatusText(selectedDuel.status)}
                   </div>
-                  <div>
-                    <div style={{ fontSize: '12px', color: 'var(--text2)', fontFamily: 'var(--font-body)', marginBottom: '4px' }}>Prizes Distributed</div>
-                    <div style={{ fontSize: '14px', fontWeight: '600', fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
-                      {selectedDuel.prize_distributed ? 'Yes' : 'No'}
-                    </div>
+                </div>
+                
+                <div>
+                  <div style={{ fontSize: '12px', color: 'var(--text2)', fontFamily: 'var(--font-body)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Start Date</div>
+                  <div style={{ fontSize: '16px', fontWeight: '600', fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
+                    {formatDate(selectedDuel.start_date)} at {formatTime(selectedDuel.start_date)}
+                  </div>
+                </div>
+                
+                <div>
+                  <div style={{ fontSize: '12px', color: 'var(--text2)', fontFamily: 'var(--font-body)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>End Date</div>
+                  <div style={{ fontSize: '16px', fontWeight: '600', fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
+                    {formatDate(selectedDuel.end_date)} at {formatTime(selectedDuel.end_date)}
+                  </div>
+                </div>
+                
+                <div>
+                  <div style={{ fontSize: '12px', color: 'var(--text2)', fontFamily: 'var(--font-body)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Voting Period</div>
+                  <div style={{ fontSize: '16px', fontWeight: '600', fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
+                    {formatDate(selectedDuel.end_date)} at {formatTime(selectedDuel.end_date)} - 
+                    {formatDate(new Date(new Date(selectedDuel.end_date).getTime() + 24 * 60 * 60 * 1000).toISOString())} at {formatTime(new Date(new Date(selectedDuel.end_date).getTime() + 24 * 60 * 60 * 1000).toISOString())}
+                  </div>
+                </div>
+                
+                <div>
+                  <div style={{ fontSize: '12px', color: 'var(--text2)', fontFamily: 'var(--font-body)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Prizes Distributed</div>
+                  <div style={{ fontSize: '16px', fontWeight: '600', fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
+                    {selectedDuel.prize_distributed ? 'Yes' : 'No'}
+                  </div>
+                </div>
+                
+                <div>
+                  <div style={{ fontSize: '12px', color: 'var(--text2)', fontFamily: 'var(--font-body)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total Submissions</div>
+                  <div style={{ fontSize: '16px', fontWeight: '600', fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
+                    {duelSubmissions.length}
                   </div>
                 </div>
               </div>
 
-              <div style={{ marginBottom: '24px' }}>
-                <h3 style={{ fontSize: '16px', fontWeight: 600, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '12px' }}>
+              {/* Full Prompt */}
+              <div style={{ marginBottom: '32px' }}>
+                <h3 style={{ fontSize: '18px', fontWeight: 600, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '16px' }}>
                   Full Prompt
                 </h3>
                 <div style={{ 
-                  padding: '16px', 
-                  borderRadius: '8px', 
+                  padding: '20px', 
+                  borderRadius: '12px', 
                   background: 'var(--surface)', 
                   border: '1px solid var(--border)',
-                  fontSize: '14px',
+                  fontSize: '16px',
                   fontFamily: 'var(--font-body)',
                   color: 'var(--text)',
-                  whiteSpace: 'pre-wrap'
+                  whiteSpace: 'pre-wrap',
+                  lineHeight: '1.6'
                 }}>
                   {selectedDuel.prompt}
                 </div>
               </div>
 
-              {/* Live Leaderboard for Voting Phase */}
+              {/* Voting Leaderboard */}
               {selectedDuel.status === 'voting' && duelSubmissions.length > 0 && (
-                <div style={{ marginBottom: '24px' }}>
-                  <h3 style={{ fontSize: '16px', fontWeight: 600, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '12px' }}>
-                    Live Leaderboard
+                <div style={{ marginBottom: '32px' }}>
+                  <h3 style={{ fontSize: '18px', fontWeight: 600, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '16px' }}>
+                    Live Voting Leaderboard
                   </h3>
-                  <div style={{ background: 'var(--surface)', borderRadius: '8px', padding: '16px' }}>
+                  <div style={{ background: 'var(--surface)', borderRadius: '12px', padding: '20px', border: '1px solid var(--border)' }}>
                     {duelSubmissions.map((submission, index) => (
                       <div key={submission.id} style={{ 
                         display: 'flex', 
                         justifyContent: 'space-between', 
                         alignItems: 'center',
-                        padding: '8px 0',
+                        padding: '16px 0',
                         borderBottom: index < duelSubmissions.length - 1 ? '1px solid var(--border)' : 'none'
                       }}>
-                        <div style={{ flex: 1 }}>
-                          <div style={{ fontSize: '14px', fontWeight: 600, fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
+                        <div style={{ flex: 1, marginRight: '20px' }}>
+                          <div style={{ fontSize: '16px', fontWeight: 600, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '8px' }}>
                             #{index + 1} {submission.username}
                           </div>
-                          <div style={{ fontSize: '12px', color: 'var(--text2)', fontFamily: 'var(--font-body)', marginTop: '4px' }}>
-                            {submission.content.substring(0, 100)}{submission.content.length > 100 ? '...' : ''}
+                          <div style={{ fontSize: '14px', color: 'var(--text2)', fontFamily: 'var(--font-body)', lineHeight: '1.4' }}>
+                            {submission.content.substring(0, 150)}{submission.content.length > 150 ? '...' : ''}
                           </div>
                         </div>
-                        <div style={{ textAlign: 'right' }}>
-                          <div style={{ fontSize: '16px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--purple)' }}>
+                        <div style={{ textAlign: 'right', minWidth: '120px' }}>
+                          <div style={{ fontSize: '20px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--purple)' }}>
                             {submission.vote_score}
                           </div>
                           <div style={{ fontSize: '12px', color: 'var(--text2)', fontFamily: 'var(--font-body)' }}>
@@ -748,22 +780,22 @@ export default function AdminDuelManager() {
               )}
 
               {/* All Submissions */}
-              <div style={{ marginBottom: '24px' }}>
-                <h3 style={{ fontSize: '16px', fontWeight: 600, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '12px' }}>
+              <div style={{ marginBottom: '32px' }}>
+                <h3 style={{ fontSize: '18px', fontWeight: 600, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '16px' }}>
                   All Submissions ({duelSubmissions.length})
                 </h3>
-                <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
+                <div style={{ maxHeight: '500px', overflowY: 'auto' }}>
                   {duelSubmissions.map((submission) => (
                     <div key={submission.id} style={{ 
-                      marginBottom: '16px', 
-                      padding: '16px', 
-                      borderRadius: '8px', 
+                      marginBottom: '20px', 
+                      padding: '20px', 
+                      borderRadius: '12px', 
                       background: 'var(--surface)', 
                       border: '1px solid var(--border)'
                     }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
                         <div>
-                          <div style={{ fontSize: '14px', fontWeight: 600, fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
+                          <div style={{ fontSize: '16px', fontWeight: 600, fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
                             {submission.username}
                           </div>
                           <div style={{ fontSize: '12px', color: 'var(--text2)', fontFamily: 'var(--font-body)', marginTop: '4px' }}>
@@ -771,7 +803,7 @@ export default function AdminDuelManager() {
                           </div>
                         </div>
                         <div style={{ textAlign: 'right' }}>
-                          <div style={{ fontSize: '14px', fontWeight: 600, fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
+                          <div style={{ fontSize: '16px', fontWeight: 600, fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
                             Score: {submission.vote_score}
                           </div>
                           <div style={{ fontSize: '12px', color: 'var(--text2)', fontFamily: 'var(--font-body)' }}>
@@ -790,7 +822,7 @@ export default function AdminDuelManager() {
                         </div>
                       </div>
                       <div style={{ 
-                        fontSize: '14px', 
+                        fontSize: '16px', 
                         fontFamily: 'var(--font-body)', 
                         color: 'var(--text)',
                         whiteSpace: 'pre-wrap',
@@ -803,11 +835,12 @@ export default function AdminDuelManager() {
                 </div>
               </div>
 
-              <div style={{ display: 'flex', gap: '12px', borderTop: '1px solid var(--border)', paddingTop: '16px' }}>
+              {/* Action Buttons */}
+              <div style={{ display: 'flex', gap: '16px', paddingTop: '24px', borderTop: '1px solid var(--border)' }}>
                 <button
                   onClick={() => setEditingDuel(selectedDuel)}
                   className="btn-cta-ghost"
-                  style={{ flex: 1 }}
+                  style={{ padding: '12px 24px' }}
                 >
                   Edit Duel
                 </button>
@@ -816,7 +849,7 @@ export default function AdminDuelManager() {
                     onClick={() => distributePrizes(selectedDuel.id)}
                     disabled={loading}
                     className="btn-cta-primary"
-                    style={{ flex: 1 }}
+                    style={{ padding: '12px 24px' }}
                   >
                     {loading ? 'Distributing...' : 'Distribute Prizes'}
                   </button>
@@ -824,7 +857,7 @@ export default function AdminDuelManager() {
                 <button
                   onClick={() => setShowDeleteConfirm(true)}
                   className="btn-cta-danger"
-                  style={{ flex: 1 }}
+                  style={{ padding: '12px 24px' }}
                 >
                   Delete Duel
                 </button>
