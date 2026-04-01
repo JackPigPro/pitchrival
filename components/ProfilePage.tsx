@@ -824,11 +824,10 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
         {/* MIDDLE SECTION - Two Column Grid with Divider */}
         <div style={{ 
           display: 'grid', 
-          gridTemplateColumns: '1fr 1px 1fr', 
+          gridTemplateColumns: '1fr 1fr', 
           gap: '32px', 
           marginBottom: '32px',
-          position: 'relative',
-          alignItems: 'start'
+          position: 'relative'
         }}>
           {/* Invisible Line Divider */}
           <div style={{
@@ -838,7 +837,9 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
             bottom: 0,
             width: '1px',
             background: 'var(--border)',
-            transform: 'translateX(-50%)'
+            transform: 'translateX(-50%)',
+            zIndex: 1,
+            pointerEvents: 'none'
           }} />
 
           {/* Left Column: Stats Section */}
