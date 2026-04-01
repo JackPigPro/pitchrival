@@ -88,33 +88,33 @@ export default async function LeaderboardPage() {
   // Create user lookup map from allUsers
   const userLookup = new Map(transformedAllUsers.map(user => [user.user_id, user]))
 
-  // Build complete daily list - start with all users, then add their daily gains
+  // Build complete daily list - start with all users, then calculate their daily gains
   const completeDailyList = transformedAllUsers.map(user => {
     const dailyEntries = (dailyHistory || []).filter(entry => entry.user_id === user.user_id)
     const totalDailyGain = dailyEntries.reduce((sum, entry) => sum + (entry.elo_change || 0), 0)
     
     return {
       elo_change: totalDailyGain,
-      new_elo: user.elo || 0,
+      new_elo: totalDailyGain, // Use period gain, not total ELO
       user_id: user.user_id,
       created_at: new Date().toISOString(),
       profiles: user.profiles
     }
-  }).sort((a, b) => b.new_elo - a.new_elo)
+  }).sort((a, b) => b.new_elo - a.new_elo) // Sort by period gain descending
 
-  // Build complete weekly list - start with all users, then add their weekly gains
+  // Build complete weekly list - start with all users, then calculate their weekly gains
   const completeWeeklyList = transformedAllUsers.map(user => {
     const weeklyEntries = (weeklyHistory || []).filter(entry => entry.user_id === user.user_id)
     const totalWeeklyGain = weeklyEntries.reduce((sum, entry) => sum + (entry.elo_change || 0), 0)
     
     return {
       elo_change: totalWeeklyGain,
-      new_elo: user.elo || 0,
+      new_elo: totalWeeklyGain, // Use period gain, not total ELO
       user_id: user.user_id,
       created_at: new Date().toISOString(),
       profiles: user.profiles
     }
-  }).sort((a, b) => b.new_elo - a.new_elo)
+  }).sort((a, b) => b.new_elo - a.new_elo) // Sort by period gain descending
 
   console.log('Complete daily list:', completeDailyList)
   console.log('Complete weekly list:', completeWeeklyList)
