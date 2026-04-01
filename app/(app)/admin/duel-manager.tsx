@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { createClient } from '@/utils/supabase/client'
 
 interface Duel {
   id: string
@@ -29,10 +30,14 @@ export default function AdminDuelManager() {
     setSuccess('')
 
     try {
+      const supabase = createClient()
+      const { data: { session } } = await supabase.auth.getSession()
+
       const response = await fetch('/admin/api/create-duel', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token}`
         },
         body: JSON.stringify({
           prompt,
@@ -66,10 +71,14 @@ export default function AdminDuelManager() {
     setSuccess('')
 
     try {
+      const supabase = createClient()
+      const { data: { session } } = await supabase.auth.getSession()
+
       const response = await fetch('/admin/api/distribute-prizes', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token}`
         },
         body: JSON.stringify({ duelId })
       })
@@ -93,7 +102,14 @@ export default function AdminDuelManager() {
 
   const fetchDuels = async () => {
     try {
-      const response = await fetch('/admin/api/get-duels')
+      const supabase = createClient()
+      const { data: { session } } = await supabase.auth.getSession()
+
+      const response = await fetch('/admin/api/get-duels', {
+        headers: {
+          'Authorization': `Bearer ${session?.access_token}`
+        }
+      })
       const result = await response.json()
       
       if (result.success) {
