@@ -205,6 +205,7 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
       'Kenya': '🇰🇪',
       'Morocco': '🇲🇦',
       'Ghana': '🇬🇭',
+      'Israel': '🇮🇱',
       'UAE': '🇦🇪',
       'Saudi Arabia': '🇸🇦',
       'Turkey': '🇹🇷',
@@ -214,6 +215,19 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
     }
     
     return countryFlags[countryName] || '🌍'
+  }
+
+  const getRankByElo = (elo?: number) => {
+    if (!elo) return 'Builder'
+    
+    if (elo < 500) return 'Trainee'
+    if (elo >= 500 && elo < 750) return 'Builder'
+    if (elo >= 750 && elo < 1000) return 'Creator'
+    if (elo >= 1000 && elo < 1250) return 'Founder'
+    if (elo >= 1250 && elo < 1500) return 'Visionary'
+    if (elo >= 1500 && elo < 1750) return 'Icon'
+    if (elo >= 1750 && elo < 2000) return 'Titan'
+    return 'Unicorn'
   }
 
   const stageOptions = ['Idea Stage', 'Building MVP', 'Already Launched']
@@ -675,15 +689,15 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
               </div>
             </div>
 
-            {/* Right: Social Links */}
+            {/* Social Links - Bottom Right */}
             {(currentProfile.twitter || currentProfile.linkedin || currentProfile.github) && (
               <div style={{ 
+                position: 'absolute',
+                bottom: '24px',
+                right: '24px',
                 display: 'flex', 
-                flexDirection: 'column', 
-                gap: '16px',
-                flexShrink: 0,
-                paddingLeft: '32px',
-                borderLeft: '1px solid var(--border)'
+                gap: '12px',
+                alignItems: 'center'
               }}>
                 {currentProfile.twitter && (
                   <a 
@@ -694,14 +708,14 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      width: '56px',
-                      height: '56px',
-                      borderRadius: '14px',
+                      width: '48px',
+                      height: '48px',
+                      borderRadius: '12px',
                       background: 'var(--card2)',
                       border: '1px solid var(--border2)',
                       color: 'var(--text2)',
                       textDecoration: 'none',
-                      fontSize: '20px',
+                      fontSize: '18px',
                       fontWeight: '700',
                       transition: 'all 0.2s ease',
                       boxShadow: 'var(--shadow-sm)'
@@ -733,14 +747,14 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      width: '56px',
-                      height: '56px',
-                      borderRadius: '14px',
+                      width: '48px',
+                      height: '48px',
+                      borderRadius: '12px',
                       background: 'var(--card2)',
                       border: '1px solid var(--border2)',
                       color: 'var(--text2)',
                       textDecoration: 'none',
-                      fontSize: '20px',
+                      fontSize: '18px',
                       fontWeight: '700',
                       transition: 'all 0.2s ease',
                       boxShadow: 'var(--shadow-sm)'
@@ -772,14 +786,14 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      width: '56px',
-                      height: '56px',
-                      borderRadius: '14px',
+                      width: '48px',
+                      height: '48px',
+                      borderRadius: '12px',
                       background: 'var(--card2)',
                       border: '1px solid var(--border2)',
                       color: 'var(--text2)',
                       textDecoration: 'none',
-                      fontSize: '20px',
+                      fontSize: '18px',
                       fontWeight: '700',
                       transition: 'all 0.2s ease',
                       boxShadow: 'var(--shadow-sm)'
@@ -807,87 +821,223 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
           </div>
         </div>
 
-        {/* MIDDLE SECTION - Two Column Grid */}
+        {/* MIDDLE SECTION - Two Column Grid with Divider */}
         <div style={{ 
           display: 'grid', 
-          gridTemplateColumns: '2fr 1fr', 
+          gridTemplateColumns: '1fr 1px 1fr', 
           gap: '32px', 
-          marginBottom: '32px' 
+          marginBottom: '32px',
+          position: 'relative'
         }}>
-          {/* Left Column: Unified Stats Card */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '24px' }}>
-            {/* Unified Stats Card */}
+          {/* Invisible Line Divider */}
+          <div style={{
+            position: 'absolute',
+            left: '50%',
+            top: 0,
+            bottom: 0,
+            width: '1px',
+            background: 'var(--border)',
+            transform: 'translateX(-50%)'
+          }} />
+
+          {/* Left Column: Stats Section */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            {/* ELO Rating Card */}
             <div style={{ 
               background: 'var(--card)', 
               borderRadius: '16px', 
-              padding: '40px',
+              padding: '32px',
               border: '1px solid var(--border)',
               boxShadow: 'var(--shadow)',
               textAlign: 'center',
               transition: 'all 0.2s ease'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-4px)'
-              e.currentTarget.style.boxShadow = 'var(--shadow-lg)'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)'
-              e.currentTarget.style.boxShadow = 'var(--shadow)'
             }}>
-              <div style={{ marginBottom: '24px' }}>
-                <div style={{ 
-                  fontSize: '64px', 
-                  fontWeight: '800', 
-                  color: 'var(--green)', 
-                  fontFamily: 'var(--font-display)',
-                  marginBottom: '8px'
-                }}>
-                  {userStats?.elo || '—'}
-                </div>
-                <div style={{ 
-                  fontSize: '16px', 
-                  color: 'var(--text2)',
-                  fontWeight: '600',
-                  fontFamily: 'var(--font-display)',
-                  letterSpacing: '0.5px',
-                  marginBottom: '20px'
-                }}>
-                  ELO RATING
-                </div>
-              </div>
-              
               <div style={{ 
-                height: '1px', 
-                background: 'var(--border)', 
-                margin: '20px 0' 
-              }} />
-              
-              <div>
-                <div style={{ 
-                  fontSize: '36px', 
-                  fontWeight: '800', 
-                  color: 'var(--blue)', 
-                  fontFamily: 'var(--font-display)',
-                  marginBottom: '8px'
-                }}>
-                  {userStats?.rank || '—'}
-                </div>
-                <div style={{ 
-                  fontSize: '14px', 
-                  color: 'var(--text2)',
-                  fontWeight: '600',
-                  fontFamily: 'var(--font-display)',
-                  letterSpacing: '0.5px'
-                }}>
-                  RANK TITLE
-                </div>
+                fontSize: '48px', 
+                fontWeight: '800', 
+                color: 'var(--green)', 
+                fontFamily: 'var(--font-display)',
+                marginBottom: '12px'
+              }}>
+                {userStats?.elo || '—'}
+              </div>
+              <div style={{ 
+                fontSize: '14px', 
+                color: 'var(--text2)',
+                fontWeight: '600',
+                fontFamily: 'var(--font-display)',
+                letterSpacing: '0.5px'
+              }}>
+                ELO RATING
               </div>
             </div>
+
+            {/* Rank Title Card */}
+            <div style={{ 
+              background: 'var(--card)', 
+              borderRadius: '16px', 
+              padding: '32px',
+              border: '1px solid var(--border)',
+              boxShadow: 'var(--shadow)',
+              textAlign: 'center',
+              transition: 'all 0.2s ease'
+            }}>
+              <div style={{ 
+                fontSize: '48px', 
+                fontWeight: '800', 
+                color: 'var(--blue)', 
+                fontFamily: 'var(--font-display)',
+                marginBottom: '12px'
+              }}>
+                {getRankByElo(userStats?.elo)}
+              </div>
+              <div style={{ 
+                fontSize: '14px', 
+                color: 'var(--text2)',
+                fontWeight: '600',
+                fontFamily: 'var(--font-display)',
+                letterSpacing: '0.5px'
+              }}>
+                RANK TITLE
+              </div>
+            </div>
+
+            {/* Weekly Duels Card */}
+            <div style={{ 
+              background: 'var(--card)', 
+              borderRadius: '16px', 
+              padding: '32px',
+              border: '1px solid var(--border)',
+              boxShadow: 'var(--shadow)',
+              textAlign: 'center',
+              transition: 'all 0.2s ease'
+            }}>
+              <div style={{ 
+                fontSize: '48px', 
+                fontWeight: '800', 
+                color: 'var(--orange)', 
+                fontFamily: 'var(--font-display)',
+                marginBottom: '12px'
+              }}>
+                {userStats?.weekly_duel_entered || 0}
+              </div>
+              <div style={{ 
+                fontSize: '14px', 
+                color: 'var(--text2)',
+                fontWeight: '600',
+                fontFamily: 'var(--font-display)',
+                letterSpacing: '0.5px'
+              }}>
+                WEEKLY DUELS
+              </div>
+            </div>
+
+            {/* Weekly Duels Button */}
+            <a
+              href="/compete"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '12px',
+                padding: '16px 24px',
+                borderRadius: '12px',
+                background: 'linear-gradient(135deg, var(--orange), #f97316)',
+                color: '#fff',
+                textDecoration: 'none',
+                fontSize: '16px',
+                fontWeight: '700',
+                fontFamily: 'var(--font-display)',
+                transition: 'all 0.2s ease',
+                boxShadow: 'var(--shadow)',
+                letterSpacing: '-0.1px'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'linear-gradient(135deg, #ea580c, var(--orange))'
+                e.currentTarget.style.transform = 'translateY(-2px)'
+                e.currentTarget.style.boxShadow = 'var(--shadow-lg)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'linear-gradient(135deg, var(--orange), #f97316)'
+                e.currentTarget.style.transform = 'translateY(0)'
+                e.currentTarget.style.boxShadow = 'var(--shadow)'
+              }}
+            >
+              <span style={{ fontSize: '18px' }}>⚔️</span>
+              Weekly Duels
+              <span style={{ fontSize: '16px' }}>→</span>
+            </a>
           </div>
 
-          {/* Right Column: Co-founder Status, Ideas Posted, and Weekly Duels */}
+          {/* Right Column: Actions Section */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-            {/* Co-founder Status */}
+            {/* Ideas Posted Card */}
+            <div style={{ 
+              background: 'var(--card)', 
+              borderRadius: '16px', 
+              padding: '32px',
+              border: '1px solid var(--border)',
+              boxShadow: 'var(--shadow)',
+              textAlign: 'center',
+              transition: 'all 0.2s ease'
+            }}>
+              <div style={{ 
+                fontSize: '48px', 
+                fontWeight: '800', 
+                color: 'var(--purple)', 
+                fontFamily: 'var(--font-display)',
+                marginBottom: '12px'
+              }}>
+                {ideas.length}
+              </div>
+              <div style={{ 
+                fontSize: '14px', 
+                color: 'var(--text2)',
+                fontWeight: '600',
+                fontFamily: 'var(--font-display)',
+                letterSpacing: '0.5px'
+              }}>
+                IDEAS POSTED
+              </div>
+            </div>
+
+            {/* Create Idea Button */}
+            <a
+              href="/ideas/create"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '12px',
+                padding: '16px 24px',
+                borderRadius: '12px',
+                background: 'linear-gradient(135deg, var(--purple), #a855f7)',
+                color: '#fff',
+                textDecoration: 'none',
+                fontSize: '16px',
+                fontWeight: '700',
+                fontFamily: 'var(--font-display)',
+                transition: 'all 0.2s ease',
+                boxShadow: 'var(--shadow)',
+                letterSpacing: '-0.1px'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'linear-gradient(135deg, #9333ea, var(--purple))'
+                e.currentTarget.style.transform = 'translateY(-2px)'
+                e.currentTarget.style.boxShadow = 'var(--shadow-lg)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'linear-gradient(135deg, var(--purple), #a855f7)'
+                e.currentTarget.style.transform = 'translateY(0)'
+                e.currentTarget.style.boxShadow = 'var(--shadow)'
+              }}
+            >
+              <span style={{ fontSize: '18px' }}>💡</span>
+              Create Idea
+              <span style={{ fontSize: '16px' }}>→</span>
+            </a>
+
+            {/* Find Co-founder Card */}
             <div style={{ 
               background: 'var(--card)', 
               borderRadius: '16px', 
@@ -931,144 +1081,45 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
                   }}>
                     {currentProfile.status_tags?.includes('Looking for Co-founder') 
                       ? 'Looking for Co-founder' 
-                      : 'Not Seeking'}
-                  </div>
-                  <div style={{
-                    fontSize: '12px',
-                    color: 'var(--text2)',
-                    margin: 0,
-                    fontFamily: 'var(--font-body)',
-                    lineHeight: '1.4'
-                  }}>
-                    {currentProfile.status_tags?.includes('Looking for Co-founder') 
-                      ? 'Open to collaboration'
-                      : 'Focused on projects'}
+                      : 'Find a Co-founder'}
                   </div>
                 </div>
               </div>
               
-              {currentProfile.status_tags?.includes('Looking for Co-founder') && (
-                <a 
-                  href="/connect"
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '8px',
-                    padding: '10px 20px',
-                    borderRadius: '8px',
-                    background: 'linear-gradient(135deg, var(--blue), #3b82f6)',
-                    color: '#fff',
-                    textDecoration: 'none',
-                    fontSize: '14px',
-                    fontWeight: '700',
-                    fontFamily: 'var(--font-display)',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease',
-                    boxShadow: 'var(--shadow-sm)',
-                    letterSpacing: '-0.1px'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = 'linear-gradient(135deg, #1d4ed8, var(--blue))'
-                    e.currentTarget.style.transform = 'translateY(-1px)'
-                    e.currentTarget.style.boxShadow = 'var(--shadow)'
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = 'linear-gradient(135deg, var(--blue), #3b82f6)'
-                    e.currentTarget.style.transform = 'translateY(0)'
-                    e.currentTarget.style.boxShadow = 'var(--shadow-sm)'
-                  }}
-                >
-                  <span style={{ fontSize: '14px' }}>🤝</span>
-                  Find Matches
-                  <span style={{ fontSize: '12px' }}>→</span>
-                </a>
-              )}
-            </div>
-
-            {/* Ideas Posted */}
-            <button
-              onClick={() => {
-                // Handle ideas click - could navigate to ideas page or open modal
-                console.log('Ideas clicked:', ideas.length)
-              }}
-              style={{ 
-                background: 'var(--card)', 
-                borderRadius: '16px', 
-                padding: '32px',
-                border: '1px solid var(--border)',
-                boxShadow: 'var(--shadow)',
-                textAlign: 'center',
-                transition: 'all 0.2s ease',
-                cursor: 'pointer',
-                width: '100%'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-4px)'
-                e.currentTarget.style.boxShadow = 'var(--shadow-lg)'
-                e.currentTarget.style.borderColor = 'var(--purple)'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)'
-                e.currentTarget.style.boxShadow = 'var(--shadow)'
-                e.currentTarget.style.borderColor = 'var(--border)'
-              }}>
-              <div style={{ 
-                fontSize: '48px', 
-                fontWeight: '800', 
-                color: 'var(--purple)', 
-                fontFamily: 'var(--font-display)',
-                marginBottom: '12px'
-              }}>
-                {ideas.length}
-              </div>
-              <div style={{ 
-                fontSize: '14px', 
-                color: 'var(--text2)',
-                fontWeight: '600',
-                fontFamily: 'var(--font-display)',
-                letterSpacing: '0.5px'
-              }}>
-                IDEAS POSTED
-              </div>
-            </button>
-
-            {/* Weekly Duels Entered */}
-            <div style={{ 
-              background: 'var(--card)', 
-              borderRadius: '16px', 
-              padding: '32px',
-              border: '1px solid var(--border)',
-              boxShadow: 'var(--shadow)',
-              textAlign: 'center',
-              transition: 'all 0.2s ease'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-4px)'
-              e.currentTarget.style.boxShadow = 'var(--shadow-lg)'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)'
-              e.currentTarget.style.boxShadow = 'var(--shadow)'
-            }}>
-              <div style={{ 
-                fontSize: '48px', 
-                fontWeight: '800', 
-                color: 'var(--orange)', 
-                fontFamily: 'var(--font-display)',
-                marginBottom: '12px'
-              }}>
-                {userStats?.weekly_duel_entered || 0}
-              </div>
-              <div style={{ 
-                fontSize: '14px', 
-                color: 'var(--text2)',
-                fontWeight: '600',
-                fontFamily: 'var(--font-display)',
-                letterSpacing: '0.5px'
-              }}>
-                WEEKLY DUELS
-              </div>
+              <a
+                href="/connect"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  padding: '10px 20px',
+                  borderRadius: '8px',
+                  background: 'linear-gradient(135deg, var(--blue), #3b82f6)',
+                  color: '#fff',
+                  textDecoration: 'none',
+                  fontSize: '14px',
+                  fontWeight: '700',
+                  fontFamily: 'var(--font-display)',
+                  transition: 'all 0.2s ease',
+                  boxShadow: 'var(--shadow-sm)',
+                  letterSpacing: '-0.1px'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'linear-gradient(135deg, #1d4ed8, var(--blue))'
+                  e.currentTarget.style.transform = 'translateY(-1px)'
+                  e.currentTarget.style.boxShadow = 'var(--shadow)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'linear-gradient(135deg, var(--blue), #3b82f6)'
+                  e.currentTarget.style.transform = 'translateY(0)'
+                  e.currentTarget.style.boxShadow = 'var(--shadow-sm)'
+                }}
+              >
+                <span style={{ fontSize: '14px' }}>🤝</span>
+                Find Matches
+                <span style={{ fontSize: '12px' }}>→</span>
+              </a>
             </div>
           </div>
         </div>
