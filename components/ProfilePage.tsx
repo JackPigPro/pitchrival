@@ -489,8 +489,6 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
     <div style={{ 
       minHeight: '100vh', 
       background: 'var(--bg)',
-      backgroundImage: 'linear-gradient(rgba(21,128,61,.065) 1px, transparent 1px), linear-gradient(90deg, rgba(21,128,61,.065) 1px, transparent 1px)',
-      backgroundSize: '48px 48px',
       padding: '40px 24px'
     }}>
       <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
@@ -498,10 +496,10 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
         {/* TOP SECTION - Full Width Header */}
         <div style={{ 
           background: 'var(--card)', 
-          borderRadius: '20px', 
+          borderRadius: '16px', 
           padding: '48px',
           border: '1px solid var(--border)',
-          boxShadow: 'var(--shadow-lg)',
+          boxShadow: 'var(--shadow)',
           marginBottom: '32px',
           position: 'relative'
         }}>
@@ -509,37 +507,16 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
           {isOwnProfile && (
             <button
               onClick={() => setIsEditing(true)}
+              className="btn-cta-ghost"
               style={{
                 position: 'absolute',
                 top: '48px',
                 right: '48px',
-                padding: '12px 24px',
-                borderRadius: '10px',
-                border: '1px solid var(--border2)',
-                background: 'var(--card2)',
-                color: 'var(--text)',
-                fontSize: '14px',
-                fontWeight: '700',
-                fontFamily: 'var(--font-display)',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                boxShadow: 'var(--shadow-sm)',
-                letterSpacing: '-0.1px',
+                textDecoration: 'none',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
                 zIndex: 10
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'var(--green)'
-                e.currentTarget.style.color = '#fff'
-                e.currentTarget.style.borderColor = 'var(--green)'
-                e.currentTarget.style.transform = 'translateY(-2px)'
-                e.currentTarget.style.boxShadow = 'var(--shadow)'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'var(--card2)'
-                e.currentTarget.style.color = 'var(--text)'
-                e.currentTarget.style.borderColor = 'var(--border2)'
-                e.currentTarget.style.transform = 'translateY(0)'
-                e.currentTarget.style.boxShadow = 'var(--shadow-sm)'
               }}
             >
               Edit Profile
@@ -865,13 +842,14 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
                 {userStats?.elo || '—'}
               </div>
               <div style={{ 
-                fontSize: '14px', 
+                fontSize: '13px', 
                 color: 'var(--text2)',
                 fontWeight: '600',
                 fontFamily: 'var(--font-display)',
-                letterSpacing: '0.5px'
+                letterSpacing: '2px',
+                textTransform: 'uppercase'
               }}>
-                ELO RATING
+                ELO Rating
               </div>
             </div>
 
@@ -896,13 +874,14 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
                 {getRankByElo(userStats?.elo)}
               </div>
               <div style={{ 
-                fontSize: '14px', 
+                fontSize: '13px', 
                 color: 'var(--text2)',
                 fontWeight: '600',
                 fontFamily: 'var(--font-display)',
-                letterSpacing: '0.5px'
+                letterSpacing: '2px',
+                textTransform: 'uppercase'
               }}>
-                RANK TITLE
+                Rank Title
               </div>
             </div>
 
@@ -920,63 +899,37 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
               <div style={{ 
                 fontSize: '48px', 
                 fontWeight: '800', 
-                color: 'var(--orange)', 
+                color: 'var(--purple)', 
                 fontFamily: 'var(--font-display)',
                 marginBottom: '12px'
               }}>
                 {userStats?.weekly_duel_entered || 0}
               </div>
               <div style={{ 
-                fontSize: '14px', 
+                fontSize: '13px', 
                 color: 'var(--text2)',
                 fontWeight: '600',
                 fontFamily: 'var(--font-display)',
-                letterSpacing: '0.5px'
+                letterSpacing: '2px',
+                textTransform: 'uppercase'
               }}>
-                WEEKLY DUELS
+                Weekly Duels
               </div>
             </div>
 
             {/* Weekly Duels Button */}
             <a
               href="/compete"
+              className="btn-cta-primary"
               style={{
-                display: 'flex',
+                textDecoration: 'none',
+                display: 'inline-flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '12px',
-                padding: '16px 24px',
-                borderRadius: '12px',
-                background: '#fff',
-                color: '#000',
-                textDecoration: 'none',
-                fontSize: '16px',
-                fontWeight: '700',
-                fontFamily: 'var(--font-display)',
-                transition: 'all 0.2s ease',
-                boxShadow: 'var(--shadow)',
-                letterSpacing: '-0.1px',
-                width: '100%',
-                border: '1px solid var(--border)'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'var(--orange)'
-                e.currentTarget.style.color = '#fff'
-                e.currentTarget.style.borderColor = 'var(--orange)'
-                e.currentTarget.style.transform = 'translateY(-2px)'
-                e.currentTarget.style.boxShadow = 'var(--shadow-lg)'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = '#fff'
-                e.currentTarget.style.color = '#000'
-                e.currentTarget.style.borderColor = 'var(--border)'
-                e.currentTarget.style.transform = 'translateY(0)'
-                e.currentTarget.style.boxShadow = 'var(--shadow)'
+                width: '100%'
               }}
             >
-              <span style={{ fontSize: '18px' }}>⚔️</span>
-              Weekly Duels
-              <span style={{ fontSize: '16px' }}>→</span>
+              ⚔️ Weekly Duels →
             </a>
           </div>
 
@@ -1005,74 +958,51 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
               }}
               onMouseEnter={(e) => {
                 if (ideas.length > 0) {
-                  e.currentTarget.style.transform = 'translateY(-4px)'
+                  e.currentTarget.style.transform = 'translateY(-2px)'
                   e.currentTarget.style.boxShadow = 'var(--shadow-lg)'
-                  e.currentTarget.style.borderColor = 'var(--purple)'
                 }
               }}
               onMouseLeave={(e) => {
                 if (ideas.length > 0) {
                   e.currentTarget.style.transform = 'translateY(0)'
                   e.currentTarget.style.boxShadow = 'var(--shadow)'
-                  e.currentTarget.style.borderColor = 'var(--border)'
                 }
               }}
             >
               <div style={{ 
                 fontSize: '48px', 
                 fontWeight: '800', 
-                color: ideas.length > 0 ? 'var(--purple)' : 'var(--text2)', 
+                color: ideas.length > 0 ? 'var(--blue)' : 'var(--text2)', 
                 fontFamily: 'var(--font-display)',
                 marginBottom: '12px'
               }}>
                 {ideas.length}
               </div>
               <div style={{ 
-                fontSize: '14px', 
+                fontSize: '13px', 
                 color: 'var(--text2)',
                 fontWeight: '600',
                 fontFamily: 'var(--font-display)',
-                letterSpacing: '0.5px'
+                letterSpacing: '2px',
+                textTransform: 'uppercase'
               }}>
-                IDEAS POSTED
+                Ideas Posted
               </div>
             </a>
 
             {/* Create Idea Button */}
             <a
               href="/ideas/create"
+              className="btn-cta-primary"
               style={{
-                display: 'flex',
+                textDecoration: 'none',
+                display: 'inline-flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '12px',
-                padding: '16px 24px',
-                borderRadius: '12px',
-                background: 'linear-gradient(135deg, var(--purple), #a855f7)',
-                color: '#fff',
-                textDecoration: 'none',
-                fontSize: '16px',
-                fontWeight: '700',
-                fontFamily: 'var(--font-display)',
-                transition: 'all 0.2s ease',
-                boxShadow: 'var(--shadow)',
-                letterSpacing: '-0.1px',
                 width: '100%'
               }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'linear-gradient(135deg, #9333ea, var(--purple))'
-                e.currentTarget.style.transform = 'translateY(-2px)'
-                e.currentTarget.style.boxShadow = 'var(--shadow-lg)'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'linear-gradient(135deg, var(--purple), #a855f7)'
-                e.currentTarget.style.transform = 'translateY(0)'
-                e.currentTarget.style.boxShadow = 'var(--shadow)'
-              }}
             >
-              <span style={{ fontSize: '18px' }}>💡</span>
-              Create Idea
-              <span style={{ fontSize: '16px' }}>→</span>
+              💡 Create Idea →
             </a>
 
             {/* Find Co-founder Card */}
@@ -1122,42 +1052,33 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
                       ? 'Looking for Co-founder' 
                       : 'Find a Co-founder'}
                   </div>
+                  <div style={{
+                    fontSize: '11px',
+                    color: 'var(--text3)',
+                    fontWeight: '600',
+                    fontFamily: 'var(--font-display)',
+                    letterSpacing: '2px',
+                    textTransform: 'uppercase'
+                  }}>
+                    {currentProfile.status_tags?.includes('Looking for Co-founder') 
+                      ? 'Available Now'
+                      : 'Not Seeking'}
+                  </div>
                 </div>
               </div>
               
               <a
                 href="/connect"
+                className="btn-cta-primary"
                 style={{
+                  textDecoration: 'none',
                   display: 'inline-flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '8px',
-                  padding: '10px 20px',
-                  borderRadius: '8px',
-                  background: 'linear-gradient(135deg, var(--blue), #3b82f6)',
-                  color: '#fff',
-                  textDecoration: 'none',
-                  fontSize: '14px',
-                  fontWeight: '700',
-                  fontFamily: 'var(--font-display)',
-                  transition: 'all 0.2s ease',
-                  boxShadow: 'var(--shadow-sm)',
-                  letterSpacing: '-0.1px'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = 'linear-gradient(135deg, #1d4ed8, var(--blue))'
-                  e.currentTarget.style.transform = 'translateY(-1px)'
-                  e.currentTarget.style.boxShadow = 'var(--shadow)'
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'linear-gradient(135deg, var(--blue), #3b82f6)'
-                  e.currentTarget.style.transform = 'translateY(0)'
-                  e.currentTarget.style.boxShadow = 'var(--shadow-sm)'
+                  width: '100%'
                 }}
               >
-                <span style={{ fontSize: '14px' }}>🤝</span>
-                Find Matches
-                <span style={{ fontSize: '12px' }}>→</span>
+                🤝 Find Matches →
               </a>
             </div>
           </div>
@@ -1168,10 +1089,10 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
         {/* Joined Date */}
         <div style={{ 
           background: 'var(--card)', 
-          borderRadius: '20px', 
+          borderRadius: '16px', 
           padding: '48px',
           border: '1px solid var(--border)',
-          boxShadow: 'var(--shadow-lg)',
+          boxShadow: 'var(--shadow)',
           textAlign: 'center',
           position: 'relative'
         }}>
@@ -1191,20 +1112,21 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
               alignItems: 'center',
               justifyContent: 'center',
               fontSize: '32px',
-              boxShadow: 'var(--shadow-lg)'
+              boxShadow: 'var(--shadow)'
             }}>
-              �
+              📅
             </div>
             <div style={{ textAlign: 'left' }}>
               <div style={{
-                fontSize: '18px',
-                color: 'var(--text2)',
+                fontSize: '13px',
+                color: 'var(--text3)',
                 fontWeight: '600',
                 fontFamily: 'var(--font-display)',
-                letterSpacing: '0.5px',
+                letterSpacing: '2px',
+                textTransform: 'uppercase',
                 marginBottom: '4px'
               }}>
-                MEMBER SINCE
+                Member Since
               </div>
               <div style={{
                 fontSize: '48px',
