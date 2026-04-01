@@ -12,11 +12,9 @@ interface Profile {
   stage?: string
   skills?: string[]
   status_tags?: string[]
-  social_links?: {
-    x?: string
-    linkedin?: string
-    github?: string
-  }
+  twitter?: string
+  linkedin?: string
+  github?: string
   created_at: string
 }
 
@@ -51,7 +49,11 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
     stage: initialProfile.stage || '',
     skills: initialProfile.skills || [],
     status_tags: initialProfile.status_tags || [],
-    social_links: initialProfile.social_links || {}
+    social_links: {
+      x: initialProfile.twitter || '',
+      linkedin: initialProfile.linkedin || '',
+      github: initialProfile.github || ''
+    }
   })
 
   const supabase = createClient()
@@ -76,11 +78,9 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
           stage: editData.stage,
           skills: editData.skills,
           status_tags: editData.status_tags,
-          social_links: {
-            x: editData.social_links.x || undefined,
-            linkedin: editData.social_links.linkedin || undefined,
-            github: editData.social_links.github || undefined
-          }
+          twitter: editData.social_links.x || undefined,
+          linkedin: editData.social_links.linkedin || undefined,
+          github: editData.social_links.github || undefined
         })
         .eq('id', user.id)
 
@@ -96,11 +96,9 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
         stage: editData.stage,
         skills: editData.skills,
         status_tags: editData.status_tags,
-        social_links: {
-          x: editData.social_links.x || undefined,
-          linkedin: editData.social_links.linkedin || undefined,
-          github: editData.social_links.github || undefined
-        }
+        twitter: editData.social_links.x || undefined,
+        linkedin: editData.social_links.linkedin || undefined,
+        github: editData.social_links.github || undefined
       }
       setCurrentProfile(updatedProfile)
       setSaveSuccess(true)
@@ -568,11 +566,11 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
               </div>
 
               {/* Social Links */}
-              {currentProfile.social_links && Object.keys(currentProfile.social_links).length > 0 && (
+              {(currentProfile.twitter || currentProfile.linkedin || currentProfile.github) && (
                 <div style={{ display: 'flex', gap: '16px', marginBottom: '24px' }}>
-                  {currentProfile.social_links.x && (
+                  {currentProfile.twitter && (
                     <a 
-                      href={`https://x.com/${currentProfile.social_links.x}`} 
+                      href={`https://x.com/${currentProfile.twitter}`} 
                       target="_blank" 
                       rel="noopener noreferrer"
                       style={{
@@ -609,9 +607,9 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
                       𝕏
                     </a>
                   )}
-                  {currentProfile.social_links.linkedin && (
+                  {currentProfile.linkedin && (
                     <a 
-                      href={`https://linkedin.com/in/${currentProfile.social_links.linkedin}`} 
+                      href={`https://linkedin.com/in/${currentProfile.linkedin}`} 
                       target="_blank" 
                       rel="noopener noreferrer"
                       style={{
@@ -648,9 +646,9 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
                       in
                     </a>
                   )}
-                  {currentProfile.social_links.github && (
+                  {currentProfile.github && (
                     <a 
-                      href={`https://github.com/${currentProfile.social_links.github}`} 
+                      href={`https://github.com/${currentProfile.github}`} 
                       target="_blank" 
                       rel="noopener noreferrer"
                       style={{
