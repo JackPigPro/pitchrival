@@ -21,6 +21,6 @@ export default async function TopNav() {
     }
   }
 
-  return <TopNavClient user={user ? { email: user.email, name } : null} />
+  return <TopNavClient user={user ? { email: user.email, name, username: name } : null} />
 }
 

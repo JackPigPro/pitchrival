@@ -8,7 +8,7 @@ import { createClient } from '@/utils/supabase/client'
 export default function TopNavClient({
   user,
 }: {
-  user: { email?: string | null; name?: string | null } | null
+  user: { email?: string | null; name?: string | null; username?: string | null } | null
 }) {
   const pathname = usePathname()
   const router = useRouter()
@@ -255,7 +255,7 @@ export default function TopNavClient({
               {user.name ?? user.email ?? 'Account'}
             </span>
             <Link
-              href="/profile"
+              href={user.username ? `/profile/${user.username}` : "/profile"}
               className="nav-login"
               style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}
             >
