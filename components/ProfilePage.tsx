@@ -947,8 +947,8 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
                 gap: '12px',
                 padding: '16px 24px',
                 borderRadius: '12px',
-                background: 'var(--orange)',
-                color: '#fff',
+                background: '#fff',
+                color: '#000',
                 textDecoration: 'none',
                 fontSize: '16px',
                 fontWeight: '700',
@@ -956,15 +956,20 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
                 transition: 'all 0.2s ease',
                 boxShadow: 'var(--shadow)',
                 letterSpacing: '-0.1px',
-                width: '100%'
+                width: '100%',
+                border: '1px solid var(--border)'
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.background = '#ea580c'
+                e.currentTarget.style.background = 'var(--orange)'
+                e.currentTarget.style.color = '#fff'
+                e.currentTarget.style.borderColor = 'var(--orange)'
                 e.currentTarget.style.transform = 'translateY(-2px)'
                 e.currentTarget.style.boxShadow = 'var(--shadow-lg)'
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'var(--orange)'
+                e.currentTarget.style.background = '#fff'
+                e.currentTarget.style.color = '#000'
+                e.currentTarget.style.borderColor = 'var(--border)'
                 e.currentTarget.style.transform = 'translateY(0)'
                 e.currentTarget.style.boxShadow = 'var(--shadow)'
               }}
@@ -978,20 +983,45 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
           {/* Right Column: Actions Section */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', width: '100%' }}>
             {/* Ideas Posted Card */}
-            <div style={{ 
-              background: 'var(--card)', 
-              borderRadius: '16px', 
-              padding: '32px',
-              border: '1px solid var(--border)',
-              boxShadow: 'var(--shadow)',
-              textAlign: 'center',
-              transition: 'all 0.2s ease',
-              width: '100%'
-            }}>
+            <a
+              href={ideas.length > 0 ? `/profile/${currentProfile.username}/ideas` : "#"}
+              onClick={(e) => {
+                if (ideas.length === 0) {
+                  e.preventDefault()
+                }
+              }}
+              style={{
+                display: 'block',
+                background: 'var(--card)', 
+                borderRadius: '16px', 
+                padding: '32px',
+                border: '1px solid var(--border)',
+                boxShadow: 'var(--shadow)',
+                textAlign: 'center',
+                transition: 'all 0.2s ease',
+                width: '100%',
+                textDecoration: 'none',
+                cursor: ideas.length > 0 ? 'pointer' : 'default'
+              }}
+              onMouseEnter={(e) => {
+                if (ideas.length > 0) {
+                  e.currentTarget.style.transform = 'translateY(-4px)'
+                  e.currentTarget.style.boxShadow = 'var(--shadow-lg)'
+                  e.currentTarget.style.borderColor = 'var(--purple)'
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (ideas.length > 0) {
+                  e.currentTarget.style.transform = 'translateY(0)'
+                  e.currentTarget.style.boxShadow = 'var(--shadow)'
+                  e.currentTarget.style.borderColor = 'var(--border)'
+                }
+              }}
+            >
               <div style={{ 
                 fontSize: '48px', 
                 fontWeight: '800', 
-                color: 'var(--purple)', 
+                color: ideas.length > 0 ? 'var(--purple)' : 'var(--text2)', 
                 fontFamily: 'var(--font-display)',
                 marginBottom: '12px'
               }}>
@@ -1006,7 +1036,7 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
               }}>
                 IDEAS POSTED
               </div>
-            </div>
+            </a>
 
             {/* Create Idea Button */}
             <a
@@ -1167,6 +1197,16 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
             </div>
             <div style={{ textAlign: 'left' }}>
               <div style={{
+                fontSize: '18px',
+                color: 'var(--text2)',
+                fontWeight: '600',
+                fontFamily: 'var(--font-display)',
+                letterSpacing: '0.5px',
+                marginBottom: '4px'
+              }}>
+                MEMBER SINCE
+              </div>
+              <div style={{
                 fontSize: '48px',
                 fontWeight: '800',
                 fontFamily: 'var(--font-display)',
@@ -1176,15 +1216,6 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
                 letterSpacing: '-0.5px'
               }}>
                 {new Date(currentProfile.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
-              </div>
-              <div style={{
-                fontSize: '18px',
-                color: 'var(--text2)',
-                fontWeight: '600',
-                fontFamily: 'var(--font-display)',
-                letterSpacing: '0.5px'
-              }}>
-                MEMBER SINCE
               </div>
             </div>
           </div>
@@ -1197,7 +1228,10 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
             maxWidth: '600px',
             margin: '0 auto'
           }}>
-            Building innovative ideas and connecting with founders for {Math.floor((Date.now() - new Date(currentProfile.created_at).getTime()) / (1000 * 60 * 60 * 24 * 30))} months
+            {(() => {
+              const monthsDiff = Math.floor((Date.now() - new Date(currentProfile.created_at).getTime()) / (1000 * 60 * 60 * 24 * 30))
+              return `Building innovative ideas and connecting with founders for ${Math.max(0, monthsDiff)} months`
+            })()}
           </div>
         </div>
       </div>
