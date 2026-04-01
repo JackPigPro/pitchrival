@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { createClient } from '@/utils/supabase/client'
 
 interface WeeklyDuel {
   id: string
@@ -53,6 +54,7 @@ export default function WeeklyDuelClient({
   currentUserId
 }: WeeklyDuelClientProps) {
   const [submissionContent, setSubmissionContent] = useState('')
+  const [validationError, setValidationError] = useState('')
   const [voteCooldown, setVoteCooldown] = useState(0)
   const [votedPairs, setVotedPairs] = useState(new Set<string>())
   const [currentPair, setCurrentPair] = useState<{ a: string; b: string } | null>(null)
@@ -117,16 +119,28 @@ export default function WeeklyDuelClient({
 
   const handleSubmitSubmission = async () => {
     if (!submissionContent.trim()) {
-      alert('Please enter a submission')
+      setValidationError('Please write something before submitting.')
       return
     }
 
     try {
-      const response = await fetch('/api/weekly-duel/api/submit', {
+      // Get session token properly
+      const supabase = createClient()
+      const { data: { session } } = await supabase.auth.getSession()
+
+      if (!session?.access_token) {
+        setValidationError('Authentication required. Please log in.')
+        return
+      }
+
+      console.log('Submitting with token:', session.access_token?.substring(0, 10) + '...')
+      console.log('Duel ID:', currentDuel?.id)
+
+      const response = await fetch('/compete/weekly-duel/api/submit', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('supabase_token')}`
+          'Authorization': `Bearer ${session.access_token}`
         },
         body: JSON.stringify({
           content: submissionContent,
@@ -134,17 +148,22 @@ export default function WeeklyDuelClient({
         })
       })
 
+      console.log('Response status:', response.status)
       const result = await response.json()
+      console.log('Response data:', result)
       
       if (result.success) {
         setSubmissionContent('')
+        setValidationError('')
         // Refresh page to show submission
         window.location.reload()
       } else {
-        console.error('Submission failed:', result.error)
+        console.error('Submit failed:', result.error)
+        setValidationError(result.error || 'Failed to submit. Please try again.')
       }
     } catch (error) {
-      console.error('Submission error:', error)
+      console.error('Submit error:', error)
+      setValidationError('Network error. Please try again.')
     }
   }
 
@@ -259,7 +278,10 @@ export default function WeeklyDuelClient({
               <div>
                 <textarea
                   value={submissionContent}
-                  onChange={(e) => setSubmissionContent(e.target.value)}
+                  onChange={(e) => {
+                    setSubmissionContent(e.target.value)
+                    if (validationError) setValidationError('')
+                  }}
                   placeholder="Enter your weekly submission..."
                   style={{
                     width: '100%',
@@ -272,9 +294,20 @@ export default function WeeklyDuelClient({
                     fontFamily: 'var(--font-body)',
                     color: 'var(--text)',
                     resize: 'vertical',
-                    marginBottom: '16px'
+                    marginBottom: validationError ? '8px' : '16px'
                   }}
                 />
+                
+                {validationError && (
+                  <div style={{
+                    fontSize: '14px',
+                    color: 'var(--red)',
+                    fontFamily: 'var(--font-body)',
+                    marginBottom: '16px'
+                  }}>
+                    {validationError}
+                  </div>
+                )}
                 
                 <button
                   onClick={handleSubmitSubmission}

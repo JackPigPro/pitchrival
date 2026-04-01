@@ -63,8 +63,17 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (submissionError || !submission) {
+      console.error('Submission insert error:', {
+        error: submissionError,
+        message: submissionError?.message,
+        details: submissionError?.details,
+        hint: submissionError?.hint,
+        code: submissionError?.code,
+        user_id: user.id,
+        duel_id: duel_id
+      })
       return NextResponse.json(
-        { error: 'Failed to submit idea' },
+        { error: 'Failed to submit idea', details: submissionError?.message },
         { status: 500 }
       )
     }
