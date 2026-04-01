@@ -60,6 +60,12 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
     setLoading(true)
     setSaveSuccess(false)
     try {
+      // Get the authenticated user's ID from Supabase auth
+      const { data: { user }, error: authError } = await supabase.auth.getUser()
+      if (authError || !user) {
+        throw new Error('User not authenticated')
+      }
+
       const { error } = await supabase
         .from('profiles')
         .update({
@@ -75,13 +81,14 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
             github: editData.social_links.github
           }
         })
-        .eq('id', currentProfile.id)
+        .eq('id', user.id)
 
       if (error) throw error
       
       // Update local state with saved data
       const updatedProfile = {
         ...currentProfile,
+        id: user.id, // Ensure we have the correct user ID
         username: editData.username.toLowerCase(),
         location: editData.location,
         bio: editData.bio,
