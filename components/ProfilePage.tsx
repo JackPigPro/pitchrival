@@ -42,6 +42,7 @@ interface ProfilePageProps {
 export default function ProfilePage({ profile: initialProfile, userStats, ideas, isOwnProfile }: ProfilePageProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [saveSuccess, setSaveSuccess] = useState(false)
   const [currentProfile, setCurrentProfile] = useState(initialProfile)
   const [editData, setEditData] = useState({
     username: initialProfile.username || '',
@@ -50,13 +51,14 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
     stage: initialProfile.stage || '',
     skills: initialProfile.skills || [],
     status_tags: initialProfile.status_tags || [],
-    social_links: currentProfile.social_links || {}
+    social_links: initialProfile.social_links || {}
   })
 
   const supabase = createClient()
 
   const handleSave = async () => {
     setLoading(true)
+    setSaveSuccess(false)
     try {
       const { error } = await supabase
         .from('profiles')
@@ -73,13 +75,13 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
             github: editData.social_links.github
           }
         })
-        .eq('id', initialProfile.id)
+        .eq('id', currentProfile.id)
 
       if (error) throw error
       
       // Update local state with saved data
       const updatedProfile = {
-        ...initialProfile,
+        ...currentProfile,
         username: editData.username.toLowerCase(),
         location: editData.location,
         bio: editData.bio,
@@ -89,9 +91,14 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
         social_links: editData.social_links
       }
       setCurrentProfile(updatedProfile)
-      setIsEditing(false)
+      setSaveSuccess(true)
+      setTimeout(() => {
+        setIsEditing(false)
+        setSaveSuccess(false)
+      }, 1000)
     } catch (error) {
       console.error('Error updating profile:', error)
+      alert('Error saving profile. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -353,20 +360,23 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
                 </button>
                 <button
                   onClick={handleSave}
-                  disabled={loading}
+                  disabled={loading || saveSuccess}
                   style={{
                     padding: '12px 24px',
                     borderRadius: '8px',
                     border: 'none',
-                    background: 'var(--green)',
+                    background: saveSuccess ? 'linear-gradient(135deg, #22c55e, #16a34a)' : 'var(--green)',
                     color: '#fff',
                     fontSize: '14px',
                     fontWeight: '600',
-                    cursor: loading ? 'not-allowed' : 'pointer',
-                    opacity: loading ? 0.7 : 1
+                    cursor: loading || saveSuccess ? 'not-allowed' : 'pointer',
+                    opacity: loading || saveSuccess ? 0.9 : 1,
+                    transition: 'all 0.2s ease',
+                    boxShadow: saveSuccess ? '0 4px 12px rgba(34,197,94,0.4)' : 'var(--shadow-md)',
+                    transform: saveSuccess ? 'scale(0.98)' : 'scale(1)'
                   }}
                 >
-                  {loading ? 'Saving...' : 'Save'}
+                  {saveSuccess ? '✓ Saved!' : loading ? 'Saving...' : 'Save Changes'}
                 </button>
               </div>
             </div>
@@ -377,92 +387,169 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--bg)', padding: '24px' }}>
+    <div style={{ 
+      minHeight: '100vh', 
+      background: 'var(--bg)',
+      backgroundImage: 'linear-gradient(rgba(21,128,61,.065) 1px, transparent 1px), linear-gradient(90deg, rgba(21,128,61,.065) 1px, transparent 1px)',
+      backgroundSize: '48px 48px',
+      padding: '24px' 
+    }}>
       <div style={{ maxWidth: '800px', margin: '0 auto' }}>
         {/* Profile Header */}
         <div style={{ 
           background: 'var(--card)', 
           borderRadius: '16px', 
-          padding: '32px',
+          padding: '40px',
           border: '1px solid var(--border)',
-          boxShadow: 'var(--shadow)',
-          marginBottom: '24px'
+          boxShadow: 'var(--shadow-lg)',
+          marginBottom: '24px',
+          position: 'relative',
+          overflow: 'hidden'
         }}>
-          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '24px', marginBottom: '24px' }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '32px', marginBottom: '32px' }}>
             {/* Profile Picture */}
             <div style={{
-              width: '80px',
-              height: '80px',
+              width: '120px',
+              height: '120px',
               borderRadius: '50%',
-              background: getProfileColor(currentProfile.username),
+              background: `linear-gradient(135deg, ${getProfileColor(currentProfile.username)}, ${getProfileColor(currentProfile.username)}dd)`,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               color: '#fff',
-              fontSize: '32px',
-              fontWeight: '700',
+              fontSize: '48px',
+              fontWeight: '800',
               fontFamily: 'var(--font-display)',
               flexShrink: 0,
-              boxShadow: 'var(--shadow-md)'
+              boxShadow: 'var(--shadow-lg)',
+              border: '3px solid var(--card)',
+              position: 'relative',
+              zIndex: 1
             }}>
               {currentProfile.username.charAt(0).toUpperCase()}
             </div>
 
             {/* Profile Info */}
             <div style={{ flex: 1 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-                <h1 style={{ fontSize: '28px', fontWeight: '700', fontFamily: 'var(--font-display)', margin: 0, color: 'var(--text)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '12px' }}>
+                <h1 style={{ 
+                  fontSize: '36px', 
+                  fontWeight: '800', 
+                  fontFamily: 'var(--font-display)', 
+                  margin: 0, 
+                  color: 'var(--text)',
+                  letterSpacing: '-1px'
+                }}>
                   {currentProfile.username}
                 </h1>
-                {initialProfile.stage && (
+                {currentProfile.stage && (
                   <span style={{
-                    padding: '4px 12px',
-                    borderRadius: '12px',
+                    padding: '6px 16px',
+                    borderRadius: '20px',
                     background: 'var(--green-tint)',
                     color: 'var(--green)',
-                    fontSize: '12px',
-                    fontWeight: '600'
+                    fontSize: '13px',
+                    fontWeight: '700',
+                    fontFamily: 'var(--font-display)',
+                    border: '1px solid rgba(21,128,61,.2)',
+                    boxShadow: 'var(--shadow-sm)'
                   }}>
                     {currentProfile.stage}
                   </span>
                 )}
               </div>
               
-              {initialProfile.location && (
-                <p style={{ color: 'var(--text2)', fontSize: '14px', marginBottom: '12px' }}>
-                  📍 {currentProfile.location}
-                </p>
+              {currentProfile.location && (
+                <div style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: '8px', 
+                  marginBottom: '16px',
+                  color: 'var(--text2)',
+                  fontSize: '15px',
+                  fontWeight: '500'
+                }}>
+                  <span style={{ fontSize: '16px' }}>📍</span>
+                  {currentProfile.location}
+                </div>
               )}
 
-              {initialProfile.bio && (
-                <p style={{ color: 'var(--text)', fontSize: '15px', lineHeight: '1.6', marginBottom: '16px' }}>
+              {currentProfile.bio && (
+                <div style={{ 
+                  color: 'var(--text)', 
+                  fontSize: '16px', 
+                  lineHeight: '1.7', 
+                  marginBottom: '20px',
+                  fontFamily: 'var(--font-body)',
+                  fontWeight: '400'
+                }}>
                   {currentProfile.bio}
-                </p>
+                </div>
               )}
 
               {/* Skills and Status Tags */}
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '16px' }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '20px' }}>
                 {currentProfile.skills?.map(skill => (
-                  <span key={skill} style={{
-                    padding: '4px 12px',
-                    borderRadius: '12px',
-                    background: 'var(--blue-tint)',
-                    color: 'var(--blue)',
-                    fontSize: '12px',
-                    fontWeight: '600'
-                  }}>
+                  <span 
+                    key={skill} 
+                    style={{
+                      padding: '8px 16px',
+                      borderRadius: '20px',
+                      background: 'var(--blue-tint)',
+                      color: 'var(--blue)',
+                      fontSize: '13px',
+                      fontWeight: '700',
+                      fontFamily: 'var(--font-display)',
+                      border: '1px solid rgba(37,99,235,.2)',
+                      boxShadow: 'var(--shadow-sm)',
+                      transition: 'all 0.2s ease',
+                      cursor: 'default'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = 'var(--blue)'
+                      e.currentTarget.style.color = '#fff'
+                      e.currentTarget.style.transform = 'translateY(-2px)'
+                      e.currentTarget.style.boxShadow = 'var(--shadow)'
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = 'var(--blue-tint)'
+                      e.currentTarget.style.color = 'var(--blue)'
+                      e.currentTarget.style.transform = 'translateY(0)'
+                      e.currentTarget.style.boxShadow = 'var(--shadow-sm)'
+                    }}
+                  >
                     {skill}
                   </span>
                 ))}
                 {currentProfile.status_tags?.map(tag => (
-                  <span key={tag} style={{
-                    padding: '4px 12px',
-                    borderRadius: '12px',
-                    background: 'var(--purple-tint)',
-                    color: 'var(--purple)',
-                    fontSize: '12px',
-                    fontWeight: '600'
-                  }}>
+                  <span 
+                    key={tag} 
+                    style={{
+                      padding: '8px 16px',
+                      borderRadius: '20px',
+                      background: 'var(--purple-tint)',
+                      color: 'var(--purple)',
+                      fontSize: '13px',
+                      fontWeight: '700',
+                      fontFamily: 'var(--font-display)',
+                      border: '1px solid rgba(124,58,237,.2)',
+                      boxShadow: 'var(--shadow-sm)',
+                      transition: 'all 0.2s ease',
+                      cursor: 'default'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = 'var(--purple)'
+                      e.currentTarget.style.color = '#fff'
+                      e.currentTarget.style.transform = 'translateY(-2px)'
+                      e.currentTarget.style.boxShadow = 'var(--shadow)'
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = 'var(--purple-tint)'
+                      e.currentTarget.style.color = 'var(--purple)'
+                      e.currentTarget.style.transform = 'translateY(0)'
+                      e.currentTarget.style.boxShadow = 'var(--shadow-sm)'
+                    }}
+                  >
                     {tag}
                   </span>
                 ))}
@@ -470,18 +557,123 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
 
               {/* Social Links */}
               {currentProfile.social_links && Object.keys(currentProfile.social_links).length > 0 && (
-                <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
+                <div style={{ display: 'flex', gap: '16px', marginBottom: '24px' }}>
                   {currentProfile.social_links.x && (
-                    <a href={`https://x.com/${currentProfile.social_links.x}`} target="_blank" rel="noopener noreferrer"
-                       style={{ color: 'var(--text2)', textDecoration: 'none', fontSize: '18px' }}>𝕏</a>
+                    <a 
+                      href={`https://x.com/${currentProfile.social_links.x}`} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        width: '44px',
+                        height: '44px',
+                        borderRadius: '12px',
+                        background: 'var(--card2)',
+                        border: '1px solid var(--border2)',
+                        color: 'var(--text2)',
+                        textDecoration: 'none',
+                        fontSize: '18px',
+                        fontWeight: '700',
+                        transition: 'all 0.2s ease',
+                        boxShadow: 'var(--shadow-sm)'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = '#000'
+                        e.currentTarget.style.color = '#fff'
+                        e.currentTarget.style.borderColor = '#000'
+                        e.currentTarget.style.transform = 'translateY(-2px)'
+                        e.currentTarget.style.boxShadow = 'var(--shadow)'
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = 'var(--card2)'
+                        e.currentTarget.style.color = 'var(--text2)'
+                        e.currentTarget.style.borderColor = 'var(--border2)'
+                        e.currentTarget.style.transform = 'translateY(0)'
+                        e.currentTarget.style.boxShadow = 'var(--shadow-sm)'
+                      }}
+                    >
+                      𝕏
+                    </a>
                   )}
                   {currentProfile.social_links.linkedin && (
-                    <a href={`https://linkedin.com/in/${currentProfile.social_links.linkedin}`} target="_blank" rel="noopener noreferrer"
-                       style={{ color: 'var(--text2)', textDecoration: 'none', fontSize: '18px' }}>in</a>
+                    <a 
+                      href={`https://linkedin.com/in/${currentProfile.social_links.linkedin}`} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        width: '44px',
+                        height: '44px',
+                        borderRadius: '12px',
+                        background: 'var(--card2)',
+                        border: '1px solid var(--border2)',
+                        color: 'var(--text2)',
+                        textDecoration: 'none',
+                        fontSize: '18px',
+                        fontWeight: '700',
+                        transition: 'all 0.2s ease',
+                        boxShadow: 'var(--shadow-sm)'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = '#0077b5'
+                        e.currentTarget.style.color = '#fff'
+                        e.currentTarget.style.borderColor = '#0077b5'
+                        e.currentTarget.style.transform = 'translateY(-2px)'
+                        e.currentTarget.style.boxShadow = 'var(--shadow)'
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = 'var(--card2)'
+                        e.currentTarget.style.color = 'var(--text2)'
+                        e.currentTarget.style.borderColor = 'var(--border2)'
+                        e.currentTarget.style.transform = 'translateY(0)'
+                        e.currentTarget.style.boxShadow = 'var(--shadow-sm)'
+                      }}
+                    >
+                      in
+                    </a>
                   )}
                   {currentProfile.social_links.github && (
-                    <a href={`https://github.com/${currentProfile.social_links.github}`} target="_blank" rel="noopener noreferrer"
-                       style={{ color: 'var(--text2)', textDecoration: 'none', fontSize: '18px' }}>⚡</a>
+                    <a 
+                      href={`https://github.com/${currentProfile.social_links.github}`} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        width: '44px',
+                        height: '44px',
+                        borderRadius: '12px',
+                        background: 'var(--card2)',
+                        border: '1px solid var(--border2)',
+                        color: 'var(--text2)',
+                        textDecoration: 'none',
+                        fontSize: '18px',
+                        fontWeight: '700',
+                        transition: 'all 0.2s ease',
+                        boxShadow: 'var(--shadow-sm)'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = '#333'
+                        e.currentTarget.style.color = '#fff'
+                        e.currentTarget.style.borderColor = '#333'
+                        e.currentTarget.style.transform = 'translateY(-2px)'
+                        e.currentTarget.style.boxShadow = 'var(--shadow)'
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = 'var(--card2)'
+                        e.currentTarget.style.color = 'var(--text2)'
+                        e.currentTarget.style.borderColor = 'var(--border2)'
+                        e.currentTarget.style.transform = 'translateY(0)'
+                        e.currentTarget.style.boxShadow = 'var(--shadow-sm)'
+                      }}
+                    >
+                      ⚡
+                    </a>
                   )}
                 </div>
               )}
@@ -491,25 +683,32 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
                 <button
                   onClick={() => setIsEditing(true)}
                   style={{
-                    padding: '8px 16px',
-                    borderRadius: '8px',
+                    padding: '12px 24px',
+                    borderRadius: '10px',
                     border: '1px solid var(--border2)',
                     background: 'var(--card2)',
                     color: 'var(--text)',
                     fontSize: '14px',
-                    fontWeight: '600',
+                    fontWeight: '700',
+                    fontFamily: 'var(--font-display)',
                     cursor: 'pointer',
-                    transition: 'all 0.2s ease'
+                    transition: 'all 0.2s ease',
+                    boxShadow: 'var(--shadow-sm)',
+                    letterSpacing: '-0.1px'
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.background = 'var(--green)'
                     e.currentTarget.style.color = '#fff'
                     e.currentTarget.style.borderColor = 'var(--green)'
+                    e.currentTarget.style.transform = 'translateY(-2px)'
+                    e.currentTarget.style.boxShadow = 'var(--shadow)'
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.background = 'var(--card2)'
                     e.currentTarget.style.color = 'var(--text)'
                     e.currentTarget.style.borderColor = 'var(--border2)'
+                    e.currentTarget.style.transform = 'translateY(0)'
+                    e.currentTarget.style.boxShadow = 'var(--shadow-sm)'
                   }}
                 >
                   Edit Profile
@@ -519,34 +718,168 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
           </div>
 
           {/* Stats Row */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '16px', paddingTop: '20px', borderTop: '1px solid var(--border)' }}>
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', 
+            gap: '16px', 
+            paddingTop: '24px', 
+            borderTop: '1px solid var(--border)' 
+          }}>
             {userStats?.elo && (
-              <div style={{ textAlign: 'center', padding: '16px', borderRadius: '12px', background: 'var(--card2)', transition: 'all 0.2s ease' }}>
-                <div style={{ fontSize: '24px', fontWeight: '700', color: 'var(--green)', fontFamily: 'var(--font-display)' }}>
+              <div style={{ 
+                textAlign: 'center', 
+                padding: '20px', 
+                borderRadius: '12px', 
+                background: 'var(--card2)', 
+                transition: 'all 0.2s ease',
+                border: '1px solid var(--border2)',
+                cursor: 'default'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'var(--green-tint)'
+                e.currentTarget.style.borderColor = 'var(--green)'
+                e.currentTarget.style.transform = 'translateY(-2px)'
+                e.currentTarget.style.boxShadow = 'var(--shadow)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'var(--card2)'
+                e.currentTarget.style.borderColor = 'var(--border2)'
+                e.currentTarget.style.transform = 'translateY(0)'
+                e.currentTarget.style.boxShadow = 'none'
+              }}>
+                <div style={{ 
+                  fontSize: '32px', 
+                  fontWeight: '800', 
+                  color: 'var(--green)', 
+                  fontFamily: 'var(--font-display)',
+                  marginBottom: '4px'
+                }}>
                   {userStats.elo}
                 </div>
-                <div style={{ fontSize: '12px', color: 'var(--text2)' }}>ELO Rating</div>
+                <div style={{ 
+                  fontSize: '12px', 
+                  color: 'var(--text2)',
+                  fontWeight: '600',
+                  fontFamily: 'var(--font-display)',
+                  letterSpacing: '0.5px'
+                }}>ELO RATING</div>
               </div>
             )}
             {userStats?.leaderboard_rank && (
-              <div style={{ textAlign: 'center', padding: '16px', borderRadius: '12px', background: 'var(--card2)', transition: 'all 0.2s ease' }}>
-                <div style={{ fontSize: '24px', fontWeight: '700', color: 'var(--text)', fontFamily: 'var(--font-display)' }}>
+              <div style={{ 
+                textAlign: 'center', 
+                padding: '20px', 
+                borderRadius: '12px', 
+                background: 'var(--card2)', 
+                transition: 'all 0.2s ease',
+                border: '1px solid var(--border2)',
+                cursor: 'default'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'var(--blue-tint)'
+                e.currentTarget.style.borderColor = 'var(--blue)'
+                e.currentTarget.style.transform = 'translateY(-2px)'
+                e.currentTarget.style.boxShadow = 'var(--shadow)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'var(--card2)'
+                e.currentTarget.style.borderColor = 'var(--border2)'
+                e.currentTarget.style.transform = 'translateY(0)'
+                e.currentTarget.style.boxShadow = 'none'
+              }}>
+                <div style={{ 
+                  fontSize: '32px', 
+                  fontWeight: '800', 
+                  color: 'var(--blue)', 
+                  fontFamily: 'var(--font-display)',
+                  marginBottom: '4px'
+                }}>
                   #{userStats.leaderboard_rank}
                 </div>
-                <div style={{ fontSize: '12px', color: 'var(--text2)' }}>Leaderboard Rank</div>
+                <div style={{ 
+                  fontSize: '12px', 
+                  color: 'var(--text2)',
+                  fontWeight: '600',
+                  fontFamily: 'var(--font-display)',
+                  letterSpacing: '0.5px'
+                }}>RANK</div>
               </div>
             )}
-            <div style={{ textAlign: 'center', padding: '16px', borderRadius: '12px', background: 'var(--card2)', transition: 'all 0.2s ease' }}>
-              <div style={{ fontSize: '24px', fontWeight: '700', color: 'var(--blue)', fontFamily: 'var(--font-display)' }}>
+            <div style={{ 
+              textAlign: 'center', 
+              padding: '20px', 
+              borderRadius: '12px', 
+              background: 'var(--card2)', 
+              transition: 'all 0.2s ease',
+              border: '1px solid var(--border2)',
+              cursor: 'default'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'var(--purple-tint)'
+              e.currentTarget.style.borderColor = 'var(--purple)'
+              e.currentTarget.style.transform = 'translateY(-2px)'
+              e.currentTarget.style.boxShadow = 'var(--shadow)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'var(--card2)'
+              e.currentTarget.style.borderColor = 'var(--border2)'
+              e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.boxShadow = 'none'
+            }}>
+              <div style={{ 
+                fontSize: '32px', 
+                fontWeight: '800', 
+                color: 'var(--purple)', 
+                fontFamily: 'var(--font-display)',
+                marginBottom: '4px'
+              }}>
                 {ideas.length}
               </div>
-              <div style={{ fontSize: '12px', color: 'var(--text2)' }}>Ideas</div>
+              <div style={{ 
+                fontSize: '12px', 
+                color: 'var(--text2)',
+                fontWeight: '600',
+                fontFamily: 'var(--font-display)',
+                letterSpacing: '0.5px'
+              }}>IDEAS</div>
             </div>
-            <div style={{ textAlign: 'center', padding: '16px', borderRadius: '12px', background: 'var(--card2)', transition: 'all 0.2s ease' }}>
-              <div style={{ fontSize: '24px', fontWeight: '700', color: 'var(--purple)', fontFamily: 'var(--font-display)' }}>
+            <div style={{ 
+              textAlign: 'center', 
+              padding: '20px', 
+              borderRadius: '12px', 
+              background: 'var(--card2)', 
+              transition: 'all 0.2s ease',
+              border: '1px solid var(--border2)',
+              cursor: 'default'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'var(--gold-tint)'
+              e.currentTarget.style.borderColor = 'var(--gold)'
+              e.currentTarget.style.transform = 'translateY(-2px)'
+              e.currentTarget.style.boxShadow = 'var(--shadow)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'var(--card2)'
+              e.currentTarget.style.borderColor = 'var(--border2)'
+              e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.boxShadow = 'none'
+            }}>
+              <div style={{ 
+                fontSize: '20px', 
+                fontWeight: '800', 
+                color: 'var(--gold)', 
+                fontFamily: 'var(--font-display)',
+                marginBottom: '4px'
+              }}>
                 {new Date(currentProfile.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
               </div>
-              <div style={{ fontSize: '12px', color: 'var(--text2)' }}>Joined</div>
+              <div style={{ 
+                fontSize: '12px', 
+                color: 'var(--text2)',
+                fontWeight: '600',
+                fontFamily: 'var(--font-display)',
+                letterSpacing: '0.5px'
+              }}>JOINED</div>
             </div>
           </div>
         </div>
@@ -555,39 +888,74 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
         <div style={{ 
           background: 'var(--card)', 
           borderRadius: '16px', 
-          padding: '24px',
+          padding: '32px',
           border: '1px solid var(--border)',
-          boxShadow: 'var(--shadow)',
+          boxShadow: 'var(--shadow-lg)',
           marginBottom: '24px',
-          textAlign: 'center'
+          textAlign: 'center',
+          position: 'relative',
+          overflow: 'hidden'
         }}>
+          <div style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            height: '3px',
+            background: 'linear-gradient(90deg, var(--blue), var(--green), var(--purple))',
+            opacity: 0.8
+          }} />
+          <h3 style={{
+            fontSize: '18px',
+            fontWeight: '700',
+            fontFamily: 'var(--font-display)',
+            color: 'var(--text)',
+            marginBottom: '16px',
+            letterSpacing: '-0.2px'
+          }}>
+            Looking for a co-founder?
+          </h3>
+          <p style={{
+            fontSize: '14px',
+            color: 'var(--text2)',
+            marginBottom: '24px',
+            lineHeight: '1.6'
+          }}>
+            Find your perfect match based on skills, goals, and compatibility
+          </p>
           <a 
             href="/connect"
             style={{
-              display: 'inline-block',
-              padding: '12px 24px',
-              borderRadius: '8px',
-              background: 'var(--green)',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '14px 28px',
+              borderRadius: '10px',
+              background: 'linear-gradient(135deg, var(--blue), #3b82f6)',
               color: '#fff',
               textDecoration: 'none',
-              fontSize: '14px',
-              fontWeight: '600',
+              fontSize: '15px',
+              fontWeight: '700',
+              fontFamily: 'var(--font-display)',
               cursor: 'pointer',
               transition: 'all 0.2s ease',
-              boxShadow: 'var(--shadow-md)'
+              boxShadow: 'var(--shadow)',
+              letterSpacing: '-0.1px'
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'linear-gradient(135deg, #22c55e, #16a34a)'
+              e.currentTarget.style.background = 'linear-gradient(135deg, #1d4ed8, var(--blue))'
               e.currentTarget.style.transform = 'translateY(-2px)'
-              e.currentTarget.style.boxShadow = '0 12px 24px rgba(21,128,61,0.3)'
+              e.currentTarget.style.boxShadow = 'var(--shadow-lg)'
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'var(--green)'
+              e.currentTarget.style.background = 'linear-gradient(135deg, var(--blue), #3b82f6)'
               e.currentTarget.style.transform = 'translateY(0)'
-              e.currentTarget.style.boxShadow = 'var(--shadow-md)'
+              e.currentTarget.style.boxShadow = 'var(--shadow)'
             }}
           >
-            View Co-founder Match →
+            <span>🤝</span>
+            View Co-founder Matches
+            <span style={{ fontSize: '16px' }}>→</span>
           </a>
         </div>
 
@@ -598,45 +966,137 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
             borderRadius: '16px', 
             padding: '32px',
             border: '1px solid var(--border)',
-            boxShadow: 'var(--shadow)'
+            boxShadow: 'var(--shadow-lg)',
+            position: 'relative',
+            overflow: 'hidden'
           }}>
-            <h2 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '24px', fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
-              Public Ideas
-            </h2>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              marginBottom: '24px'
+            }}>
+              <h2 style={{ 
+                fontSize: '20px', 
+                fontWeight: '700', 
+                fontFamily: 'var(--font-display)', 
+                color: 'var(--text)',
+                letterSpacing: '-0.3px',
+                margin: 0
+              }}>
+                💡 Public Ideas
+              </h2>
+              <span style={{
+                fontSize: '13px',
+                color: 'var(--text2)',
+                fontWeight: '600',
+                fontFamily: 'var(--font-display)',
+                background: 'var(--card2)',
+                padding: '6px 12px',
+                borderRadius: '8px',
+                border: '1px solid var(--border2)'
+              }}>
+                {ideas.length} {ideas.length === 1 ? 'Idea' : 'Ideas'}
+              </span>
+            </div>
             <div style={{ display: 'grid', gap: '16px' }}>
               {ideas.map(idea => (
-                <div key={idea.id} style={{
-                  padding: '20px',
-                  borderRadius: '12px',
-                  background: 'var(--card2)',
-                  border: '1px solid var(--border2)',
-                  transition: 'all 0.2s ease'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = 'var(--card)'
-                  e.currentTarget.style.borderColor = 'var(--border)'
-                  e.currentTarget.style.transform = 'translateY(-2px)'
-                  e.currentTarget.style.boxShadow = 'var(--shadow-lg)'
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'var(--card2)'
-                  e.currentTarget.style.borderColor = 'var(--border2)'
-                  e.currentTarget.style.transform = 'translateY(0)'
-                  e.currentTarget.style.boxShadow = 'var(--shadow)'
-                }}
+                <div 
+                  key={idea.id} 
+                  style={{
+                    padding: '24px',
+                    borderRadius: '12px',
+                    background: 'var(--card2)',
+                    border: '1px solid var(--border2)',
+                    transition: 'all 0.2s ease',
+                    cursor: 'pointer',
+                    position: 'relative'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'var(--card)'
+                    e.currentTarget.style.borderColor = 'var(--border)'
+                    e.currentTarget.style.transform = 'translateY(-2px)'
+                    e.currentTarget.style.boxShadow = 'var(--shadow-lg)'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'var(--card2)'
+                    e.currentTarget.style.borderColor = 'var(--border2)'
+                    e.currentTarget.style.transform = 'translateY(0)'
+                    e.currentTarget.style.boxShadow = 'none'
+                  }}
                 >
-                  <h3 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '8px', fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
-                    {idea.title}
-                  </h3>
-                  <p style={{ color: 'var(--text2)', fontSize: '14px', lineHeight: '1.6', marginBottom: '12px' }}>
-                    {idea.description}
-                  </p>
-                  <div style={{ marginTop: '12px', fontSize: '12px', color: 'var(--text3)' }}>
-                    {new Date(idea.created_at).toLocaleDateString('en-US', { 
-                      year: 'numeric', 
-                      month: 'short', 
-                      day: 'numeric' 
-                    })}
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    gap: '16px',
+                    marginBottom: '12px'
+                  }}>
+                    <div style={{
+                      width: '40px',
+                      height: '40px',
+                      borderRadius: '10px',
+                      background: 'linear-gradient(135deg, var(--purple), #a855f7)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: '#fff',
+                      fontSize: '16px',
+                      fontWeight: '700',
+                      fontFamily: 'var(--font-display)',
+                      flexShrink: 0
+                    }}>
+                      💡
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <h3 style={{ 
+                        fontSize: '18px', 
+                        fontWeight: '700', 
+                        marginBottom: '8px', 
+                        fontFamily: 'var(--font-display)', 
+                        color: 'var(--text)',
+                        letterSpacing: '-0.2px',
+                        margin: 0
+                      }}>
+                        {idea.title}
+                      </h3>
+                      <p style={{ 
+                        color: 'var(--text2)', 
+                        fontSize: '14px', 
+                        lineHeight: '1.6', 
+                        marginBottom: '16px',
+                        margin: '0 0 16px 0'
+                      }}>
+                        {idea.description}
+                      </p>
+                    </div>
+                  </div>
+                  <div style={{ 
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    fontSize: '12px', 
+                    color: 'var(--text3)',
+                    fontFamily: 'var(--font-body)',
+                    fontWeight: '500'
+                  }}>
+                    <span>
+                      📅 {new Date(idea.created_at).toLocaleDateString('en-US', { 
+                        year: 'numeric', 
+                        month: 'short', 
+                        day: 'numeric' 
+                      })}
+                    </span>
+                    <span style={{
+                      background: 'var(--purple-tint)',
+                      color: 'var(--purple)',
+                      padding: '4px 8px',
+                      borderRadius: '6px',
+                      fontSize: '11px',
+                      fontWeight: '600',
+                      fontFamily: 'var(--font-display)'
+                    }}>
+                      PUBLIC
+                    </span>
                   </div>
                 </div>
               ))}
