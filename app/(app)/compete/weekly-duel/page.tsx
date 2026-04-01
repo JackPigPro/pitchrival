@@ -99,6 +99,7 @@ export default function WeeklyDuelPage() {
           .eq('duel_id', currentDuel.id)
           .order('vote_score', { ascending: false })
 
+        console.log('All submissions:', allSubs)
         setAllSubmissions(allSubs || [])
       }
 
