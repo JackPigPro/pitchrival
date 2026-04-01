@@ -59,7 +59,7 @@ export default function WeeklyDuelClient({
   const [votedPairs, setVotedPairs] = useState(new Set<string>())
   const [currentPair, setCurrentPair] = useState<{ a: string; b: string } | null>(null)
   const [eloChange, setEloChange] = useState<number | null>(null)
-  const [adminPreviewState, setAdminPreviewState] = useState<'active' | 'voting' | 'results' | 'between'>('active')
+  const [adminPreviewState, setAdminPreviewState] = useState<'active' | 'voting' | 'results'>('active')
   const [hasSubmittedPreview, setHasSubmittedPreview] = useState(false)
 
   // Check if user is admin
@@ -83,11 +83,22 @@ export default function WeeklyDuelClient({
         return
       }
       
-      const hours = Math.floor(timeLeft / (1000 * 60 * 60))
+      const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24))
+      const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
       const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60))
       const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000)
       
-      const timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+      let timeString = ''
+      if (days > 0) {
+        timeString += `${days} day${days === 1 ? '' : 's'} `
+      }
+      if (days > 0 || hours > 0) {
+        timeString += `${hours} hour${hours === 1 ? '' : 's'} `
+      }
+      if (days > 0 || hours > 0 || minutes > 0) {
+        timeString += `${minutes} minute${minutes === 1 ? '' : 's'} `
+      }
+      timeString += `${seconds} second${seconds === 1 ? '' : 's'}`
       
       // Update countdown display
       const countdownElement = document.getElementById('countdown')
@@ -111,11 +122,22 @@ export default function WeeklyDuelClient({
         return
       }
       
-      const hours = Math.floor(timeLeft / (1000 * 60 * 60))
+      const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24))
+      const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
       const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60))
       const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000)
       
-      const timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+      let timeString = ''
+      if (days > 0) {
+        timeString += `${days} day${days === 1 ? '' : 's'} `
+      }
+      if (days > 0 || hours > 0) {
+        timeString += `${hours} hour${hours === 1 ? '' : 's'} `
+      }
+      if (days > 0 || hours > 0 || minutes > 0) {
+        timeString += `${minutes} minute${minutes === 1 ? '' : 's'} `
+      }
+      timeString += `${seconds} second${seconds === 1 ? '' : 's'}`
       
       // Update countdown display
       const countdownElement = document.getElementById('voting-countdown')
@@ -371,21 +393,6 @@ export default function WeeklyDuelClient({
             >
               Results
             </button>
-            <button
-              onClick={() => setAdminPreviewState('between')}
-              style={{
-                padding: '4px 12px',
-                borderRadius: '4px',
-                border: adminPreviewState === 'between' ? '1px solid var(--purple)' : '1px solid var(--border)',
-                background: adminPreviewState === 'between' ? 'var(--purple-tint)' : 'var(--surface)',
-                color: 'var(--text)',
-                fontSize: '12px',
-                fontFamily: 'var(--font-display)',
-                cursor: 'pointer'
-              }}
-            >
-              Between
-            </button>
           </div>
           {adminPreviewState === 'active' && (
             <button
@@ -502,127 +509,139 @@ export default function WeeklyDuelClient({
               )}
 
               {/* Voting State */}
-              {displayState === 'voting' && currentPair && (
+              {displayState === 'voting' && (
                 <div>
-                  <div style={{ fontSize: '20px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '24px', textAlign: 'center' }}>
-                    Vote for the better submission
-                  </div>
-                  
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginBottom: '32px' }}>
-                    <div style={{ 
-                      textAlign: 'center', 
-                      padding: '32px', 
-                      borderRadius: '12px',
-                      border: '2px solid var(--purple)',
-                      background: 'var(--purple-tint)',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s ease'
-                    }}
-                      onClick={() => handleVote(currentPair.a, currentPair.b)}
-                    >
-                      <div style={{ fontSize: '16px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '16px' }}>
-                        {allSubmissions.find(s => s.id === currentPair.a)?.content?.substring(0, 100) || 'Submission A'}
+                  {allSubmissions.length < 2 ? (
+                    <div style={{ textAlign: 'center', fontSize: '18px', color: 'var(--text2)', fontFamily: 'var(--font-body)', padding: '32px' }}>
+                      <div style={{ fontSize: '48px', fontWeight: 800, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '16px' }}>
+                        🗳
                       </div>
-                      <button
-                        style={{
-                          padding: '8px 24px',
-                          borderRadius: '6px',
-                          border: 'none',
-                          background: 'var(--purple)',
-                          color: 'white',
-                          fontSize: '14px',
-                          fontWeight: 600,
-                          fontFamily: 'var(--font-display)',
-                          cursor: 'pointer'
-                        }}
-                      >
-                        Vote
-                      </button>
-                    </div>
-                    
-                    <div style={{ 
-                      textAlign: 'center', 
-                      padding: '32px', 
-                      borderRadius: '12px',
-                      border: '2px solid var(--purple)',
-                      background: 'var(--purple-tint)',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s ease'
-                    }}
-                      onClick={() => handleVote(currentPair.b, currentPair.a)}
-                    >
-                      <div style={{ fontSize: '16px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '16px' }}>
-                        {allSubmissions.find(s => s.id === currentPair.b)?.content?.substring(0, 100) || 'Submission B'}
+                      <div style={{ fontSize: '20px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
+                        Voting requires at least 2 submissions to generate matchups.
                       </div>
-                      <button
-                        style={{
-                          padding: '8px 24px',
-                          borderRadius: '6px',
-                          border: 'none',
-                          background: 'var(--purple)',
-                          color: 'white',
-                          fontSize: '14px',
-                          fontWeight: 600,
-                          fontFamily: 'var(--font-display)',
-                          cursor: 'pointer'
-                        }}
-                      >
-                        Vote
-                      </button>
                     </div>
-                  </div>
+                  ) : currentPair ? (
+                    <div>
+                      <div style={{ fontSize: '20px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '24px', textAlign: 'center' }}>
+                        Vote for better submission
+                      </div>
+                      
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginBottom: '32px' }}>
+                        <div style={{ 
+                          textAlign: 'center', 
+                          padding: '32px', 
+                          borderRadius: '12px',
+                          border: '2px solid var(--purple)',
+                          background: 'var(--purple-tint)',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s ease'
+                        }}
+                          onClick={() => handleVote(currentPair.a, currentPair.b)}
+                        >
+                          <div style={{ fontSize: '16px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '16px' }}>
+                            {allSubmissions.find(s => s.id === currentPair.a)?.content?.substring(0, 100) || 'Submission A'}
+                          </div>
+                          <button
+                            style={{
+                              padding: '8px 24px',
+                              borderRadius: '6px',
+                              border: 'none',
+                              background: 'var(--purple)',
+                              color: 'white',
+                              fontSize: '14px',
+                              fontWeight: 600,
+                              fontFamily: 'var(--font-display)',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            Vote
+                          </button>
+                        </div>
+                        
+                        <div style={{ 
+                          textAlign: 'center', 
+                          padding: '32px', 
+                          borderRadius: '12px',
+                          border: '2px solid var(--purple)',
+                          background: 'var(--purple-tint)',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s ease'
+                        }}
+                          onClick={() => handleVote(currentPair.b, currentPair.a)}
+                        >
+                          <div style={{ fontSize: '16px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '16px' }}>
+                            {allSubmissions.find(s => s.id === currentPair.b)?.content?.substring(0, 100) || 'Submission B'}
+                          </div>
+                          <button
+                            style={{
+                              padding: '8px 24px',
+                              borderRadius: '6px',
+                              border: 'none',
+                              background: 'var(--purple)',
+                              color: 'white',
+                              fontSize: '14px',
+                              fontWeight: 600,
+                              fontFamily: 'var(--font-display)',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            Vote
+                          </button>
+                        </div>
+                      </div>
 
-                  {voteCooldown > 0 && (
-                    <div style={{ textAlign: 'center', fontSize: '16px', color: 'var(--text2)', fontFamily: 'var(--font-body)', marginTop: '12px' }}>
-                      Next pair in {voteCooldown} seconds...
+                      {voteCooldown > 0 && (
+                        <div style={{ textAlign: 'center', fontSize: '16px', color: 'var(--text2)', fontFamily: 'var(--font-body)', marginTop: '12px' }}>
+                          Next pair in {voteCooldown} seconds...
+                        </div>
+                      )}
+
+                      <div style={{ textAlign: 'center', fontSize: '16px', color: 'var(--text2)', fontFamily: 'var(--font-body)' }}>
+                        You've voted on {votedPairs.size} pairs
+                      </div>
+                    </div>
+                  ) : (
+                    <div style={{ textAlign: 'center', fontSize: '18px', color: 'var(--text2)', fontFamily: 'var(--font-body)', padding: '32px' }}>
+                      <div style={{ fontSize: '48px', fontWeight: 800, fontFamily: 'var(--font-display)', color: 'var(--green)', marginBottom: '16px' }}>
+                        ✓ Complete
+                      </div>
+                      <div style={{ fontSize: '20px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
+                        You've voted on all available matchups
+                      </div>
                     </div>
                   )}
-
-                  <div style={{ textAlign: 'center', fontSize: '16px', color: 'var(--text2)', fontFamily: 'var(--font-body)' }}>
-                    You've voted on {votedPairs.size} pairs
-                  </div>
-                </div>
-              )}
-
-              {/* Voting State - No more pairs */}
-              {displayState === 'voting' && !currentPair && (
-                <div style={{ textAlign: 'center', fontSize: '18px', color: 'var(--text2)', fontFamily: 'var(--font-body)', padding: '32px' }}>
-                  <div style={{ fontSize: '48px', fontWeight: 800, fontFamily: 'var(--font-display)', color: 'var(--green)', marginBottom: '16px' }}>
-                    ✓ Complete
-                  </div>
-                  <div style={{ fontSize: '20px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
-                    You've voted on all available matchups
-                  </div>
                 </div>
               )}
 
               {/* Results State */}
-              {displayState === 'results' && displayUserSubmission && (
+              {displayState === 'results' && (
                 <div style={{ textAlign: 'center', padding: '32px' }}>
-                  <div style={{ fontSize: '64px', fontWeight: 800, fontFamily: 'var(--font-display)', color: getRankColor(displayUserSubmission.final_rank || 0), marginBottom: '16px' }}>
-                    #{displayUserSubmission.final_rank || '—'}
-                  </div>
-                  <div style={{ fontSize: '24px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '16px' }}>
-                    {displayUserSubmission.final_rank ? `Place #${displayUserSubmission.final_rank}` : 'Did not place'}
-                  </div>
-                  <div style={{ fontSize: '20px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--green)', marginBottom: '16px' }}>
-                    {displayUserSubmission.elo_awarded ? `+${displayUserSubmission.elo_awarded} ELO` : 'No ELO earned'}
-                  </div>
+                  {displayUserSubmission ? (
+                    <>
+                      <div style={{ fontSize: '64px', fontWeight: 800, fontFamily: 'var(--font-display)', color: getRankColor(displayUserSubmission.final_rank || 0), marginBottom: '16px' }}>
+                        #{displayUserSubmission.final_rank || '—'}
+                      </div>
+                      <div style={{ fontSize: '24px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '16px' }}>
+                        {displayUserSubmission.final_rank ? `Place #${displayUserSubmission.final_rank}` : 'Did not place'}
+                      </div>
+                      <div style={{ fontSize: '20px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--green)', marginBottom: '16px' }}>
+                        {displayUserSubmission.elo_awarded ? `+${displayUserSubmission.elo_awarded} ELO` : 'No ELO earned'}
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div style={{ fontSize: '48px', fontWeight: 800, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '16px' }}>
+                        🏆
+                      </div>
+                      <div style={{ fontSize: '20px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
+                        Results will appear here after prizes are distributed.
+                      </div>
+                    </>
+                  )}
                 </div>
               )}
 
-              {/* Between Rounds State */}
-              {displayState === 'between' && (
-                <div style={{ textAlign: 'center', fontSize: '20px', color: 'var(--text2)', fontFamily: 'var(--font-body)', padding: '32px' }}>
-                  <div style={{ fontSize: '48px', fontWeight: 800, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '16px' }}>
-                    🔄
-                  </div>
-                  <div style={{ fontSize: '24px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
-                    Next duel coming soon
-                  </div>
-                </div>
-              )}
-            </div>
+                          </div>
           )}
 
           {/* No Active Duel */}
@@ -675,6 +694,14 @@ export default function WeeklyDuelClient({
                     {formatDate(currentDuel.end_date)} at {formatTime(currentDuel.end_date)} EST
                   </div>
                 </div>
+
+                <div>
+                  <div style={{ fontSize: '12px', color: 'var(--text2)', fontFamily: 'var(--font-body)', marginBottom: '4px' }}>Voting Period</div>
+                  <div style={{ fontSize: '16px', fontWeight: 600, fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
+                    {formatDate(currentDuel.end_date)} at {formatTime(currentDuel.end_date)} EST - 
+                    {formatDate(new Date(new Date(currentDuel.end_date).getTime() + 24 * 60 * 60 * 1000).toISOString())} at {formatTime(new Date(new Date(currentDuel.end_date).getTime() + 24 * 60 * 60 * 1000).toISOString())} EST
+                  </div>
+                </div>
               </div>
 
               <div style={{ 
@@ -686,7 +713,7 @@ export default function WeeklyDuelClient({
                 textAlign: 'center'
               }}>
                 <div style={{ fontSize: '20px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
-                  {allSubmissions.length} entrepreneurs have entered
+                  {allSubmissions.length === 1 ? '1 entrepreneur has entered' : `${allSubmissions.length} entrepreneurs have entered`}
                 </div>
               </div>
             </div>
@@ -733,6 +760,15 @@ export default function WeeklyDuelClient({
                 <span style={{ fontSize: '14px', fontWeight: 600, fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
                   Everyone who submits +10 ELO
                 </span>
+              </div>
+              <div style={{ 
+                marginTop: '12px',
+                fontSize: '12px',
+                color: 'var(--text2)',
+                fontFamily: 'var(--font-body)',
+                fontStyle: 'italic'
+              }}>
+                Prizes are distributed after the voting period ends.
               </div>
             </div>
           </div>
