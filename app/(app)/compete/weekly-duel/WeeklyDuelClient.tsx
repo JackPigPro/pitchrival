@@ -156,11 +156,18 @@ export default function WeeklyDuelClient({
     if (voteCooldown <= 0) return
 
     const timer = setTimeout(() => {
-      setVoteCooldown(voteCooldown - 1)
+      setVoteCooldown(prev => prev - 1)
     }, 1000)
 
     return () => clearTimeout(timer)
   }, [voteCooldown])
+
+  // Auto-load voting pair when displayState changes to voting
+  useEffect(() => {
+    if (displayState === 'voting' && allSubmissions.length >= 2) {
+      loadNewPair()
+    }
+  }, [displayState, allSubmissions])
 
   const handleSubmitSubmission = async () => {
     if (!submissionContent.trim()) {

@@ -159,7 +159,7 @@ export default function WeeklyDuelPage() {
           // Voting: Saturday 12:00am to Saturday 11:59pm EST
           else if (dayOfWeek === 6 && hour < 23) { // Saturday before 11:59pm
             state = 'voting'
-            voteDeadline = new Date(endDate)
+            voteDeadline = new Date(endDate.getTime() + 24 * 60 * 60 * 1000) // Add 24 hours
           }
           // Results: After Saturday 11:59pm EST
           else {
