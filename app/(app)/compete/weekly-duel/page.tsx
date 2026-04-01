@@ -47,16 +47,22 @@ export default function WeeklyDuelPage() {
       // Fetch current duel based on dates, not status
       let currentDuel = null
       const now = new Date()
+      const nowUTC = now.toISOString()
 
       // Find duel where start_date <= now AND end_date > now (current active duel)
       const { data: currentDuelData, error: currentDuelError } = await supabase
         .from('weekly_duel')
         .select('*')
-        .lte('start_date', now.toISOString())
-        .gt('end_date', now.toISOString())
-        .order('created_at', { ascending: false })
+        .lte('start_date', nowUTC)
+        .gt('end_date', nowUTC)
+        .order('start_date', { ascending: false })
         .limit(1)
-        .single()
+        .maybeSingle()
+
+      // Debug logging
+      console.log('Current time UTC:', nowUTC)
+      console.log('Current duel data:', currentDuelData)
+      console.log('Current duel error:', currentDuelError)
 
       if (currentDuelData && !currentDuelError) {
         currentDuel = currentDuelData
@@ -68,7 +74,7 @@ export default function WeeklyDuelPage() {
           .eq('status', 'completed')
           .order('created_at', { ascending: false })
           .limit(1)
-          .single()
+          .maybeSingle()
         
         currentDuel = completedDuel
       }
