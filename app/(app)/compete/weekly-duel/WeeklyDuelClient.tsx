@@ -41,6 +41,7 @@ interface WeeklyDuelClientProps {
   submissionDeadline: Date | null
   votingDeadline: Date | null
   currentUserId: string
+  onRefresh?: () => void
 }
 
 export default function WeeklyDuelClient({
@@ -51,7 +52,8 @@ export default function WeeklyDuelClient({
   currentState,
   submissionDeadline,
   votingDeadline,
-  currentUserId
+  currentUserId,
+  onRefresh
 }: WeeklyDuelClientProps) {
   const [submissionContent, setSubmissionContent] = useState('')
   const [validationError, setValidationError] = useState('')

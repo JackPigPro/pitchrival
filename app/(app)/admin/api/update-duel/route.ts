@@ -55,8 +55,7 @@ export async function POST(request: NextRequest) {
         prompt,
         start_date,
         end_date,
-        status,
-        updated_at: new Date().toISOString()
+        status
       })
       .eq('id', id)
       .select()
