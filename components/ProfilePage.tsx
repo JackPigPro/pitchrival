@@ -825,9 +825,11 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
         <div style={{ 
           display: 'grid', 
           gridTemplateColumns: '1fr 1px 1fr', 
+          gridTemplateRows: 'auto auto',
           gap: '32px', 
           marginBottom: '32px',
-          position: 'relative'
+          position: 'relative',
+          alignItems: 'start'
         }}>
           {/* Invisible Line Divider */}
           <div style={{
