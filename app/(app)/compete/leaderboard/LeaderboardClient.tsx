@@ -57,6 +57,14 @@ const getRankColor = (rank: string) => {
   }
 }
 
+const getRankGradient = (rank: string) => {
+  // For text gradients, we need to handle this differently
+  if (rank === 'Unicorn') {
+    return 'linear-gradient(135deg, #7c3aed, #ec4899, #10b981)'
+  }
+  return getRankColor(rank)
+}
+
 const rankTiers = [
   { name: 'Trainee', min: 0, max: 499 },
   { name: 'Builder', min: 500, max: 749 },
@@ -131,6 +139,17 @@ export default function LeaderboardClient({
           <h1 style={{ fontSize: '48px', fontWeight: 800, letterSpacing: '-2px', fontFamily: 'var(--font-display)', color: 'var(--text)', margin: 0 }}>
             Leaderboard
           </h1>
+          <div style={{ 
+            fontSize: '18px', 
+            fontWeight: '400', 
+            fontFamily: 'var(--font-body)', 
+            color: 'var(--text2)', 
+            marginTop: '8px' 
+          }}>
+            {activeTab === 'daily' && 'ELO gained in the last 24 hours'}
+            {activeTab === 'weekly' && 'ELO gained in the last 7 days'}
+            {activeTab === 'alltime' && 'All time ELO'}
+          </div>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: '32px' }}>
@@ -146,7 +165,7 @@ export default function LeaderboardClient({
             <div style={{ 
               display: 'flex', 
               gap: '4px', 
-              marginBottom: '32px',
+              marginBottom: '24px',
               background: 'var(--surface)',
               padding: '4px',
               borderRadius: '12px'
@@ -176,6 +195,59 @@ export default function LeaderboardClient({
               ))}
             </div>
 
+            {/* Column Headers */}
+            <div style={{ 
+              display: 'grid', 
+              gridTemplateColumns: '48px 1fr 80px 100px', 
+              gap: '16px',
+              marginBottom: '16px',
+              paddingBottom: '12px',
+              borderBottom: '1px solid var(--border)'
+            }}>
+              <div style={{ 
+                fontSize: '12px', 
+                fontWeight: '600', 
+                fontFamily: 'var(--font-display)', 
+                color: 'var(--text2)',
+                letterSpacing: '0.5px',
+                textTransform: 'uppercase'
+              }}>
+                #
+              </div>
+              <div style={{ 
+                fontSize: '12px', 
+                fontWeight: '600', 
+                fontFamily: 'var(--font-display)', 
+                color: 'var(--text2)',
+                letterSpacing: '0.5px',
+                textTransform: 'uppercase'
+              }}>
+                Username
+              </div>
+              <div style={{ 
+                fontSize: '12px', 
+                fontWeight: '600', 
+                fontFamily: 'var(--font-display)', 
+                color: 'var(--text2)',
+                letterSpacing: '0.5px',
+                textTransform: 'uppercase',
+                textAlign: 'right'
+              }}>
+                ELO
+              </div>
+              <div style={{ 
+                fontSize: '12px', 
+                fontWeight: '600', 
+                fontFamily: 'var(--font-display)', 
+                color: 'var(--text2)',
+                letterSpacing: '0.5px',
+                textTransform: 'uppercase',
+                textAlign: 'center'
+              }}>
+                Rank
+              </div>
+            </div>
+
             {/* Leaderboard Rows */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               {displayList.map((user, index) => {
@@ -188,9 +260,10 @@ export default function LeaderboardClient({
                   <div
                     key={user.user_id}
                     style={{
-                      display: 'flex',
-                      alignItems: 'center',
+                      display: 'grid',
+                      gridTemplateColumns: '48px 1fr 80px 100px',
                       gap: '16px',
+                      alignItems: 'center',
                       padding: '16px 20px',
                       borderRadius: '12px',
                       background: isCurrentUser ? 'var(--green-tint)' : 'transparent',
@@ -219,7 +292,6 @@ export default function LeaderboardClient({
                     <a
                       href={`/profile/${user.profiles.username}`}
                       style={{
-                        flex: 1,
                         textDecoration: 'none',
                         fontSize: '16px',
                         fontWeight: '700',
@@ -247,7 +319,8 @@ export default function LeaderboardClient({
                       fontWeight: '800',
                       fontFamily: 'var(--font-display)',
                       color: 'var(--green)',
-                      letterSpacing: '-0.2px'
+                      letterSpacing: '-0.2px',
+                      textAlign: 'right'
                     }}>
                       {user.elo}
                     </div>
@@ -262,7 +335,8 @@ export default function LeaderboardClient({
                       background: rankColor,
                       color: '#fff',
                       letterSpacing: '0.5px',
-                      textTransform: 'uppercase'
+                      textTransform: 'uppercase',
+                      textAlign: 'center'
                     }}>
                       {userRank}
                     </div>
@@ -274,6 +348,22 @@ export default function LeaderboardClient({
 
           {/* Right Side - User Stats Panel */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            {/* CTA Button */}
+            <a
+              href="/compete/weekly-duel"
+              className="btn-cta-primary"
+              style={{
+                textDecoration: 'none',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '100%',
+                textAlign: 'center'
+              }}
+            >
+              ⚔️ Compete in Weekly Duel to earn ELO →
+            </a>
+
             {/* Current User Stats */}
             <div style={{ 
               background: 'var(--card)', 
@@ -315,7 +405,7 @@ export default function LeaderboardClient({
                 <div style={{ 
                   fontSize: '36px', 
                   fontWeight: '800', 
-                  color: 'var(--blue)', 
+                  color: getRankColor(currentUserRank), 
                   fontFamily: 'var(--font-display)',
                   marginBottom: '8px'
                 }}>
@@ -373,10 +463,10 @@ export default function LeaderboardClient({
                       }}
                     >
                       <div style={{
-                        fontSize: '14px',
-                        fontWeight: '700',
+                        fontSize: isCurrentTier ? '15px' : '14px',
+                        fontWeight: isCurrentTier ? '800' : '700',
                         fontFamily: 'var(--font-display)',
-                        color: isCurrentTier ? '#fff' : 'var(--text)',
+                        color: isCurrentTier ? '#fff' : tierColor,
                         letterSpacing: '-0.1px'
                       }}>
                         {tier.name}
@@ -395,22 +485,6 @@ export default function LeaderboardClient({
                 })}
               </div>
             </div>
-
-            {/* CTA Button */}
-            <a
-              href="/compete/weekly-duel"
-              className="btn-cta-primary"
-              style={{
-                textDecoration: 'none',
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                width: '100%',
-                textAlign: 'center'
-              }}
-            >
-              ⚔️ Compete in Weekly Duel to earn ELO →
-            </a>
           </div>
         </div>
       </div>
