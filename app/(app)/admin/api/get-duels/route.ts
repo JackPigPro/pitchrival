@@ -40,12 +40,12 @@ export async function GET(request: NextRequest) {
     }
 
     // Fetch all duels
-    const { data: duels, error } = await supabase
+    const { data: duels, error: fetchError } = await supabase
       .from('weekly_duel')
       .select('*')
       .order('created_at', { ascending: false })
 
-    if (error) {
+    if (fetchError) {
       return NextResponse.json(
         { error: 'Failed to fetch duels' },
         { status: 500 }

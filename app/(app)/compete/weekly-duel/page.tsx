@@ -70,6 +70,19 @@ export default async function WeeklyDuelPage() {
     .order('created_at', { ascending: false })
     .limit(10)
 
+  // Transform nested data to flat Winner array
+  const transformedWinners: Winner[] = (winnersWithUsers || []).map(duel => {
+    const winner = duel.duel_winners?.[0] // Get first winner
+    return winner ? {
+      id: duel.id,
+      rank: winner.rank,
+      elo_awarded: winner.elo_awarded,
+      user_id: winner.user_id.username,
+      username: winner.user_id.username,
+      created_at: duel.created_at
+    } : null as any
+  }).filter(Boolean) // Remove null entries
+
   if (winnersUsersError) {
     console.error('Error fetching winners with users:', winnersUsersError)
   }

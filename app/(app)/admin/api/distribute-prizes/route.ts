@@ -49,14 +49,14 @@ export async function POST(request: NextRequest) {
     }
 
     // Call the distribute_duel_prizes function
-    const { data, error } = await supabase
+    const { data, error: distributeError } = await supabase
       .rpc('distribute_duel_prizes', { 
         params: { duel_id }
       })
 
-    if (error) {
+    if (distributeError) {
       return NextResponse.json(
-        { error: error.message || 'Failed to distribute prizes' },
+        { error: distributeError.message || 'Failed to distribute prizes' },
         { status: 500 }
       )
     }

@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Insert new weekly duel
-    const { data, error } = await supabase
+    const { data, error: insertError } = await supabase
       .from('weekly_duel')
       .insert({
         prompt,
@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
       .select()
       .single()
 
-    if (error || !data) {
+    if (insertError || !data) {
       return NextResponse.json(
         { error: 'Failed to create duel' },
         { status: 500 }

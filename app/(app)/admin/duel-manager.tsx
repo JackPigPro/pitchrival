@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 interface Duel {
   id: string
@@ -71,7 +71,7 @@ export default function AdminDuelManager() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ duel_id })
+        body: JSON.stringify({ duelId })
       })
 
       const result = await response.json()
@@ -107,7 +107,7 @@ export default function AdminDuelManager() {
   }
 
   // Fetch duels on component mount
-  useState(() => {
+  useEffect(() => {
     fetchDuels()
   }, [])
 

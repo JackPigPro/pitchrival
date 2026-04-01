@@ -48,9 +48,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Get voter's vote weight based on ELO
-    const voteWeight = userStats.elo ? await supabase
+    const { data: voteWeight } = userStats.elo ? await supabase
       .rpc('get_vote_weight', { params: { voter_elo: userStats.elo } })
-      .single()
+      .single() : { data: null }
 
     if (!voteWeight) {
       return NextResponse.json(
@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
       .single()
 
     // Call the submit_vote function
-    const { data, error } = await supabase
+    const { data, error: voteError } = await supabase
       .rpc('submit_vote', { 
         params: { 
           voter_id_param: user.id,
@@ -77,9 +77,9 @@ export async function POST(request: NextRequest) {
         }
       })
 
-    if (error) {
+    if (voteError) {
       return NextResponse.json(
-        { error: error.message || 'Vote submission failed' },
+        { error: voteError.message || 'Vote submission failed' },
         { status: 500 }
       )
     }
@@ -123,8 +123,8 @@ export async function POST(request: NextRequest) {
       { status: 200 }
     )
 
-  } catch (error) {
-    console.error('Vote error:', error)
+  } catch (catchError) {
+    console.error('Vote error:', catchError)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
