@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
     const { data: duels, error: fetchError } = await supabase
       .from('weekly_duel')
       .select('*')
-      .order('created_at', { ascending: false })
+      .order('start_date', { ascending: false })
 
     if (fetchError) {
       return NextResponse.json(
@@ -61,9 +61,14 @@ export async function GET(request: NextRequest) {
     )
 
   } catch (error) {
-    console.error('Get duels error:', error)
+    console.error('Get duels error:', {
+      error: error,
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : 'No stack trace',
+      timestamp: new Date().toISOString()
+    })
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     )
   }
