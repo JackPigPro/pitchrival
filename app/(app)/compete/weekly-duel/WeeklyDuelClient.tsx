@@ -348,17 +348,6 @@ export default function WeeklyDuelClient({
           <h1 style={{ fontSize: '48px', fontWeight: 800, letterSpacing: '-2px', fontFamily: 'var(--font-display)', color: 'var(--text)', margin: 0 }}>
             Weekly Duel
           </h1>
-          {currentDuel && (
-            <div style={{ 
-              fontSize: '18px', 
-              fontFamily: 'var(--font-body)', 
-              color: 'var(--text2)',
-              maxWidth: '800px',
-              lineHeight: '1.5'
-            }}>
-              {currentDuel.prompt}
-            </div>
-          )}
         </div>
       </div>
 
@@ -450,7 +439,7 @@ export default function WeeklyDuelClient({
               // Submission Form
               <div>
                 <h2 style={{ fontSize: '24px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '16px' }}>
-                  Submit Your Entry
+                  Prompt: {currentDuel?.prompt || 'Loading...'}
                 </h2>
                 <p style={{ fontSize: '16px', fontFamily: 'var(--font-body)', color: 'var(--text2)', marginBottom: '24px', lineHeight: '1.5' }}>
                   Share your best response to this week's prompt. Be creative and original!
