@@ -254,8 +254,8 @@ export default function WeeklyDuelClient({
         
         // Mark this pair as voted
         const newVotedPairs = new Set(votedPairs)
-        newVotedPairs.add(`${winnerId}-${loserId}`)
-        newVotedPairs.add(`${loserId}-${winnerId}`)
+        newVotedPairs.add(`${winnerId}|${loserId}`)
+        newVotedPairs.add(`${loserId}|${winnerId}`)
         setVotedPairs(newVotedPairs)
         
         // Load new pair after successful vote
@@ -276,8 +276,8 @@ export default function WeeklyDuelClient({
     
     for (let i = 0; i < allSubmissions.length; i++) {
       for (let j = i + 1; j < allSubmissions.length; j++) {
-        const pair1 = `${allSubmissions[i].id}-${allSubmissions[j].id}`
-        const pair2 = `${allSubmissions[j].id}-${allSubmissions[i].id}`
+        const pair1 = `${allSubmissions[i].id}|${allSubmissions[j].id}`
+        const pair2 = `${allSubmissions[j].id}|${allSubmissions[i].id}`
         
         if (!votedPairs.has(pair1) && !votedPairs.has(pair2)) {
           availablePairs.push(pair1)
@@ -293,7 +293,7 @@ export default function WeeklyDuelClient({
     // Select random pair
     const randomIndex = Math.floor(Math.random() * availablePairs.length)
     const selectedPair = availablePairs[randomIndex]
-    const [sub1, sub2] = selectedPair.split('-')
+    const [sub1, sub2] = selectedPair.split('|')
     
     setCurrentPair({ a: sub1, b: sub2 })
   }
