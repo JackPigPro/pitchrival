@@ -336,6 +336,8 @@ export default function WeeklyDuelClient({
     <div style={{ 
       minHeight: '100vh',
       background: 'var(--bg)',
+      backgroundImage: 'linear-gradient(rgba(21,128,61,.065) 1px, transparent 1px), linear-gradient(90deg, rgba(21,128,61,.065) 1px, transparent 1px)',
+      backgroundSize: '48px 48px',
       padding: '0 0 48px 0'
     }}>
       {/* Header - No card background like leaderboard */}
@@ -343,14 +345,7 @@ export default function WeeklyDuelClient({
         padding: '32px 24px 24px 24px'
       }}>
         <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
-          <h1 style={{ 
-            fontSize: '32px', 
-            fontWeight: 700, 
-            fontFamily: 'var(--font-display)', 
-            color: 'var(--text)', 
-            margin: '0 0 8px 0',
-            letterSpacing: '-0.02em'
-          }}>
+          <h1 style={{ fontSize: '48px', fontWeight: 800, letterSpacing: '-2px', fontFamily: 'var(--font-display)', color: 'var(--text)', margin: 0 }}>
             Weekly Duel
           </h1>
           {currentDuel && (
