@@ -246,6 +246,8 @@ export default function WeeklyDuelClient({
 
       const result = await response.json()
       
+      console.log('Vote API Response:', result)
+      
       if (result.success) {
         setEloChange(result.elo_change || 1)
         setVoteCooldown(30)
@@ -657,7 +659,7 @@ export default function WeeklyDuelClient({
                           onClick={() => handleVote(currentPair.a, currentPair.b)}
                         >
                           <div style={{ fontSize: '16px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '16px' }}>
-                            {allSubmissions.find(s => s.id === currentPair.a)?.content?.substring(0, 100) || 'Submission A'}
+                            {allSubmissions.find(s => s.id === currentPair.a)?.content || 'Submission A'}
                           </div>
                           <button
                             style={{
@@ -688,7 +690,7 @@ export default function WeeklyDuelClient({
                           onClick={() => handleVote(currentPair.b, currentPair.a)}
                         >
                           <div style={{ fontSize: '16px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '16px' }}>
-                            {allSubmissions.find(s => s.id === currentPair.b)?.content?.substring(0, 100) || 'Submission B'}
+                            {allSubmissions.find(s => s.id === currentPair.b)?.content || 'Submission B'}
                           </div>
                           <button
                             style={{
