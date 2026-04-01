@@ -413,6 +413,21 @@ export default function WeeklyDuelClient({
               {hasSubmittedPreview ? 'Submitted' : 'Not Submitted'}
             </button>
           )}
+          <div style={{ 
+            fontSize: '11px', 
+            color: 'var(--text2)', 
+            fontFamily: 'var(--font-body)', 
+            marginTop: '4px',
+            fontStyle: 'italic'
+          }}>
+            {adminPreviewState === 'active' && (
+              hasSubmittedPreview 
+                ? 'Admin has submitted an entry for this duel'
+                : 'Admin has not submitted an entry yet for this duel'
+            )}
+            {adminPreviewState === 'voting' && 'Previewing voting phase'}
+            {adminPreviewState === 'results' && 'Previewing results phase'}
+          </div>
         </div>
       )}
 

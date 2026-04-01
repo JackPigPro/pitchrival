@@ -48,6 +48,16 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Determine status based on start_date
+    const startDate = new Date(start_date)
+    const now = new Date()
+    const fiveMinutesFromNow = new Date(now.getTime() + 5 * 60 * 1000)
+    
+    let status = 'upcoming'
+    if (startDate <= fiveMinutesFromNow) {
+      status = 'active'
+    }
+
     // Insert new weekly duel
     const { data, error: insertError } = await supabase
       .from('weekly_duel')
@@ -55,7 +65,7 @@ export async function POST(request: NextRequest) {
         prompt,
         start_date,
         end_date,
-        status: 'active',
+        status,
         prize_distributed: false
       })
       .select()

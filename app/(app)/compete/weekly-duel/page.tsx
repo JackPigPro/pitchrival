@@ -44,22 +44,24 @@ export default function WeeklyDuelPage() {
 
       setUser(authUser)
 
-      // Fetch current duel (active, voting, or most recent completed)
+      // Fetch current duel based on dates, not status
       let currentDuel = null
+      const now = new Date()
 
-      // Try to get active or voting duel first
-      const { data: activeDuel, error: activeError } = await supabase
+      // Find duel where start_date <= now AND end_date > now (current active duel)
+      const { data: currentDuelData, error: currentDuelError } = await supabase
         .from('weekly_duel')
         .select('*')
-        .in('status', ['active', 'voting'])
+        .lte('start_date', now.toISOString())
+        .gt('end_date', now.toISOString())
         .order('created_at', { ascending: false })
         .limit(1)
         .single()
 
-      if (activeDuel && !activeError) {
-        currentDuel = activeDuel
+      if (currentDuelData && !currentDuelError) {
+        currentDuel = currentDuelData
       } else {
-        // If no active/voting duel, get the most recent completed duel
+        // If no current duel, get the most recent completed duel
         const { data: completedDuel, error: completedError } = await supabase
           .from('weekly_duel')
           .select('*')
@@ -125,7 +127,6 @@ export default function WeeklyDuelPage() {
       setPastWinners(transformedWinners)
 
       // Determine current state based on timing and duel status
-      const now = new Date()
       const estTime = new Date(now.toLocaleString("en-US", { timeZone: "America/New_York" }))
       const dayOfWeek = estTime.getDay() // 0 = Sunday, 6 = Saturday
       const hour = estTime.getHours()
