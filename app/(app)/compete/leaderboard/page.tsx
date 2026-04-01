@@ -12,30 +12,35 @@ export default async function LeaderboardPage() {
     redirect('/login')
   }
 
-  // Fetch all users with their current ELO and rank
-  const { data: allUsers, error: usersError } = await supabase
+  // Step 1: Fetch all rows from user_stats
+  const { data: userStats, error: statsError } = await supabase
     .from('user_stats')
-    .select(`
-      elo,
-      user_id,
-      profiles (
-        username
-      )
-    `)
+    .select('user_id, elo, rank, weekly_duel_entered')
     .order('elo', { ascending: false })
 
-  if (usersError) {
-    console.error('Error fetching users:', usersError)
+  if (statsError) {
+    console.error('Error fetching user stats:', statsError)
   }
 
-  console.log('All users raw:', allUsers)
+  console.log('User stats raw:', userStats)
 
-  // Transform the data to match expected interface
-  const transformedAllUsers = (allUsers || []).map(user => {
-    const profile = Array.isArray(user.profiles) ? user.profiles[0] : user.profiles
+  // Step 2: Fetch all rows from profiles
+  const { data: profiles, error: profilesError } = await supabase
+    .from('profiles')
+    .select('id, username')
+
+  if (profilesError) {
+    console.error('Error fetching profiles:', profilesError)
+  }
+
+  console.log('Profiles raw:', profiles)
+
+  // Step 3: Manual JavaScript join - match by user_stats.user_id === profiles.id
+  const transformedAllUsers = (userStats || []).map(stat => {
+    const profile = (profiles || []).find(p => p.id === stat.user_id)
     return {
-      elo: user.elo || 0,
-      user_id: user.user_id,
+      elo: stat.elo || 0,
+      user_id: stat.user_id,
       profiles: {
         username: profile?.username || 'Unknown'
       }
