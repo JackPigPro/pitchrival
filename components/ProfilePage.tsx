@@ -942,7 +942,7 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
                 gap: '12px',
                 padding: '16px 24px',
                 borderRadius: '12px',
-                background: 'linear-gradient(135deg, var(--orange), #f97316)',
+                background: 'var(--orange)',
                 color: '#fff',
                 textDecoration: 'none',
                 fontSize: '16px',
@@ -953,12 +953,12 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
                 letterSpacing: '-0.1px'
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'linear-gradient(135deg, #ea580c, var(--orange))'
+                e.currentTarget.style.background = '#ea580c'
                 e.currentTarget.style.transform = 'translateY(-2px)'
                 e.currentTarget.style.boxShadow = 'var(--shadow-lg)'
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'linear-gradient(135deg, var(--orange), #f97316)'
+                e.currentTarget.style.background = 'var(--orange)'
                 e.currentTarget.style.transform = 'translateY(0)'
                 e.currentTarget.style.boxShadow = 'var(--shadow)'
               }}
