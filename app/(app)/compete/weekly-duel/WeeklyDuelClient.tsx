@@ -334,14 +334,11 @@ export default function WeeklyDuelClient({
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--background)', padding: '0 0 48px 0' }}>
-      {/* Header */}
+      {/* Header - No card background like leaderboard */}
       <div style={{ 
-        background: 'var(--card)', 
-        borderBottom: '1px solid var(--border)',
-        padding: '32px 0',
-        marginBottom: '32px'
+        padding: '32px 24px 24px 24px'
       }}>
-        <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 24px' }}>
+        <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
           <h1 style={{ 
             fontSize: '32px', 
             fontWeight: 700, 

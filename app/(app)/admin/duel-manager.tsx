@@ -8,6 +8,8 @@ interface Duel {
   prompt: string
   start_date: string
   end_date: string
+  voting_start?: string
+  voting_end?: string
   status: string
   prize_distributed: boolean
 }
@@ -521,14 +523,17 @@ export default function AdminDuelManager() {
       {selectedDuel && (
         <div style={{ 
           background: 'var(--card)', 
-          borderRadius: '16px', 
-          padding: '40px',
-          border: '1px solid var(--border)',
-          boxShadow: 'var(--shadow)',
+          borderRadius: '0', 
+          padding: '40px 24px',
+          border: 'none',
+          boxShadow: 'none',
           marginTop: '32px',
           width: 'calc(100% + 48px)',
           marginLeft: '-24px',
-          marginRight: '-24px'
+          marginRight: '-24px',
+          position: 'relative',
+          left: '-24px',
+          right: '-24px'
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
             <h2 style={{ fontSize: '24px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--text)', margin: 0 }}>
@@ -599,6 +604,50 @@ export default function AdminDuelManager() {
                     type="datetime-local"
                     value={editingDuel.end_date}
                     onChange={(e) => setEditingDuel({...editingDuel, end_date: e.target.value})}
+                    style={{
+                      width: '100%',
+                      padding: '12px',
+                      borderRadius: '8px',
+                      border: '1px solid var(--border)',
+                      background: 'var(--surface)',
+                      fontSize: '16px',
+                      fontFamily: 'var(--font-body)',
+                      color: 'var(--text)'
+                    }}
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
+                <div>
+                  <label style={{ fontSize: '14px', fontWeight: '600', fontFamily: 'var(--font-display)', color: 'var(--text)', display: 'block', marginBottom: '8px' }}>
+                    Voting Start
+                  </label>
+                  <input
+                    type="datetime-local"
+                    value={editingDuel.end_date}
+                    onChange={(e) => setEditingDuel({...editingDuel, voting_start: e.target.value})}
+                    style={{
+                      width: '100%',
+                      padding: '12px',
+                      borderRadius: '8px',
+                      border: '1px solid var(--border)',
+                      background: 'var(--surface)',
+                      fontSize: '16px',
+                      fontFamily: 'var(--font-body)',
+                      color: 'var(--text)'
+                    }}
+                  />
+                </div>
+                
+                <div>
+                  <label style={{ fontSize: '14px', fontWeight: '600', fontFamily: 'var(--font-display)', color: 'var(--text)', display: 'block', marginBottom: '8px' }}>
+                    Voting End
+                  </label>
+                  <input
+                    type="datetime-local"
+                    value={new Date(new Date(editingDuel.end_date).getTime() + 24 * 60 * 60 * 1000).toISOString().slice(0, 16)}
+                    onChange={(e) => setEditingDuel({...editingDuel, voting_end: e.target.value})}
                     style={{
                       width: '100%',
                       padding: '12px',
@@ -704,6 +753,27 @@ export default function AdminDuelManager() {
                   <div style={{ fontSize: '16px', fontWeight: '600', fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
                     {formatDate(selectedDuel.end_date)} at {formatTime(selectedDuel.end_date)} - 
                     {formatDate(new Date(new Date(selectedDuel.end_date).getTime() + 24 * 60 * 60 * 1000).toISOString())} at {formatTime(new Date(new Date(selectedDuel.end_date).getTime() + 24 * 60 * 60 * 1000).toISOString())}
+                  </div>
+                  <div style={{ fontSize: '12px', color: 'var(--text2)', fontFamily: 'var(--font-body)', marginTop: '4px' }}>
+                    Duration: 24 hours
+                  </div>
+                </div>
+                
+                <div>
+                  <div style={{ fontSize: '12px', color: 'var(--text2)', fontFamily: 'var(--font-body)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Submission Window</div>
+                  <div style={{ fontSize: '16px', fontWeight: '600', fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
+                    {formatDate(selectedDuel.start_date)} at {formatTime(selectedDuel.start_date)} - 
+                    {formatDate(selectedDuel.end_date)} at {formatTime(selectedDuel.end_date)}
+                  </div>
+                  <div style={{ fontSize: '12px', color: 'var(--text2)', fontFamily: 'var(--font-body)', marginTop: '4px' }}>
+                    ~6 days
+                  </div>
+                </div>
+                
+                <div>
+                  <div style={{ fontSize: '12px', color: 'var(--text2)', fontFamily: 'var(--font-body)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Time Zone</div>
+                  <div style={{ fontSize: '16px', fontWeight: '600', fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
+                    Eastern Time (EST)
                   </div>
                 </div>
                 
