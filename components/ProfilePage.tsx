@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { createClient } from '@/utils/supabase/client'
+import CountryDropdown from './CountryDropdown'
 
 interface Profile {
   id: string
@@ -41,14 +42,15 @@ interface ProfilePageProps {
 export default function ProfilePage({ profile, userStats, ideas, isOwnProfile }: ProfilePageProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [currentProfile, setCurrentProfile] = useState(profile)
   const [editData, setEditData] = useState({
-    username: profile.username || '',
-    location: profile.location || '',
-    bio: profile.bio || '',
-    stage: profile.stage || '',
-    skills: profile.skills || [],
-    status_tags: profile.status_tags || [],
-    social_links: profile.social_links || {}
+    username: currentProfile.username || '',
+    location: currentProfile.location || '',
+    bio: currentProfile.bio || '',
+    stage: currentProfile.stage || '',
+    skills: currentProfile.skills || [],
+    status_tags: currentProfile.status_tags || [],
+    social_links: currentProfile.social_links || {}
   })
 
   const supabase = createClient()
@@ -71,8 +73,19 @@ export default function ProfilePage({ profile, userStats, ideas, isOwnProfile }:
 
       if (error) throw error
       
+      // Update local state with saved data
+      const updatedProfile = {
+        ...profile,
+        username: editData.username.toLowerCase(),
+        location: editData.location,
+        bio: editData.bio,
+        stage: editData.stage,
+        skills: editData.skills,
+        status_tags: editData.status_tags,
+        social_links: editData.social_links
+      }
+      setCurrentProfile(updatedProfile)
       setIsEditing(false)
-      window.location.reload() // Refresh to show updated data
     } catch (error) {
       console.error('Error updating profile:', error)
     } finally {
@@ -150,19 +163,10 @@ export default function ProfilePage({ profile, userStats, ideas, isOwnProfile }:
                 <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', fontSize: '14px' }}>
                   Location
                 </label>
-                <input
-                  type="text"
+                <CountryDropdown
                   value={editData.location}
-                  onChange={(e) => setEditData(prev => ({ ...prev, location: e.target.value }))}
-                  placeholder="City, Country"
-                  style={{
-                    width: '100%',
-                    padding: '12px',
-                    borderRadius: '8px',
-                    border: '1px solid var(--border2)',
-                    background: 'var(--card2)',
-                    fontSize: '14px'
-                  }}
+                  onChange={(value) => setEditData(prev => ({ ...prev, location: value }))}
+                  placeholder="Select country"
                 />
               </div>
 
@@ -386,7 +390,7 @@ export default function ProfilePage({ profile, userStats, ideas, isOwnProfile }:
               width: '80px',
               height: '80px',
               borderRadius: '50%',
-              background: getProfileColor(profile.username),
+              background: getProfileColor(currentProfile.username),
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -396,14 +400,14 @@ export default function ProfilePage({ profile, userStats, ideas, isOwnProfile }:
               fontFamily: 'var(--font-display)',
               flexShrink: 0
             }}>
-              {profile.username.charAt(0).toUpperCase()}
+              {currentProfile.username.charAt(0).toUpperCase()}
             </div>
 
             {/* Profile Info */}
             <div style={{ flex: 1 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
                 <h1 style={{ fontSize: '28px', fontWeight: '700', fontFamily: 'var(--font-display)', margin: 0 }}>
-                  {profile.username}
+                  {currentProfile.username}
                 </h1>
                 {profile.stage && (
                   <span style={{
@@ -414,26 +418,26 @@ export default function ProfilePage({ profile, userStats, ideas, isOwnProfile }:
                     fontSize: '12px',
                     fontWeight: '600'
                   }}>
-                    {profile.stage}
+                    {currentProfile.stage}
                   </span>
                 )}
               </div>
               
               {profile.location && (
                 <p style={{ color: 'var(--text2)', fontSize: '14px', marginBottom: '12px' }}>
-                  📍 {profile.location}
+                  📍 {currentProfile.location}
                 </p>
               )}
 
               {profile.bio && (
                 <p style={{ color: 'var(--text)', fontSize: '15px', lineHeight: '1.6', marginBottom: '16px' }}>
-                  {profile.bio}
+                  {currentProfile.bio}
                 </p>
               )}
 
               {/* Skills and Status Tags */}
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '16px' }}>
-                {profile.skills?.map(skill => (
+                {currentProfile.skills?.map(skill => (
                   <span key={skill} style={{
                     padding: '4px 12px',
                     borderRadius: '12px',
@@ -445,7 +449,7 @@ export default function ProfilePage({ profile, userStats, ideas, isOwnProfile }:
                     {skill}
                   </span>
                 ))}
-                {profile.status_tags?.map(tag => (
+                {currentProfile.status_tags?.map(tag => (
                   <span key={tag} style={{
                     padding: '4px 12px',
                     borderRadius: '12px',
@@ -460,17 +464,17 @@ export default function ProfilePage({ profile, userStats, ideas, isOwnProfile }:
               </div>
 
               {/* Social Links */}
-              {profile.social_links && Object.keys(profile.social_links).length > 0 && (
+              {currentProfile.social_links && Object.keys(currentProfile.social_links).length > 0 && (
                 <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
-                  {profile.social_links.x && (
-                    <a href={`https://x.com/${profile.social_links.x}`} target="_blank" rel="noopener noreferrer"
+                  {currentProfile.social_links.x && (
+                    <a href={`https://x.com/${currentProfile.social_links.x}`} target="_blank" rel="noopener noreferrer"
                        style={{ color: 'var(--text2)', textDecoration: 'none', fontSize: '18px' }}>𝕏</a>
                   )}
-                  {profile.social_links.linkedin && (
-                    <a href={`https://linkedin.com/in/${profile.social_links.linkedin}`} target="_blank" rel="noopener noreferrer"
+                  {currentProfile.social_links.linkedin && (
+                    <a href={`https://linkedin.com/in/${currentProfile.social_links.linkedin}`} target="_blank" rel="noopener noreferrer"
                        style={{ color: 'var(--text2)', textDecoration: 'none', fontSize: '18px' }}>in</a>
                   )}
-                  {profile.social_links.github && (
+                  {currentProfile.social_links.github && (
                     <a href={`https://github.com/${profile.social_links.github}`} target="_blank" rel="noopener noreferrer"
                        style={{ color: 'var(--text2)', textDecoration: 'none', fontSize: '18px' }}>⚡</a>
                   )}
@@ -524,7 +528,7 @@ export default function ProfilePage({ profile, userStats, ideas, isOwnProfile }:
             </div>
             <div style={{ textAlign: 'center' }}>
               <div style={{ fontSize: '24px', fontWeight: '700', color: 'var(--purple)', fontFamily: 'var(--font-display)' }}>
-                {new Date(profile.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+                {new Date(currentProfile.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
               </div>
               <div style={{ fontSize: '12px', color: 'var(--text2)' }}>Joined</div>
             </div>

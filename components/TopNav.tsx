@@ -1,13 +1,13 @@
 import { createClient } from '@/utils/supabase/server'
 import TopNavClient from './TopNavClient'
 
-export default async function TopNav() {
+export default async function TopNav({ forceLoggedOut }: { forceLoggedOut?: boolean } = {}) {
   const supabase = await createClient()
   const { data } = await supabase.auth.getUser()
   const user = data.user
 
   let name = null
-  if (user) {
+  if (user && !forceLoggedOut) {
     // Try to get username and onboarding status from profile
     const { data: profile } = await supabase
       .from('profiles')
