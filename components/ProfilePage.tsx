@@ -39,17 +39,17 @@ interface ProfilePageProps {
   isOwnProfile: boolean
 }
 
-export default function ProfilePage({ profile, userStats, ideas, isOwnProfile }: ProfilePageProps) {
+export default function ProfilePage({ profile: initialProfile, userStats, ideas, isOwnProfile }: ProfilePageProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [currentProfile, setCurrentProfile] = useState(profile)
+  const [currentProfile, setCurrentProfile] = useState(initialProfile)
   const [editData, setEditData] = useState({
-    username: currentProfile.username || '',
-    location: currentProfile.location || '',
-    bio: currentProfile.bio || '',
-    stage: currentProfile.stage || '',
-    skills: currentProfile.skills || [],
-    status_tags: currentProfile.status_tags || [],
+    username: initialProfile.username || '',
+    location: initialProfile.location || '',
+    bio: initialProfile.bio || '',
+    stage: initialProfile.stage || '',
+    skills: initialProfile.skills || [],
+    status_tags: initialProfile.status_tags || [],
     social_links: currentProfile.social_links || {}
   })
 
@@ -67,15 +67,19 @@ export default function ProfilePage({ profile, userStats, ideas, isOwnProfile }:
           stage: editData.stage,
           skills: editData.skills,
           status_tags: editData.status_tags,
-          social_links: editData.social_links
+          social_links: {
+            x: editData.social_links.x,
+            linkedin: editData.social_links.linkedin,
+            github: editData.social_links.github
+          }
         })
-        .eq('id', profile.id)
+        .eq('id', initialProfile.id)
 
       if (error) throw error
       
       // Update local state with saved data
       const updatedProfile = {
-        ...profile,
+        ...initialProfile,
         username: editData.username.toLowerCase(),
         location: editData.location,
         bio: editData.bio,
@@ -398,7 +402,8 @@ export default function ProfilePage({ profile, userStats, ideas, isOwnProfile }:
               fontSize: '32px',
               fontWeight: '700',
               fontFamily: 'var(--font-display)',
-              flexShrink: 0
+              flexShrink: 0,
+              boxShadow: 'var(--shadow-md)'
             }}>
               {currentProfile.username.charAt(0).toUpperCase()}
             </div>
@@ -406,10 +411,10 @@ export default function ProfilePage({ profile, userStats, ideas, isOwnProfile }:
             {/* Profile Info */}
             <div style={{ flex: 1 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-                <h1 style={{ fontSize: '28px', fontWeight: '700', fontFamily: 'var(--font-display)', margin: 0 }}>
+                <h1 style={{ fontSize: '28px', fontWeight: '700', fontFamily: 'var(--font-display)', margin: 0, color: 'var(--text)' }}>
                   {currentProfile.username}
                 </h1>
-                {profile.stage && (
+                {initialProfile.stage && (
                   <span style={{
                     padding: '4px 12px',
                     borderRadius: '12px',
@@ -423,13 +428,13 @@ export default function ProfilePage({ profile, userStats, ideas, isOwnProfile }:
                 )}
               </div>
               
-              {profile.location && (
+              {initialProfile.location && (
                 <p style={{ color: 'var(--text2)', fontSize: '14px', marginBottom: '12px' }}>
                   📍 {currentProfile.location}
                 </p>
               )}
 
-              {profile.bio && (
+              {initialProfile.bio && (
                 <p style={{ color: 'var(--text)', fontSize: '15px', lineHeight: '1.6', marginBottom: '16px' }}>
                   {currentProfile.bio}
                 </p>
@@ -475,7 +480,7 @@ export default function ProfilePage({ profile, userStats, ideas, isOwnProfile }:
                        style={{ color: 'var(--text2)', textDecoration: 'none', fontSize: '18px' }}>in</a>
                   )}
                   {currentProfile.social_links.github && (
-                    <a href={`https://github.com/${profile.social_links.github}`} target="_blank" rel="noopener noreferrer"
+                    <a href={`https://github.com/${currentProfile.social_links.github}`} target="_blank" rel="noopener noreferrer"
                        style={{ color: 'var(--text2)', textDecoration: 'none', fontSize: '18px' }}>⚡</a>
                   )}
                 </div>
@@ -493,7 +498,18 @@ export default function ProfilePage({ profile, userStats, ideas, isOwnProfile }:
                     color: 'var(--text)',
                     fontSize: '14px',
                     fontWeight: '600',
-                    cursor: 'pointer'
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'var(--green)'
+                    e.currentTarget.style.color = '#fff'
+                    e.currentTarget.style.borderColor = 'var(--green)'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'var(--card2)'
+                    e.currentTarget.style.color = 'var(--text)'
+                    e.currentTarget.style.borderColor = 'var(--border2)'
                   }}
                 >
                   Edit Profile
@@ -505,7 +521,7 @@ export default function ProfilePage({ profile, userStats, ideas, isOwnProfile }:
           {/* Stats Row */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '16px', paddingTop: '20px', borderTop: '1px solid var(--border)' }}>
             {userStats?.elo && (
-              <div style={{ textAlign: 'center' }}>
+              <div style={{ textAlign: 'center', padding: '16px', borderRadius: '12px', background: 'var(--card2)', transition: 'all 0.2s ease' }}>
                 <div style={{ fontSize: '24px', fontWeight: '700', color: 'var(--green)', fontFamily: 'var(--font-display)' }}>
                   {userStats.elo}
                 </div>
@@ -513,20 +529,20 @@ export default function ProfilePage({ profile, userStats, ideas, isOwnProfile }:
               </div>
             )}
             {userStats?.leaderboard_rank && (
-              <div style={{ textAlign: 'center' }}>
+              <div style={{ textAlign: 'center', padding: '16px', borderRadius: '12px', background: 'var(--card2)', transition: 'all 0.2s ease' }}>
                 <div style={{ fontSize: '24px', fontWeight: '700', color: 'var(--text)', fontFamily: 'var(--font-display)' }}>
                   #{userStats.leaderboard_rank}
                 </div>
                 <div style={{ fontSize: '12px', color: 'var(--text2)' }}>Leaderboard Rank</div>
               </div>
             )}
-            <div style={{ textAlign: 'center' }}>
+            <div style={{ textAlign: 'center', padding: '16px', borderRadius: '12px', background: 'var(--card2)', transition: 'all 0.2s ease' }}>
               <div style={{ fontSize: '24px', fontWeight: '700', color: 'var(--blue)', fontFamily: 'var(--font-display)' }}>
                 {ideas.length}
               </div>
               <div style={{ fontSize: '12px', color: 'var(--text2)' }}>Ideas</div>
             </div>
-            <div style={{ textAlign: 'center' }}>
+            <div style={{ textAlign: 'center', padding: '16px', borderRadius: '12px', background: 'var(--card2)', transition: 'all 0.2s ease' }}>
               <div style={{ fontSize: '24px', fontWeight: '700', color: 'var(--purple)', fontFamily: 'var(--font-display)' }}>
                 {new Date(currentProfile.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
               </div>
@@ -556,7 +572,19 @@ export default function ProfilePage({ profile, userStats, ideas, isOwnProfile }:
               textDecoration: 'none',
               fontSize: '14px',
               fontWeight: '600',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              boxShadow: 'var(--shadow-md)'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'linear-gradient(135deg, #22c55e, #16a34a)'
+              e.currentTarget.style.transform = 'translateY(-2px)'
+              e.currentTarget.style.boxShadow = '0 12px 24px rgba(21,128,61,0.3)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'var(--green)'
+              e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.boxShadow = 'var(--shadow-md)'
             }}
           >
             View Co-founder Match →
@@ -572,7 +600,7 @@ export default function ProfilePage({ profile, userStats, ideas, isOwnProfile }:
             border: '1px solid var(--border)',
             boxShadow: 'var(--shadow)'
           }}>
-            <h2 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '24px', fontFamily: 'var(--font-display)' }}>
+            <h2 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '24px', fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
               Public Ideas
             </h2>
             <div style={{ display: 'grid', gap: '16px' }}>
@@ -581,16 +609,34 @@ export default function ProfilePage({ profile, userStats, ideas, isOwnProfile }:
                   padding: '20px',
                   borderRadius: '12px',
                   background: 'var(--card2)',
-                  border: '1px solid var(--border2)'
-                }}>
-                  <h3 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '8px', fontFamily: 'var(--font-display)' }}>
+                  border: '1px solid var(--border2)',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'var(--card)'
+                  e.currentTarget.style.borderColor = 'var(--border)'
+                  e.currentTarget.style.transform = 'translateY(-2px)'
+                  e.currentTarget.style.boxShadow = 'var(--shadow-lg)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'var(--card2)'
+                  e.currentTarget.style.borderColor = 'var(--border2)'
+                  e.currentTarget.style.transform = 'translateY(0)'
+                  e.currentTarget.style.boxShadow = 'var(--shadow)'
+                }}
+                >
+                  <h3 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '8px', fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
                     {idea.title}
                   </h3>
-                  <p style={{ color: 'var(--text2)', fontSize: '14px', lineHeight: '1.6' }}>
+                  <p style={{ color: 'var(--text2)', fontSize: '14px', lineHeight: '1.6', marginBottom: '12px' }}>
                     {idea.description}
                   </p>
                   <div style={{ marginTop: '12px', fontSize: '12px', color: 'var(--text3)' }}>
-                    {new Date(idea.created_at).toLocaleDateString()}
+                    {new Date(idea.created_at).toLocaleDateString('en-US', { 
+                      year: 'numeric', 
+                      month: 'short', 
+                      day: 'numeric' 
+                    })}
                   </div>
                 </div>
               ))}
