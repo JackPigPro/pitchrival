@@ -29,7 +29,7 @@ export default function AdminDuelManager() {
     setSuccess('')
 
     try {
-      const response = await fetch('/api/admin/create-duel', {
+      const response = await fetch('/admin/api/create-duel', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -66,7 +66,7 @@ export default function AdminDuelManager() {
     setSuccess('')
 
     try {
-      const response = await fetch('/api/admin/distribute-prizes', {
+      const response = await fetch('/admin/api/distribute-prizes', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -93,7 +93,7 @@ export default function AdminDuelManager() {
 
   const fetchDuels = async () => {
     try {
-      const response = await fetch('/api/admin/get-duels')
+      const response = await fetch('/admin/api/get-duels')
       const result = await response.json()
       
       if (result.success) {
