@@ -2,6 +2,18 @@ import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import WeeklyDuelClient from './WeeklyDuelClient'
 
+type Winner = {
+  id: string;
+  prompt: string;
+  rank: number;
+  elo_awarded: number;
+  user_id: {
+    username: string;
+  };
+  created_at: string;
+  username: string;
+}
+
 export default async function WeeklyDuelPage() {
   const supabase = await createClient()
   
@@ -71,17 +83,16 @@ export default async function WeeklyDuelPage() {
     .limit(10)
 
   // Transform nested data to flat Winner array
-  const transformedWinners: Winner[] = (winnersWithUsers || []).map(duel => {
+  const transformedWinners: Winner[] = (winnersWithUsers || []).flatMap(duel => {
     const winner = duel.duel_winners?.[0] // Get first winner
     return winner ? {
       id: duel.id,
+      prompt: duel.prompt,
       rank: winner.rank,
       elo_awarded: winner.elo_awarded,
-      user_id: winner.user_id.username,
-      username: winner.user_id.username,
-      created_at: duel.created_at
+      user_id: winner.user_id?.[0]?.username || 'Unknown'
     } : null as any
-  }).filter(Boolean) // Remove null entries
+  })
 
   if (winnersUsersError) {
     console.error('Error fetching winners with users:', winnersUsersError)
@@ -124,7 +135,7 @@ export default async function WeeklyDuelPage() {
       currentDuel={currentDuel}
       userSubmission={userSubmission}
       allSubmissions={allSubmissions || []}
-      pastWinners={winnersWithUsers || []}
+      pastWinners={transformedWinners || []}
       currentState={currentState}
       submissionDeadline={submissionDeadline}
       votingDeadline={votingDeadline}
