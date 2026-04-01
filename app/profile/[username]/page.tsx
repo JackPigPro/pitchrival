@@ -44,7 +44,7 @@ async function ProfileContent({ username }: { username: string }) {
   return (
     <ProfilePage
       profile={profile}
-      userStats={userStats}
+      userStats={userStats || undefined}
       ideas={ideas || []}
       isOwnProfile={isOwnProfile}
     />
