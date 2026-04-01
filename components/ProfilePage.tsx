@@ -66,6 +66,7 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
         throw new Error('User not authenticated')
       }
 
+      // Update profile using proper Supabase client
       const { error } = await supabase
         .from('profiles')
         .update({
@@ -76,9 +77,9 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
           skills: editData.skills,
           status_tags: editData.status_tags,
           social_links: {
-            x: editData.social_links.x,
-            linkedin: editData.social_links.linkedin,
-            github: editData.social_links.github
+            x: editData.social_links.x || undefined,
+            linkedin: editData.social_links.linkedin || undefined,
+            github: editData.social_links.github || undefined
           }
         })
         .eq('id', user.id)
@@ -88,14 +89,18 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
       // Update local state with saved data
       const updatedProfile = {
         ...currentProfile,
-        id: user.id, // Ensure we have the correct user ID
+        id: user.id,
         username: editData.username.toLowerCase(),
         location: editData.location,
         bio: editData.bio,
         stage: editData.stage,
         skills: editData.skills,
         status_tags: editData.status_tags,
-        social_links: editData.social_links
+        social_links: {
+          x: editData.social_links.x || undefined,
+          linkedin: editData.social_links.linkedin || undefined,
+          github: editData.social_links.github || undefined
+        }
       }
       setCurrentProfile(updatedProfile)
       setSaveSuccess(true)
