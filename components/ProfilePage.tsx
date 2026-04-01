@@ -825,7 +825,6 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
         <div style={{ 
           display: 'grid', 
           gridTemplateColumns: '1fr 1px 1fr', 
-          gridTemplateRows: 'auto auto',
           gap: '32px', 
           marginBottom: '32px',
           position: 'relative',
@@ -843,7 +842,7 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
           }} />
 
           {/* Left Column: Stats Section */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', width: '100%' }}>
             {/* ELO Rating Card */}
             <div style={{ 
               background: 'var(--card)', 
@@ -852,7 +851,8 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
               border: '1px solid var(--border)',
               boxShadow: 'var(--shadow)',
               textAlign: 'center',
-              transition: 'all 0.2s ease'
+              transition: 'all 0.2s ease',
+              width: '100%'
             }}>
               <div style={{ 
                 fontSize: '48px', 
@@ -882,7 +882,8 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
               border: '1px solid var(--border)',
               boxShadow: 'var(--shadow)',
               textAlign: 'center',
-              transition: 'all 0.2s ease'
+              transition: 'all 0.2s ease',
+              width: '100%'
             }}>
               <div style={{ 
                 fontSize: '48px', 
@@ -912,7 +913,8 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
               border: '1px solid var(--border)',
               boxShadow: 'var(--shadow)',
               textAlign: 'center',
-              transition: 'all 0.2s ease'
+              transition: 'all 0.2s ease',
+              width: '100%'
             }}>
               <div style={{ 
                 fontSize: '48px', 
@@ -952,7 +954,8 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
                 fontFamily: 'var(--font-display)',
                 transition: 'all 0.2s ease',
                 boxShadow: 'var(--shadow)',
-                letterSpacing: '-0.1px'
+                letterSpacing: '-0.1px',
+                width: '100%'
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.background = '#ea580c'
@@ -972,7 +975,7 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
           </div>
 
           {/* Right Column: Actions Section */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', width: '100%' }}>
             {/* Ideas Posted Card */}
             <div style={{ 
               background: 'var(--card)', 
@@ -981,7 +984,8 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
               border: '1px solid var(--border)',
               boxShadow: 'var(--shadow)',
               textAlign: 'center',
-              transition: 'all 0.2s ease'
+              transition: 'all 0.2s ease',
+              width: '100%'
             }}>
               <div style={{ 
                 fontSize: '48px', 
@@ -1021,7 +1025,8 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
                 fontFamily: 'var(--font-display)',
                 transition: 'all 0.2s ease',
                 boxShadow: 'var(--shadow)',
-                letterSpacing: '-0.1px'
+                letterSpacing: '-0.1px',
+                width: '100%'
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.background = 'linear-gradient(135deg, #9333ea, var(--purple))'
@@ -1047,7 +1052,8 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
               border: '1px solid var(--border)',
               boxShadow: 'var(--shadow)',
               textAlign: 'center',
-              transition: 'all 0.2s ease'
+              transition: 'all 0.2s ease',
+              width: '100%'
             }}>
               <div style={{
                 display: 'flex',
