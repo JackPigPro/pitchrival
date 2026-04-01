@@ -489,6 +489,8 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
     <div style={{ 
       minHeight: '100vh', 
       background: 'var(--bg)',
+      backgroundImage: 'linear-gradient(rgba(21,128,61,.065) 1px, transparent 1px), linear-gradient(90deg, rgba(21,128,61,.065) 1px, transparent 1px)',
+      backgroundSize: '48px 48px',
       padding: '40px 24px'
     }}>
       <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
@@ -798,30 +800,17 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
           </div>
         </div>
 
-        {/* MIDDLE SECTION - Two Column Grid with Divider */}
+        {/* MIDDLE SECTION - Two Column Grid */}
         <div style={{ 
           display: 'grid', 
           gridTemplateColumns: '1fr 1fr', 
           gap: '32px', 
-          marginBottom: '32px',
-          position: 'relative'
+          marginBottom: '32px'
         }}>
-          {/* Invisible Line Divider */}
-          <div style={{
-            position: 'absolute',
-            left: '50%',
-            top: 0,
-            bottom: 0,
-            width: '1px',
-            background: 'var(--border)',
-            transform: 'translateX(-50%)',
-            zIndex: 1,
-            pointerEvents: 'none'
-          }} />
 
           {/* Left Column: Stats Section */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', width: '100%' }}>
-            {/* ELO Rating Card */}
+            {/* Combined ELO and Rank Card */}
             <div style={{ 
               background: 'var(--card)', 
               borderRadius: '16px', 
@@ -832,56 +821,55 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
               transition: 'all 0.2s ease',
               width: '100%'
             }}>
-              <div style={{ 
-                fontSize: '48px', 
-                fontWeight: '800', 
-                color: 'var(--green)', 
-                fontFamily: 'var(--font-display)',
-                marginBottom: '12px'
-              }}>
-                {userStats?.elo || '—'}
+              <div style={{ marginBottom: '24px' }}>
+                <div style={{ 
+                  fontSize: '64px', 
+                  fontWeight: '800', 
+                  color: 'var(--green)', 
+                  fontFamily: 'var(--font-display)',
+                  marginBottom: '8px'
+                }}>
+                  {userStats?.elo || '—'}
+                </div>
+                <div style={{ 
+                  fontSize: '13px', 
+                  color: 'var(--text2)',
+                  fontWeight: '600',
+                  fontFamily: 'var(--font-display)',
+                  letterSpacing: '2px',
+                  textTransform: 'uppercase',
+                  marginBottom: '20px'
+                }}>
+                  ELO Rating
+                </div>
               </div>
+              
               <div style={{ 
-                fontSize: '13px', 
-                color: 'var(--text2)',
-                fontWeight: '600',
-                fontFamily: 'var(--font-display)',
-                letterSpacing: '2px',
-                textTransform: 'uppercase'
-              }}>
-                ELO Rating
-              </div>
-            </div>
-
-            {/* Rank Title Card */}
-            <div style={{ 
-              background: 'var(--card)', 
-              borderRadius: '16px', 
-              padding: '32px',
-              border: '1px solid var(--border)',
-              boxShadow: 'var(--shadow)',
-              textAlign: 'center',
-              transition: 'all 0.2s ease',
-              width: '100%'
-            }}>
-              <div style={{ 
-                fontSize: '48px', 
-                fontWeight: '800', 
-                color: 'var(--blue)', 
-                fontFamily: 'var(--font-display)',
-                marginBottom: '12px'
-              }}>
-                {getRankByElo(userStats?.elo)}
-              </div>
-              <div style={{ 
-                fontSize: '13px', 
-                color: 'var(--text2)',
-                fontWeight: '600',
-                fontFamily: 'var(--font-display)',
-                letterSpacing: '2px',
-                textTransform: 'uppercase'
-              }}>
-                Rank Title
+                height: '1px', 
+                background: 'var(--border)', 
+                margin: '20px 0' 
+              }} />
+              
+              <div>
+                <div style={{ 
+                  fontSize: '36px', 
+                  fontWeight: '800', 
+                  color: 'var(--blue)', 
+                  fontFamily: 'var(--font-display)',
+                  marginBottom: '8px'
+                }}>
+                  {getRankByElo(userStats?.elo)}
+                </div>
+                <div style={{ 
+                  fontSize: '13px', 
+                  color: 'var(--text2)',
+                  fontWeight: '600',
+                  fontFamily: 'var(--font-display)',
+                  letterSpacing: '2px',
+                  textTransform: 'uppercase'
+                }}>
+                  Rank Title
+                </div>
               </div>
             </div>
 
@@ -930,6 +918,21 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
               }}
             >
               ⚔️ Weekly Duels →
+            </a>
+
+            {/* Leaderboard Button */}
+            <a
+              href="/compete/leaderboard"
+              className="btn-cta-ghost"
+              style={{
+                textDecoration: 'none',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '100%'
+              }}
+            >
+              🏆 Check Leaderboard →
             </a>
           </div>
 
