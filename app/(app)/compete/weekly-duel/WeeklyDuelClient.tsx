@@ -566,28 +566,18 @@ export default function WeeklyDuelClient({
             )}
           </div>
         )}
-              </h1>
-              
-              {/* Countdown Timer */}
-              {displayState === 'active' && submissionDeadline && (
-                <div style={{ marginBottom: '24px' }}>
-                  <div id="countdown" style={{ fontSize: '24px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--purple)', textAlign: 'center', padding: '16px', borderRadius: '8px', background: 'var(--purple-tint)', border: '1px solid var(--purple)' }}>
-                    Loading countdown...
-                  </div>
-                </div>
-              )}
+        
+        {/* Voting State */}
+        {displayState === 'voting' && currentDuel && (
+          <div style={{ marginBottom: '24px' }}>
+            <div id="voting-countdown" style={{ fontSize: '24px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--purple)', textAlign: 'center', padding: '16px', borderRadius: '8px', background: 'var(--purple-tint)', border: '1px solid var(--purple)' }}>
+              Loading countdown...
+            </div>
+          </div>
+        )}
 
-              {/* Voting Countdown */}
-              {displayState === 'voting' && votingDeadline && (
-                <div style={{ marginBottom: '24px' }}>
-                  <div id="voting-countdown" style={{ fontSize: '24px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--purple)', textAlign: 'center', padding: '16px', borderRadius: '8px', background: 'var(--purple-tint)', border: '1px solid var(--purple)' }}>
-                    Loading countdown...
-                  </div>
-                </div>
-              )}
-
-              {/* Active State - Submission Form */}
-              {displayState === 'active' && !displayUserSubmission && (
+        {/* Results State */}
+        {displayState === 'results' && currentDuel && (
                 <div>
                   <textarea
                     value={submissionContent}
@@ -776,9 +766,6 @@ export default function WeeklyDuelClient({
                   )}
                 </div>
               )}
-
-                          </div>
-          )}
 
           {/* No Active Duel */}
           {!currentDuel && (
