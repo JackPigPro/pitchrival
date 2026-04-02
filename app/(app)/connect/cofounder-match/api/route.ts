@@ -35,21 +35,19 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to fetch cofounder requests' }, { status: 500 })
     }
 
-    // Build a Set of user IDs who are already connected to the current user (accepted requests only)
-    const connectedUserIds = new Set<string>()
+    // Build a Set of user IDs who have ANY request (pending or accepted) with the current user
+    const allRequestedUserIds = new Set<string>()
     requests?.forEach(request => {
-      if (request.status === 'accepted') {
-        if (request.sender_id === user.id) {
-          connectedUserIds.add(request.receiver_id)
-        } else {
-          connectedUserIds.add(request.sender_id)
-        }
+      if (request.sender_id === user.id) {
+        allRequestedUserIds.add(request.receiver_id)
+      } else {
+        allRequestedUserIds.add(request.sender_id)
       }
     })
 
-    // Filter out connected users from the profiles array
+    // Filter out users with any requests from the profiles array
     const filteredProfiles = profiles?.filter(profile => 
-      profile.id !== user.id && !connectedUserIds.has(profile.id)
+      profile.id !== user.id && !allRequestedUserIds.has(profile.id)
     ) || []
 
     // Fetch current user's profile to check if they are listed

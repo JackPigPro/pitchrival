@@ -23,6 +23,8 @@ export default function CofounderMatchClient() {
   const { user, authLoading } = useSupabase()
   const [profiles, setProfiles] = useState<Profile[]>([])
   const [requests, setRequests] = useState<CofounderRequest[]>([])
+  const [connectedProfiles, setConnectedProfiles] = useState<Profile[]>([])
+  const [isListed, setIsListed] = useState(false)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -46,11 +48,34 @@ export default function CofounderMatchClient() {
       const data = await response.json()
       setProfiles(data.profiles || [])
       setRequests(data.requests || [])
+      setConnectedProfiles(data.connectedProfiles || [])
+      setIsListed(data.isListed || false)
       setLoading(false)
     } catch (err) {
       console.error('Error fetching data:', err)
       setError('Failed to load data')
       setLoading(false)
+    }
+  }
+
+  const handleToggleListing = async () => {
+    try {
+      const response = await fetch('/connect/cofounder-match/api', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ open_to_cofounder: !isListed }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to update listing status')
+      }
+
+      setIsListed(!isListed)
+      // Refetch data to update the profiles list
+      fetchData()
+    } catch (err) {
+      console.error('Error toggling listing:', err)
+      alert('Failed to update listing status. Please try again.')
     }
   }
 
@@ -165,8 +190,21 @@ export default function CofounderMatchClient() {
   }
 
   const incomingRequests = getIncomingRequests()
-  const visibleProfiles = profiles.filter(profile => 
-    profile.id !== user?.id && !hasAnyRequest(profile.id)
+  
+  // Include current user in profiles if they are listed
+  const allProfiles = isListed && user ? [
+    {
+      id: user.id,
+      username: user.user_metadata?.username || 'unknown',
+      display_name: user.user_metadata?.display_name,
+      status_tags: user.user_metadata?.status_tags || [],
+      created_at: user.created_at
+    } as Profile,
+    ...profiles
+  ] : profiles
+  
+  const visibleProfiles = allProfiles.filter(profile => 
+    !hasAnyRequest(profile.id)
   )
 
   return (
@@ -176,11 +214,31 @@ export default function CofounderMatchClient() {
         <h2 style={{ 
           fontSize: '28px', 
           fontWeight: 700, 
-          marginBottom: '24px', 
+          marginBottom: '16px', 
           fontFamily: 'var(--font-display)' 
         }}>
           Find Co-founders
         </h2>
+
+        {/* Toggle Button */}
+        <button
+          onClick={handleToggleListing}
+          style={{
+            width: '100%',
+            padding: '12px 24px',
+            background: isListed ? 'transparent' : 'var(--green)',
+            color: isListed ? 'var(--text)' : 'white',
+            border: isListed ? '1px solid var(--border)' : '1px solid var(--green)',
+            borderRadius: '8px',
+            fontSize: '16px',
+            fontWeight: 600,
+            cursor: 'pointer',
+            marginBottom: '24px',
+            fontFamily: 'var(--font-body)',
+          }}
+        >
+          {isListed ? 'Remove Myself from Pool' : 'List Myself as Available'}
+        </button>
 
         {loading && profiles.length === 0 ? (
           <div style={{
@@ -220,6 +278,7 @@ export default function CofounderMatchClient() {
           }}>
             {visibleProfiles.map((profile) => {
               const hasPending = hasPendingRequest(profile.id)
+              const isCurrentUser = profile.id === user?.id
               return (
                 <div
                   key={profile.id}
@@ -231,15 +290,29 @@ export default function CofounderMatchClient() {
                   }}
                 >
                   <div style={{ marginBottom: '12px' }}>
-                    <h3 style={{
-                      fontSize: '18px',
-                      fontWeight: 600,
-                      marginBottom: '4px',
-                      fontFamily: 'var(--font-display)',
-                      color: 'var(--text)',
-                    }}>
-                      {profile.display_name || profile.username}
-                    </h3>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                      <h3 style={{
+                        fontSize: '18px',
+                        fontWeight: 600,
+                        fontFamily: 'var(--font-display)',
+                        color: 'var(--text)',
+                        margin: 0,
+                      }}>
+                        {profile.display_name || profile.username}
+                      </h3>
+                      {isCurrentUser && (
+                        <span style={{
+                          background: 'var(--green)',
+                          color: 'white',
+                          fontSize: '12px',
+                          fontWeight: 500,
+                          padding: '2px 8px',
+                          borderRadius: '12px',
+                        }}>
+                          You
+                        </span>
+                      )}
+                    </div>
                     <p style={{
                       fontSize: '14px',
                       color: 'var(--text2)',
@@ -260,22 +333,22 @@ export default function CofounderMatchClient() {
                   
                   <button
                     onClick={() => handleSendRequest(profile.id)}
-                    disabled={hasPending}
+                    disabled={hasPending || isCurrentUser}
                     style={{
                       width: '100%',
                       padding: '8px 16px',
-                      background: hasPending ? 'var(--card2)' : 'var(--green)',
-                      color: hasPending ? 'var(--text2)' : 'white',
+                      background: isCurrentUser ? 'var(--card2)' : (hasPending ? 'var(--card2)' : 'var(--green)'),
+                      color: isCurrentUser ? 'var(--text2)' : (hasPending ? 'var(--text2)' : 'white'),
                       border: '1px solid var(--border)',
                       borderRadius: '6px',
                       fontSize: '14px',
                       fontWeight: 500,
-                      cursor: hasPending ? 'not-allowed' : 'pointer',
+                      cursor: isCurrentUser ? 'not-allowed' : (hasPending ? 'not-allowed' : 'pointer'),
                       fontFamily: 'var(--font-body)',
-                      opacity: hasPending ? 0.6 : 1,
+                      opacity: (hasPending || isCurrentUser) ? 0.6 : 1,
                     }}
                   >
-                    {hasPending ? 'Request Sent' : 'Send Request'}
+                    {isCurrentUser ? "It's You" : (hasPending ? 'Request Sent' : 'Send Request')}
                   </button>
                 </div>
               )
@@ -396,6 +469,100 @@ export default function CofounderMatchClient() {
                   </div>
                 )
               })}
+            </div>
+          )}
+        </div>
+
+        {/* Your Co-founders Section */}
+        <div style={{
+          background: 'var(--card)',
+          border: '1px solid var(--border)',
+          borderRadius: '12px',
+          padding: '20px',
+          marginTop: '16px',
+        }}>
+          <h3 style={{
+            fontSize: '18px',
+            fontWeight: 600,
+            marginBottom: '16px',
+            fontFamily: 'var(--font-display)',
+            color: 'var(--text)',
+          }}>
+            Your Co-founders
+          </h3>
+
+          {connectedProfiles.length === 0 ? (
+            <p style={{
+              color: 'var(--text2)',
+              fontSize: '14px',
+              textAlign: 'center',
+              padding: '20px 0',
+            }}>
+              No co-founders yet. Send some requests!
+            </p>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {connectedProfiles.map((profile) => (
+                <div
+                  key={profile.id}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    padding: '12px',
+                    background: 'var(--card2)',
+                    borderRadius: '8px',
+                  }}
+                >
+                  <div style={{
+                    width: '40px',
+                    height: '40px',
+                    borderRadius: '50%',
+                    background: 'var(--green)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: 'white',
+                    fontWeight: 600,
+                    fontSize: '16px',
+                  }}>
+                    {(profile.display_name || profile.username).charAt(0).toUpperCase()}
+                  </div>
+                  
+                  <div style={{ flex: 1 }}>
+                    <p style={{
+                      fontSize: '14px',
+                      fontWeight: 500,
+                      color: 'var(--text)',
+                      marginBottom: '2px',
+                    }}>
+                      {profile.display_name || profile.username}
+                    </p>
+                    <p style={{
+                      fontSize: '12px',
+                      color: 'var(--text2)',
+                    }}>
+                      @{profile.username}
+                    </p>
+                  </div>
+
+                  <a
+                    href={`/connect/messages?with=${profile.id}`}
+                    style={{
+                      padding: '6px 12px',
+                      background: 'var(--green)',
+                      color: 'white',
+                      textDecoration: 'none',
+                      borderRadius: '4px',
+                      fontSize: '12px',
+                      fontWeight: 500,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Message
+                  </a>
+                </div>
+              ))}
             </div>
           )}
         </div>
