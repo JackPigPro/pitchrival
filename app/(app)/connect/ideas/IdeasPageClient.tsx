@@ -135,7 +135,6 @@ export default function IdeasPageClient() {
   }
 
   if (authLoading) return null
-
   if (!user) {
     return (
       <div style={{ textAlign: 'center', padding: '60px 20px' }}>
