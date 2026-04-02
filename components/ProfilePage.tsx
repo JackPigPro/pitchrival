@@ -1140,7 +1140,11 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
                 marginBottom: '8px',
                 letterSpacing: '-0.5px'
               }}>
-                {new Date(currentProfile.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+                {(() => {
+                  // Fix: Append Z to ensure UTC parsing if not already present
+                  const createdAt = currentProfile.created_at.endsWith('Z') ? currentProfile.created_at : currentProfile.created_at + 'Z'
+                  return new Date(createdAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+                })()}
               </div>
             </div>
           </div>
@@ -1149,17 +1153,3 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
             fontSize: '16px',
             color: 'var(--text2)',
             fontFamily: 'var(--font-body)',
-            lineHeight: '1.6',
-            maxWidth: '600px',
-            margin: '0 auto'
-          }}>
-            {(() => {
-              const monthsDiff = Math.floor((Date.now() - new Date(currentProfile.created_at).getTime()) / (1000 * 60 * 60 * 24 * 30))
-              return `Building innovative ideas and connecting with founders for ${Math.max(0, monthsDiff)} months`
-            })()}
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}

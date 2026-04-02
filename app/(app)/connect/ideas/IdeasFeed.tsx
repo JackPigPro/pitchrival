@@ -35,24 +35,11 @@ export default function IdeasFeed({
   }
 
   const formatTimeAgo = (dateString: string) => {
-    // Debug: Log the raw created_at value
-    console.log('Raw created_at:', dateString)
-    
-    const date = new Date(dateString)
+    // Fix: Append Z to ensure UTC parsing if not already present
+    const timestamp = dateString.endsWith('Z') ? dateString : dateString + 'Z'
+    const date = new Date(timestamp)
     const now = new Date()
-    
-    // Debug: Log parsed dates
-    console.log('Parsed date:', date)
-    console.log('Current time:', now)
-    
-    // Check if date is valid
-    if (isNaN(date.getTime())) {
-      console.error('Invalid date:', dateString)
-      return 'unknown time'
-    }
-    
     const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000)
-    console.log('Time difference in seconds:', diffInSeconds)
 
     if (diffInSeconds < 60) return 'just now'
     
@@ -377,7 +364,7 @@ export default function IdeasFeed({
                 {/* Public/Private badge for My Ideas tab */}
                 {activeTab === 'my' && (
                   <span style={{
-                    background: idea.is_public ? 'var(--green)' : 'var(--grey)',
+                    background: idea.is_public ? 'var(--green)' : 'var(--text3)',
                     color: 'white',
                     fontSize: '10px',
                     fontWeight: 600,

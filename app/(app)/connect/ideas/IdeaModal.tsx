@@ -49,7 +49,9 @@ export default function IdeaModal({ idea, onClose, onUpdate, onDelete, currentUs
   }
 
   const formatTimeAgo = (dateString: string) => {
-    const date = new Date(dateString)
+    // Fix: Append Z to ensure UTC parsing if not already present
+    const timestamp = dateString.endsWith('Z') ? dateString : dateString + 'Z'
+    const date = new Date(timestamp)
     const now = new Date()
     const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000)
 
