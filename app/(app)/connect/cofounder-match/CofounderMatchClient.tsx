@@ -23,27 +23,32 @@ export default function CofounderMatchClient() {
   const [user, setUser] = useState<any>(null)
   const [authLoading, setAuthLoading] = useState(true)
   const [profiles, setProfiles] = useState<Profile[]>([])
-  const [connectedProfiles, setConnectedProfiles] = useState<Profile[]>([])
   const [requests, setRequests] = useState<CofounderRequest[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [isListed, setIsListed] = useState(false)
-  const [userProfile, setUserProfile] = useState<Profile | null>(null)
   const supabase = createClient()
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        const currentUser = session?.user ?? null
-        setUser(currentUser)
-        setAuthLoading(false)
-        if (currentUser) {
-          fetchData()
-        }
-      }
-    )
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      setUser(user)
+      setAuthLoading(false)
+    }
+    getUser()
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setUser(session?.user ?? null)
+      setAuthLoading(false)
+    })
+
     return () => subscription.unsubscribe()
-  }, [])
+  }, [supabase.auth])
+
+  useEffect(() => {
+    if (user) {
+      fetchData()
+    }
+  }, [user])
 
   const fetchData = async () => {
     try {
@@ -57,20 +62,7 @@ export default function CofounderMatchClient() {
       
       const data = await response.json()
       setProfiles(data.profiles || [])
-      setConnectedProfiles(data.connectedProfiles || [])
       setRequests(data.requests || [])
-      setIsListed(data.isListed || false)
-      
-      // Fetch current user's profile
-      if (user) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', user.id)
-          .single()
-        setUserProfile(profile)
-      }
-      
       setLoading(false)
     } catch (err) {
       console.error('Error fetching data:', err)
@@ -96,25 +88,6 @@ export default function CofounderMatchClient() {
     } catch (err) {
       console.error('Error sending request:', err)
       alert('Failed to send request. Please try again.')
-    }
-  }
-
-  const handleToggleListing = async () => {
-    try {
-      const response = await fetch('/connect/cofounder-match/api', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ open_to_cofounder: !isListed }),
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to toggle listing')
-      }
-
-      setIsListed(!isListed)
-    } catch (err) {
-      console.error('Error toggling listing:', err)
-      alert('Failed to update listing. Please try again.')
     }
   }
 
@@ -232,18 +205,8 @@ export default function CofounderMatchClient() {
   }
 
   const incomingRequests = getIncomingRequests()
-  const connectedProfileIds = connectedProfiles.map(p => p.id)
-  const visibleProfiles = userProfile ? [
-    userProfile,
-    ...profiles.filter(profile => 
-      !connectedProfileIds.includes(profile.id) && 
-      profile.id !== user.id && 
-      !hasAnyRequest(profile.id)
-    )
-  ] : profiles.filter(profile => 
-    !connectedProfileIds.includes(profile.id) && 
-    profile.id !== user.id && 
-    !hasAnyRequest(profile.id)
+  const visibleProfiles = profiles.filter(profile => 
+    profile.id !== user.id && !hasAnyRequest(profile.id)
   )
 
   return (
@@ -258,27 +221,6 @@ export default function CofounderMatchClient() {
         }}>
           Find Co-founders
         </h2>
-
-        {/* Toggle listing button */}
-        <div style={{ marginBottom: '24px' }}>
-          <button
-            onClick={handleToggleListing}
-            style={{
-              padding: '12px 24px',
-              background: isListed ? 'transparent' : 'var(--green)',
-              color: isListed ? 'var(--red)' : 'white',
-              border: isListed ? '2px solid var(--red)' : '2px solid var(--green)',
-              borderRadius: '8px',
-              fontSize: '16px',
-              fontWeight: 600,
-              cursor: 'pointer',
-              fontFamily: 'var(--font-body)',
-              transition: 'all 0.2s ease',
-            }}
-          >
-            {isListed ? 'Remove Myself from Pool' : 'List Myself as Available'}
-          </button>
-        </div>
 
         {loading ? (
           <div style={{ textAlign: 'center', padding: '60px 20px' }}>
@@ -321,7 +263,6 @@ export default function CofounderMatchClient() {
             gap: '16px',
           }}>
             {visibleProfiles.map((profile) => {
-              const isOwnProfile = profile.id === user.id
               const hasPending = hasPendingRequest(profile.id)
               return (
                 <div
@@ -342,16 +283,6 @@ export default function CofounderMatchClient() {
                       color: 'var(--text)',
                     }}>
                       {profile.display_name || profile.username}
-                      {isOwnProfile && (
-                        <span style={{
-                          fontSize: '12px',
-                          color: 'var(--text2)',
-                          marginLeft: '8px',
-                          fontStyle: 'italic',
-                        }}>
-                          (You)
-                        </span>
-                      )}
                     </h3>
                     <p style={{
                       fontSize: '14px',
@@ -372,117 +303,27 @@ export default function CofounderMatchClient() {
                   </div>
                   
                   <button
-                    onClick={() => isOwnProfile ? null : handleSendRequest(profile.id)}
-                    disabled={isOwnProfile || hasPending}
+                    onClick={() => handleSendRequest(profile.id)}
+                    disabled={hasPending}
                     style={{
                       width: '100%',
                       padding: '8px 16px',
-                      background: isOwnProfile ? 'var(--card2)' : hasPending ? 'var(--card2)' : 'var(--green)',
-                      color: isOwnProfile ? 'var(--text2)' : hasPending ? 'var(--text2)' : 'white',
+                      background: hasPending ? 'var(--card2)' : 'var(--green)',
+                      color: hasPending ? 'var(--text2)' : 'white',
                       border: '1px solid var(--border)',
                       borderRadius: '6px',
                       fontSize: '14px',
                       fontWeight: 500,
-                      cursor: isOwnProfile ? 'not-allowed' : hasPending ? 'not-allowed' : 'pointer',
+                      cursor: hasPending ? 'not-allowed' : 'pointer',
                       fontFamily: 'var(--font-body)',
-                      opacity: (isOwnProfile || hasPending) ? 0.6 : 1,
+                      opacity: hasPending ? 0.6 : 1,
                     }}
                   >
-                    {isOwnProfile ? "It's You" : hasPending ? 'Request Sent' : 'Send Request'}
+                    {hasPending ? 'Request Sent' : 'Send Request'}
                   </button>
                 </div>
               )
             })}
-          </div>
-        )}
-
-        {/* Your Co-founders Section */}
-        {connectedProfiles.length > 0 && (
-          <div style={{ marginTop: '32px' }}>
-            <h3 style={{
-              fontSize: '20px',
-              fontWeight: 600,
-              marginBottom: '16px',
-              fontFamily: 'var(--font-display)',
-              color: 'var(--text)',
-            }}>
-              Your Co-founders
-            </h3>
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(2, 1fr)',
-              gap: '16px',
-            }}>
-              {connectedProfiles.map((profile) => (
-                <div
-                  key={profile.id}
-                  style={{
-                    background: 'var(--card)',
-                    border: '1px solid var(--border)',
-                    borderRadius: '12px',
-                    padding: '16px',
-                  }}
-                >
-                  <div style={{ marginBottom: '12px' }}>
-                    <h3 style={{
-                      fontSize: '18px',
-                      fontWeight: 600,
-                      marginBottom: '4px',
-                      fontFamily: 'var(--font-display)',
-                      color: 'var(--text)',
-                    }}>
-                      {profile.display_name || profile.username}
-                    </h3>
-                    <p style={{
-                      fontSize: '14px',
-                      color: 'var(--text2)',
-                      marginBottom: '8px',
-                    }}>
-                      @{profile.username}
-                    </p>
-                    {profile.status_tags && profile.status_tags.length > 0 && (
-                      <p style={{
-                        fontSize: '12px',
-                        color: 'var(--text2)',
-                        fontStyle: 'italic',
-                      }}>
-                        {profile.status_tags.join(', ')}
-                      </p>
-                    )}
-                  </div>
-                  
-                  <a
-                    href={`/connect/messages?with=${profile.id}`}
-                    style={{
-                      display: 'block',
-                      width: '100%',
-                      padding: '8px 16px',
-                      background: 'var(--green)',
-                      color: 'white',
-                      border: '1px solid var(--green)',
-                      borderRadius: '6px',
-                      fontSize: '14px',
-                      fontWeight: 500,
-                      cursor: 'pointer',
-                      fontFamily: 'var(--font-body)',
-                      textAlign: 'center',
-                      textDecoration: 'none',
-                      transition: 'all 0.2s ease',
-                    }}
-                    onMouseOver={(e) => {
-                      e.currentTarget.style.background = 'transparent'
-                      e.currentTarget.style.color = 'var(--green)'
-                    }}
-                    onMouseOut={(e) => {
-                      e.currentTarget.style.background = 'var(--green)'
-                      e.currentTarget.style.color = 'white'
-                    }}
-                  >
-                    Message
-                  </a>
-                </div>
-              ))}
-            </div>
           </div>
         )}
       </div>
