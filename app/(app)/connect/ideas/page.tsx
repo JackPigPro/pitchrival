@@ -1,4 +1,6 @@
+import IdeasPageClient from './IdeasPageClient'
+
 export default function IdeasPage() {
-  return <main className="blank-page" />
+  return <IdeasPageClient />
 }
 
