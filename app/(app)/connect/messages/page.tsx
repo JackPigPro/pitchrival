@@ -1,3 +1,5 @@
+import MessagesClient from './MessagesClient'
+
 export default function MessagesPage() {
-  return <main className="blank-page" />
+  return <MessagesClient />
 }

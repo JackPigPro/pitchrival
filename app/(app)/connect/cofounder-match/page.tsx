@@ -1,4 +1,5 @@
-export default function CoFounderMatchPage() {
-  return <main className="blank-page" />
-}
+import CofounderMatchClient from './CofounderMatchClient'
 
+export default function CoFounderMatchPage() {
+  return <CofounderMatchClient />
+}

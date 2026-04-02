@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { createClient } from '@/utils/supabase/client'
+import NotificationsBell from '@/components/NotificationsBell'
 
 export default function TopNavClient({
   user,
@@ -248,9 +249,10 @@ export default function TopNavClient({
         </>
       </div>
 
-      <div className="nav-right">
+      <div className="nav-right" style={{ position: 'relative' }}>
         {user ? (
           <>
+            <NotificationsBell />
             <span style={{ fontSize: '13px', color: 'var(--text2)', fontWeight: 700 }}>
               {user.name ?? user.email ?? 'Account'}
             </span>

@@ -92,6 +92,7 @@ export interface Database {
           twitter?: string
           linkedin?: string
           github?: string
+          message_preference?: 'anyone' | 'cofounders_only' | 'nobody'
           onboarding_complete?: boolean
           created_at: string
         }
@@ -107,6 +108,7 @@ export interface Database {
           twitter?: string
           linkedin?: string
           github?: string
+          message_preference?: 'anyone' | 'cofounders_only' | 'nobody'
           onboarding_complete?: boolean
           created_at?: string
         }
@@ -122,6 +124,7 @@ export interface Database {
           twitter?: string
           linkedin?: string
           github?: string
+          message_preference?: 'anyone' | 'cofounders_only' | 'nobody'
           onboarding_complete?: boolean
           created_at?: string
         }
