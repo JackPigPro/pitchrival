@@ -12,6 +12,8 @@ interface IdeasFeedProps {
   onSortChange: (sort: SortOption) => void
   currentUserId: string
   ideasLoaded: boolean
+  activeTab: 'public' | 'my'
+  onTabChange: (tab: 'public' | 'my') => void
 }
 
 export default function IdeasFeed({ 
@@ -21,7 +23,9 @@ export default function IdeasFeed({
   onIdeaDelete, 
   onSortChange,
   currentUserId,
-  ideasLoaded
+  ideasLoaded,
+  activeTab,
+  onTabChange
 }: IdeasFeedProps) {
   const [currentSort, setCurrentSort] = useState<SortOption>('latest')
 
@@ -36,11 +40,24 @@ export default function IdeasFeed({
     const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000)
 
     if (diffInSeconds < 60) return 'just now'
-    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes ago`
-    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`
-    if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)} days ago`
-    if (diffInSeconds < 2592000) return `${Math.floor(diffInSeconds / 604800)} weeks ago`
-    return `${Math.floor(diffInSeconds / 2592000)} months ago`
+    
+    const diffInMinutes = Math.floor(diffInSeconds / 60)
+    if (diffInMinutes < 60) return `${diffInMinutes} minutes ago`
+    
+    const diffInHours = Math.floor(diffInSeconds / 3600)
+    if (diffInHours < 24) return `${diffInHours} hours ago`
+    
+    const diffInDays = Math.floor(diffInSeconds / 86400)
+    if (diffInDays <= 6) return `${diffInDays} days ago`
+    
+    const diffInWeeks = Math.floor(diffInSeconds / 604800)
+    if (diffInWeeks <= 4) return `${diffInWeeks} weeks ago`
+    
+    const diffInMonths = Math.floor(diffInSeconds / 2592000)
+    if (diffInMonths <= 11) return `${diffInMonths} months ago`
+    
+    const diffInYears = Math.floor(diffInSeconds / 31536000)
+    return `${diffInYears} years ago`
   }
 
   const truncateContent = (content: string, maxLength = 100) => {
@@ -78,6 +95,52 @@ export default function IdeasFeed({
 
   return (
     <div>
+      {/* Tab switcher */}
+      <div style={{
+        display: 'flex',
+        gap: '4px',
+        marginBottom: '24px',
+        padding: '4px',
+        background: 'var(--card2)',
+        border: '1px solid var(--border)',
+        borderRadius: '8px',
+      }}>
+        <button
+          onClick={() => onTabChange('public')}
+          style={{
+            padding: '10px 20px',
+            background: activeTab === 'public' ? 'var(--green)' : 'transparent',
+            color: activeTab === 'public' ? 'white' : 'var(--text)',
+            border: 'none',
+            borderRadius: '6px',
+            fontSize: '14px',
+            fontWeight: 600,
+            cursor: 'pointer',
+            fontFamily: 'var(--font-body)',
+            transition: 'all 0.2s',
+          }}
+        >
+          Public
+        </button>
+        <button
+          onClick={() => onTabChange('my')}
+          style={{
+            padding: '10px 20px',
+            background: activeTab === 'my' ? 'var(--green)' : 'transparent',
+            color: activeTab === 'my' ? 'white' : 'var(--text)',
+            border: 'none',
+            borderRadius: '6px',
+            fontSize: '14px',
+            fontWeight: 600,
+            cursor: 'pointer',
+            fontFamily: 'var(--font-body)',
+            transition: 'all 0.2s',
+          }}
+        >
+          My Ideas
+        </button>
+      </div>
+
       {/* Filter bar */}
       <div style={{
         display: 'flex',
@@ -217,17 +280,36 @@ export default function IdeasFeed({
               )}
 
               {/* Title */}
-              <h3 style={{
-                fontSize: '16px',
-                fontWeight: 700,
-                marginBottom: '8px',
-                fontFamily: 'var(--font-display)',
-                color: 'var(--text)',
-                lineHeight: 1.3,
-                paddingRight: idea.user_id === currentUserId ? '100px' : '0',
-              }}>
-                {idea.title}
-              </h3>
+              <div style={{ position: 'relative', marginBottom: '8px' }}>
+                {!idea.is_public && activeTab === 'my' && (
+                  <span style={{
+                    position: 'absolute',
+                    top: '-8px',
+                    left: '0',
+                    background: 'var(--orange)',
+                    color: 'white',
+                    fontSize: '10px',
+                    fontWeight: 600,
+                    padding: '2px 6px',
+                    borderRadius: '4px',
+                    fontFamily: 'var(--font-body)',
+                  }}>
+                    Private
+                  </span>
+                )}
+                <h3 style={{
+                  fontSize: '16px',
+                  fontWeight: 700,
+                  marginBottom: '8px',
+                  fontFamily: 'var(--font-display)',
+                  color: 'var(--text)',
+                  lineHeight: 1.3,
+                  paddingRight: idea.user_id === currentUserId ? '100px' : '0',
+                  paddingTop: !idea.is_public && activeTab === 'my' ? '12px' : '0',
+                }}>
+                  {idea.title}
+                </h3>
+              </div>
 
               {/* Content preview */}
               <p style={{

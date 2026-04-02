@@ -14,6 +14,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const sort = searchParams.get('sort') || 'latest'
     const userId = searchParams.get('userId')
+    const myIdeas = searchParams.get('myIdeas') === 'true'
 
     let query = supabase
       .from('ideas')
@@ -22,11 +23,18 @@ export async function GET(request: NextRequest) {
         idea_likes(id, user_id, created_at),
         idea_comments(id, user_id, parent_id, content, edited_at, created_at)
       `)
-      .eq('is_public', true)
 
-    // If userId is provided, also include private ideas for that user
-    if (userId) {
-      query = query.or(`is_public.eq.true,user_id.eq.${userId}`)
+    if (myIdeas && userId) {
+      // Show only current user's ideas (both public and private)
+      query = query.eq('user_id', userId)
+    } else {
+      // Show only public ideas
+      query = query.eq('is_public', true)
+      
+      // If userId is provided, also include private ideas for that user
+      if (userId) {
+        query = query.or(`is_public.eq.true,user_id.eq.${userId}`)
+      }
     }
 
     query = query.order('created_at', { ascending: false })

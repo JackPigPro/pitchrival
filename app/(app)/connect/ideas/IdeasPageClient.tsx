@@ -9,22 +9,26 @@ import { IdeaWithDetails } from '@/types/database'
 
 export default function IdeasPageClient() {
   const [user, setUser] = useState<any>(null)
+  const [authLoading, setAuthLoading] = useState(true)
   const [ideas, setIdeas] = useState<IdeaWithDetails[]>([])
   const [selectedIdea, setSelectedIdea] = useState<IdeaWithDetails | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [ideasLoaded, setIdeasLoaded] = useState(false)
+  const [activeTab, setActiveTab] = useState<'public' | 'my'>('public')
   const supabase = createClient()
 
   useEffect(() => {
     const getUser = async () => {
       const { data: { user } } = await supabase.auth.getUser()
       setUser(user)
+      setAuthLoading(false)
     }
     getUser()
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setUser(session?.user ?? null)
+      setAuthLoading(false)
     })
 
     return () => subscription.unsubscribe()
@@ -34,13 +38,15 @@ export default function IdeasPageClient() {
     if (user) {
       fetchIdeas()
     }
-  }, [user])
+  }, [user, activeTab])
 
   const fetchIdeas = async (sort = 'latest') => {
     try {
       setError(null)
+      setIdeasLoaded(false)
       
-      const response = await fetch(`/connect/ideas/api/ideas?sort=${sort}&userId=${user?.id}`)
+      const tabParam = activeTab === 'my' ? '&myIdeas=true' : ''
+      const response = await fetch(`/connect/ideas/api/ideas?sort=${sort}&userId=${user?.id}${tabParam}`)
       if (!response.ok) {
         throw new Error('Failed to fetch ideas')
       }
@@ -97,6 +103,35 @@ export default function IdeasPageClient() {
     }
   }
 
+  const handleTabChange = (tab: 'public' | 'my') => {
+    setActiveTab(tab)
+  }
+
+  if (authLoading) {
+    return (
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '100vh',
+        background: 'var(--background)'
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{
+            width: '40px',
+            height: '40px',
+            border: '3px solid var(--border)',
+            borderTop: '3px solid var(--green)',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite',
+            margin: '0 auto 20px'
+          }} />
+          <p style={{ color: 'var(--text2)', fontSize: '16px' }}>Loading...</p>
+        </div>
+      </div>
+    )
+  }
+
   if (!user) {
     return (
       <div style={{ textAlign: 'center', padding: '60px 20px' }}>
@@ -147,6 +182,8 @@ export default function IdeasPageClient() {
           onSortChange={fetchIdeas}
           currentUserId={user.id}
           ideasLoaded={ideasLoaded}
+          activeTab={activeTab}
+          onTabChange={handleTabChange}
         />
       </div>
 
