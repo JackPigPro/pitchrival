@@ -14,21 +14,16 @@ import { createClient } from '@/utils/supabase/client'
  * to ensure consistent sign out behavior across the app.
  */
 export async function signOutUser() {
-  console.log('Starting sign out process...')
   try {
     const supabase = createClient()
-    
-    // Add timeout so it never hangs
-    await Promise.race([
-      supabase.auth.signOut(),
-      new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 3000))
-    ])
-  } catch (error) {
-    console.error('Sign out error:', error)
-  } finally {
-    // Always redirect regardless of whether signOut succeeded
-    window.location.href = '/'
+    supabase.auth.signOut()
+  } catch (e) {
+    // ignore
   }
+  // Clear storage and redirect no matter what
+  localStorage.clear()
+  sessionStorage.clear()
+  window.location.href = '/'
 }
 
 /**
