@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/utils/supabase/client'
+import { useSupabase } from '@/components/SupabaseProvider'
 
 interface Notification {
   id: string
@@ -14,7 +14,7 @@ interface Notification {
 }
 
 export default function NotificationsBell() {
-  const supabase = createClient()
+  const { user, authLoading } = useSupabase()
   const router = useRouter()
   const [open, setOpen] = useState(false)
   const [notifications, setNotifications] = useState<Notification[]>([])
@@ -49,10 +49,26 @@ export default function NotificationsBell() {
     }
   }
 
-  const handleNotificationClick = (notification: Notification) => {
+  const handleNotificationClick = async (notification: Notification) => {
     const route = getNotificationRoute(notification.type)
+    
+    // Mark notification as read
+    try {
+      await fetch(`/connect/notifications/api/notifications/${notification.id}`, {
+        method: 'PATCH'
+      })
+      
+      // Update local state
+      setNotifications(prev => prev.map(n => 
+        n.id === notification.id ? { ...n, read: true } : n
+      ))
+    } catch (error) {
+      console.error('Failed to mark notification as read:', error)
+    }
+    
+    // Navigate and close dropdown
     router.push(route)
-    setOpen(false) // Close dropdown after navigation
+    setOpen(false)
   }
 
   const getTimeAgo = (timestamp: string) => {
@@ -97,6 +113,9 @@ export default function NotificationsBell() {
   }
 
   const clearAllNotifications = async () => {
+    // Store current notifications for rollback
+    const previousNotifications = [...notifications]
+    
     // Optimistic update - clear immediately
     setNotifications([])
     
@@ -105,24 +124,24 @@ export default function NotificationsBell() {
         method: 'DELETE'
       })
       if (!response.ok) {
-        // If the API call fails, we could optionally refetch notifications
+        // If the API call fails, restore notifications
+        setNotifications(previousNotifications)
         console.error('Failed to clear notifications')
       }
     } catch (error) {
+      // If there's an error, restore notifications
+      setNotifications(previousNotifications)
       console.error('Failed to clear notifications:', error)
     }
   }
 
   useEffect(() => {
-    const user = supabase.auth.getUser()
-    user.then(({ data }) => {
-      if (data.user) {
-        fetchNotifications()
-      } else {
-        setLoading(false)
-      }
-    })
-  }, [])
+    if (user) {
+      fetchNotifications()
+    } else if (!authLoading) {
+      setLoading(false)
+    }
+  }, [user, authLoading])
 
   useEffect(() => {
     if (open) {

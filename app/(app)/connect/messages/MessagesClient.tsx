@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { useSupabase } from '@/components/SupabaseProvider'
 
 interface Message {
@@ -26,6 +27,7 @@ interface Conversation {
 
 export default function MessagesClient() {
   const { user, authLoading } = useSupabase()
+  const searchParams = useSearchParams()
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [activeConversation, setActiveConversation] = useState<string | null>(null)
   const [messages, setMessages] = useState<Message[]>([])
@@ -40,6 +42,20 @@ export default function MessagesClient() {
       fetchConversations()
     }
   }, [user])
+
+  // Auto-open conversation if ?with={userId} parameter exists
+  useEffect(() => {
+    if (conversations.length > 0) {
+      const withUserId = searchParams.get('with')
+      if (withUserId) {
+        // Check if this user exists in conversations
+        const conversation = conversations.find(c => c.partner.id === withUserId)
+        if (conversation) {
+          setActiveConversation(withUserId)
+        }
+      }
+    }
+  }, [conversations, searchParams])
 
   useEffect(() => {
     if (activeConversation) {
