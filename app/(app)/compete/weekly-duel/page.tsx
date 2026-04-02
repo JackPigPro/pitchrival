@@ -95,7 +95,7 @@ export default function WeeklyDuelPage() {
         // Fetch all submissions for current duel
         const { data: allSubs } = await supabase
           .from('duel_submissions')
-          .select('id, content, vote_score, vote_count, created_at')
+          .select('id, content, vote_score, vote_count, created_at, user_id')
           .eq('duel_id', currentDuel.id)
           .order('vote_score', { ascending: false })
 

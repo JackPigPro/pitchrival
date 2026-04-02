@@ -20,6 +20,7 @@ interface UserSubmission {
   created_at: string
   final_rank?: number
   elo_awarded?: number
+  user_id: string
 }
 
 interface Winner {
@@ -117,26 +118,27 @@ export default function WeeklyDuelClient({
 
     const timer = setInterval(() => {
       const now = new Date()
-      const timeLeft = votingDeadline.getTime() - now.getTime()
-      
-      if (timeLeft <= 0) {
+      const deadline = new Date(votingDeadline)
+      const diff = deadline.getTime() - now.getTime()
+
+      if (diff <= 0) {
+        const countdownElement = document.getElementById('voting-countdown')
+        if (countdownElement) {
+          countdownElement.textContent = 'Voting has ended'
+        }
         clearInterval(timer)
         return
       }
-      
-      const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24))
-      const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
-      const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60))
-      const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000)
-      
+
+      const hours = Math.floor(diff / (1000 * 60 * 60))
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000)
+
       let timeString = ''
-      if (days > 0) {
-        timeString += `${days} day${days === 1 ? '' : 's'} `
-      }
-      if (days > 0 || hours > 0) {
+      if (hours > 0) {
         timeString += `${hours} hour${hours === 1 ? '' : 's'} `
       }
-      if (days > 0 || hours > 0 || minutes > 0) {
+      if (minutes > 0 || hours > 0) {
         timeString += `${minutes} minute${minutes === 1 ? '' : 's'} `
       }
       timeString += `${seconds} second${seconds === 1 ? '' : 's'}`
@@ -153,14 +155,20 @@ export default function WeeklyDuelClient({
 
   // Vote cooldown timer
   useEffect(() => {
-    if (voteCooldown <= 0) return
+    if (voteCooldown <= 0) {
+      // When cooldown ends, load new pair
+      if (voteCooldown === 0 && votedPairs.size > 0) {
+        loadNewPair()
+      }
+      return
+    }
 
     const timer = setTimeout(() => {
       setVoteCooldown(prev => prev - 1)
     }, 1000)
 
     return () => clearTimeout(timer)
-  }, [voteCooldown])
+  }, [voteCooldown, votedPairs.size])
 
   // Auto-load voting pair when displayState changes to voting
   useEffect(() => {
@@ -168,6 +176,16 @@ export default function WeeklyDuelClient({
       loadNewPair()
     }
   }, [displayState, allSubmissions])
+
+  // Fade out ELO toast after 2 seconds
+  useEffect(() => {
+    if (eloChange !== null) {
+      const timer = setTimeout(() => {
+        setEloChange(null)
+      }, 2000)
+      return () => clearTimeout(timer)
+    }
+  }, [eloChange])
 
   const handleSubmitSubmission = async () => {
     if (!submissionContent.trim()) {
@@ -258,10 +276,7 @@ export default function WeeklyDuelClient({
         newVotedPairs.add(`${loserId}|${winnerId}`)
         setVotedPairs(newVotedPairs)
         
-        // Load new pair after successful vote
-        setTimeout(() => {
-          loadNewPair()
-        }, 1000)
+        // Load new pair after cooldown finishes (handled by cooldown timer)
       } else {
         console.error('Vote failed:', result.error)
       }
@@ -271,13 +286,14 @@ export default function WeeklyDuelClient({
   }
 
   const loadNewPair = () => {
-    // Get all possible pairs that user hasn't voted on
+    // Get all possible pairs that user hasn't voted on, excluding user's own submissions
     const availablePairs: string[] = []
+    const otherUsersSubmissions = allSubmissions.filter(sub => sub.user_id !== currentUserId)
     
-    for (let i = 0; i < allSubmissions.length; i++) {
-      for (let j = i + 1; j < allSubmissions.length; j++) {
-        const pair1 = `${allSubmissions[i].id}|${allSubmissions[j].id}`
-        const pair2 = `${allSubmissions[j].id}|${allSubmissions[i].id}`
+    for (let i = 0; i < otherUsersSubmissions.length; i++) {
+      for (let j = i + 1; j < otherUsersSubmissions.length; j++) {
+        const pair1 = `${otherUsersSubmissions[i].id}|${otherUsersSubmissions[j].id}`
+        const pair2 = `${otherUsersSubmissions[j].id}|${otherUsersSubmissions[i].id}`
         
         if (!votedPairs.has(pair1) && !votedPairs.has(pair2)) {
           availablePairs.push(pair1)
@@ -640,7 +656,7 @@ export default function WeeklyDuelClient({
                         Voting requires at least 2 submissions to generate matchups.
                       </div>
                     </div>
-                  ) : currentPair ? (
+                  ) : currentPair && voteCooldown === 0 ? (
                     <div>
                       <div style={{ fontSize: '20px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '24px', textAlign: 'center' }}>
                         Vote for better submission
@@ -717,7 +733,19 @@ export default function WeeklyDuelClient({
                       )}
 
                       <div style={{ textAlign: 'center', fontSize: '16px', color: 'var(--text2)', fontFamily: 'var(--font-body)' }}>
-                        You've voted on {votedPairs.size} pairs
+                        You've voted on {votedPairs.size} matchup{votedPairs.size !== 1 ? 's' : ''}
+                      </div>
+                    </div>
+                  ) : voteCooldown > 0 ? (
+                    <div style={{ textAlign: 'center', padding: '48px' }}>
+                      <div style={{ fontSize: '48px', fontWeight: 800, fontFamily: 'var(--font-display)', color: 'var(--purple)', marginBottom: '16px' }}>
+                        {voteCooldown}
+                      </div>
+                      <div style={{ fontSize: '20px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '16px' }}>
+                        Loading next matchup...
+                      </div>
+                      <div style={{ fontSize: '16px', color: 'var(--text2)', fontFamily: 'var(--font-body)' }}>
+                        Please wait
                       </div>
                     </div>
                   ) : (
@@ -726,7 +754,7 @@ export default function WeeklyDuelClient({
                         ✓ Complete
                       </div>
                       <div style={{ fontSize: '20px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
-                        You've voted on all available matchups
+                        You've reviewed all available matchups for this week
                       </div>
                     </div>
                   )}
