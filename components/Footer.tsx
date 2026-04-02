@@ -14,8 +14,18 @@ export default function Footer({ onComingSoon, onScrollTo }: FooterProps) {
 
   const handleLandingNavigation = (sectionId: string) => {
     if (pathname === '/') {
-      // Already on landing page, just scroll
-      onScrollTo(sectionId)
+      // Already on landing page, just scroll with center alignment like nav
+      const el = document.getElementById(sectionId)
+      if (!el) return
+      const elRect = el.getBoundingClientRect()
+      const navOffset = 76
+      if (sectionId === 'schools') {
+        window.scrollTo({ top: Math.max(0, elRect.top + window.scrollY - navOffset), behavior: 'smooth' })
+        return
+      }
+      const elCenter = elRect.top + window.scrollY + elRect.height / 2
+      const viewportCenter = window.innerHeight / 2
+      window.scrollTo({ top: elCenter - viewportCenter, behavior: 'smooth' })
     } else {
       // Navigate to landing page first, then scroll
       router.push(`/#${sectionId}`)
@@ -65,10 +75,10 @@ export default function Footer({ onComingSoon, onScrollTo }: FooterProps) {
         <div>
           <div className="sf-col-title">Company</div>
           <div className="sf-col-links">
-            <Link href="/about">About PitchRival</Link>
-            <Link href="/privacy">Privacy Policy</Link>
-            <Link href="/terms">Terms of Service</Link>
-            <Link href="/contact">Contact</Link>
+            <Link href="/about" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>About PitchRival</Link>
+            <Link href="/privacy" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>Privacy Policy</Link>
+            <Link href="/terms" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>Terms of Service</Link>
+            <Link href="/contact" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>Contact</Link>
           </div>
         </div>
       </div>

@@ -13,8 +13,8 @@ export default function ConditionalFooter({ onComingSoon, onScrollTo }: Conditio
   const { isAuthenticated, authLoading } = useUser()
   const pathname = usePathname()
   
-  // Don't render anything while auth is loading to prevent flash
-  if (authLoading) {
+  // Don't render anything while auth is loading to prevent flash, EXCEPT on landing page
+  if (authLoading && pathname !== '/') {
     return null
   }
   
@@ -26,8 +26,8 @@ export default function ConditionalFooter({ onComingSoon, onScrollTo }: Conditio
     // When logged out: show footer on every page
     showFooter = true
   } else {
-    // When logged in: only show on specific pages
-    showFooter = pathname === '/about' || pathname === '/privacy' || pathname === '/terms' || pathname === '/contact'
+    // When logged in: show footer on landing page and specific pages
+    showFooter = pathname === '/' || pathname === '/about' || pathname === '/privacy' || pathname === '/terms' || pathname === '/contact'
   }
   
   if (!showFooter) {

@@ -14,7 +14,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(redirectUrl)
   }
 
-  // Check authentication for protected routes (except /onboarding)
+  // Check authentication for protected routes (except /onboarding and /compete/leaderboard)
   const protectedRoutes = [
     '/compete',
     '/connect',
@@ -28,7 +28,10 @@ export async function middleware(request: NextRequest) {
   
   const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route))
   
-  if (isProtectedRoute && !user) {
+  // Allow access to /compete/leaderboard without authentication
+  const isLeaderboardRoute = pathname === '/compete/leaderboard'
+  
+  if (isProtectedRoute && !user && !isLeaderboardRoute) {
     const redirectUrl = request.nextUrl.clone()
     redirectUrl.pathname = '/login'
     return NextResponse.redirect(redirectUrl)

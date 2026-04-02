@@ -158,13 +158,13 @@ export default function TopNavClient({
               pointerEvents: open === 'connect' ? 'auto' : 'none',
             }}
           >
-            <Link href="/connect/cofounder-match" scroll className="topnav-dropdown-link" style={dropdownLinkStyle} onClick={handleNavPageClick}>
+            <Link href="/login?mode=signup" className="topnav-dropdown-link" style={dropdownLinkStyle} onClick={handleNavPageClick}>
               Co-founder Match
             </Link>
-            <Link href="/connect/messages" scroll className="topnav-dropdown-link" style={dropdownLinkStyle} onClick={handleNavPageClick}>
+            <Link href="/login?mode=signup" className="topnav-dropdown-link" style={dropdownLinkStyle} onClick={handleNavPageClick}>
               Messages
             </Link>
-            <Link href="/connect/ideas" scroll className="topnav-dropdown-link" style={dropdownLinkStyle} onClick={handleNavPageClick}>
+            <Link href="/login?mode=signup" className="topnav-dropdown-link" style={dropdownLinkStyle} onClick={handleNavPageClick}>
               Ideas
             </Link>
           </div>
@@ -203,7 +203,7 @@ export default function TopNavClient({
               pointerEvents: open === 'compete' ? 'auto' : 'none',
             }}
           >
-            <Link href="/compete/weekly-duel" scroll className="topnav-dropdown-link" style={dropdownLinkStyle} onClick={handleNavPageClick}>
+            <Link href="/login?mode=signup" className="topnav-dropdown-link" style={dropdownLinkStyle} onClick={handleNavPageClick}>
               Weekly Duel
             </Link>
             <Link href="/compete/leaderboard" scroll className="topnav-dropdown-link" style={dropdownLinkStyle} onClick={handleNavPageClick}>
@@ -223,7 +223,7 @@ export default function TopNavClient({
               href="/#learn"
               onClick={(e) => {
                 e.preventDefault()
-                scrollToLandingSection('learn', 'top')
+                scrollToLandingSection('learn', 'center')
               }}
               style={menuItemStyle}
             >
