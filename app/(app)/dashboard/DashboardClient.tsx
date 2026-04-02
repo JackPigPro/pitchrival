@@ -16,7 +16,7 @@ interface UserStats {
   likes_received: number
   comments_count: number
   rank?: string
-  elo_rating?: number
+  elo?: number
 }
 
 export default function DashboardClient() {
@@ -113,7 +113,7 @@ export default function DashboardClient() {
     ideas_count: 0,
     likes_received: 0,
     comments_count: 0,
-    elo_rating: null
+    elo: 0
   }
 
   const displayProfile = { username: user?.user_metadata?.username || '', display_name: user?.user_metadata?.display_name || '', created_at: user?.created_at || new Date().toISOString() }
@@ -238,7 +238,7 @@ export default function DashboardClient() {
               </div>
               <div style={{ textAlign: 'center' }}>
                 <div style={{ fontSize: '24px', fontWeight: 700, color: 'var(--orange)' }}>
-                  {displayStats.elo_rating || '--'}
+                  {displayStats.elo || '--'}
                 </div>
                 <div style={{ fontSize: '14px', color: 'var(--text2)' }}>ELO Rating</div>
               </div>
