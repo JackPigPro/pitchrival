@@ -19,28 +19,15 @@ export default function IdeasPageClient() {
   const [activeTab, setActiveTab] = useState<'public' | 'my'>('public')
   const supabase = createClient()
 
-  // Auth state management without blocking
   useEffect(() => {
-    const getUser = async () => {
-      console.log('IdeasPage: getUser called')
-      try {
-        const { data: { user }, error } = await supabase.auth.getUser()
-        console.log('IdeasPage: getUser result', user, error)
-        setUser(user)
-        setAuthLoading(false)
-      } catch (err) {
-        console.log('IdeasPage: getUser threw', err)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setUser(session?.user ?? null)
         setAuthLoading(false)
       }
-    }
-    getUser()
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      setUser(session?.user ?? null)
-    })
-
+    )
     return () => subscription.unsubscribe()
-  }, [supabase.auth])
+  }, [])
 
   // Load cached ideas on mount for instant display
   useEffect(() => {
