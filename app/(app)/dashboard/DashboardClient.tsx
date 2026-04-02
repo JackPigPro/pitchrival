@@ -21,6 +21,7 @@ interface UserStats {
 
 export default function DashboardClient() {
   const [user, setUser] = useState<any>(null)
+  const [authLoading, setAuthLoading] = useState(true)
   const [userStats, setUserStats] = useState<UserStats | null>(null)
   const supabase = createClient()
 
@@ -29,6 +30,7 @@ export default function DashboardClient() {
     const getUser = async () => {
       const { data: { user } } = await supabase.auth.getUser()
       setUser(user)
+      setAuthLoading(false)
       if (user) {
         fetchUserStats(user.id)
       }
@@ -64,6 +66,10 @@ export default function DashboardClient() {
       month: 'long', 
       day: 'numeric' 
     })
+  }
+
+  if (authLoading) {
+    return null
   }
 
   if (user === null) {
