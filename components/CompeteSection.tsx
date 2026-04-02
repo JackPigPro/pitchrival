@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 
 interface CompeteSectionProps {
   onComingSoon: () => void
@@ -53,7 +54,7 @@ export default function CompeteSection({ onComingSoon }: CompeteSectionProps) {
             <span>Anonymous judging — nobody knows whose work they&apos;re rating</span>
           </div>
         </div>
-        <button className="ft-cta g" onClick={onComingSoon}>⚡ Start Competing</button>
+        <Link href="/login?mode=signup" className="ft-cta g" style={{ textDecoration: 'none' }}>⚡ Start Competing</Link>
       </div>
 
       {/* Interactive visual side */}

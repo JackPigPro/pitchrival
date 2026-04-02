@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 
 interface ConnectSectionProps {
   onComingSoon: () => void
@@ -41,7 +42,7 @@ export default function ConnectSection({ onComingSoon }: ConnectSectionProps) {
             <span>DM builders, form teams, go from idea to building partner in days</span>
           </div>
         </div>
-        <button className="ft-cta b" onClick={onComingSoon}>🤝 Start Connecting</button>
+        <Link href="/login?mode=signup" className="ft-cta b" style={{ textDecoration: 'none' }}>🤝 Start Connecting</Link>
       </div>
 
       {/* Interactive visual side */}

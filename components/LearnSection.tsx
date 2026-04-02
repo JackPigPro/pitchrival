@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 
 interface LearnSectionProps {
   onComingSoon: () => void
@@ -56,7 +57,7 @@ export default function LearnSection({ onComingSoon }: LearnSectionProps) {
             <span>School mode — teachers can assign challenges and track progress</span>
           </div>
         </div>
-        <button className="ft-cta p" onClick={onComingSoon}>📚 Start Learning Free</button>
+        <Link href="/login?mode=signup" className="ft-cta p" style={{ textDecoration: 'none' }}>📚 Start Learning Free</Link>
       </div>
 
       {/* Interactive visual side */}
