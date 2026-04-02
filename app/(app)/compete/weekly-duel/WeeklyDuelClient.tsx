@@ -62,6 +62,7 @@ export default function WeeklyDuelClient({
   const [votedPairs, setVotedPairs] = useState(new Set<string>())
   const [currentPair, setCurrentPair] = useState<{ a: string; b: string } | null>(null)
   const [eloChange, setEloChange] = useState<number | null>(null)
+  const [availablePairs, setAvailablePairs] = useState<string[]>([])
   const [adminPreviewState, setAdminPreviewState] = useState<'active' | 'voting' | 'results'>('active')
   const [hasSubmittedPreview, setHasSubmittedPreview] = useState(false)
 
@@ -287,7 +288,7 @@ export default function WeeklyDuelClient({
 
   const loadNewPair = () => {
     // Get all possible pairs that user hasn't voted on, excluding user's own submissions
-    const availablePairs: string[] = []
+    const availablePairsList: string[] = []
     const otherUsersSubmissions = allSubmissions.filter(sub => sub.user_id !== currentUserId)
     
     for (let i = 0; i < otherUsersSubmissions.length; i++) {
@@ -296,22 +297,25 @@ export default function WeeklyDuelClient({
         const pair2 = `${otherUsersSubmissions[j].id}|${otherUsersSubmissions[i].id}`
         
         if (!votedPairs.has(pair1) && !votedPairs.has(pair2)) {
-          availablePairs.push(pair1)
+          availablePairsList.push(pair1)
         }
       }
     }
     
-    if (availablePairs.length === 0) {
+    setAvailablePairs(availablePairsList)
+    
+    if (availablePairsList.length === 0) {
       setCurrentPair(null)
-      return
+      return availablePairsList
     }
     
     // Select random pair
-    const randomIndex = Math.floor(Math.random() * availablePairs.length)
-    const selectedPair = availablePairs[randomIndex]
+    const randomIndex = Math.floor(Math.random() * availablePairsList.length)
+    const selectedPair = availablePairsList[randomIndex]
     const [sub1, sub2] = selectedPair.split('|')
     
     setCurrentPair({ a: sub1, b: sub2 })
+    return availablePairsList
   }
 
   const formatDate = (dateString: string) => {
@@ -573,18 +577,26 @@ export default function WeeklyDuelClient({
                   Loading countdown...
                 </div>
               </div>
-            )}
           </div>
         )}
+      </div>
+    )}
+    
+    {/* Voting State */}
+    {displayState === 'voting' && currentDuel && (
+      <div>
+        {/* Always show matchup counter */}
+        <div style={{ textAlign: 'center', fontSize: '14px', color: 'var(--text2)', fontFamily: 'var(--font-body)', marginBottom: '16px' }}>
+          Matchups reviewed: {votedPairs.size}
+        </div>
         
-        {/* Voting State */}
-        {displayState === 'voting' && currentDuel && (
-          <div style={{ marginBottom: '24px' }}>
-            <div id="voting-countdown" style={{ fontSize: '24px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--purple)', textAlign: 'center', padding: '16px', borderRadius: '8px', background: 'var(--purple-tint)', border: '1px solid var(--purple)' }}>
-              Loading countdown...
-            </div>
+        <div style={{ marginBottom: '24px' }}>
+          <div id="voting-countdown" style={{ fontSize: '24px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--purple)', textAlign: 'center', padding: '16px', borderRadius: '8px', background: 'var(--purple-tint)', border: '1px solid var(--purple)' }}>
+            Loading countdown...
           </div>
-        )}
+        </div>
+      </div>
+    )}
 
         {/* Results State */}
         {displayState === 'results' && currentDuel && (
@@ -736,7 +748,7 @@ export default function WeeklyDuelClient({
                         You've voted on {votedPairs.size} matchup{votedPairs.size !== 1 ? 's' : ''}
                       </div>
                     </div>
-                  ) : voteCooldown > 0 ? (
+                  ) : voteCooldown > 0 && availablePairs.length > 0 ? (
                     <div style={{ textAlign: 'center', padding: '48px' }}>
                       <div style={{ fontSize: '48px', fontWeight: 800, fontFamily: 'var(--font-display)', color: 'var(--purple)', marginBottom: '16px' }}>
                         {voteCooldown}
@@ -1096,7 +1108,8 @@ export default function WeeklyDuelClient({
         <div style={{
           position: 'fixed',
           top: '20px',
-          right: '20px',
+          left: '50%',
+          transform: 'translateX(-50%)',
           background: 'var(--green)',
           color: 'white',
           padding: '12px 16px',
