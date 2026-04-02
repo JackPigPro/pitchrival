@@ -8,12 +8,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const supabase = createClient()
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setAuthLoading(false)
-      }
-    )
-    return () => subscription.unsubscribe()
+    const init = async () => {
+      await supabase.auth.getUser()
+      setAuthLoading(false)
+    }
+    init()
   }, [])
 
   if (authLoading) return null
