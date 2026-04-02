@@ -45,9 +45,9 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    // Filter out users with any requests from the profiles array
+    // Filter out users with any requests from the profiles array (but keep current user)
     const filteredProfiles = profiles?.filter(profile => 
-      profile.id !== user.id && !allRequestedUserIds.has(profile.id)
+      !allRequestedUserIds.has(profile.id)
     ) || []
 
     // Fetch current user's profile to check if they are listed

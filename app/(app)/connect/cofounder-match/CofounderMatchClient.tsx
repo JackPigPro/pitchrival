@@ -221,21 +221,15 @@ export default function CofounderMatchClient() {
 
   const incomingRequests = getIncomingRequests()
   
-  // Include current user in profiles if they are listed
-  const allProfiles = isListed && user && userProfile ? [
-    {
-      id: user.id,
-      username: userProfile.username,
-      display_name: userProfile.display_name,
-      status_tags: userProfile.status_tags,
-      created_at: userProfile.created_at
-    } as Profile,
-    ...profiles
-  ] : profiles
+  // Separate current user from other profiles
+  const currentUserProfile = profiles.find(profile => profile.id === user?.id)
+  const otherProfiles = profiles.filter(profile => profile.id !== user?.id)
   
-  const visibleProfiles = allProfiles.filter(profile => 
-    !hasAnyRequest(profile.id)
-  )
+  // Show current user at top if they are listed, then other users
+  const visibleProfiles = [
+    ...(currentUserProfile ? [currentUserProfile] : []),
+    ...otherProfiles.filter(profile => !hasAnyRequest(profile.id))
+  ]
 
   return (
     <div style={{ display: 'flex', gap: '24px', height: '100%' }}>
@@ -279,7 +273,7 @@ export default function CofounderMatchClient() {
           }}>
             Finding co-founders...
           </div>
-        ) : !loading && visibleProfiles.length === 0 ? (
+        ) : !loading && visibleProfiles.length === 0 && !currentUserProfile ? (
           <div style={{
             textAlign: 'center',
             padding: '60px 20px',
