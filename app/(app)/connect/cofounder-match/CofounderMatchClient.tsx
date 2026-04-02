@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useSupabase } from '@/components/SupabaseProvider'
+import { useUser } from '@/hooks/useUser'
 
 interface Profile {
   id: string
@@ -20,7 +20,7 @@ interface CofounderRequest {
 }
 
 export default function CofounderMatchClient() {
-  const { user, authLoading } = useSupabase()
+  const { user, profile, authLoading } = useUser()
   const [profiles, setProfiles] = useState<Profile[]>([])
   const [requests, setRequests] = useState<CofounderRequest[]>([])
   const [connectedProfiles, setConnectedProfiles] = useState<Profile[]>([])
@@ -192,13 +192,13 @@ export default function CofounderMatchClient() {
   const incomingRequests = getIncomingRequests()
   
   // Include current user in profiles if they are listed
-  const allProfiles = isListed && user ? [
+  const allProfiles = isListed && user && profile ? [
     {
       id: user.id,
-      username: user.user_metadata?.username || 'unknown',
-      display_name: user.user_metadata?.display_name || user.user_metadata?.username || 'Unknown',
-      status_tags: user.user_metadata?.status_tags || [],
-      created_at: user.created_at
+      username: profile.username,
+      display_name: profile.display_name,
+      status_tags: profile.status_tags,
+      created_at: profile.created_at
     } as Profile,
     ...profiles
   ] : profiles
