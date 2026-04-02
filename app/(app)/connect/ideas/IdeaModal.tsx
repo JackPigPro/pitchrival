@@ -33,7 +33,7 @@ export default function IdeaModal({ idea, onClose, onUpdate, onDelete, currentUs
     // Check if user has liked this idea
     const checkLikeStatus = async () => {
       try {
-        const response = await fetch(`/api/connect/ideas/api/ideas/${idea.id}/like`)
+        const response = await fetch(`/connect/ideas/api/ideas/${idea.id}/like`)
         if (response.ok) {
           const data = await response.json()
           setIsLiked(data.liked)
@@ -50,7 +50,7 @@ export default function IdeaModal({ idea, onClose, onUpdate, onDelete, currentUs
   const fetchComments = async () => {
     try {
       setLoadingComments(true)
-      const response = await fetch(`/api/connect/ideas/api/ideas/${idea.id}/comments`)
+      const response = await fetch(`/connect/ideas/api/ideas/${idea.id}/comments`)
       if (response.ok) {
         const { data } = await response.json()
         setComments(data || [])
@@ -77,7 +77,7 @@ export default function IdeaModal({ idea, onClose, onUpdate, onDelete, currentUs
 
   const handleLike = async () => {
     try {
-      const response = await fetch('/api/connect/ideas/api/ideas/like', {
+      const response = await fetch('/connect/ideas/api/ideas/like', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ idea_id: idea.id }),
@@ -97,7 +97,7 @@ export default function IdeaModal({ idea, onClose, onUpdate, onDelete, currentUs
     try {
       setEditing(true)
       
-      const response = await fetch(`/api/connect/ideas/api/ideas/${idea.id}`, {
+      const response = await fetch(`/connect/ideas/api/ideas/${idea.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -128,7 +128,7 @@ export default function IdeaModal({ idea, onClose, onUpdate, onDelete, currentUs
     }
 
     try {
-      const response = await fetch(`/api/connect/ideas/api/ideas/${idea.id}`, {
+      const response = await fetch(`/connect/ideas/api/ideas/${idea.id}`, {
         method: 'DELETE',
       })
 
@@ -150,7 +150,7 @@ export default function IdeaModal({ idea, onClose, onUpdate, onDelete, currentUs
     try {
       setSubmittingComment(true)
       
-      const response = await fetch(`/api/connect/ideas/api/ideas/${idea.id}/comments`, {
+      const response = await fetch(`/connect/ideas/api/ideas/${idea.id}/comments`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content: newComment.trim() }),
@@ -173,7 +173,7 @@ export default function IdeaModal({ idea, onClose, onUpdate, onDelete, currentUs
     if (!replyContent.trim()) return
 
     try {
-      const response = await fetch(`/api/connect/ideas/api/ideas/${idea.id}/comments`, {
+      const response = await fetch(`/connect/ideas/api/ideas/${idea.id}/comments`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -218,7 +218,7 @@ export default function IdeaModal({ idea, onClose, onUpdate, onDelete, currentUs
     if (!editCommentContent.trim()) return
 
     try {
-      const response = await fetch(`/api/connect/ideas/api/ideas/${idea.id}/comments/${commentId}`, {
+      const response = await fetch(`/connect/ideas/api/ideas/${idea.id}/comments/${commentId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content: editCommentContent.trim() }),
@@ -257,7 +257,7 @@ export default function IdeaModal({ idea, onClose, onUpdate, onDelete, currentUs
     if (!confirm('Are you sure you want to delete this comment?')) return
 
     try {
-      const response = await fetch(`/api/connect/ideas/api/ideas/${idea.id}/comments/${commentId}`, {
+      const response = await fetch(`/connect/ideas/api/ideas/${idea.id}/comments/${commentId}`, {
         method: 'DELETE',
       })
 

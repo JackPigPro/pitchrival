@@ -43,7 +43,7 @@ export default function IdeasPageClient() {
       setLoading(true)
       setError(null)
       
-      const response = await fetch(`/api/connect/ideas/api/ideas?sort=${sort}&userId=${user?.id}`)
+      const response = await fetch(`/connect/ideas/api/ideas?sort=${sort}&userId=${user?.id}`)
       if (!response.ok) {
         throw new Error('Failed to fetch ideas')
       }
@@ -60,7 +60,7 @@ export default function IdeasPageClient() {
 
   const handleCreateIdea = async (ideaData: { title: string; content: string; is_public: boolean }) => {
     try {
-      const response = await fetch('/api/connect/ideas/api/ideas', {
+      const response = await fetch('/connect/ideas/api/ideas', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(ideaData),

@@ -54,7 +54,7 @@ export default function IdeasFeed({
     }
 
     try {
-      const response = await fetch(`/api/connect/ideas/api/ideas/${ideaId}`, {
+      const response = await fetch(`/connect/ideas/api/ideas/${ideaId}`, {
         method: 'DELETE',
       })
 
