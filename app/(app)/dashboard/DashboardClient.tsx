@@ -23,6 +23,7 @@ export default function DashboardClient() {
   const [user, setUser] = useState<any>(null)
   const [authLoading, setAuthLoading] = useState(true)
   const [userStats, setUserStats] = useState<UserStats | null>(null)
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
   const supabase = createClient()
 
   useEffect(() => {
@@ -55,6 +56,7 @@ export default function DashboardClient() {
       console.log('Dashboard: Received data:', data)
       
       setUserStats(data.stats || null)
+      setUserProfile(data.profile || null)
     } catch (err) {
       console.error('Error fetching user data:', err)
     }
@@ -116,7 +118,11 @@ export default function DashboardClient() {
     elo: 0
   }
 
-  const displayProfile = { username: user?.user_metadata?.username || '', display_name: user?.user_metadata?.display_name || '', created_at: user?.created_at || new Date().toISOString() }
+  const displayProfile = { 
+    username: userProfile?.username || user?.user_metadata?.username || '', 
+    display_name: userProfile?.display_name || user?.user_metadata?.display_name || '', 
+    created_at: userProfile?.created_at || user?.created_at || new Date().toISOString() 
+  }
   const displayStats = userStats || skeletonStats
   const isLoadingData = !userStats
 
