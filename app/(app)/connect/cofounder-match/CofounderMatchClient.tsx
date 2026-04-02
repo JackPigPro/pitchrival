@@ -124,30 +124,7 @@ export default function CofounderMatchClient() {
     )
   }
 
-  if (authLoading) {
-    return (
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        height: '100vh',
-        background: 'var(--background)'
-      }}>
-        <div style={{ textAlign: 'center' }}>
-          <div style={{
-            width: '40px',
-            height: '40px',
-            border: '3px solid var(--border)',
-            borderTop: '3px solid var(--green)',
-            borderRadius: '50%',
-            animation: 'spin 1s linear infinite',
-            margin: '0 auto 20px'
-          }} />
-          <p style={{ color: 'var(--text2)', fontSize: '16px' }}>Loading...</p>
-        </div>
-      </div>
-    )
-  }
+  // Remove auth loading blocker - UI shell always renders
 
   if (!user) {
     return (
@@ -205,20 +182,16 @@ export default function CofounderMatchClient() {
           Find Co-founders
         </h2>
 
-        {loading ? (
-          <div style={{ textAlign: 'center', padding: '60px 20px' }}>
-            <div style={{
-              width: '40px',
-              height: '40px',
-              border: '3px solid var(--border)',
-              borderTop: '3px solid var(--green)',
-              borderRadius: '50%',
-              animation: 'spin 1s linear infinite',
-              margin: '0 auto 20px'
-            }} />
-            <p style={{ color: 'var(--text2)', fontSize: '16px' }}>Loading profiles...</p>
+        {loading && profiles.length === 0 ? (
+          <div style={{
+            textAlign: 'center',
+            padding: '40px 20px',
+            color: 'var(--text2)',
+            fontSize: '16px'
+          }}>
+            Finding co-founders...
           </div>
-        ) : visibleProfiles.length === 0 ? (
+        ) : !loading && visibleProfiles.length === 0 ? (
           <div style={{
             textAlign: 'center',
             padding: '60px 20px',
