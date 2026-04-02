@@ -6,34 +6,17 @@ import IdeasFeed from './IdeasFeed'
 import CreateIdeaForm from './CreateIdeaForm'
 import IdeaModal from './IdeaModal'
 import { IdeaWithDetails } from '@/types/database'
+import { useSupabase } from '@/components/SupabaseProvider'
 
 export default function IdeasPageClient() {
-  const [user, setUser] = useState<any>(null)
-  // Remove authLoading blocking - render page shell immediately
-  // const [authLoading, setAuthLoading] = useState(true)
+  const { user, authLoading } = useSupabase()
   const [ideas, setIdeas] = useState<IdeaWithDetails[]>([])
   const [selectedIdea, setSelectedIdea] = useState<IdeaWithDetails | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  // Remove ideasLoaded blocking - render page shell immediately
-  // const [ideasLoaded, setIdeasLoaded] = useState(false)
   const [activeTab, setActiveTab] = useState<'public' | 'my'>('public')
   const supabase = createClient()
 
-  // Auth state management without blocking
-  useEffect(() => {
-    const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      setUser(user)
-    }
-    getUser()
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      setUser(session?.user ?? null)
-    })
-
-    return () => subscription.unsubscribe()
-  }, [supabase.auth])
 
   // Load cached ideas on mount for instant display
   useEffect(() => {
@@ -134,31 +117,9 @@ export default function IdeasPageClient() {
     setActiveTab(tab)
   }
 
-  // Remove authLoading blocking check - render page shell immediately
-  // if (authLoading) {
-  //   return (
-  //     <div style={{ 
-  //       display: 'flex', 
-  //       justifyContent: 'center', 
-  //       alignItems: 'center', 
-  //       height: '100vh',
-  //       background: 'var(--background)'
-  //     }}>
-  //       <div style={{ textAlign: 'center' }}>
-  //         <div style={{
-  //           width: '40px',
-  //           height: '40px',
-  //           border: '3px solid var(--border)',
-  //           borderTop: '3px solid var(--green)',
-  //           borderRadius: '50%',
-  //           animation: 'spin 1s linear infinite',
-  //           margin: '0 auto 20px'
-  //         }} />
-  //         <p style={{ color: 'var(--text2)', fontSize: '16px' }}>Loading...</p>
-  //       </div>
-  //     </div>
-  //   )
-  // }
+  if (authLoading) {
+    return null
+  }
 
   if (!user) {
     return (

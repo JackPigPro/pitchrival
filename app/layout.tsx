@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import './globals.css'
 import TopNav from '@/components/TopNav'
 import { AppStateProvider } from '@/components/AppStateProvider'
+import { SupabaseProvider } from '@/components/SupabaseProvider'
 import PageLayout from '@/components/PageLayout'
 
 export const metadata: Metadata = {
@@ -18,14 +19,16 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <AppStateProvider>
-          <TopNav />
-          <div style={{ paddingTop: '68px' }}>
-            <PageLayout>
-              {children}
-            </PageLayout>
-          </div>
-        </AppStateProvider>
+        <SupabaseProvider>
+          <AppStateProvider>
+            <TopNav />
+            <div style={{ paddingTop: '68px' }}>
+              <PageLayout>
+                {children}
+              </PageLayout>
+            </div>
+          </AppStateProvider>
+        </SupabaseProvider>
       </body>
     </html>
   )
