@@ -860,62 +860,7 @@ export default function AdminDuelManager() {
                 </div>
               )}
 
-              {/* All Submissions */}
-              <div style={{ marginBottom: '32px' }}>
-                <h3 style={{ fontSize: '18px', fontWeight: 600, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '16px' }}>
-                  All Submissions ({duelSubmissions.length})
-                </h3>
-                <div style={{ maxHeight: '500px', overflowY: 'auto' }}>
-                  {duelSubmissions.map((submission) => (
-                    <div key={submission.id} style={{ 
-                      marginBottom: '20px', 
-                      padding: '20px', 
-                      borderRadius: '12px', 
-                      background: 'var(--surface)', 
-                      border: '1px solid var(--border)'
-                    }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
-                        <div>
-                          <div style={{ fontSize: '16px', fontWeight: 600, fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
-                            {submission.username}
-                          </div>
-                          <div style={{ fontSize: '12px', color: 'var(--text2)', fontFamily: 'var(--font-body)', marginTop: '4px' }}>
-                            Submitted: {new Date(submission.created_at).toLocaleDateString()}
-                          </div>
-                        </div>
-                        <div style={{ textAlign: 'right' }}>
-                          <div style={{ fontSize: '16px', fontWeight: 600, fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
-                            Score: {submission.vote_score}
-                          </div>
-                          <div style={{ fontSize: '12px', color: 'var(--text2)', fontFamily: 'var(--font-body)' }}>
-                            {submission.vote_count} votes
-                          </div>
-                          {submission.final_rank && (
-                            <div style={{ fontSize: '12px', color: 'var(--purple)', fontFamily: 'var(--font-display)', fontWeight: 600 }}>
-                              Rank: #{submission.final_rank}
-                            </div>
-                          )}
-                          {submission.elo_awarded && (
-                            <div style={{ fontSize: '12px', color: 'var(--green)', fontFamily: 'var(--font-display)', fontWeight: 600 }}>
-                              +{submission.elo_awarded} ELO
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                      <div style={{ 
-                        fontSize: '16px', 
-                        fontFamily: 'var(--font-body)', 
-                        color: 'var(--text)',
-                        whiteSpace: 'pre-wrap',
-                        lineHeight: '1.5'
-                      }}>
-                        {submission.content}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
+              
               {/* Action Buttons */}
               <div style={{ display: 'flex', gap: '16px', paddingTop: '24px', borderTop: '1px solid var(--border)' }}>
                 <button

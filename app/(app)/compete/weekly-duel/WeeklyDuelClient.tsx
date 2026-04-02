@@ -654,7 +654,7 @@ export default function WeeklyDuelClient({
                   
                   {/* Always show matchup counter */}
                   <div style={{ textAlign: 'center', fontSize: '14px', color: 'var(--text2)', fontFamily: 'var(--font-body)', marginBottom: '16px' }}>
-                    Matchups reviewed: {votedPairs.size}
+                    Matchups reviewed: {Math.floor(votedPairs.size / 2)}
                   </div>
                   
                   {allSubmissions.length < 2 ? (
