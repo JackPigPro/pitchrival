@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
     const { data: profiles, error: profilesError } = await supabase
       .from('profiles')
       .select('*')
-      .ilike('status_tags', '%Open to be a Co-founder%')
+      .contains('status_tags', ['Open to be a Co-founder'])
 
     if (profilesError) {
       console.error('Error fetching profiles:', profilesError)
