@@ -37,7 +37,9 @@ export default function CofounderMatchClient() {
         const currentUser = session?.user ?? null
         setUser(currentUser)
         setAuthLoading(false)
-        if (currentUser) fetchData()
+        if (currentUser) {
+          fetchData()
+        }
       }
     )
     return () => subscription.unsubscribe()

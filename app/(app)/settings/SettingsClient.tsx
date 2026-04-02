@@ -10,6 +10,8 @@ interface Profile {
 }
 
 export default function SettingsClient({ initialProfile }: { initialProfile: Profile | null }) {
+  const [user, setUser] = useState<any>(null)
+  const [authLoading, setAuthLoading] = useState(true)
   const [profile, setProfile] = useState<Profile | null>(initialProfile)
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -18,9 +20,19 @@ export default function SettingsClient({ initialProfile }: { initialProfile: Pro
   const supabase = createClient()
 
   useEffect(() => {
-    if (!profile) {
-      fetchProfile()
-    }
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        const currentUser = session?.user ?? null
+        setUser(currentUser)
+        setAuthLoading(false)
+        if (currentUser) {
+          if (!profile) {
+            fetchProfile()
+          }
+        }
+      }
+    )
+    return () => subscription.unsubscribe()
   }, [])
 
   const fetchProfile = async () => {
@@ -43,20 +55,35 @@ export default function SettingsClient({ initialProfile }: { initialProfile: Pro
   }
 
 
-  if (loading) {
+  if (authLoading) {
+    return null
+  }
+
+  if (!user) {
     return (
       <div className="min-h-screen bg-[var(--bg)] p-4 md:p-8">
         <div className="max-w-2xl mx-auto">
-          <div className="animate-pulse">
-            <div className="h-8 bg-[var(--surface)] rounded w-48 mb-8"></div>
-            <div className="bg-[var(--card)] rounded-xl p-6 space-y-4">
-              <div className="h-6 bg-[var(--surface)] rounded w-32"></div>
-              <div className="space-y-3">
-                <div className="h-20 bg-[var(--surface)] rounded"></div>
-                <div className="h-20 bg-[var(--surface)] rounded"></div>
-                <div className="h-20 bg-[var(--surface)] rounded"></div>
-              </div>
-            </div>
+          <div style={{ textAlign: 'center', padding: '60px 20px' }}>
+            <h2 style={{ fontSize: '24px', fontWeight: 700, marginBottom: '16px', fontFamily: 'var(--font-display)' }}>
+              Please log in to view settings
+            </h2>
+            <p style={{ color: 'var(--text2)', marginBottom: '24px' }}>
+              You need to be signed in to access your settings.
+            </p>
+            <a 
+              href="/login" 
+              style={{
+                display: 'inline-block',
+                padding: '12px 24px',
+                background: 'var(--green)',
+                color: 'white',
+                textDecoration: 'none',
+                borderRadius: '8px',
+                fontWeight: 600,
+              }}
+            >
+              Log In
+            </a>
           </div>
         </div>
       </div>

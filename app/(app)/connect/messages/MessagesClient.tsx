@@ -37,26 +37,24 @@ export default function MessagesClient() {
   const supabase = createClient()
 
   useEffect(() => {
-    const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      setUser(user)
-      setAuthLoading(false)
-    }
-    getUser()
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      setUser(session?.user ?? null)
-      setAuthLoading(false)
-    })
-
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        const currentUser = session?.user ?? null
+        setUser(currentUser)
+        setAuthLoading(false)
+        if (currentUser) {
+          fetchConversations()
+        }
+      }
+    )
     return () => subscription.unsubscribe()
-  }, [supabase.auth])
+  }, [])
 
   useEffect(() => {
-    if (user) {
+    if (user && !authLoading) {
       fetchConversations()
     }
-  }, [user])
+  }, [user, authLoading])
 
   useEffect(() => {
     if (activeConversation) {
