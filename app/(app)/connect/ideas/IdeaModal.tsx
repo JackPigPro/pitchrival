@@ -25,25 +25,11 @@ export default function IdeaModal({ idea, onClose, onUpdate, onDelete, currentUs
   const [editingComment, setEditingComment] = useState<string | null>(null)
   const [editCommentContent, setEditCommentContent] = useState('')
   const [likeCount, setLikeCount] = useState(idea._count?.idea_likes || 0)
-  const [isLiked, setIsLiked] = useState(false)
+  const [isLiked, setIsLiked] = useState(idea.idea_likes?.some(like => like.user_id === currentUserId) || false)
   const [loadingComments, setLoadingComments] = useState(true)
   const [submittingComment, setSubmittingComment] = useState(false)
 
   useEffect(() => {
-    // Check if user has liked this idea
-    const checkLikeStatus = async () => {
-      try {
-        const response = await fetch(`/connect/ideas/api/ideas/${idea.id}/like`)
-        if (response.ok) {
-          const data = await response.json()
-          setIsLiked(data.liked)
-        }
-      } catch (err) {
-        console.error('Error checking like status:', err)
-      }
-    }
-
-    checkLikeStatus()
     fetchComments()
   }, [idea.id])
 
@@ -97,6 +83,12 @@ export default function IdeaModal({ idea, onClose, onUpdate, onDelete, currentUs
     try {
       setEditing(true)
       
+      console.log('Updating idea:', idea.id, {
+        title: editTitle.trim(),
+        content: editContent.trim(),
+        is_public: editIsPublic,
+      })
+      
       const response = await fetch(`/connect/ideas/api/ideas/${idea.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -107,16 +99,21 @@ export default function IdeaModal({ idea, onClose, onUpdate, onDelete, currentUs
         }),
       })
 
+      console.log('Response status:', response.status)
+      
       if (response.ok) {
         const { data } = await response.json()
+        console.log('Updated idea data:', data)
         onUpdate(data)
         setIsEditing(false)
       } else {
-        throw new Error('Failed to update idea')
+        const errorData = await response.json()
+        console.error('Failed to update idea:', errorData)
+        throw new Error(errorData.error || 'Failed to update idea')
       }
     } catch (err) {
       console.error('Error updating idea:', err)
-      alert('Failed to update idea. Please try again.')
+      alert(`Failed to update idea: ${err instanceof Error ? err.message : 'Unknown error'}`)
     } finally {
       setEditing(false)
     }
@@ -150,20 +147,30 @@ export default function IdeaModal({ idea, onClose, onUpdate, onDelete, currentUs
     try {
       setSubmittingComment(true)
       
+      console.log('Submitting comment for idea:', idea.id)
+      console.log('Comment content:', newComment.trim())
+      
       const response = await fetch(`/connect/ideas/api/ideas/${idea.id}/comments`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content: newComment.trim() }),
       })
 
+      console.log('Comment response status:', response.status)
+
       if (response.ok) {
         const { data } = await response.json()
+        console.log('Comment submitted successfully:', data)
         setComments(prev => [...prev, data])
         setNewComment('')
+      } else {
+        const errorData = await response.json()
+        console.error('Failed to submit comment:', errorData)
+        alert(`Failed to submit comment: ${errorData.error || 'Unknown error'}`)
       }
     } catch (err) {
       console.error('Error submitting comment:', err)
-      alert('Failed to submit comment. Please try again.')
+      alert(`Failed to submit comment: ${err instanceof Error ? err.message : 'Unknown error'}`)
     } finally {
       setSubmittingComment(false)
     }

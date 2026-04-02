@@ -13,6 +13,7 @@ export default function IdeasPageClient() {
   const [selectedIdea, setSelectedIdea] = useState<IdeaWithDetails | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [ideasLoaded, setIdeasLoaded] = useState(false)
   const supabase = createClient()
 
   useEffect(() => {
@@ -46,9 +47,11 @@ export default function IdeasPageClient() {
       
       const { data } = await response.json()
       setIdeas(data || [])
+      setIdeasLoaded(true)
     } catch (err) {
       console.error('Error fetching ideas:', err)
       setError('Failed to load ideas')
+      setIdeasLoaded(true)
     }
   }
 
@@ -143,6 +146,7 @@ export default function IdeasPageClient() {
           onIdeaDelete={handleIdeaDelete}
           onSortChange={fetchIdeas}
           currentUserId={user.id}
+          ideasLoaded={ideasLoaded}
         />
       </div>
 

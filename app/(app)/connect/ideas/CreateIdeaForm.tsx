@@ -105,14 +105,33 @@ export default function CreateIdeaForm({ onSubmit }: CreateIdeaFormProps) {
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-            <input
-              type="checkbox"
-              checked={isPublic}
-              onChange={(e) => setIsPublic(e.target.checked)}
-              style={{ margin: 0 }}
-            />
-            <span style={{ fontSize: '14px', color: 'var(--text2)' }}>
-              Public (everyone can see)
+            <div
+              onClick={() => setIsPublic(!isPublic)}
+              style={{
+                position: 'relative',
+                width: '48px',
+                height: '24px',
+                background: isPublic ? 'var(--green)' : 'var(--border)',
+                borderRadius: '12px',
+                cursor: 'pointer',
+                transition: 'background-color 0.2s',
+              }}
+            >
+              <div
+                style={{
+                  position: 'absolute',
+                  top: '2px',
+                  left: isPublic ? '26px' : '2px',
+                  width: '20px',
+                  height: '20px',
+                  background: 'white',
+                  borderRadius: '10px',
+                  transition: 'left 0.2s',
+                }}
+              />
+            </div>
+            <span style={{ fontSize: '14px', color: 'var(--text2)', fontWeight: 500 }}>
+              {isPublic ? 'Public' : 'Private'}
             </span>
           </label>
         </div>

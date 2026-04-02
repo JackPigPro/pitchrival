@@ -46,8 +46,8 @@ export async function PUT(
       .eq('id', id)
       .select(`
         *,
-        profiles(username, display_name),
-        _count: idea_likes(count), idea_comments(count)
+        idea_likes(id, user_id, created_at),
+        idea_comments(id, user_id, parent_id, content, edited_at, created_at)
       `)
       .single()
 
@@ -56,7 +56,29 @@ export async function PUT(
       return NextResponse.json({ error: 'Failed to update idea' }, { status: 500 })
     }
 
-    return NextResponse.json({ data })
+    // Fetch profile for the updated idea
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('id, username, display_name')
+      .eq('id', user.id)
+      .single()
+
+    if (profileError) {
+      console.error('Error fetching profile:', profileError)
+      return NextResponse.json({ error: 'Failed to fetch profile' }, { status: 500 })
+    }
+
+    // Add counts and profile to the response
+    const ideaWithProfile = {
+      ...data,
+      profiles: profile || { username: 'unknown', display_name: 'Unknown User' },
+      _count: {
+        idea_likes: data.idea_likes?.length || 0,
+        idea_comments: data.idea_comments?.length || 0
+      }
+    }
+
+    return NextResponse.json({ data: ideaWithProfile })
   } catch (error) {
     console.error('Error in PUT /api/ideas/[id]:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

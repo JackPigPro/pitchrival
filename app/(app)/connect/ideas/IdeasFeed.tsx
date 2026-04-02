@@ -11,6 +11,7 @@ interface IdeasFeedProps {
   onIdeaDelete: (ideaId: string) => void
   onSortChange: (sort: SortOption) => void
   currentUserId: string
+  ideasLoaded: boolean
 }
 
 export default function IdeasFeed({ 
@@ -19,7 +20,8 @@ export default function IdeasFeed({
   onIdeaUpdate, 
   onIdeaDelete, 
   onSortChange,
-  currentUserId 
+  currentUserId,
+  ideasLoaded
 }: IdeasFeedProps) {
   const [currentSort, setCurrentSort] = useState<SortOption>('latest')
 
@@ -121,7 +123,7 @@ export default function IdeasFeed({
       </div>
 
       {/* Ideas grid */}
-      {ideas.length === 0 ? (
+      {ideasLoaded && ideas.length === 0 ? (
         <div style={{
           textAlign: 'center',
           padding: '60px 20px',
@@ -148,7 +150,7 @@ export default function IdeasFeed({
           gridTemplateColumns: 'repeat(2, 1fr)',
           gap: '16px',
         }}>
-          {ideas.map((idea) => (
+          {ideasLoaded && ideas.map((idea) => (
             <div
               key={idea.id}
               onClick={() => onIdeaClick(idea)}
