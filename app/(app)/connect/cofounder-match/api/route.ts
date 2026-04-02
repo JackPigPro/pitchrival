@@ -33,7 +33,24 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to fetch cofounder requests' }, { status: 500 })
     }
 
-    return NextResponse.json({ profiles, requests })
+    // Build a Set of user IDs who are already connected to the current user (accepted requests only)
+    const connectedUserIds = new Set<string>()
+    requests?.forEach(request => {
+      if (request.status === 'accepted') {
+        if (request.sender_id === user.id) {
+          connectedUserIds.add(request.receiver_id)
+        } else {
+          connectedUserIds.add(request.sender_id)
+        }
+      }
+    })
+
+    // Filter out connected users from the profiles array
+    const filteredProfiles = profiles?.filter(profile => 
+      profile.id !== user.id && !connectedUserIds.has(profile.id)
+    ) || []
+
+    return NextResponse.json({ profiles: filteredProfiles, requests })
   } catch (error) {
     console.error('Error in GET /api/cofounder-match:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
@@ -130,7 +147,7 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to update cofounder request' }, { status: 500 })
     }
 
-    // If accepted, send notification to sender
+    // If accepted, send notification to sender and create initial message
     if (action === 'accept') {
       const { error: notificationError } = await supabase
         .from('notifications')
@@ -146,6 +163,20 @@ export async function PATCH(request: NextRequest) {
       if (notificationError) {
         console.error('Error creating acceptance notification:', notificationError)
         // Don't fail the request if notification fails
+      }
+
+      // Create the first message in the conversation
+      const { error: messageError } = await supabase
+        .from('messages')
+        .insert({
+          sender_id: user.id, // The receiver (person who accepted)
+          receiver_id: updatedRequest.sender_id, // The original sender
+          content: "You are now connected as co-founders! Start the conversation."
+        })
+
+      if (messageError) {
+        console.error('Error creating initial message:', messageError)
+        // Don't fail the request if message creation fails
       }
     }
 

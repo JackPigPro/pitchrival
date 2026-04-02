@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
 
 interface Notification {
@@ -14,6 +15,7 @@ interface Notification {
 
 export default function NotificationsBell() {
   const supabase = createClient()
+  const router = useRouter()
   const [open, setOpen] = useState(false)
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [loading, setLoading] = useState(true)
@@ -29,6 +31,28 @@ export default function NotificationsBell() {
       case 'new_message': return '✉️'
       default: return '🔔'
     }
+  }
+
+  const getNotificationRoute = (type: Notification['type']) => {
+    switch (type) {
+      case 'idea_liked':
+      case 'idea_commented':
+      case 'comment_replied':
+        return '/connect/ideas'
+      case 'cofounder_request_received':
+      case 'cofounder_request_accepted':
+        return '/connect/cofounder-match'
+      case 'new_message':
+        return '/connect/messages'
+      default:
+        return '/connect'
+    }
+  }
+
+  const handleNotificationClick = (notification: Notification) => {
+    const route = getNotificationRoute(notification.type)
+    router.push(route)
+    setOpen(false) // Close dropdown after navigation
   }
 
   const getTimeAgo = (timestamp: string) => {
@@ -73,12 +97,16 @@ export default function NotificationsBell() {
   }
 
   const clearAllNotifications = async () => {
+    // Optimistic update - clear immediately
+    setNotifications([])
+    
     try {
       const response = await fetch('/connect/notifications/api/notifications', {
         method: 'DELETE'
       })
-      if (response.ok) {
-        setNotifications([])
+      if (!response.ok) {
+        // If the API call fails, we could optionally refetch notifications
+        console.error('Failed to clear notifications')
       }
     } catch (error) {
       console.error('Failed to clear notifications:', error)
@@ -227,7 +255,11 @@ export default function NotificationsBell() {
             Array.isArray(notifications) ? notifications.map((notification) => (
               <div
                 key={notification.id}
-                style={notification.read ? notificationRowStyle : unreadRowStyle}
+                style={{
+                  ...notification.read ? notificationRowStyle : unreadRowStyle,
+                  cursor: 'pointer'
+                }}
+                onClick={() => handleNotificationClick(notification)}
               >
                 <span style={{ fontSize: '16px' }}>{getNotificationIcon(notification.type)}</span>
                 <div style={{ flex: 1, minWidth: 0 }}>

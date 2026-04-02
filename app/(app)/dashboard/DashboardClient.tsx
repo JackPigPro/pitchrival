@@ -21,24 +21,25 @@ interface UserStats {
 
 export default function DashboardClient() {
   const [user, setUser] = useState<any>(null)
-  const [authLoading, setAuthLoading] = useState(true)
+  // Remove authLoading blocking - render page shell immediately
+  // const [authLoading, setAuthLoading] = useState(true)
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
   const [userStats, setUserStats] = useState<UserStats | null>(null)
-  const [loading, setLoading] = useState(true)
+  // Remove blocking loading state
+  // const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const supabase = createClient()
 
+  // Auth state management without blocking
   useEffect(() => {
     const getUser = async () => {
       const { data: { user } } = await supabase.auth.getUser()
       setUser(user)
-      setAuthLoading(false)
     }
     getUser()
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setUser(session?.user ?? null)
-      setAuthLoading(false)
     })
 
     return () => subscription.unsubscribe()
@@ -53,22 +54,29 @@ export default function DashboardClient() {
   const fetchUserData = async () => {
     try {
       setError(null)
-      setLoading(true)
+      // Remove setLoading(true) - no blocking loading
       
       // Fetch user profile and stats
-      const response = await fetch('/dashboard/api')
+      const apiUrl = '/dashboard/api'
+      console.log('Dashboard: Fetching from URL:', apiUrl)
+      
+      const response = await fetch(apiUrl)
+      console.log('Dashboard: Response status:', response.status)
+      
       if (!response.ok) {
-        throw new Error('Failed to fetch user data')
+        throw new Error(`Failed to fetch user data: ${response.status} ${response.statusText}`)
       }
       
       const data = await response.json()
+      console.log('Dashboard: Received data:', data)
+      
       setUserProfile(data.profile || null)
       setUserStats(data.stats || null)
-      setLoading(false)
+      // Remove setLoading(false) - no blocking loading
     } catch (err) {
       console.error('Error fetching user data:', err)
       setError('Failed to load dashboard data')
-      setLoading(false)
+      // Remove setLoading(false) - no blocking loading
     }
   }
 
@@ -81,30 +89,31 @@ export default function DashboardClient() {
     })
   }
 
-  if (authLoading) {
-    return (
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        height: '100vh',
-        background: 'var(--background)'
-      }}>
-        <div style={{ textAlign: 'center' }}>
-          <div style={{
-            width: '40px',
-            height: '40px',
-            border: '3px solid var(--border)',
-            borderTop: '3px solid var(--green)',
-            borderRadius: '50%',
-            animation: 'spin 1s linear infinite',
-            margin: '0 auto 20px'
-          }} />
-          <p style={{ color: 'var(--text2)', fontSize: '16px' }}>Loading...</p>
-        </div>
-      </div>
-    )
-  }
+  // Remove authLoading blocking check - render page shell immediately
+  // if (authLoading) {
+  //   return (
+  //     <div style={{ 
+  //       display: 'flex', 
+  //       justifyContent: 'center', 
+  //       alignItems: 'center', 
+  //       height: '100vh',
+  //       background: 'var(--background)'
+  //     }}>
+  //       <div style={{ textAlign: 'center' }}>
+  //         <div style={{
+  //           width: '40px',
+  //           height: '40px',
+  //           border: '3px solid var(--border)',
+  //           borderTop: '3px solid var(--green)',
+  //           borderRadius: '50%',
+  //           animation: 'spin 1s linear infinite',
+  //           margin: '0 auto 20px'
+  //         }} />
+  //         <p style={{ color: 'var(--text2)', fontSize: '16px' }}>Loading...</p>
+  //       </div>
+  //     </div>
+  //   )
+  // }
 
   if (!user) {
     return (
@@ -144,6 +153,24 @@ export default function DashboardClient() {
     )
   }
 
+  // Skeleton data for immediate rendering
+  const skeletonProfile = {
+    username: '',
+    display_name: '',
+    created_at: new Date().toISOString()
+  }
+  
+  const skeletonStats = {
+    ideas_count: 0,
+    likes_received: 0,
+    comments_count: 0,
+    elo_rating: null
+  }
+
+  const displayProfile = userProfile || skeletonProfile
+  const displayStats = userStats || skeletonStats
+  const isLoadingData = !userProfile || !userStats
+
   return (
     <div style={{ padding: '24px', maxWidth: '1200px', margin: '0 auto' }}>
       {/* Header */}
@@ -158,31 +185,19 @@ export default function DashboardClient() {
           Dashboard
         </h1>
         <p style={{ color: 'var(--text2)', fontSize: '16px' }}>
-          Welcome back, {userProfile?.display_name || userProfile?.username || 'User'}!
+          Welcome back, {displayProfile.display_name || displayProfile.username || 'User'}!
         </p>
       </div>
 
-      {loading ? (
-        <div style={{ textAlign: 'center', padding: '60px 20px' }}>
-          <div style={{
-            width: '40px',
-            height: '40px',
-            border: '3px solid var(--border)',
-            borderTop: '3px solid var(--green)',
-            borderRadius: '50%',
-            animation: 'spin 1s linear infinite',
-            margin: '0 auto 20px'
-          }} />
-          <p style={{ color: 'var(--text2)', fontSize: '16px' }}>Loading dashboard...</p>
-        </div>
-      ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
           {/* Profile Card */}
           <div style={{
             background: 'var(--card)',
             border: '1px solid var(--border)',
             borderRadius: '12px',
             padding: '24px',
+            opacity: isLoadingData ? 0.6 : 1,
+            transition: 'opacity 0.2s'
           }}>
             <h2 style={{ 
               fontSize: '20px', 
@@ -193,32 +208,46 @@ export default function DashboardClient() {
             }}>
               Profile
             </h2>
-            {userProfile ? (
-              <div>
-                <div style={{ marginBottom: '12px' }}>
-                  <span style={{ color: 'var(--text2)', fontSize: '14px' }}>Username:</span>
-                  <span style={{ marginLeft: '8px', color: 'var(--text)', fontWeight: 500 }}>
-                    @{userProfile.username}
-                  </span>
-                </div>
-                {userProfile.display_name && (
-                  <div style={{ marginBottom: '12px' }}>
-                    <span style={{ color: 'var(--text2)', fontSize: '14px' }}>Display Name:</span>
-                    <span style={{ marginLeft: '8px', color: 'var(--text)', fontWeight: 500 }}>
-                      {userProfile.display_name}
-                    </span>
-                  </div>
-                )}
-                <div style={{ marginBottom: '12px' }}>
-                  <span style={{ color: 'var(--text2)', fontSize: '14px' }}>Member Since:</span>
-                  <span style={{ marginLeft: '8px', color: 'var(--text)', fontWeight: 500 }}>
-                    {formatDate(userProfile.created_at)}
-                  </span>
-                </div>
+            <div>
+              <div style={{ marginBottom: '12px' }}>
+                <span style={{ color: 'var(--text2)', fontSize: '14px' }}>Username:</span>
+                <span style={{ marginLeft: '8px', color: 'var(--text)', fontWeight: 500 }}>
+                  {displayProfile.username ? `@${displayProfile.username}` : (
+                    <span style={{ 
+                      display: 'inline-block',
+                      width: '80px',
+                      height: '16px',
+                      background: 'var(--border)',
+                      borderRadius: '4px'
+                    }} />
+                  )}
+                </span>
               </div>
-            ) : (
-              <p style={{ color: 'var(--text2)' }}>Profile information not available</p>
-            )}
+              {displayProfile.display_name ? (
+                <div style={{ marginBottom: '12px' }}>
+                  <span style={{ color: 'var(--text2)', fontSize: '14px' }}>Display Name:</span>
+                  <span style={{ marginLeft: '8px', color: 'var(--text)', fontWeight: 500 }}>
+                    {displayProfile.display_name}
+                  </span>
+                </div>
+              ) : (
+                !isLoadingData && userProfile && !userProfile.display_name && null
+              )}
+              <div style={{ marginBottom: '12px' }}>
+                <span style={{ color: 'var(--text2)', fontSize: '14px' }}>Member Since:</span>
+                <span style={{ marginLeft: '8px', color: 'var(--text)', fontWeight: 500 }}>
+                  {displayProfile.created_at ? formatDate(displayProfile.created_at) : (
+                    <span style={{ 
+                      display: 'inline-block',
+                      width: '100px',
+                      height: '16px',
+                      background: 'var(--border)',
+                      borderRadius: '4px'
+                    }} />
+                  )}
+                </span>
+              </div>
+            </div>
           </div>
 
           {/* Stats Card */}
@@ -227,6 +256,8 @@ export default function DashboardClient() {
             border: '1px solid var(--border)',
             borderRadius: '12px',
             padding: '24px',
+            opacity: isLoadingData ? 0.6 : 1,
+            transition: 'opacity 0.2s'
           }}>
             <h2 style={{ 
               fontSize: '20px', 
@@ -237,38 +268,32 @@ export default function DashboardClient() {
             }}>
               Your Stats
             </h2>
-            {userStats ? (
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontSize: '24px', fontWeight: 700, color: 'var(--green)' }}>
-                    {userStats.ideas_count}
-                  </div>
-                  <div style={{ fontSize: '14px', color: 'var(--text2)' }}>Ideas Posted</div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: '24px', fontWeight: 700, color: 'var(--green)' }}>
+                  {displayStats.ideas_count}
                 </div>
-                <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontSize: '24px', fontWeight: 700, color: 'var(--blue)' }}>
-                    {userStats.likes_received}
-                  </div>
-                  <div style={{ fontSize: '14px', color: 'var(--text2)' }}>Likes Received</div>
-                </div>
-                <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontSize: '24px', fontWeight: 700, color: 'var(--purple)' }}>
-                    {userStats.comments_count}
-                  </div>
-                  <div style={{ fontSize: '14px', color: 'var(--text2)' }}>Comments</div>
-                </div>
-                {userStats.elo_rating && (
-                  <div style={{ textAlign: 'center' }}>
-                    <div style={{ fontSize: '24px', fontWeight: 700, color: 'var(--orange)' }}>
-                      {userStats.elo_rating}
-                    </div>
-                    <div style={{ fontSize: '14px', color: 'var(--text2)' }}>ELO Rating</div>
-                  </div>
-                )}
+                <div style={{ fontSize: '14px', color: 'var(--text2)' }}>Ideas Posted</div>
               </div>
-            ) : (
-              <p style={{ color: 'var(--text2)' }}>Stats not available</p>
-            )}
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: '24px', fontWeight: 700, color: 'var(--blue)' }}>
+                  {displayStats.likes_received}
+                </div>
+                <div style={{ fontSize: '14px', color: 'var(--text2)' }}>Likes Received</div>
+              </div>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: '24px', fontWeight: 700, color: 'var(--purple)' }}>
+                  {displayStats.comments_count}
+                </div>
+                <div style={{ fontSize: '14px', color: 'var(--text2)' }}>Comments</div>
+              </div>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: '24px', fontWeight: 700, color: 'var(--orange)' }}>
+                  {displayStats.elo_rating || '--'}
+                </div>
+                <div style={{ fontSize: '14px', color: 'var(--text2)' }}>ELO Rating</div>
+              </div>
+            </div>
           </div>
 
           {/* Quick Actions */}
@@ -383,7 +408,6 @@ export default function DashboardClient() {
             </div>
           </div>
         </div>
-      )}
     </div>
   )
 }

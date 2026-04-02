@@ -16,6 +16,7 @@ export async function middleware(request: NextRequest) {
     '/learn',
     '/schools',
     '/admin',
+    '/dashboard',
   ]
   
   const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route))
@@ -29,7 +30,14 @@ export async function middleware(request: NextRequest) {
   // Redirect authenticated users away from /login
   if (pathname === '/login' && user) {
     const redirectUrl = request.nextUrl.clone()
-    redirectUrl.pathname = '/'
+    redirectUrl.pathname = '/dashboard'
+    return NextResponse.redirect(redirectUrl)
+  }
+
+  // Redirect authenticated users away from /
+  if (pathname === '/' && user) {
+    const redirectUrl = request.nextUrl.clone()
+    redirectUrl.pathname = '/dashboard'
     return NextResponse.redirect(redirectUrl)
   }
 
@@ -61,5 +69,6 @@ export const config = {
     '/learn',
     '/schools',
     '/admin/:path*',
+    '/dashboard',
   ],
 }

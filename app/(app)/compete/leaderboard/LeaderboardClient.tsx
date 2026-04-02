@@ -86,14 +86,15 @@ export default function LeaderboardClient({
   const [activeTab, setActiveTab] = useState<'daily' | 'weekly' | 'alltime'>('alltime')
 
   // Get unique users for each time period
-  const getUniqueUsers = (history: EloHistory[]) => {
+  const getUniqueUsers = (history: EloHistory[], isPeriodGain: boolean = false) => {
     const uniqueUsers = new Map()
     history.forEach(entry => {
       if (!uniqueUsers.has(entry.user_id)) {
         uniqueUsers.set(entry.user_id, {
-          elo: entry.new_elo,
+          elo: isPeriodGain ? entry.new_elo : entry.new_elo, // For period gains, new_elo contains the sum of elo_change
           user_id: entry.user_id,
-          profiles: { username: entry.profiles.username }
+          profiles: { username: entry.profiles.username },
+          elo_change: entry.elo_change // Keep the original change for reference
         })
       }
     })
@@ -103,9 +104,9 @@ export default function LeaderboardClient({
   const getDisplayUsers = () => {
     switch (activeTab) {
       case 'daily':
-        return getUniqueUsers(dailyHistory)
+        return getUniqueUsers(dailyHistory, true)
       case 'weekly':
-        return getUniqueUsers(weeklyHistory)
+        return getUniqueUsers(weeklyHistory, true)
       case 'alltime':
         return allUsers
       default:
@@ -233,7 +234,7 @@ export default function LeaderboardClient({
                 textTransform: 'uppercase',
                 textAlign: 'right'
               }}>
-                ELO
+                {activeTab === 'daily' || activeTab === 'weekly' ? 'Gain' : 'ELO'}
               </div>
               <div style={{ 
                 fontSize: '12px', 
@@ -253,8 +254,8 @@ export default function LeaderboardClient({
               {displayList.map((user, index) => {
                 const rank = index + 1
                 const isCurrentUser = user.user_id === currentUserId
-                const userRank = getRankByElo(user.elo)
-                const rankColor = getRankColor(userRank)
+                const userRank = activeTab === 'alltime' ? getRankByElo(user.elo) : 'N/A'
+                const rankColor = activeTab === 'alltime' ? getRankColor(userRank) : 'var(--text2)'
 
                 return (
                   <div
@@ -318,11 +319,15 @@ export default function LeaderboardClient({
                       fontSize: '18px',
                       fontWeight: '800',
                       fontFamily: 'var(--font-display)',
-                      color: 'var(--green)',
+                      color: (activeTab === 'daily' || activeTab === 'weekly') 
+                        ? (user.elo >= 0 ? 'var(--green)' : 'var(--red)') 
+                        : 'var(--green)',
                       letterSpacing: '-0.2px',
                       textAlign: 'right'
                     }}>
-                      {user.elo}
+                      {activeTab === 'daily' || activeTab === 'weekly' 
+                        ? `${user.elo >= 0 ? '+' : ''}${user.elo}` 
+                        : user.elo}
                     </div>
 
                     {/* Rank Title */}
@@ -332,13 +337,13 @@ export default function LeaderboardClient({
                       fontFamily: 'var(--font-display)',
                       padding: '4px 12px',
                       borderRadius: '6px',
-                      background: rankColor,
-                      color: '#fff',
+                      background: activeTab === 'alltime' ? rankColor : 'var(--surface)',
+                      color: activeTab === 'alltime' ? '#fff' : 'var(--text2)',
                       letterSpacing: '0.5px',
                       textTransform: 'uppercase',
                       textAlign: 'center'
                     }}>
-                      {userRank}
+                      {activeTab === 'alltime' ? userRank : '-'}
                     </div>
                   </div>
                 )

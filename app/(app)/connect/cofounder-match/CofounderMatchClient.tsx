@@ -127,6 +127,13 @@ export default function CofounderMatchClient() {
     )
   }
 
+  const hasAnyRequest = (profileId: string) => {
+    return requests.some(req => 
+      (req.sender_id === user.id && req.receiver_id === profileId) ||
+      (req.receiver_id === user.id && req.sender_id === profileId)
+    )
+  }
+
   const getIncomingRequests = () => {
     return requests.filter(req => 
       req.receiver_id === user.id && 
@@ -198,7 +205,9 @@ export default function CofounderMatchClient() {
   }
 
   const incomingRequests = getIncomingRequests()
-  const visibleProfiles = profiles.filter(profile => profile.id !== user.id)
+  const visibleProfiles = profiles.filter(profile => 
+    profile.id !== user.id && !hasAnyRequest(profile.id)
+  )
 
   return (
     <div style={{ display: 'flex', gap: '24px', height: '100%' }}>

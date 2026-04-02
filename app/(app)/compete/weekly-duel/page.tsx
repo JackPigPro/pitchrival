@@ -26,7 +26,8 @@ export default function WeeklyDuelPage() {
   const [currentState, setCurrentState] = useState<'active' | 'voting' | 'results' | 'between'>('between')
   const [submissionDeadline, setSubmissionDeadline] = useState<Date | null>(null)
   const [votingDeadline, setVotingDeadline] = useState<Date | null>(null)
-  const [loading, setLoading] = useState(true)
+  // Remove blocking loading state - render page shell immediately
+  // const [loading, setLoading] = useState(true)
   const [refreshTrigger, setRefreshTrigger] = useState(0)
   const router = useRouter()
 
@@ -174,8 +175,7 @@ export default function WeeklyDuelPage() {
 
     } catch (error) {
       console.error('Error fetching data:', error)
-    } finally {
-      setLoading(false)
+      // Remove setLoading(false) - no blocking loading
     }
   }
 
@@ -216,32 +216,54 @@ export default function WeeklyDuelPage() {
     return () => clearInterval(interval)
   }, [])
 
-  if (loading) {
-    return (
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        height: '100vh',
-        fontSize: '18px',
-        color: 'var(--text)',
-        fontFamily: 'var(--font-body)'
-      }}>
-        Loading...
-      </div>
-    )
+  // Remove blocking loading check - render page shell immediately
+  // if (loading) {
+  //   return (
+  //     <div style={{ 
+  //       display: 'flex', 
+  //       justifyContent: 'center', 
+  //       alignItems: 'center', 
+  //       height: '100vh',
+  //       fontSize: '18px',
+  //       color: 'var(--text)',
+  //       fontFamily: 'var(--font-body)'
+  //     }}>
+  //       Loading...
+  //     </div>
+  //   )
+  // }
+
+  // Provide skeleton data for immediate rendering
+  const skeletonDuel = {
+    id: 'skeleton',
+    prompt: 'Loading prompt...',
+    start_date: new Date().toISOString(),
+    end_date: new Date().toISOString(),
+    status: 'active' as const,
+    prize_distributed: false
+  }
+  
+  const skeletonSubmission = {
+    id: 'skeleton',
+    content: '',
+    vote_score: 0,
+    vote_count: 0,
+    created_at: new Date().toISOString(),
+    user_id: user?.id || '',
+    final_rank: undefined,
+    elo_awarded: undefined
   }
 
   return (
     <WeeklyDuelClient 
-      currentDuel={currentDuel}
-      userSubmission={userSubmission}
+      currentDuel={currentDuel || skeletonDuel}
+      userSubmission={userSubmission || skeletonSubmission}
       allSubmissions={allSubmissions || []}
       pastWinners={pastWinners || []}
-      currentState={currentState}
+      currentState={currentState || 'between'}
       submissionDeadline={submissionDeadline}
       votingDeadline={votingDeadline}
-      currentUserId={user?.id}
+      currentUserId={user?.id || ''}
       onRefresh={() => setRefreshTrigger(prev => prev + 1)}
     />
   )

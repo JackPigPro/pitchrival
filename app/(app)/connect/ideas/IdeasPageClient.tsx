@@ -9,30 +9,48 @@ import { IdeaWithDetails } from '@/types/database'
 
 export default function IdeasPageClient() {
   const [user, setUser] = useState<any>(null)
-  const [authLoading, setAuthLoading] = useState(true)
+  // Remove authLoading blocking - render page shell immediately
+  // const [authLoading, setAuthLoading] = useState(true)
   const [ideas, setIdeas] = useState<IdeaWithDetails[]>([])
   const [selectedIdea, setSelectedIdea] = useState<IdeaWithDetails | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [ideasLoaded, setIdeasLoaded] = useState(false)
+  // Remove ideasLoaded blocking - render page shell immediately
+  // const [ideasLoaded, setIdeasLoaded] = useState(false)
   const [activeTab, setActiveTab] = useState<'public' | 'my'>('public')
   const supabase = createClient()
 
+  // Auth state management without blocking
   useEffect(() => {
     const getUser = async () => {
       const { data: { user } } = await supabase.auth.getUser()
       setUser(user)
-      setAuthLoading(false)
     }
     getUser()
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setUser(session?.user ?? null)
-      setAuthLoading(false)
     })
 
     return () => subscription.unsubscribe()
   }, [supabase.auth])
+
+  // Load cached ideas on mount for instant display
+  useEffect(() => {
+    const cacheKey = `ideas_${activeTab}`
+    const cached = localStorage.getItem(cacheKey)
+    if (cached) {
+      try {
+        const { data, timestamp } = JSON.parse(cached)
+        // Use cache if less than 5 minutes old
+        if (Date.now() - timestamp < 5 * 60 * 1000) {
+          setIdeas(data)
+        }
+      } catch (err) {
+        console.error('Error parsing cached ideas:', err)
+      }
+    }
+  }, [activeTab])
 
   useEffect(() => {
     if (user) {
@@ -43,7 +61,7 @@ export default function IdeasPageClient() {
   const fetchIdeas = async (sort = 'latest') => {
     try {
       setError(null)
-      setIdeasLoaded(false)
+      // Remove setIdeasLoaded(false) - no blocking loading
       
       const tabParam = activeTab === 'my' ? '&myIdeas=true' : ''
       const response = await fetch(`/connect/ideas/api/ideas?sort=${sort}&userId=${user?.id}${tabParam}`)
@@ -52,12 +70,21 @@ export default function IdeasPageClient() {
       }
       
       const { data } = await response.json()
-      setIdeas(data || [])
-      setIdeasLoaded(true)
+      const ideasData = data || []
+      setIdeas(ideasData)
+      
+      // Cache the results for instant display on return
+      const cacheKey = `ideas_${activeTab}`
+      localStorage.setItem(cacheKey, JSON.stringify({
+        data: ideasData,
+        timestamp: Date.now()
+      }))
+      
+      // Remove setIdeasLoaded(true) - no blocking loading
     } catch (err) {
       console.error('Error fetching ideas:', err)
       setError('Failed to load ideas')
-      setIdeasLoaded(true)
+      // Remove setIdeasLoaded(true) - no blocking loading
     }
   }
 
@@ -107,30 +134,31 @@ export default function IdeasPageClient() {
     setActiveTab(tab)
   }
 
-  if (authLoading) {
-    return (
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        height: '100vh',
-        background: 'var(--background)'
-      }}>
-        <div style={{ textAlign: 'center' }}>
-          <div style={{
-            width: '40px',
-            height: '40px',
-            border: '3px solid var(--border)',
-            borderTop: '3px solid var(--green)',
-            borderRadius: '50%',
-            animation: 'spin 1s linear infinite',
-            margin: '0 auto 20px'
-          }} />
-          <p style={{ color: 'var(--text2)', fontSize: '16px' }}>Loading...</p>
-        </div>
-      </div>
-    )
-  }
+  // Remove authLoading blocking check - render page shell immediately
+  // if (authLoading) {
+  //   return (
+  //     <div style={{ 
+  //       display: 'flex', 
+  //       justifyContent: 'center', 
+  //       alignItems: 'center', 
+  //       height: '100vh',
+  //       background: 'var(--background)'
+  //     }}>
+  //       <div style={{ textAlign: 'center' }}>
+  //         <div style={{
+  //           width: '40px',
+  //           height: '40px',
+  //           border: '3px solid var(--border)',
+  //           borderTop: '3px solid var(--green)',
+  //           borderRadius: '50%',
+  //           animation: 'spin 1s linear infinite',
+  //           margin: '0 auto 20px'
+  //         }} />
+  //         <p style={{ color: 'var(--text2)', fontSize: '16px' }}>Loading...</p>
+  //       </div>
+  //     </div>
+  //   )
+  // }
 
   if (!user) {
     return (
@@ -181,7 +209,7 @@ export default function IdeasPageClient() {
           onIdeaDelete={handleIdeaDelete}
           onSortChange={fetchIdeas}
           currentUserId={user.id}
-          ideasLoaded={ideasLoaded}
+          ideasLoaded={ideas.length > 0}
           activeTab={activeTab}
           onTabChange={handleTabChange}
         />
