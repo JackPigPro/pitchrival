@@ -11,19 +11,19 @@ interface ConditionalFooterProps {
 }
 
 export default function ConditionalFooter({ onComingSoon, onScrollTo }: ConditionalFooterProps) {
+  const supabase = createClient()
   const pathname = usePathname()
   const [user, setUser] = useState<any>(null)
   
   useEffect(() => {
     const checkUser = async () => {
-      const supabase = createClient()
       const { data } = await supabase.auth.getUser()
       setUser(data.user)
     }
     
     checkUser()
     
-    const { data: { subscription } } = createClient().auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null)
     })
     

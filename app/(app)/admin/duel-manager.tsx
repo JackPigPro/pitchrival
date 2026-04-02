@@ -27,6 +27,7 @@ interface DuelSubmission {
 }
 
 export default function AdminDuelManager() {
+  const supabase = createClient()
   const [prompt, setPrompt] = useState('')
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
@@ -49,7 +50,6 @@ export default function AdminDuelManager() {
     setSuccess('')
 
     try {
-      const supabase = createClient()
       const { data: { session } } = await supabase.auth.getSession()
 
       const response = await fetch('/admin/api/create-duel', {
@@ -87,7 +87,6 @@ export default function AdminDuelManager() {
 
   const fetchDuelDetails = async (duelId: string) => {
     try {
-      const supabase = createClient()
       const { data: { session } } = await supabase.auth.getSession()
 
       // First fetch submissions from duel_submissions
@@ -149,7 +148,6 @@ export default function AdminDuelManager() {
     setSuccess('')
 
     try {
-      const supabase = createClient()
       const { data: { session } } = await supabase.auth.getSession()
 
       const response = await fetch('/admin/api/update-duel', {
@@ -189,7 +187,6 @@ export default function AdminDuelManager() {
     setSuccess('')
 
     try {
-      const supabase = createClient()
       const { data: { session } } = await supabase.auth.getSession()
 
       const response = await fetch('/admin/api/delete-duel', {
@@ -221,7 +218,6 @@ export default function AdminDuelManager() {
 
   const fetchDuels = async () => {
     try {
-      const supabase = createClient()
       const { data: { session } } = await supabase.auth.getSession()
 
       const response = await fetch('/admin/api/get-duels', {
@@ -253,7 +249,6 @@ export default function AdminDuelManager() {
       
       // Set up real-time subscription for voting phase
       if (selectedDuel.status === 'voting') {
-        const supabase = createClient()
         
         // Clean up existing subscription
         if (realtimeSubscription.current) {

@@ -56,6 +56,7 @@ export default function WeeklyDuelClient({
   currentUserId,
   onRefresh
 }: WeeklyDuelClientProps) {
+  const supabase = createClient()
   const [submissionContent, setSubmissionContent] = useState('')
   const [validationError, setValidationError] = useState('')
   const [voteCooldown, setVoteCooldown] = useState(0)
@@ -188,7 +189,6 @@ export default function WeeklyDuelClient({
 
     try {
       // Get session token properly
-      const supabase = createClient()
       const { data: { session } } = await supabase.auth.getSession()
 
       if (!session?.access_token) {
@@ -232,7 +232,6 @@ export default function WeeklyDuelClient({
     }
 
     try {
-      const supabase = createClient()
       const { data: { session } } = await supabase.auth.getSession()
 
       if (!session?.access_token) {
