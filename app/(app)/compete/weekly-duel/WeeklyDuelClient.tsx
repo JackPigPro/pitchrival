@@ -169,6 +169,16 @@ export default function WeeklyDuelClient({
     }
   }, [displayState, allSubmissions])
 
+  // Fade out ELO toast after 2 seconds
+  useEffect(() => {
+    if (eloChange !== null) {
+      const timer = setTimeout(() => {
+        setEloChange(null)
+      }, 2000)
+      return () => clearTimeout(timer)
+    }
+  }, [eloChange])
+
   const handleSubmitSubmission = async () => {
     if (!submissionContent.trim()) {
       setValidationError('Please write something before submitting.')
@@ -364,7 +374,7 @@ export default function WeeklyDuelClient({
       {isAdmin && (
         <div style={{ 
           background: 'var(--purple-tint)', 
-          border: '1px solid var(--purple)', 
+          border: "1px solid var(--purple)", 
           borderRadius: '8px', 
           padding: '16px', 
           margin: '0 24px 24px 24px',
@@ -383,7 +393,7 @@ export default function WeeklyDuelClient({
                 margin: '0 8px', 
                 padding: '4px 8px', 
                 borderRadius: '4px', 
-                border: '1px solid var(--border)',
+                border: "1px solid var(--border)",
                 background: 'var(--card)',
                 color: 'var(--text)',
                 fontSize: '14px',
@@ -400,7 +410,7 @@ export default function WeeklyDuelClient({
                 style={{
                   padding: '4px 12px',
                   borderRadius: '4px',
-                  border: '1px solid var(--border)',
+                  border: "1px solid var(--border)",
                   background: hasSubmittedPreview ? 'var(--green-tint)' : 'var(--surface)',
                   color: 'var(--text)',
                   fontSize: '12px',
@@ -441,7 +451,7 @@ export default function WeeklyDuelClient({
             background: 'var(--card)', 
             borderRadius: '16px', 
             padding: '32px',
-            border: '1px solid var(--border)',
+            border: "1px solid var(--border)",
             boxShadow: 'var(--shadow)'
           }}>
             {!displayUserSubmission ? (
@@ -466,7 +476,7 @@ export default function WeeklyDuelClient({
                     height: '200px',
                     padding: '16px',
                     borderRadius: '12px',
-                    border: '1px solid var(--border)',
+                    border: "1px solid var(--border)",
                     background: 'var(--surface)',
                     fontSize: '16px',
                     fontFamily: 'var(--font-body)',
@@ -527,7 +537,7 @@ export default function WeeklyDuelClient({
                   padding: '16px', 
                   borderRadius: '12px', 
                   background: 'var(--surface)', 
-                  border: '1px solid var(--border)',
+                  border: "1px solid var(--border)",
                   textAlign: 'left',
                   marginBottom: '24px'
                 }}>
@@ -553,20 +563,11 @@ export default function WeeklyDuelClient({
                 <div style={{ fontSize: '14px', color: 'var(--text2)', fontFamily: 'var(--font-body)', marginBottom: '8px', textAlign: 'center' }}>
                   Submission period ends in:
                 </div>
-                <div id="countdown" style={{ fontSize: '20px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--purple)', textAlign: 'center', padding: '12px', borderRadius: '8px', background: 'var(--purple-tint)', border: '1px solid var(--purple)' }}>
+                <div id="countdown" style={{ fontSize: '20px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--purple)', textAlign: 'center', padding: '12px', borderRadius: '8px', background: 'var(--purple-tint)', border: "1px solid var(--purple)" }}>
                   Loading countdown...
                 </div>
               </div>
             )}
-          </div>
-        )}
-        
-        {/* Voting State */}
-        {displayState === 'voting' && currentDuel && (
-          <div style={{ marginBottom: '24px' }}>
-            <div id="voting-countdown" style={{ fontSize: '24px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--purple)', textAlign: 'center', padding: '16px', borderRadius: '8px', background: 'var(--purple-tint)', border: '1px solid var(--purple)' }}>
-              Loading countdown...
-            </div>
           </div>
         )}
 
@@ -585,7 +586,7 @@ export default function WeeklyDuelClient({
                       height: '120px',
                       padding: '12px',
                       borderRadius: '8px',
-                      border: '1px solid var(--border)',
+                      border: "1px solid var(--border)",
                       background: 'var(--surface)',
                       fontSize: '16px',
                       fontFamily: 'var(--font-body)',
@@ -631,6 +632,11 @@ export default function WeeklyDuelClient({
               {/* Voting State */}
               {displayState === 'voting' && (
                 <div>
+                  {/* Always show matchup counter */}
+                  <div style={{ textAlign: 'center', fontSize: '14px', color: 'var(--text2)', fontFamily: 'var(--font-body)', marginBottom: '16px' }}>
+                    Matchups reviewed: {votedPairs.size}
+                  </div>
+                  
                   {allSubmissions.length < 2 ? (
                     <div style={{ textAlign: 'center', fontSize: '18px', color: 'var(--text2)', fontFamily: 'var(--font-body)', padding: '32px' }}>
                       <div style={{ fontSize: '48px', fontWeight: 800, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '16px' }}>
@@ -717,7 +723,7 @@ export default function WeeklyDuelClient({
                       )}
 
                       <div style={{ textAlign: 'center', fontSize: '16px', color: 'var(--text2)', fontFamily: 'var(--font-body)' }}>
-                        You've voted on {votedPairs.size} pairs
+                        You've voted on {votedPairs.size} matchup{votedPairs.size !== 1 ? 's' : ''}
                       </div>
                     </div>
                   ) : (
@@ -767,7 +773,7 @@ export default function WeeklyDuelClient({
               background: 'var(--card)', 
               borderRadius: '16px', 
               padding: '32px',
-              border: '1px solid var(--border)',
+              border: "1px solid var(--border)",
               boxShadow: 'var(--shadow)',
               textAlign: 'center'
             }}>
@@ -790,7 +796,7 @@ export default function WeeklyDuelClient({
               background: 'var(--card)', 
               borderRadius: '16px', 
               padding: '24px',
-              border: '1px solid var(--border)',
+              border: "1px solid var(--border)",
               boxShadow: 'var(--shadow)'
             }}>
               <h3 style={{ fontSize: '18px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--text)', margin: '0 0 16px 0' }}>
@@ -832,7 +838,7 @@ export default function WeeklyDuelClient({
                 padding: '16px', 
                 borderRadius: '8px',
                 background: 'var(--surface)',
-                border: '1px solid var(--border)',
+                border: "1px solid var(--border)",
                 textAlign: 'center'
               }}>
                 <div style={{ fontSize: '20px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
@@ -847,7 +853,7 @@ export default function WeeklyDuelClient({
             background: 'var(--card)', 
             borderRadius: '16px', 
             padding: '24px',
-            border: '1px solid var(--border)',
+            border: "1px solid var(--border)",
             boxShadow: 'var(--shadow)'
           }}>
             <h3 style={{ fontSize: '18px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--text)', margin: '0 0 16px 0' }}>
@@ -878,7 +884,7 @@ export default function WeeklyDuelClient({
                 padding: '8px 12px',
                 borderRadius: '6px',
                 background: 'var(--surface)',
-                border: '1px solid var(--border)'
+                border: "1px solid var(--border)"
               }}>
                 <span style={{ fontSize: '14px', fontWeight: 600, fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
                   Everyone who submits +10 ELO
@@ -901,7 +907,7 @@ export default function WeeklyDuelClient({
             background: 'var(--card)', 
             borderRadius: '16px', 
             padding: '24px',
-            border: '1px solid var(--border)',
+            border: "1px solid var(--border)",
             boxShadow: 'var(--shadow)'
           }}>
             <h3 style={{ fontSize: '18px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--text)', margin: '0 0 16px 0' }}>
@@ -1035,7 +1041,7 @@ export default function WeeklyDuelClient({
                   padding: '12px', 
                   borderRadius: '8px',
                   background: 'var(--surface)',
-                  border: '1px solid var(--border)',
+                  border: "1px solid var(--border)",
                   textAlign: 'center'
                 }}>
                   <div style={{ fontSize: '12px', color: 'var(--text2)', fontFamily: 'var(--font-body)', marginBottom: '4px' }}>
@@ -1051,7 +1057,7 @@ export default function WeeklyDuelClient({
                 padding: '32px', 
                 borderRadius: '8px',
                 background: 'var(--surface)',
-                border: '1px solid var(--border)',
+                border: "1px solid var(--border)",
                 textAlign: 'center'
               }}>
                 <div style={{ fontSize: '16px', color: 'var(--text2)', fontFamily: 'var(--font-body)' }}>
@@ -1068,7 +1074,8 @@ export default function WeeklyDuelClient({
         <div style={{
           position: 'fixed',
           top: '20px',
-          right: '20px',
+          left: '50%',
+          transform: 'translateX(-50%)',
           background: 'var(--green)',
           color: 'white',
           padding: '12px 16px',
