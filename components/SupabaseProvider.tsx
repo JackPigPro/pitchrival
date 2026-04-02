@@ -20,17 +20,22 @@ export function SupabaseProvider({ children }: { children: React.ReactNode }) {
   const supabase = createClient()
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      setUser(user)
-      setAuthLoading(false)
-    })
-
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         setUser(session?.user ?? null)
+        setAuthLoading(false)
       }
     )
-    return () => subscription.unsubscribe()
+
+    // Fallback: if onAuthStateChange never fires, stop loading after 1 second
+    const timeout = setTimeout(() => {
+      setAuthLoading(false)
+    }, 1000)
+
+    return () => {
+      subscription.unsubscribe()
+      clearTimeout(timeout)
+    }
   }, [])
 
   return (
