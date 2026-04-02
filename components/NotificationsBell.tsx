@@ -50,7 +50,7 @@ export default function NotificationsBell() {
       const response = await fetch('/connect/notifications/api/notifications')
       if (response.ok) {
         const data = await response.json()
-        setNotifications(data)
+        setNotifications(Array.isArray(data.notifications) ? data.notifications : [])
       }
     } catch (error) {
       console.error('Failed to fetch notifications:', error)
@@ -113,7 +113,7 @@ export default function NotificationsBell() {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  const unreadCount = notifications.filter(n => !n.read).length
+  const unreadCount = Array.isArray(notifications) ? notifications.filter(n => !n.read).length : 0
 
   const dropdownStyle: React.CSSProperties = {
     position: 'absolute',
@@ -196,7 +196,7 @@ export default function NotificationsBell() {
           <span style={{ fontWeight: 'bold', fontFamily: 'var(--font-display)', fontSize: '14px' }}>
             Notifications
           </span>
-          {notifications.length > 0 && (
+          {Array.isArray(notifications) && notifications.length > 0 && (
             <button
               onClick={clearAllNotifications}
               style={{
@@ -219,12 +219,12 @@ export default function NotificationsBell() {
             <div style={{ padding: '20px', textAlign: 'center', color: 'var(--text2)' }}>
               Loading...
             </div>
-          ) : notifications.length === 0 ? (
+          ) : Array.isArray(notifications) && notifications.length === 0 ? (
             <div style={{ padding: '20px', textAlign: 'center', color: 'var(--text2)' }}>
               No notifications in the last 24 hours
             </div>
           ) : (
-            notifications.map((notification) => (
+            Array.isArray(notifications) ? notifications.map((notification) => (
               <div
                 key={notification.id}
                 style={notification.read ? notificationRowStyle : unreadRowStyle}
@@ -242,7 +242,7 @@ export default function NotificationsBell() {
                   {getTimeAgo(notification.created_at)}
                 </div>
               </div>
-            ))
+            )) : null
           )}
         </div>
       </div>
