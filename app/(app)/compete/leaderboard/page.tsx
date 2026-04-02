@@ -2,6 +2,17 @@ import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import LeaderboardClient from './LeaderboardClient'
 
+const getRankLabel = (elo: number) => {
+  if (elo < 500) return 'Trainee'
+  if (elo < 750) return 'Builder'
+  if (elo < 1000) return 'Creator'
+  if (elo < 1250) return 'Founder'
+  if (elo < 1500) return 'Visionary'
+  if (elo < 1750) return 'Icon'
+  if (elo < 2000) return 'Titan'
+  return 'Unicorn'
+}
+
 export default async function LeaderboardPage() {
   const supabase = await createClient()
   
@@ -39,6 +50,7 @@ export default async function LeaderboardPage() {
     return {
       elo: stat.elo || 0,
       user_id: stat.user_id,
+      rank_label: getRankLabel(stat.elo || 0),
       profiles: {
         username: profile?.username || 'Unknown'
       }
@@ -92,6 +104,7 @@ export default async function LeaderboardPage() {
       elo_change: totalDailyGain,
       new_elo: totalDailyGain, // Use period gain, not total ELO
       user_id: user.user_id,
+      rank_label: user.rank_label, // Include rank label from all-time ELO
       created_at: new Date().toISOString(),
       profiles: user.profiles
     }
@@ -106,6 +119,7 @@ export default async function LeaderboardPage() {
       elo_change: totalWeeklyGain,
       new_elo: totalWeeklyGain, // Use period gain, not total ELO
       user_id: user.user_id,
+      rank_label: user.rank_label, // Include rank label from all-time ELO
       created_at: new Date().toISOString(),
       profiles: user.profiles
     }

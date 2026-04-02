@@ -110,7 +110,7 @@ export default function TopNavClient({
     <nav className="nav">
       <Link
         className="nav-brand"
-        href="/"
+        href={user ? "/dashboard" : "/"}
         onClick={(e) => {
           if (isOnLanding) {
             e.preventDefault()

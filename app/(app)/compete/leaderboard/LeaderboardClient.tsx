@@ -5,6 +5,7 @@ import { useState } from 'react'
 interface User {
   elo: number
   user_id: string
+  rank_label: string
   profiles: {
     username: string
   }
@@ -14,6 +15,7 @@ interface EloHistory {
   elo_change: number
   new_elo: number
   user_id: string
+  rank_label: string
   created_at: string
   profiles: {
     username: string
@@ -93,6 +95,7 @@ export default function LeaderboardClient({
         uniqueUsers.set(entry.user_id, {
           elo: isPeriodGain ? entry.new_elo : entry.new_elo, // For period gains, new_elo contains the sum of elo_change
           user_id: entry.user_id,
+          rank_label: entry.rank_label, // Preserve rank label from all-time ELO
           profiles: { username: entry.profiles.username },
           elo_change: entry.elo_change // Keep the original change for reference
         })
@@ -254,8 +257,8 @@ export default function LeaderboardClient({
               {displayList.map((user, index) => {
                 const rank = index + 1
                 const isCurrentUser = user.user_id === currentUserId
-                const userRank = activeTab === 'alltime' ? getRankByElo(user.elo) : 'N/A'
-                const rankColor = activeTab === 'alltime' ? getRankColor(userRank) : 'var(--text2)'
+                const userRank = activeTab === 'alltime' ? getRankByElo(user.elo) : user.rank_label
+                const rankColor = getRankColor(userRank)
 
                 return (
                   <div
@@ -337,13 +340,13 @@ export default function LeaderboardClient({
                       fontFamily: 'var(--font-display)',
                       padding: '4px 12px',
                       borderRadius: '6px',
-                      background: activeTab === 'alltime' ? rankColor : 'var(--surface)',
-                      color: activeTab === 'alltime' ? '#fff' : 'var(--text2)',
+                      background: rankColor,
+                      color: '#fff',
                       letterSpacing: '0.5px',
                       textTransform: 'uppercase',
                       textAlign: 'center'
                     }}>
-                      {activeTab === 'alltime' ? userRank : '-'}
+                      {userRank}
                     </div>
                   </div>
                 )

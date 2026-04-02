@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import Link from 'next/link'
+import { useUser } from '@/hooks/useUser'
 
 interface UserProfile {
   id: string
@@ -20,43 +21,19 @@ interface UserStats {
 }
 
 export default function DashboardClient() {
-  const [user, setUser] = useState<any>(null)
-  // Remove authLoading blocking - render page shell immediately
-  // const [authLoading, setAuthLoading] = useState(true)
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
+  const { isAuthenticated, authLoading, username, display_name, loading, error } = useUser()
   const [userStats, setUserStats] = useState<UserStats | null>(null)
-  // Remove blocking loading state
-  // const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
   const supabase = createClient()
 
-  // Auth state management without blocking
+  // Fetch user stats when authenticated
   useEffect(() => {
-    const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      setUser(user)
+    if (isAuthenticated) {
+      fetchUserStats()
     }
-    getUser()
+  }, [isAuthenticated])
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      setUser(session?.user ?? null)
-    })
-
-    return () => subscription.unsubscribe()
-  }, [supabase.auth])
-
-  useEffect(() => {
-    if (user) {
-      fetchUserData()
-    }
-  }, [user])
-
-  const fetchUserData = async () => {
+  const fetchUserStats = async () => {
     try {
-      setError(null)
-      // Remove setLoading(true) - no blocking loading
-      
-      // Fetch user profile and stats
       const apiUrl = '/dashboard/api'
       console.log('Dashboard: Fetching from URL:', apiUrl)
       
@@ -70,13 +47,10 @@ export default function DashboardClient() {
       const data = await response.json()
       console.log('Dashboard: Received data:', data)
       
-      setUserProfile(data.profile || null)
       setUserStats(data.stats || null)
-      // Remove setLoading(false) - no blocking loading
     } catch (err) {
       console.error('Error fetching user data:', err)
-      setError('Failed to load dashboard data')
-      // Remove setLoading(false) - no blocking loading
+      // Error handling is now managed by useUser hook
     }
   }
 
@@ -89,33 +63,33 @@ export default function DashboardClient() {
     })
   }
 
-  // Remove authLoading blocking check - render page shell immediately
-  // if (authLoading) {
-  //   return (
-  //     <div style={{ 
-  //       display: 'flex', 
-  //       justifyContent: 'center', 
-  //       alignItems: 'center', 
-  //       height: '100vh',
-  //       background: 'var(--background)'
-  //     }}>
-  //       <div style={{ textAlign: 'center' }}>
-  //         <div style={{
-  //           width: '40px',
-  //           height: '40px',
-  //           border: '3px solid var(--border)',
-  //           borderTop: '3px solid var(--green)',
-  //           borderRadius: '50%',
-  //           animation: 'spin 1s linear infinite',
-  //           margin: '0 auto 20px'
-  //         }} />
-  //         <p style={{ color: 'var(--text2)', fontSize: '16px' }}>Loading...</p>
-  //       </div>
-  //     </div>
-  //   )
-  // }
+  // Show loading state while auth is resolving
+  if (authLoading) {
+    return (
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '100vh',
+        background: 'var(--background)'
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{
+            width: '40px',
+            height: '40px',
+            border: '3px solid var(--border)',
+            borderTop: '3px solid var(--green)',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite',
+            margin: '0 auto 20px'
+          }} />
+          <p style={{ color: 'var(--text2)', fontSize: '16px' }}>Loading...</p>
+        </div>
+      </div>
+    )
+  }
 
-  if (!user) {
+  if (!isAuthenticated) {
     return (
       <div style={{ textAlign: 'center', padding: '60px 20px' }}>
         <h2 style={{ fontSize: '24px', fontWeight: 700, marginBottom: '16px', fontFamily: 'var(--font-display)' }}>
@@ -142,16 +116,7 @@ export default function DashboardClient() {
     )
   }
 
-  if (error) {
-    return (
-      <div style={{ textAlign: 'center', padding: '60px 20px' }}>
-        <h2 style={{ fontSize: '24px', fontWeight: 700, marginBottom: '16px', color: 'var(--red)', fontFamily: 'var(--font-display)' }}>
-          Error
-        </h2>
-        <p style={{ color: 'var(--text2)' }}>{error}</p>
-      </div>
-    )
-  }
+  // Error handling is now managed by useUser hook
 
   // Skeleton data for immediate rendering
   const skeletonProfile = {
@@ -167,9 +132,9 @@ export default function DashboardClient() {
     elo_rating: null
   }
 
-  const displayProfile = userProfile || skeletonProfile
+  const displayProfile = { username: username || '', display_name: display_name || '', created_at: new Date().toISOString() }
   const displayStats = userStats || skeletonStats
-  const isLoadingData = !userProfile || !userStats
+  const isLoadingData = !userStats || loading
 
   return (
     <div style={{ padding: '24px', maxWidth: '1200px', margin: '0 auto' }}>
@@ -231,7 +196,7 @@ export default function DashboardClient() {
                   </span>
                 </div>
               ) : (
-                !isLoadingData && userProfile && !userProfile.display_name && null
+                !isLoadingData && !display_name && null
               )}
               <div style={{ marginBottom: '12px' }}>
                 <span style={{ color: 'var(--text2)', fontSize: '14px' }}>Member Since:</span>

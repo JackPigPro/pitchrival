@@ -782,6 +782,25 @@ export default function WeeklyDuelClient({
                 </div>
               )}
 
+              {/* Between Duels State - Show for all users when no active duel */}
+              {displayState === 'between' && (
+                <div style={{ 
+                  background: 'var(--card)', 
+                  borderRadius: '16px', 
+                  padding: '32px',
+                  border: "1px solid var(--border)",
+                  boxShadow: 'var(--shadow)',
+                  textAlign: 'center'
+                }}>
+                  <div style={{ fontSize: '48px', fontWeight: 800, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '16px' }}>
+                    🔄
+                  </div>
+                  <div style={{ fontSize: '24px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
+                    Next duel coming soon
+                  </div>
+                </div>
+              )}
+
           {/* No Active Duel */}
           {!currentDuel && (
             <div style={{ 

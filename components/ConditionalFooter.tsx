@@ -1,8 +1,7 @@
 'use client'
 
 import { usePathname } from 'next/navigation'
-import { createClient } from '@/utils/supabase/client'
-import { useState, useEffect } from 'react'
+import { useUser } from '@/hooks/useUser'
 import Footer from './Footer'
 
 interface ConditionalFooterProps {
@@ -11,27 +10,16 @@ interface ConditionalFooterProps {
 }
 
 export default function ConditionalFooter({ onComingSoon, onScrollTo }: ConditionalFooterProps) {
-  const supabase = createClient()
+  const { isAuthenticated, authLoading } = useUser()
   const pathname = usePathname()
-  const [user, setUser] = useState<any>(null)
   
-  useEffect(() => {
-    const checkUser = async () => {
-      const { data } = await supabase.auth.getUser()
-      setUser(data.user)
-    }
-    
-    checkUser()
-    
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null)
-    })
-    
-    return () => subscription.unsubscribe()
-  }, [])
+  // Don't render anything while auth is loading to prevent flash
+  if (authLoading) {
+    return null
+  }
   
   // Footer visibility rules
-  const isLoggedIn = Boolean(user)
+  const isLoggedIn = isAuthenticated
   let showFooter = false
   
   if (!isLoggedIn) {
