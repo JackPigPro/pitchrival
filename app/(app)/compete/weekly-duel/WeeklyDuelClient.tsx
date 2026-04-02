@@ -166,7 +166,7 @@ export default function WeeklyDuelClient({
   // Auto-load voting pair when displayState changes to voting
   useEffect(() => {
     if (displayState === 'voting' && allSubmissions.length >= 2) {
-      loadNewPair()
+      loadNewPair(votedPairs)
     }
   }, [displayState, allSubmissions])
 
@@ -268,30 +268,13 @@ export default function WeeklyDuelClient({
         newVotedPairs.add(`${loserId}|${winnerId}`)
         setVotedPairs(newVotedPairs)
         
-        // Check if this was the last available pair
-        const availablePairs: string[] = []
-        for (let i = 0; i < allSubmissions.length; i++) {
-          for (let j = i + 1; j < allSubmissions.length; j++) {
-            if (allSubmissions[i].user_id === currentUserId || allSubmissions[j].user_id === currentUserId) {
-              continue
-            }
-            const pair1 = `${allSubmissions[i].id}|${allSubmissions[j].id}`
-            const pair2 = `${allSubmissions[j].id}|${allSubmissions[i].id}`
-            if (!newVotedPairs.has(pair1) && !newVotedPairs.has(pair2)) {
-              availablePairs.push(pair1)
-            }
-          }
-        }
+        // Load new pair immediately with updated voted pairs
+        const nextPair = loadNewPair(newVotedPairs)
         
-        // Only set cooldown if there are more pairs available
-        if (availablePairs.length > 0) {
+        // Only start cooldown if there are more pairs available
+        if (nextPair) {
           setVoteCooldown(30)
         }
-        
-        // Load new pair after successful vote (with slight delay for UX)
-        setTimeout(() => {
-          loadNewPair()
-        }, availablePairs.length > 0 ? 1000 : 0)
       } else {
         console.error('Vote failed:', result.error)
       }
@@ -300,7 +283,7 @@ export default function WeeklyDuelClient({
     }
   }
 
-  const loadNewPair = () => {
+  const loadNewPair = (currentVotedPairs: Set<string>): { a: string, b: string } | null => {
     // Get all possible pairs that user hasn't voted on
     const availablePairs: string[] = []
     
@@ -314,7 +297,7 @@ export default function WeeklyDuelClient({
         const pair1 = `${allSubmissions[i].id}|${allSubmissions[j].id}`
         const pair2 = `${allSubmissions[j].id}|${allSubmissions[i].id}`
         
-        if (!votedPairs.has(pair1) && !votedPairs.has(pair2)) {
+        if (!currentVotedPairs.has(pair1) && !currentVotedPairs.has(pair2)) {
           availablePairs.push(pair1)
         }
       }
@@ -322,7 +305,7 @@ export default function WeeklyDuelClient({
     
     if (availablePairs.length === 0) {
       setCurrentPair(null)
-      return
+      return null
     }
     
     // Select random pair
@@ -331,6 +314,7 @@ export default function WeeklyDuelClient({
     const [sub1, sub2] = selectedPair.split('|')
     
     setCurrentPair({ a: sub1, b: sub2 })
+    return { a: sub1, b: sub2 }
   }
 
   const formatDate = (dateString: string) => {
