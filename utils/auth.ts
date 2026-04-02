@@ -14,28 +14,19 @@ import { createClient } from '@/utils/supabase/client'
  * to ensure consistent sign out behavior across the app.
  */
 export async function signOutUser() {
-  const supabase = createClient()
-  
+  console.log('Starting sign out process...')
   try {
-    console.log('Starting sign out process...')
+    const supabase = createClient()
     
-    // Sign out from Supabase
-    const { error } = await supabase.auth.signOut()
-    
-    if (error) {
-      console.error('Supabase signOut error:', error)
-      throw error
-    }
-    
-    console.log('Supabase sign out successful, redirecting...')
-    
-    // Use window.location.href for a full page refresh to ensure
-    // the middleware sees the updated auth state immediately
-    window.location.href = '/'
+    // Add timeout so it never hangs
+    await Promise.race([
+      supabase.auth.signOut(),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 3000))
+    ])
   } catch (error) {
-    console.error('Error signing out:', error)
-    // Fallback: still try to redirect even if sign out fails
-    console.log('Using fallback redirect...')
+    console.error('Sign out error:', error)
+  } finally {
+    // Always redirect regardless of whether signOut succeeded
     window.location.href = '/'
   }
 }
