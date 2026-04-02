@@ -20,10 +20,16 @@ export default function IdeasPageClient() {
   const supabase = createClient()
 
   useEffect(() => {
+    const init = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      setUser(user)
+      setAuthLoading(false)
+    }
+    init()
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         setUser(session?.user ?? null)
-        setAuthLoading(false)
       }
     )
     return () => subscription.unsubscribe()
