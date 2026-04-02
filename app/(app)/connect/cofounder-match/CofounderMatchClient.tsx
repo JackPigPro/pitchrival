@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { createClient } from '@/utils/supabase/client'
+import { useSupabase } from '@/components/SupabaseProvider'
 
 interface Profile {
   id: string
@@ -20,29 +20,12 @@ interface CofounderRequest {
 }
 
 export default function CofounderMatchClient() {
-  const [user, setUser] = useState<any>(null)
-  const [authLoading, setAuthLoading] = useState(true)
+  const { user, authLoading } = useSupabase()
   const [profiles, setProfiles] = useState<Profile[]>([])
   const [requests, setRequests] = useState<CofounderRequest[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const supabase = createClient()
 
-  useEffect(() => {
-    const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      setUser(user)
-      setAuthLoading(false)
-    }
-    getUser()
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      setUser(session?.user ?? null)
-      setAuthLoading(false)
-    })
-
-    return () => subscription.unsubscribe()
-  }, [supabase.auth])
 
   useEffect(() => {
     if (user) {
@@ -121,7 +104,7 @@ export default function CofounderMatchClient() {
 
   const hasPendingRequest = (profileId: string) => {
     return requests.some(req => 
-      req.sender_id === user.id && 
+      req.sender_id === user?.id && 
       req.receiver_id === profileId && 
       req.status === 'pending'
     )
@@ -129,14 +112,14 @@ export default function CofounderMatchClient() {
 
   const hasAnyRequest = (profileId: string) => {
     return requests.some(req => 
-      (req.sender_id === user.id && req.receiver_id === profileId) ||
-      (req.receiver_id === user.id && req.sender_id === profileId)
+      (req.sender_id === user?.id && req.receiver_id === profileId) ||
+      (req.receiver_id === user?.id && req.sender_id === profileId)
     )
   }
 
   const getIncomingRequests = () => {
     return requests.filter(req => 
-      req.receiver_id === user.id && 
+      req.receiver_id === user?.id && 
       req.status === 'pending'
     )
   }
@@ -206,7 +189,7 @@ export default function CofounderMatchClient() {
 
   const incomingRequests = getIncomingRequests()
   const visibleProfiles = profiles.filter(profile => 
-    profile.id !== user.id && !hasAnyRequest(profile.id)
+    profile.id !== user?.id && !hasAnyRequest(profile.id)
   )
 
   return (

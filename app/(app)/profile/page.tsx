@@ -1,30 +1,29 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/utils/supabase/client'
+import { useSupabase } from '@/components/SupabaseProvider'
 
 export default function ProfilePage() {
   const router = useRouter()
-  // Remove blocking loading state - render page shell immediately
-  // const [loading, setLoading] = useState(true)
-  const supabase = createClient()
+  const { user, authLoading } = useSupabase()
 
   useEffect(() => {
+    if (authLoading) return
+    
     const redirectToUserProfile = async () => {
       try {
-        const { data: { user } } = await supabase.auth.getUser()
-        
         if (user) {
           // Get username from profile
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('username')
-            .eq('id', user.id)
-            .single()
-
-          if (profile?.username) {
-            router.replace(`/profile/${profile.username}`)
+          const response = await fetch('/profile/api')
+          if (!response.ok) {
+            throw new Error('Failed to fetch profile')
+          }
+          
+          const data = await response.json()
+          
+          if (data.profile?.username) {
+            router.replace(`/profile/${data.profile.username}`)
           } else {
             // User doesn't have a profile/username yet, redirect to onboarding
             router.replace('/onboarding')
@@ -36,13 +35,11 @@ export default function ProfilePage() {
       } catch (error) {
         console.error('Error redirecting to profile:', error)
         router.replace('/')
-      } finally {
-        // Remove setLoading(false) - no blocking loading
       }
     }
 
     redirectToUserProfile()
-  }, [router, supabase])
+  }, [user, authLoading, router])
 
   // Remove blocking loading check - render page shell immediately
   // if (loading) {

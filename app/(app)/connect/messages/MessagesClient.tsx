@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { createClient } from '@/utils/supabase/client'
+import { useSupabase } from '@/components/SupabaseProvider'
 
 interface Message {
   id: string
@@ -25,8 +25,7 @@ interface Conversation {
 }
 
 export default function MessagesClient() {
-  const [user, setUser] = useState<any>(null)
-  const [authLoading, setAuthLoading] = useState(true)
+  const { user, authLoading } = useSupabase()
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [activeConversation, setActiveConversation] = useState<string | null>(null)
   const [messages, setMessages] = useState<Message[]>([])
@@ -34,23 +33,7 @@ export default function MessagesClient() {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
-  const supabase = createClient()
 
-  useEffect(() => {
-    const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      setUser(user)
-      setAuthLoading(false)
-    }
-    getUser()
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      setUser(session?.user ?? null)
-      setAuthLoading(false)
-    })
-
-    return () => subscription.unsubscribe()
-  }, [supabase.auth])
 
   useEffect(() => {
     if (user) {

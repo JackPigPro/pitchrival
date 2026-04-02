@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { createClient } from '@/utils/supabase/client'
+import { useSupabase } from '@/components/SupabaseProvider'
 
 interface Profile {
   id: string
@@ -10,30 +10,20 @@ interface Profile {
 }
 
 export default function SettingsClient({ initialProfile }: { initialProfile: Profile | null }) {
-  const [user, setUser] = useState<any>(null)
-  const [authLoading, setAuthLoading] = useState(true)
+  const { user, authLoading } = useSupabase()
   const [profile, setProfile] = useState<Profile | null>(initialProfile)
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
-  const supabase = createClient()
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        const currentUser = session?.user ?? null
-        setUser(currentUser)
-        setAuthLoading(false)
-        if (currentUser) {
-          if (!profile) {
-            fetchProfile()
-          }
-        }
+    if (user) {
+      if (!profile) {
+        fetchProfile()
       }
-    )
-    return () => subscription.unsubscribe()
-  }, [])
+    }
+  }, [user, profile])
 
   const fetchProfile = async () => {
     try {
