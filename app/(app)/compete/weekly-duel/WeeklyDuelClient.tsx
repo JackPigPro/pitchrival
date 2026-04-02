@@ -62,7 +62,7 @@ export default function WeeklyDuelClient({
   const [votedPairs, setVotedPairs] = useState(new Set<string>())
   const [currentPair, setCurrentPair] = useState<{ a: string; b: string } | null>(null)
   const [eloChange, setEloChange] = useState<number | null>(null)
-  const [adminPreviewState, setAdminPreviewState] = useState<'active' | 'voting' | 'results'>('active')
+  const [adminPreviewState, setAdminPreviewState] = useState<'active' | 'voting' | 'results'>(currentState === 'between' ? 'active' : currentState)
   const [hasSubmittedPreview, setHasSubmittedPreview] = useState(false)
 
   // Check if user is admin
