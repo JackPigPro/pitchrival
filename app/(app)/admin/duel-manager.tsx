@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { createClient } from '@/utils/supabase/client'
 
 interface Duel {
@@ -37,6 +37,7 @@ export default function AdminDuelManager() {
   const [success, setSuccess] = useState('')
   const [editingDuel, setEditingDuel] = useState<Duel | null>(null)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const realtimeSubscription = useRef<any>(null)
 
   const createDuel = async () => {
     if (!prompt.trim() || !startDate.trim() || !endDate.trim()) {
@@ -84,52 +85,15 @@ export default function AdminDuelManager() {
     }
   }
 
-  const distributePrizes = async (duelId: string) => {
-    setLoading(true)
-    setSuccess('')
-
-    try {
-      const supabase = createClient()
-      const { data: { session } } = await supabase.auth.getSession()
-
-      const response = await fetch('/admin/api/distribute-prizes', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session?.access_token}`
-        },
-        body: JSON.stringify({ duelId })
-      })
-
-      const result = await response.json()
-
-      if (result.success) {
-        setSuccess('Prizes distributed successfully!')
-        // Refresh duels list
-        fetchDuels()
-      } else {
-        setSuccess(result.error || 'Failed to distribute prizes')
-      }
-    } catch (error) {
-      setSuccess('Error distributing prizes')
-      console.error('Distribute prizes error:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
   const fetchDuelDetails = async (duelId: string) => {
     try {
       const supabase = createClient()
       const { data: { session } } = await supabase.auth.getSession()
 
-      // Fetch submissions with user data
+      // First fetch submissions from duel_submissions
       const { data: submissions, error: submissionsError } = await supabase
         .from('duel_submissions')
-        .select(`
-          id, user_id, content, vote_score, vote_count, final_rank, elo_awarded, created_at,
-          profiles!inner(username)
-        `)
+        .select('id, user_id, content, vote_score, vote_count, final_rank, elo_awarded, created_at')
         .eq('duel_id', duelId)
         .order('vote_score', { ascending: false })
 
@@ -138,7 +102,28 @@ export default function AdminDuelManager() {
         return
       }
 
-      // Transform to match interface
+      // Then fetch usernames from profiles for all user_ids
+      const userIds = (submissions || []).map(sub => sub.user_id)
+      let profilesMap: { [key: string]: string } = {}
+      
+      if (userIds.length > 0) {
+        const { data: profiles, error: profilesError } = await supabase
+          .from('profiles')
+          .select('id, username')
+          .in('id', userIds)
+        
+        if (profilesError) {
+          console.error('Error fetching profiles:', profilesError)
+        } else {
+          // Create a map of user_id to username
+          profilesMap = (profiles || []).reduce((acc, profile) => {
+            acc[profile.id] = profile.username || 'Unknown'
+            return acc
+          }, {} as { [key: string]: string })
+        }
+      }
+
+      // Merge submissions with usernames
       const transformedSubmissions: DuelSubmission[] = (submissions || []).map(sub => ({
         id: sub.id,
         user_id: sub.user_id,
@@ -148,7 +133,7 @@ export default function AdminDuelManager() {
         final_rank: sub.final_rank,
         elo_awarded: sub.elo_awarded,
         created_at: sub.created_at,
-        username: (sub as any).profiles?.[0]?.username || 'Unknown'
+        username: profilesMap[sub.user_id] || 'Unknown'
       }))
 
       setDuelSubmissions(transformedSubmissions)
@@ -265,6 +250,45 @@ export default function AdminDuelManager() {
   useEffect(() => {
     if (selectedDuel) {
       fetchDuelDetails(selectedDuel.id)
+      
+      // Set up real-time subscription for voting phase
+      if (selectedDuel.status === 'voting') {
+        const supabase = createClient()
+        
+        // Clean up existing subscription
+        if (realtimeSubscription.current) {
+          realtimeSubscription.current.unsubscribe()
+        }
+        
+        // Subscribe to duel_submissions changes for this duel
+        realtimeSubscription.current = supabase
+          .channel(`duel-submissions-${selectedDuel.id}`)
+          .on(
+            'postgres_changes',
+            {
+              event: 'UPDATE',
+              schema: 'public',
+              table: 'duel_submissions',
+              filter: `duel_id=eq.${selectedDuel.id}`
+            },
+            (payload: any) => {
+              // Refresh submissions when vote_score or vote_count changes
+              if (payload.new.vote_score !== payload.old.vote_score || 
+                  payload.new.vote_count !== payload.old.vote_count) {
+                fetchDuelDetails(selectedDuel.id)
+              }
+            }
+          )
+          .subscribe()
+      }
+    }
+    
+    // Cleanup subscription when duel changes or component unmounts
+    return () => {
+      if (realtimeSubscription.current) {
+        realtimeSubscription.current.unsubscribe()
+        realtimeSubscription.current = null
+      }
     }
   }, [selectedDuel])
 
@@ -497,19 +521,6 @@ export default function AdminDuelManager() {
                       }}>
                         {getStatusText(duel.status)}
                       </div>
-                      {duel.status === 'voting' && !duel.prize_distributed && (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            distributePrizes(duel.id)
-                          }}
-                          disabled={loading}
-                          className="btn-cta-ghost"
-                          style={{ fontSize: '12px', padding: '6px 12px', marginTop: '8px' }}
-                        >
-                          {loading ? 'Distributing...' : 'Distribute Prizes Now'}
-                        </button>
-                      )}
                     </td>
                   </tr>
                 ))}
@@ -914,16 +925,6 @@ export default function AdminDuelManager() {
                 >
                   Edit Duel
                 </button>
-                {(selectedDuel.status === 'voting' || selectedDuel.status === 'completed') && !selectedDuel.prize_distributed && (
-                  <button
-                    onClick={() => distributePrizes(selectedDuel.id)}
-                    disabled={loading}
-                    className="btn-cta-primary"
-                    style={{ padding: '12px 24px' }}
-                  >
-                    {loading ? 'Distributing...' : 'Distribute Prizes'}
-                  </button>
-                )}
                 <button
                   onClick={() => setShowDeleteConfirm(true)}
                   className="btn-cta-danger"
