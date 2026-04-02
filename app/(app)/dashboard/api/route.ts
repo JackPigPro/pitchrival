@@ -59,8 +59,8 @@ export async function GET() {
 
     // Get ELO rating if it exists
     const { data: eloData } = await supabase
-      .from('user_elo_ratings')
-      .select('rating')
+      .from('user_stats')
+      .select('elo, rank')
       .eq('user_id', user.id)
       .single()
 
@@ -68,7 +68,8 @@ export async function GET() {
       ideas_count: ideas?.length || 0,
       likes_received: likes?.length || 0,
       comments_count: comments?.length || 0,
-      elo_rating: eloData?.rating || null
+      elo: eloData?.elo || 500,
+      rank: eloData?.rank || 'Trainee'
     }
 
     console.log('Dashboard API: Returning data:', { profile: !!profile, stats })

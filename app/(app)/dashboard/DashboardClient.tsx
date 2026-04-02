@@ -25,17 +25,18 @@ export default function DashboardClient() {
   const [userStats, setUserStats] = useState<UserStats | null>(null)
   const supabase = createClient()
 
-  // Get user from Supabase FIRST
   useEffect(() => {
-    const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      setUser(user)
-      setAuthLoading(false)
-      if (user) {
-        fetchUserStats(user.id)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        const currentUser = session?.user ?? null
+        setUser(currentUser)
+        setAuthLoading(false)
+        if (currentUser) {
+          fetchUserStats(currentUser.id)
+        }
       }
-    }
-    getUser()
+    )
+    return () => subscription.unsubscribe()
   }, [])
 
   const fetchUserStats = async (userId: string) => {
