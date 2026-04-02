@@ -196,8 +196,6 @@ export default function WeeklyDuelClient({
         return
       }
 
-      console.log('Submitting with token:', session.access_token?.substring(0, 10) + '...')
-      console.log('Duel ID:', currentDuel?.id)
 
       const response = await fetch('/compete/weekly-duel/api/submit', {
         method: 'POST',
@@ -211,9 +209,7 @@ export default function WeeklyDuelClient({
         })
       })
 
-      console.log('Response status:', response.status)
       const result = await response.json()
-      console.log('Response data:', result)
       
       if (result.success) {
         setSubmissionContent('')
@@ -257,7 +253,6 @@ export default function WeeklyDuelClient({
 
       const result = await response.json()
       
-      console.log('Vote API Response:', result)
       
       if (result.success) {
         setEloChange(result.elo_change || 1)

@@ -59,10 +59,6 @@ export default function WeeklyDuelPage() {
         .limit(1)
         .maybeSingle()
 
-      // Debug logging
-      console.log('Current time UTC:', nowUTC)
-      console.log('Current duel data:', currentDuelData)
-      console.log('Current duel error:', currentDuelError)
 
       if (currentDuelData && !currentDuelError) {
         currentDuel = currentDuelData
@@ -99,7 +95,6 @@ export default function WeeklyDuelPage() {
           .eq('duel_id', currentDuel.id)
           .order('vote_score', { ascending: false })
 
-        console.log('All submissions:', allSubs)
         setAllSubmissions(allSubs || [])
       }
 
@@ -176,7 +171,6 @@ export default function WeeklyDuelPage() {
       setSubmissionDeadline(subDeadline)
       setVotingDeadline(voteDeadline)
       
-      console.log('DEBUG: votingDeadline being set to:', voteDeadline)
 
     } catch (error) {
       console.error('Error fetching data:', error)
@@ -203,7 +197,6 @@ export default function WeeklyDuelPage() {
           table: 'weekly_duel'
         },
         (payload) => {
-          console.log('Weekly duel changed:', payload)
           setRefreshTrigger(prev => prev + 1)
         }
       )

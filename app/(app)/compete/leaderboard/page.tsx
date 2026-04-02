@@ -22,7 +22,6 @@ export default async function LeaderboardPage() {
     console.error('Error fetching user stats:', statsError)
   }
 
-  console.log('User stats raw:', userStats)
 
   // Step 2: Fetch all rows from profiles
   const { data: profiles, error: profilesError } = await supabase
@@ -33,7 +32,6 @@ export default async function LeaderboardPage() {
     console.error('Error fetching profiles:', profilesError)
   }
 
-  console.log('Profiles raw:', profiles)
 
   // Step 3: Manual JavaScript join - match by user_stats.user_id === profiles.id
   const transformedAllUsers = (userStats || []).map(stat => {
@@ -47,7 +45,6 @@ export default async function LeaderboardPage() {
     }
   })
 
-  console.log('All users transformed:', transformedAllUsers)
 
   // Fetch daily leaderboard (last 24 hours)
   const { data: dailyHistory, error: dailyError } = await supabase
@@ -65,7 +62,6 @@ export default async function LeaderboardPage() {
     console.error('Error fetching daily history:', dailyError)
   }
 
-  console.log('Daily history raw:', dailyHistory)
 
   // Fetch weekly leaderboard (last 7 days)
   const { data: weeklyHistory, error: weeklyError } = await supabase
@@ -83,7 +79,6 @@ export default async function LeaderboardPage() {
     console.error('Error fetching weekly history:', weeklyError)
   }
 
-  console.log('Weekly history raw:', weeklyHistory)
 
   // Create user lookup map from allUsers
   const userLookup = new Map(transformedAllUsers.map(user => [user.user_id, user]))
@@ -116,8 +111,6 @@ export default async function LeaderboardPage() {
     }
   }).sort((a, b) => b.new_elo - a.new_elo) // Sort by period gain descending
 
-  console.log('Complete daily list:', completeDailyList)
-  console.log('Complete weekly list:', completeWeeklyList)
 
   // Get current user's stats
   const { data: currentUserStats } = await supabase

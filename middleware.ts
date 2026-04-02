@@ -7,6 +7,32 @@ export async function middleware(request: NextRequest) {
   const user = data.user
   const { pathname, search } = request.nextUrl
 
+  // Check authentication for protected routes (except /onboarding)
+  const protectedRoutes = [
+    '/compete',
+    '/connect',
+    '/profile',
+    '/settings',
+    '/learn',
+    '/schools',
+    '/admin',
+  ]
+  
+  const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route))
+  
+  if (isProtectedRoute && !user) {
+    const redirectUrl = request.nextUrl.clone()
+    redirectUrl.pathname = '/login'
+    return NextResponse.redirect(redirectUrl)
+  }
+  
+  // Redirect authenticated users away from /login
+  if (pathname === '/login' && user) {
+    const redirectUrl = request.nextUrl.clone()
+    redirectUrl.pathname = '/'
+    return NextResponse.redirect(redirectUrl)
+  }
+
   // Redirect users who have completed onboarding away from /onboarding
   if (pathname === '/onboarding' && user) {
     const { data: profile } = await supabase
@@ -28,5 +54,12 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     '/onboarding',
+    '/compete/:path*',
+    '/connect/:path*',
+    '/profile/:path*',
+    '/settings',
+    '/learn',
+    '/schools',
+    '/admin/:path*',
   ],
 }
