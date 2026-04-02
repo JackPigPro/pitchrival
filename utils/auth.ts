@@ -17,8 +17,17 @@ export async function signOutUser() {
   const supabase = createClient()
   
   try {
+    console.log('Starting sign out process...')
+    
     // Sign out from Supabase
-    await supabase.auth.signOut()
+    const { error } = await supabase.auth.signOut()
+    
+    if (error) {
+      console.error('Supabase signOut error:', error)
+      throw error
+    }
+    
+    console.log('Supabase sign out successful, redirecting...')
     
     // Use window.location.href for a full page refresh to ensure
     // the middleware sees the updated auth state immediately
@@ -26,6 +35,7 @@ export async function signOutUser() {
   } catch (error) {
     console.error('Error signing out:', error)
     // Fallback: still try to redirect even if sign out fails
+    console.log('Using fallback redirect...')
     window.location.href = '/'
   }
 }

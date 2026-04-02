@@ -291,7 +291,11 @@ export default function TopNavClient({
                 </Link>
                 <button
                   type="button"
-                  onClick={signOutUser}
+                  onClick={() => {
+                    signOutUser().catch(error => {
+                      console.error('Sign out failed in TopNav:', error)
+                    })
+                  }}
                   style={{
                     ...dropdownLinkStyle,
                     width: '100%',

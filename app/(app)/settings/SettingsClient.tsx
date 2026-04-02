@@ -120,7 +120,11 @@ export default function SettingsClient({ initialProfile }: { initialProfile: Pro
             </p>
             <div className="pt-4 border-t border-[var(--border)]">
               <button
-                onClick={signOutUser}
+                onClick={() => {
+                  signOutUser().catch(error => {
+                    console.error('Sign out failed in Settings:', error)
+                  })
+                }}
                 className="w-full md:w-auto px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors"
               >
                 Sign Out
