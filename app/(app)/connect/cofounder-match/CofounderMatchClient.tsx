@@ -196,7 +196,7 @@ export default function CofounderMatchClient() {
     {
       id: user.id,
       username: user.user_metadata?.username || 'unknown',
-      display_name: user.user_metadata?.display_name,
+      display_name: user.user_metadata?.display_name || user.user_metadata?.username || 'Unknown',
       status_tags: user.user_metadata?.status_tags || [],
       created_at: user.created_at
     } as Profile,
@@ -298,7 +298,7 @@ export default function CofounderMatchClient() {
                         color: 'var(--text)',
                         margin: 0,
                       }}>
-                        {profile.display_name || profile.username}
+                        {profile.display_name || profile.username || 'Unknown'}
                       </h3>
                       {isCurrentUser && (
                         <span style={{
@@ -318,7 +318,7 @@ export default function CofounderMatchClient() {
                       color: 'var(--text2)',
                       marginBottom: '8px',
                     }}>
-                      @{profile.username}
+                      {profile.username ? `@${profile.username}` : ''}
                     </p>
                     {profile.status_tags && profile.status_tags.length > 0 && (
                       <p style={{
@@ -414,7 +414,7 @@ export default function CofounderMatchClient() {
                       fontWeight: 600,
                       fontSize: '16px',
                     }}>
-                      {(senderProfile.display_name || senderProfile.username).charAt(0).toUpperCase()}
+                      {(senderProfile.display_name || senderProfile.username || 'Unknown').charAt(0).toUpperCase()}
                     </div>
                     
                     <div style={{ flex: 1 }}>
@@ -424,13 +424,13 @@ export default function CofounderMatchClient() {
                         color: 'var(--text)',
                         marginBottom: '2px',
                       }}>
-                        {senderProfile.display_name || senderProfile.username}
+                        {senderProfile.display_name || senderProfile.username || 'Unknown'}
                       </p>
                       <p style={{
                         fontSize: '12px',
                         color: 'var(--text2)',
                       }}>
-                        @{senderProfile.username}
+                        {senderProfile.username ? `@${senderProfile.username}` : ''}
                       </p>
                     </div>
 
@@ -526,7 +526,7 @@ export default function CofounderMatchClient() {
                     fontWeight: 600,
                     fontSize: '16px',
                   }}>
-                    {(profile.display_name || profile.username).charAt(0).toUpperCase()}
+                    {(profile.display_name || profile.username || 'Unknown').charAt(0).toUpperCase()}
                   </div>
                   
                   <div style={{ flex: 1 }}>
@@ -536,13 +536,13 @@ export default function CofounderMatchClient() {
                       color: 'var(--text)',
                       marginBottom: '2px',
                     }}>
-                      {profile.display_name || profile.username}
+                      {profile.display_name || profile.username || 'Unknown'}
                     </p>
                     <p style={{
                       fontSize: '12px',
                       color: 'var(--text2)',
                     }}>
-                      @{profile.username}
+                      {profile.username ? `@${profile.username}` : ''}
                     </p>
                   </div>
 

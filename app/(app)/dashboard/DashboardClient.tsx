@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { useSupabase } from '@/components/SupabaseProvider'
 
 interface UserProfile {
   id: string
@@ -19,16 +18,22 @@ interface UserStats {
   elo_rating?: number
 }
 
-export default function DashboardClient() {
-  const { user, authLoading } = useSupabase()
-  const [userStats, setUserStats] = useState<UserStats | null>(null)
+interface DashboardClientProps {
+  initialProfile: any
+  initialStats: { elo: number, rank: string } | null
+  userId: string
+}
 
-  // Fetch user stats when authenticated
+export default function DashboardClient({ initialProfile, initialStats, userId }: DashboardClientProps) {
+  const [userStats, setUserStats] = useState(initialStats)
+  const [userProfile, setUserProfile] = useState(initialProfile)
+
+  // Fetch user stats for background refresh
   useEffect(() => {
-    if (user) {
+    if (userId) {
       fetchUserStats()
     }
-  }, [user])
+  }, [userId])
 
   const fetchUserStats = async () => {
     try {
@@ -61,63 +66,16 @@ export default function DashboardClient() {
     })
   }
 
-  // Show loading state while auth is resolving
-  if (authLoading) {
-    return (
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        height: '100vh',
-        background: 'var(--background)'
-      }}>
-        <div style={{ textAlign: 'center' }}>
-          <div style={{
-            width: '40px',
-            height: '40px',
-            border: '3px solid var(--border)',
-            borderTop: '3px solid var(--green)',
-            borderRadius: '50%',
-            animation: 'spin 1s linear infinite',
-            margin: '0 auto 20px'
-          }} />
-          <p style={{ color: 'var(--text2)', fontSize: '16px' }}>Loading...</p>
-        </div>
-      </div>
-    )
-  }
-
-  if (!user) {
-    return (
-      <div style={{ textAlign: 'center', padding: '60px 20px' }}>
-        <h2 style={{ fontSize: '24px', fontWeight: 700, marginBottom: '16px', fontFamily: 'var(--font-display)' }}>
-          Please log in to view your dashboard
-        </h2>
-        <p style={{ color: 'var(--text2)', marginBottom: '24px' }}>
-          You need to be signed in to access your personal dashboard.
-        </p>
-        <a 
-          href="/login" 
-          style={{
-            display: 'inline-block',
-            padding: '12px 24px',
-            background: 'var(--green)',
-            color: 'white',
-            textDecoration: 'none',
-            borderRadius: '8px',
-            fontWeight: 600,
-          }}
-        >
-          Log In
-        </a>
-      </div>
-    )
-  }
 
   // Error handling is now managed by useUser hook
 
-  const displayProfile = { username: '', display_name: '', created_at: new Date().toISOString() }
-  const displayStats = userStats || {
+  const displayProfile = userProfile || { username: '', display_name: '', created_at: new Date().toISOString() }
+  const displayStats = userStats ? {
+    ideas_count: 0, // These will come from the API refresh
+    likes_received: 0,
+    comments_count: 0,
+    elo_rating: userStats.elo
+  } : {
     ideas_count: 0,
     likes_received: 0,
     comments_count: 0,
