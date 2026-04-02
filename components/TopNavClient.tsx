@@ -5,7 +5,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import NotificationsBell from '@/components/NotificationsBell'
-import { signOutUser } from '@/utils/auth'
+import { signOut } from '@/app/actions/auth'
 
 export default function TopNavClient({
   user,
@@ -289,24 +289,21 @@ export default function TopNavClient({
                 <Link href="/settings" style={dropdownLinkStyle}>
                   All Settings
                 </Link>
-                <button
-                  type="button"
-                  onClick={() => {
-                    signOutUser().catch(error => {
-                      console.error('Sign out failed in TopNav:', error)
-                    })
-                  }}
-                  style={{
-                    ...dropdownLinkStyle,
-                    width: '100%',
-                    border: 'none',
-                    background: 'transparent',
-                    textAlign: 'left',
-                    cursor: 'pointer',
-                  }}
-                >
-                  Sign Out
-                </button>
+                <form action={signOut}>
+                  <button
+                    type="submit"
+                    style={{
+                      ...dropdownLinkStyle,
+                      width: '100%',
+                      border: 'none',
+                      background: 'transparent',
+                      textAlign: 'left',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Sign Out
+                  </button>
+                </form>
               </div>
             </div>
           </>

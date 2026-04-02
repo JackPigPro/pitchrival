@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useSupabase } from '@/components/SupabaseProvider'
-import { signOutUser } from '@/utils/auth'
+import { signOut } from '@/app/actions/auth'
 
 interface Profile {
   id: string
@@ -119,16 +119,14 @@ export default function SettingsClient({ initialProfile }: { initialProfile: Pro
               More settings coming soon.
             </p>
             <div className="pt-4 border-t border-[var(--border)]">
-              <button
-                onClick={() => {
-                  signOutUser().catch(error => {
-                    console.error('Sign out failed in Settings:', error)
-                  })
-                }}
-                className="w-full md:w-auto px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors"
-              >
-                Sign Out
-              </button>
+              <form action={signOut}>
+                <button
+                  type="submit"
+                  className="w-full md:w-auto px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors"
+                >
+                  Sign Out
+                </button>
+              </form>
             </div>
           </div>
         </div>
