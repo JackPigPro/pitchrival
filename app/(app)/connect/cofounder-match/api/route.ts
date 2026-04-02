@@ -11,11 +11,11 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Fetch profiles where 'Open to Co-founder' is in status_tags
+    // Fetch profiles where 'Open to be a Co-founder' is in status_tags
     const { data: profiles, error: profilesError } = await supabase
       .from('profiles')
       .select('*')
-      .contains('status_tags', ['Open to Co-founder'])
+      .ilike('status_tags', '%Open to be a Co-founder%')
 
     if (profilesError) {
       console.error('Error fetching profiles:', profilesError)
