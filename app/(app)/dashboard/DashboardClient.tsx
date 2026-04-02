@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import Link from 'next/link'
-import { useUser } from '@/hooks/useUser'
 
 interface UserProfile {
   id: string
@@ -21,18 +20,23 @@ interface UserStats {
 }
 
 export default function DashboardClient() {
-  const { isAuthenticated, authLoading, username, display_name, loading, error } = useUser()
+  const [user, setUser] = useState<any>(null)
   const [userStats, setUserStats] = useState<UserStats | null>(null)
   const supabase = createClient()
 
-  // Fetch user stats when authenticated
+  // Get user from Supabase FIRST
   useEffect(() => {
-    if (isAuthenticated) {
-      fetchUserStats()
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      setUser(user)
+      if (user) {
+        fetchUserStats(user.id)
+      }
     }
-  }, [isAuthenticated])
+    getUser()
+  }, [])
 
-  const fetchUserStats = async () => {
+  const fetchUserStats = async (userId: string) => {
     try {
       const apiUrl = '/dashboard/api'
       console.log('Dashboard: Fetching from URL:', apiUrl)
@@ -50,7 +54,6 @@ export default function DashboardClient() {
       setUserStats(data.stats || null)
     } catch (err) {
       console.error('Error fetching user data:', err)
-      // Error handling is now managed by useUser hook
     }
   }
 
@@ -63,33 +66,7 @@ export default function DashboardClient() {
     })
   }
 
-  // Show loading state while auth is resolving
-  if (authLoading) {
-    return (
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        height: '100vh',
-        background: 'var(--background)'
-      }}>
-        <div style={{ textAlign: 'center' }}>
-          <div style={{
-            width: '40px',
-            height: '40px',
-            border: '3px solid var(--border)',
-            borderTop: '3px solid var(--green)',
-            borderRadius: '50%',
-            animation: 'spin 1s linear infinite',
-            margin: '0 auto 20px'
-          }} />
-          <p style={{ color: 'var(--text2)', fontSize: '16px' }}>Loading...</p>
-        </div>
-      </div>
-    )
-  }
-
-  if (!isAuthenticated) {
+  if (user === null) {
     return (
       <div style={{ textAlign: 'center', padding: '60px 20px' }}>
         <h2 style={{ fontSize: '24px', fontWeight: 700, marginBottom: '16px', fontFamily: 'var(--font-display)' }}>
@@ -132,9 +109,9 @@ export default function DashboardClient() {
     elo_rating: null
   }
 
-  const displayProfile = { username: username || '', display_name: display_name || '', created_at: new Date().toISOString() }
+  const displayProfile = { username: user?.user_metadata?.username || '', display_name: user?.user_metadata?.display_name || '', created_at: user?.created_at || new Date().toISOString() }
   const displayStats = userStats || skeletonStats
-  const isLoadingData = !userStats || loading
+  const isLoadingData = !userStats
 
   return (
     <div style={{ padding: '24px', maxWidth: '1200px', margin: '0 auto' }}>
@@ -196,7 +173,7 @@ export default function DashboardClient() {
                   </span>
                 </div>
               ) : (
-                !isLoadingData && !display_name && null
+                !isLoadingData && !displayProfile.display_name && null
               )}
               <div style={{ marginBottom: '12px' }}>
                 <span style={{ color: 'var(--text2)', fontSize: '14px' }}>Member Since:</span>
