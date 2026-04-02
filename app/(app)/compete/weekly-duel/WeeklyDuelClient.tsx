@@ -661,7 +661,6 @@ export default function WeeklyDuelClient({
                   {votingDeadline && (
                     <div style={{ marginBottom: '24px' }}>
                       <div style={{ fontSize: '14px', color: 'var(--text2)', fontFamily: 'var(--font-body)', marginBottom: '8px', textAlign: 'center' }}>
-                        Voting period ends in:
                       </div>
                       <div id="voting-countdown" style={{ fontSize: '20px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--purple)', textAlign: 'center', padding: '12px', borderRadius: '8px', background: 'var(--purple-tint)', border: "1px solid var(--purple)" }}>
                         Loading countdown...
@@ -765,9 +764,6 @@ export default function WeeklyDuelClient({
                         </div>
                       )}
 
-                      <div style={{ textAlign: 'center', fontSize: '16px', color: 'var(--text2)', fontFamily: 'var(--font-body)' }}>
-                        You've voted on {votedPairs.size} matchup{votedPairs.size !== 1 ? 's' : ''}
-                      </div>
                     </div>
                   ) : (
                     <div style={{ textAlign: 'center', fontSize: '18px', color: 'var(--text2)', fontFamily: 'var(--font-body)', padding: '32px' }}>
