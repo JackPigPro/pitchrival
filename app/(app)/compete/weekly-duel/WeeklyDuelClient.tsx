@@ -638,8 +638,6 @@ export default function WeeklyDuelClient({
                   {/* Voting countdown timer */}
                   {votingDeadline && (
                     <div style={{ marginBottom: '24px' }}>
-                      <div style={{ fontSize: '14px', color: 'var(--text2)', fontFamily: 'var(--font-body)', marginBottom: '8px', textAlign: 'center' }}>
-                      </div>
                       <div id="voting-countdown" style={{ fontSize: '20px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--purple)', textAlign: 'center', padding: '12px', borderRadius: '8px', background: 'var(--purple-tint)', border: "1px solid var(--purple)" }}>
                         Loading countdown...
                       </div>

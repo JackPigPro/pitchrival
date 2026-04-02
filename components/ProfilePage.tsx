@@ -1152,4 +1152,11 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
           <div style={{
             fontSize: '16px',
             color: 'var(--text2)',
-            fontFamily: 'var(--font-body)',
+            fontFamily: 'var(--font-body)'
+          }}>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
