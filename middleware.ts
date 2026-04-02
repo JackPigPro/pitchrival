@@ -63,6 +63,7 @@ export const config = {
   matcher: [
     '/',
     '/onboarding',
+    '/signout',
     '/compete/:path*',
     '/connect/:path*',
     '/profile/:path*',

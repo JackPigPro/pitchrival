@@ -14,16 +14,8 @@ import { createClient } from '@/utils/supabase/client'
  * to ensure consistent sign out behavior across the app.
  */
 export async function signOutUser() {
-  try {
-    const supabase = createClient()
-    supabase.auth.signOut()
-  } catch (e) {
-    // ignore
-  }
-  // Clear storage and redirect no matter what
-  localStorage.clear()
-  sessionStorage.clear()
-  window.location.href = '/'
+  // Redirect to dedicated signout page that handles the sign out process
+  window.location.href = '/signout'
 }
 
 /**
@@ -34,19 +26,7 @@ export function useSignOut() {
   const router = useRouter()
   
   return async () => {
-    const supabase = createClient()
-    
-    try {
-      // Sign out from Supabase
-      await supabase.auth.signOut()
-      
-      // Full page refresh to ensure middleware sees updated auth state
-      window.location.href = '/'
-    } catch (error) {
-      console.error('Error signing out:', error)
-      // Fallback to router navigation
-      router.push('/')
-      router.refresh()
-    }
+    // Redirect to dedicated signout page that handles the sign out process
+    window.location.href = '/signout'
   }
 }
