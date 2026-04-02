@@ -12,7 +12,6 @@ export default function IdeasPageClient() {
   const [ideas, setIdeas] = useState<IdeaWithDetails[]>([])
   const [selectedIdea, setSelectedIdea] = useState<IdeaWithDetails | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const supabase = createClient()
 
@@ -33,14 +32,11 @@ export default function IdeasPageClient() {
   useEffect(() => {
     if (user) {
       fetchIdeas()
-    } else {
-      setLoading(false)
     }
   }, [user])
 
   const fetchIdeas = async (sort = 'latest') => {
     try {
-      setLoading(true)
       setError(null)
       
       const response = await fetch(`/connect/ideas/api/ideas?sort=${sort}&userId=${user?.id}`)
@@ -53,8 +49,6 @@ export default function IdeasPageClient() {
     } catch (err) {
       console.error('Error fetching ideas:', err)
       setError('Failed to load ideas')
-    } finally {
-      setLoading(false)
     }
   }
 
@@ -123,14 +117,6 @@ export default function IdeasPageClient() {
         >
           Log In
         </a>
-      </div>
-    )
-  }
-
-  if (loading) {
-    return (
-      <div style={{ textAlign: 'center', padding: '60px 20px' }}>
-        <div style={{ color: 'var(--text2)' }}>Loading ideas...</div>
       </div>
     )
   }
