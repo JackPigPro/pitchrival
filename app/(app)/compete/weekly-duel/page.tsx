@@ -187,8 +187,8 @@ export default function WeeklyDuelPage() {
         state = 'between'
       }
       
-      // If duel status is explicitly 'voting', ensure votingDeadline is set
-      if (currentDuel.status === 'voting' && !voteDeadline) {
+      // If duel status is explicitly 'voting', always set votingDeadline
+      if (currentDuel && currentDuel.status === 'voting') {
         voteDeadline = new Date(new Date(currentDuel.end_date).getTime() + 24 * 60 * 60 * 1000)
       }
 

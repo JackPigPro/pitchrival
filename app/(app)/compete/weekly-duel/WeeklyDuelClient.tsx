@@ -18,6 +18,7 @@ interface UserSubmission {
   vote_score: number
   vote_count: number
   created_at: string
+  user_id: string
   final_rank?: number
   elo_awarded?: number
 }
@@ -286,6 +287,11 @@ export default function WeeklyDuelClient({
     
     for (let i = 0; i < allSubmissions.length; i++) {
       for (let j = i + 1; j < allSubmissions.length; j++) {
+        // Skip pairs where either submission belongs to current user
+        if (allSubmissions[i].user_id === currentUserId || allSubmissions[j].user_id === currentUserId) {
+          continue
+        }
+        
         const pair1 = `${allSubmissions[i].id}|${allSubmissions[j].id}`
         const pair2 = `${allSubmissions[j].id}|${allSubmissions[i].id}`
         
@@ -644,6 +650,12 @@ export default function WeeklyDuelClient({
                       </div>
                       <div style={{ fontSize: '20px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
                         Voting requires at least 2 submissions to generate matchups.
+                      </div>
+                    </div>
+                  ) : voteCooldown > 0 ? (
+                    <div style={{ textAlign: 'center', padding: '32px' }}>
+                      <div style={{ fontSize: '24px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--purple)' }}>
+                        Next matchup in {voteCooldown} seconds...
                       </div>
                     </div>
                   ) : currentPair ? (
