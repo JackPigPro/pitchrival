@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useSupabase } from '@/components/SupabaseProvider'
+import { signOutUser } from '@/utils/auth'
 
 interface Profile {
   id: string
@@ -113,9 +114,19 @@ export default function SettingsClient({ initialProfile }: { initialProfile: Pro
           <h2 className="text-xl font-semibold text-[var(--text)] font-[var(--font-display)] mb-4">
             Account
           </h2>
-          <p className="text-[var(--text2)]">
-            More settings coming soon.
-          </p>
+          <div className="space-y-4">
+            <p className="text-[var(--text2)]">
+              More settings coming soon.
+            </p>
+            <div className="pt-4 border-t border-[var(--border)]">
+              <button
+                onClick={signOutUser}
+                className="w-full md:w-auto px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors"
+              >
+                Sign Out
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>

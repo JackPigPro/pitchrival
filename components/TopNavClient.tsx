@@ -5,6 +5,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import NotificationsBell from '@/components/NotificationsBell'
+import { signOutUser } from '@/utils/auth'
 
 export default function TopNavClient({
   user,
@@ -290,11 +291,7 @@ export default function TopNavClient({
                 </Link>
                 <button
                   type="button"
-                  onClick={async () => {
-                    await supabase.auth.signOut()
-                    router.push('/')
-                    router.refresh()
-                  }}
+                  onClick={signOutUser}
                   style={{
                     ...dropdownLinkStyle,
                     width: '100%',
