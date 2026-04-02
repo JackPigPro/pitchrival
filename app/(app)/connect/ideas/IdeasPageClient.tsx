@@ -22,9 +22,16 @@ export default function IdeasPageClient() {
   // Auth state management without blocking
   useEffect(() => {
     const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      setUser(user)
-      setAuthLoading(false)
+      console.log('IdeasPage: getUser called')
+      try {
+        const { data: { user }, error } = await supabase.auth.getUser()
+        console.log('IdeasPage: getUser result', user, error)
+        setUser(user)
+        setAuthLoading(false)
+      } catch (err) {
+        console.log('IdeasPage: getUser threw', err)
+        setAuthLoading(false)
+      }
     }
     getUser()
 
