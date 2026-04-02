@@ -195,6 +195,8 @@ export default function WeeklyDuelPage() {
       setCurrentState(state)
       setSubmissionDeadline(subDeadline)
       setVotingDeadline(voteDeadline)
+      
+      console.log('DEBUG: votingDeadline being set to:', voteDeadline)
 
     } catch (error) {
       console.error('Error fetching data:', error)

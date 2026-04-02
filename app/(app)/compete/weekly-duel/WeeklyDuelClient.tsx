@@ -261,7 +261,6 @@ export default function WeeklyDuelClient({
       
       if (result.success) {
         setEloChange(result.elo_change || 1)
-        setVoteCooldown(30)
         
         // Mark this pair as voted
         const newVotedPairs = new Set(votedPairs)
@@ -269,10 +268,30 @@ export default function WeeklyDuelClient({
         newVotedPairs.add(`${loserId}|${winnerId}`)
         setVotedPairs(newVotedPairs)
         
-        // Load new pair after successful vote
+        // Check if this was the last available pair
+        const availablePairs: string[] = []
+        for (let i = 0; i < allSubmissions.length; i++) {
+          for (let j = i + 1; j < allSubmissions.length; j++) {
+            if (allSubmissions[i].user_id === currentUserId || allSubmissions[j].user_id === currentUserId) {
+              continue
+            }
+            const pair1 = `${allSubmissions[i].id}|${allSubmissions[j].id}`
+            const pair2 = `${allSubmissions[j].id}|${allSubmissions[i].id}`
+            if (!newVotedPairs.has(pair1) && !newVotedPairs.has(pair2)) {
+              availablePairs.push(pair1)
+            }
+          }
+        }
+        
+        // Only set cooldown if there are more pairs available
+        if (availablePairs.length > 0) {
+          setVoteCooldown(30)
+        }
+        
+        // Load new pair after successful vote (with slight delay for UX)
         setTimeout(() => {
           loadNewPair()
-        }, 1000)
+        }, availablePairs.length > 0 ? 1000 : 0)
       } else {
         console.error('Vote failed:', result.error)
       }
