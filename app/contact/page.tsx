@@ -48,7 +48,7 @@ export default function ContactPage() {
           </div>
         </div>
 
-        <div className="content-section">
+        <div className="content-section mt-12">
           <div className="story-card">
             <h2 className="section-title">Get in Touch</h2>
             <div className="story-content">
@@ -67,18 +67,6 @@ export default function ContactPage() {
           </div>
         </div>
 
-        <div className="content-section">
-          <div className="cta-section">
-            <div className="cta-content">
-              <h2 className="cta-title">Ready to start building?</h2>
-              <p className="cta-subtitle">Join thousands of young founders on PitchRival</p>
-              <div className="cta-actions">
-                <button className="cta-button primary">Sign Up Free</button>
-                <button className="cta-button secondary">Learn More</button>
-              </div>
-            </div>
-          </div>
-        </div>
 
         <div className="legal-footer">
           <p>PitchRival • Raleigh, North Carolina</p>

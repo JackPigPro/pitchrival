@@ -88,18 +88,6 @@ export default function AboutPage() {
           </div>
         </div>
 
-        <div className="content-section">
-          <div className="cta-section">
-            <div className="cta-content">
-              <h2 className="cta-title">We're just getting started.</h2>
-              <p className="cta-subtitle">Join thousands of young founders building the future.</p>
-              <div className="cta-actions">
-                <button className="cta-button primary">Start Competing</button>
-                <button className="cta-button secondary">Find Co-founders</button>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     </main>
   )
