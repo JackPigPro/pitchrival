@@ -35,9 +35,24 @@ export default function IdeasFeed({
   }
 
   const formatTimeAgo = (dateString: string) => {
+    // Debug: Log the raw created_at value
+    console.log('Raw created_at:', dateString)
+    
     const date = new Date(dateString)
     const now = new Date()
+    
+    // Debug: Log parsed dates
+    console.log('Parsed date:', date)
+    console.log('Current time:', now)
+    
+    // Check if date is valid
+    if (isNaN(date.getTime())) {
+      console.error('Invalid date:', dateString)
+      return 'unknown time'
+    }
+    
     const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000)
+    console.log('Time difference in seconds:', diffInSeconds)
 
     if (diffInSeconds < 60) return 'just now'
     
@@ -95,94 +110,102 @@ export default function IdeasFeed({
 
   return (
     <div>
-      {/* Tab switcher */}
+      {/* Tab row */}
       <div style={{
-        display: 'flex',
-        gap: '4px',
-        marginBottom: '24px',
-        padding: '4px',
-        background: 'var(--card2)',
-        border: '1px solid var(--border)',
-        borderRadius: '8px',
+        marginBottom: '16px',
       }}>
-        <button
-          onClick={() => onTabChange('public')}
-          style={{
-            padding: '10px 20px',
-            background: activeTab === 'public' ? 'var(--green)' : 'transparent',
-            color: activeTab === 'public' ? 'white' : 'var(--text)',
-            border: 'none',
-            borderRadius: '6px',
-            fontSize: '14px',
-            fontWeight: 600,
-            cursor: 'pointer',
-            fontFamily: 'var(--font-body)',
-            transition: 'all 0.2s',
-          }}
-        >
-          Public
-        </button>
-        <button
-          onClick={() => onTabChange('my')}
-          style={{
-            padding: '10px 20px',
-            background: activeTab === 'my' ? 'var(--green)' : 'transparent',
-            color: activeTab === 'my' ? 'white' : 'var(--text)',
-            border: 'none',
-            borderRadius: '6px',
-            fontSize: '14px',
-            fontWeight: 600,
-            cursor: 'pointer',
-            fontFamily: 'var(--font-body)',
-            transition: 'all 0.2s',
-          }}
-        >
-          My Ideas
-        </button>
+        <div style={{
+          display: 'flex',
+          gap: '4px',
+          padding: '4px',
+          background: 'var(--card2)',
+          border: '1px solid var(--border)',
+          borderRadius: '8px',
+          width: 'fit-content',
+        }}>
+          <button
+            onClick={() => onTabChange('public')}
+            style={{
+              padding: '10px 20px',
+              background: activeTab === 'public' ? 'var(--green)' : 'transparent',
+              color: activeTab === 'public' ? 'white' : 'var(--text)',
+              border: 'none',
+              borderRadius: '6px',
+              fontSize: '14px',
+              fontWeight: 600,
+              cursor: 'pointer',
+              fontFamily: 'var(--font-body)',
+              transition: 'all 0.2s',
+            }}
+          >
+            Public
+          </button>
+          <button
+            onClick={() => onTabChange('my')}
+            style={{
+              padding: '10px 20px',
+              background: activeTab === 'my' ? 'var(--green)' : 'transparent',
+              color: activeTab === 'my' ? 'white' : 'var(--text)',
+              border: 'none',
+              borderRadius: '6px',
+              fontSize: '14px',
+              fontWeight: 600,
+              cursor: 'pointer',
+              fontFamily: 'var(--font-body)',
+              transition: 'all 0.2s',
+            }}
+          >
+            My Ideas
+          </button>
+        </div>
       </div>
 
-      {/* Filter bar */}
+      {/* Filter row */}
       <div style={{
-        display: 'flex',
-        gap: '8px',
         marginBottom: '24px',
-        padding: '16px',
-        background: 'var(--card)',
-        border: '1px solid var(--border)',
-        borderRadius: '8px',
       }}>
-        <button
-          onClick={() => handleSortChange('latest')}
-          style={{
-            padding: '8px 16px',
-            background: currentSort === 'latest' ? 'var(--green)' : 'var(--card2)',
-            color: currentSort === 'latest' ? 'white' : 'var(--text)',
-            border: '1px solid var(--border)',
-            borderRadius: '6px',
-            fontSize: '14px',
-            fontWeight: 500,
-            cursor: 'pointer',
-            fontFamily: 'var(--font-body)',
-          }}
-        >
-          Latest
-        </button>
-        <button
-          onClick={() => handleSortChange('most_liked')}
-          style={{
-            padding: '8px 16px',
-            background: currentSort === 'most_liked' ? 'var(--green)' : 'var(--card2)',
-            color: currentSort === 'most_liked' ? 'white' : 'var(--text)',
-            border: '1px solid var(--border)',
-            borderRadius: '6px',
-            fontSize: '14px',
-            fontWeight: 500,
-            cursor: 'pointer',
-            fontFamily: 'var(--font-body)',
-          }}
-        >
-          Most Liked
-        </button>
+        <div style={{
+          display: 'flex',
+          gap: '8px',
+          padding: '12px 16px',
+          background: 'var(--card)',
+          border: '1px solid var(--border)',
+          borderRadius: '8px',
+          width: 'fit-content',
+        }}>
+          <button
+            onClick={() => handleSortChange('latest')}
+            style={{
+              padding: '8px 16px',
+              background: currentSort === 'latest' ? 'var(--green)' : 'var(--card2)',
+              color: currentSort === 'latest' ? 'white' : 'var(--text)',
+              border: '1px solid var(--border)',
+              borderRadius: '6px',
+              fontSize: '14px',
+              fontWeight: 500,
+              cursor: 'pointer',
+              fontFamily: 'var(--font-body)',
+            }}
+          >
+            Latest
+          </button>
+          <button
+            onClick={() => handleSortChange('most_liked')}
+            style={{
+              padding: '8px 16px',
+              background: currentSort === 'most_liked' ? 'var(--green)' : 'var(--card2)',
+              color: currentSort === 'most_liked' ? 'white' : 'var(--text)',
+              border: '1px solid var(--border)',
+              borderRadius: '6px',
+              fontSize: '14px',
+              fontWeight: 500,
+              cursor: 'pointer',
+              fontFamily: 'var(--font-body)',
+            }}
+          >
+            Most Liked
+          </button>
+        </div>
       </div>
 
       {/* Ideas grid */}
@@ -281,22 +304,6 @@ export default function IdeasFeed({
 
               {/* Title */}
               <div style={{ position: 'relative', marginBottom: '8px' }}>
-                {!idea.is_public && activeTab === 'my' && (
-                  <span style={{
-                    position: 'absolute',
-                    top: '-8px',
-                    left: '0',
-                    background: 'var(--orange)',
-                    color: 'white',
-                    fontSize: '10px',
-                    fontWeight: 600,
-                    padding: '2px 6px',
-                    borderRadius: '4px',
-                    fontFamily: 'var(--font-body)',
-                  }}>
-                    Private
-                  </span>
-                )}
                 <h3 style={{
                   fontSize: '16px',
                   fontWeight: 700,
@@ -305,7 +312,6 @@ export default function IdeasFeed({
                   color: 'var(--text)',
                   lineHeight: 1.3,
                   paddingRight: idea.user_id === currentUserId ? '100px' : '0',
-                  paddingTop: !idea.is_public && activeTab === 'my' ? '12px' : '0',
                 }}>
                   {idea.title}
                 </h3>
@@ -346,21 +352,43 @@ export default function IdeasFeed({
               {/* Stats */}
               <div style={{
                 display: 'flex',
-                gap: '16px',
+                justifyContent: 'space-between',
+                alignItems: 'flex-end',
                 fontSize: '13px',
                 color: 'var(--text3)',
               }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  <span>👍</span>
-                  <span>{idea._count?.idea_likes || 0}</span>
+                <div style={{
+                  display: 'flex',
+                  gap: '16px',
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <span>👍</span>
+                    <span>{idea._count?.idea_likes || 0}</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <span>💬</span>
+                    <span>{idea._count?.idea_comments || 0}</span>
+                  </div>
+                  <div>
+                    {formatTimeAgo(idea.created_at)}
+                  </div>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  <span>💬</span>
-                  <span>{idea._count?.idea_comments || 0}</span>
-                </div>
-                <div>
-                  {formatTimeAgo(idea.created_at)}
-                </div>
+                
+                {/* Public/Private badge for My Ideas tab */}
+                {activeTab === 'my' && (
+                  <span style={{
+                    background: idea.is_public ? 'var(--green)' : 'var(--grey)',
+                    color: 'white',
+                    fontSize: '10px',
+                    fontWeight: 600,
+                    padding: '3px 8px',
+                    borderRadius: '4px',
+                    fontFamily: 'var(--font-body)',
+                    textTransform: 'uppercase',
+                  }}>
+                    {idea.is_public ? 'Public' : 'Private'}
+                  </span>
+                )}
               </div>
             </div>
           ))}
