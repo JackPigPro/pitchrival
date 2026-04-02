@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useUser } from '@/hooks/useUser'
+import { useSupabase } from '@/components/SupabaseProvider'
+import { createClient } from '@/utils/supabase/client'
 
 interface Profile {
   id: string
@@ -20,7 +21,8 @@ interface CofounderRequest {
 }
 
 export default function CofounderMatchClient() {
-  const { user, profile, authLoading } = useUser()
+  const { user, authLoading } = useSupabase()
+  const [userProfile, setUserProfile] = useState<Profile | null>(null)
   const [profiles, setProfiles] = useState<Profile[]>([])
   const [requests, setRequests] = useState<CofounderRequest[]>([])
   const [connectedProfiles, setConnectedProfiles] = useState<Profile[]>([])
@@ -30,10 +32,28 @@ export default function CofounderMatchClient() {
 
 
   useEffect(() => {
-    if (user) {
+    if (user && !authLoading) {
       fetchData()
+      fetchUserProfile()
     }
-  }, [user])
+  }, [user, authLoading])
+
+  const fetchUserProfile = async () => {
+    if (!user) return
+    
+    try {
+      const supabase = createClient()
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single()
+      
+      setUserProfile(profile)
+    } catch (err) {
+      console.error('Error fetching user profile:', err)
+    }
+  }
 
   const fetchData = async () => {
     try {
@@ -149,8 +169,18 @@ export default function CofounderMatchClient() {
     )
   }
 
-  // Remove auth loading blocker - UI shell always renders
+  // Show loading state while auth is loading
+  if (authLoading) {
+    return (
+      <div style={{ textAlign: 'center', padding: '60px 20px' }}>
+        <div style={{ fontSize: '18px', color: 'var(--text2)' }}>
+          Loading...
+        </div>
+      </div>
+    )
+  }
 
+  // Only show login prompt if auth is complete and user is not authenticated
   if (!user) {
     return (
       <div style={{ textAlign: 'center', padding: '60px 20px' }}>
@@ -192,13 +222,13 @@ export default function CofounderMatchClient() {
   const incomingRequests = getIncomingRequests()
   
   // Include current user in profiles if they are listed
-  const allProfiles = isListed && user && profile ? [
+  const allProfiles = isListed && user && userProfile ? [
     {
       id: user.id,
-      username: profile.username,
-      display_name: profile.display_name,
-      status_tags: profile.status_tags,
-      created_at: profile.created_at
+      username: userProfile.username,
+      display_name: userProfile.display_name,
+      status_tags: userProfile.status_tags,
+      created_at: userProfile.created_at
     } as Profile,
     ...profiles
   ] : profiles
