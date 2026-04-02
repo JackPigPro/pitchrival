@@ -26,6 +26,7 @@ export default function CofounderMatchClient() {
   const [requests, setRequests] = useState<CofounderRequest[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [isListed, setIsListed] = useState(false)
   const supabase = createClient()
 
   useEffect(() => {
@@ -63,6 +64,7 @@ export default function CofounderMatchClient() {
       const data = await response.json()
       setProfiles(data.profiles || [])
       setRequests(data.requests || [])
+      setIsListed(data.isListed || false)
       setLoading(false)
     } catch (err) {
       console.error('Error fetching data:', err)
@@ -88,6 +90,25 @@ export default function CofounderMatchClient() {
     } catch (err) {
       console.error('Error sending request:', err)
       alert('Failed to send request. Please try again.')
+    }
+  }
+
+  const handleToggleListing = async () => {
+    try {
+      const response = await fetch('/connect/cofounder-match/api', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ open_to_cofounder: !isListed }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to toggle listing')
+      }
+
+      setIsListed(!isListed)
+    } catch (err) {
+      console.error('Error toggling listing:', err)
+      alert('Failed to update listing. Please try again.')
     }
   }
 
@@ -221,6 +242,27 @@ export default function CofounderMatchClient() {
         }}>
           Find Co-founders
         </h2>
+
+        {/* Toggle listing button */}
+        <div style={{ marginBottom: '24px' }}>
+          <button
+            onClick={handleToggleListing}
+            style={{
+              padding: '12px 24px',
+              background: isListed ? 'transparent' : 'var(--green)',
+              color: isListed ? 'var(--red)' : 'white',
+              border: isListed ? '2px solid var(--red)' : '2px solid var(--green)',
+              borderRadius: '8px',
+              fontSize: '16px',
+              fontWeight: 600,
+              cursor: 'pointer',
+              fontFamily: 'var(--font-body)',
+              transition: 'all 0.2s ease',
+            }}
+          >
+            {isListed ? 'Remove Myself from Pool' : 'List Myself as Available'}
+          </button>
+        </div>
 
         {loading ? (
           <div style={{ textAlign: 'center', padding: '60px 20px' }}>

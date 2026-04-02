@@ -11,11 +11,11 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Fetch profiles where 'Open to be a Co-founder' is in status_tags
+    // Fetch profiles where open_to_cofounder is true
     const { data: profiles, error: profilesError } = await supabase
       .from('profiles')
       .select('*')
-      .contains('status_tags', ['Open to be a Co-founder'])
+      .eq('open_to_cofounder', true)
 
     if (profilesError) {
       console.error('Error fetching profiles:', profilesError)
@@ -50,7 +50,18 @@ export async function GET(request: NextRequest) {
       profile.id !== user.id && !connectedUserIds.has(profile.id)
     ) || []
 
-    return NextResponse.json({ profiles: filteredProfiles, requests })
+    // Fetch current user's profile to check if they are listed
+    const { data: currentUserProfile } = await supabase
+      .from('profiles')
+      .select('open_to_cofounder')
+      .eq('id', user.id)
+      .single()
+
+    return NextResponse.json({ 
+      profiles: filteredProfiles, 
+      requests, 
+      isListed: currentUserProfile?.open_to_cofounder || false 
+    })
   } catch (error) {
     console.error('Error in GET /api/cofounder-match:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
@@ -127,57 +138,21 @@ export async function PATCH(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { request_id, action } = body
+    const { open_to_cofounder } = body
 
-    if (!request_id || !action || !['accept', 'reject'].includes(action)) {
-      return NextResponse.json({ error: 'request_id and action (accept/reject) are required' }, { status: 400 })
+    if (typeof open_to_cofounder !== 'boolean') {
+      return NextResponse.json({ error: 'open_to_cofounder must be a boolean' }, { status: 400 })
     }
 
-    // Update the request status
-    const { data: updatedRequest, error: updateError } = await supabase
-      .from('cofounder_requests')
-      .update({ status: action })
-      .eq('id', request_id)
-      .eq('receiver_id', user.id)
-      .select()
-      .single()
+    // Update the user's profile
+    const { error: updateError } = await supabase
+      .from('profiles')
+      .update({ open_to_cofounder })
+      .eq('id', user.id)
 
     if (updateError) {
-      console.error('Error updating cofounder request:', updateError)
-      return NextResponse.json({ error: 'Failed to update cofounder request' }, { status: 500 })
-    }
-
-    // If accepted, send notification to sender and create initial message
-    if (action === 'accept') {
-      const { error: notificationError } = await supabase
-        .from('notifications')
-        .insert({
-          user_id: updatedRequest.sender_id,
-          type: 'cofounder_request_accepted',
-          title: 'Co-founder Request Accepted',
-          body: 'Your co-founder request was accepted!',
-          reference_id: user.id,
-          reference_type: 'user'
-        })
-
-      if (notificationError) {
-        console.error('Error creating acceptance notification:', notificationError)
-        // Don't fail the request if notification fails
-      }
-
-      // Create the first message in the conversation
-      const { error: messageError } = await supabase
-        .from('messages')
-        .insert({
-          sender_id: user.id, // The receiver (person who accepted)
-          receiver_id: updatedRequest.sender_id, // The original sender
-          content: "You are now connected as co-founders! Start the conversation."
-        })
-
-      if (messageError) {
-        console.error('Error creating initial message:', messageError)
-        // Don't fail the request if message creation fails
-      }
+      console.error('Error updating profile:', updateError)
+      return NextResponse.json({ error: 'Failed to update profile' }, { status: 500 })
     }
 
     return NextResponse.json({ success: true })
