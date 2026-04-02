@@ -149,47 +149,27 @@ export default function WeeklyDuelPage() {
         }
       }
 
-      // Determine current state based on timing and duel status
-      const estTime = new Date(now.toLocaleString("en-US", { timeZone: "America/New_York" }))
-      const dayOfWeek = estTime.getDay() // 0 = Sunday, 6 = Saturday
-      const hour = estTime.getHours()
-      
+      // Determine current state based on duel status from Supabase
       let state: 'active' | 'voting' | 'results' | 'between'
       let subDeadline: Date | null = null
       let voteDeadline: Date | null = null
       
       if (currentDuel) {
-        // If duel is already completed, show results regardless of time
-        if (currentDuel.status === 'completed') {
+        // Use status column as source of truth
+        if (currentDuel.status === 'active') {
+          state = 'active'
+          subDeadline = new Date(currentDuel.end_date)
+        } else if (currentDuel.status === 'voting') {
+          state = 'voting'
+          voteDeadline = new Date(new Date(currentDuel.end_date).getTime() + 24 * 60 * 60 * 1000) // Add 24 hours
+        } else if (currentDuel.status === 'completed') {
           state = 'results'
-        }
-        // Otherwise use time-based logic for active/voting duels
-        else {
-          const startDate = new Date(currentDuel.start_date)
-          const endDate = new Date(currentDuel.end_date)
-          
-          // Active: Sunday 12:00am to Friday 11:59pm EST
-          if (dayOfWeek >= 0 && dayOfWeek <= 5 && hour < 23) { // Sunday-Friday before 11:59pm
-            state = 'active'
-            subDeadline = endDate
-          }
-          // Voting: Saturday 12:00am to Saturday 11:59pm EST
-          else if (dayOfWeek === 6 && hour < 23) { // Saturday before 11:59pm
-            state = 'voting'
-            voteDeadline = new Date(endDate.getTime() + 24 * 60 * 60 * 1000) // Add 24 hours
-          }
-          // Results: After Saturday 11:59pm EST
-          else {
-            state = 'results'
-          }
+        } else {
+          // Fallback to 'between' for any other status
+          state = 'between'
         }
       } else {
         state = 'between'
-      }
-      
-      // If duel status is explicitly 'voting', always set votingDeadline
-      if (currentDuel && currentDuel.status === 'voting') {
-        voteDeadline = new Date(new Date(currentDuel.end_date).getTime() + 24 * 60 * 60 * 1000)
       }
 
       setCurrentState(state)
