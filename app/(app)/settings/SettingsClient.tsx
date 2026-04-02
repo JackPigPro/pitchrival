@@ -3,13 +3,10 @@
 import { useState, useEffect } from 'react'
 import { createClient } from '@/utils/supabase/client'
 
-type MessagePreference = 'anyone' | 'cofounders_only' | 'nobody'
-
 interface Profile {
   id: string
   username: string
   display_name?: string
-  message_preference?: MessagePreference
 }
 
 export default function SettingsClient({ initialProfile }: { initialProfile: Profile | null }) {
@@ -45,54 +42,6 @@ export default function SettingsClient({ initialProfile }: { initialProfile: Pro
     }
   }
 
-  const handleMessagePreferenceChange = async (preference: MessagePreference) => {
-    if (!profile) return
-
-    try {
-      setSaving(true)
-      setError(null)
-      setSuccess(false)
-      
-      const response = await fetch('/settings/api', {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ message_preference: preference }),
-      })
-      
-      if (!response.ok) {
-        throw new Error('Failed to update preference')
-      }
-      
-      const data = await response.json()
-      setProfile(data.profile)
-      setSuccess(true)
-      setTimeout(() => setSuccess(false), 3000)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred')
-    } finally {
-      setSaving(false)
-    }
-  }
-
-  const messageOptions = [
-    {
-      value: 'anyone' as MessagePreference,
-      label: 'Anyone',
-      description: 'Anyone on PitchRival can message you'
-    },
-    {
-      value: 'cofounders_only' as MessagePreference,
-      label: 'Co-founders only',
-      description: 'Only accepted co-founder matches'
-    },
-    {
-      value: 'nobody' as MessagePreference,
-      label: 'Nobody',
-      description: 'Turn off messages'
-    }
-  ]
 
   if (loading) {
     return (
@@ -141,65 +90,6 @@ export default function SettingsClient({ initialProfile }: { initialProfile: Pro
           </div>
         )}
 
-        {/* Messaging Preferences Section */}
-        <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-6">
-          <h2 className="text-xl font-semibold text-[var(--text)] font-[var(--font-display)] mb-6">
-            Messaging Preferences
-          </h2>
-          
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-[var(--text2)] mb-4">
-              Who can message you?
-            </label>
-            
-            <div className="space-y-3">
-              {messageOptions.map((option) => (
-                <div
-                  key={option.value}
-                  onClick={() => handleMessagePreferenceChange(option.value)}
-                  className={`
-                    relative p-4 rounded-lg border-2 cursor-pointer transition-all
-                    ${profile?.message_preference === option.value 
-                      ? 'border-[var(--green)] bg-[var(--green-tint)]' 
-                      : 'border-[var(--border)] hover:border-[var(--border2)] hover:bg-[var(--card2)]'
-                    }
-                    ${saving ? 'pointer-events-none opacity-50' : ''}
-                  `}
-                >
-                  <div className="flex items-start">
-                    <div className="flex-1">
-                      <div className="flex items-center">
-                        <div className={`
-                          w-4 h-4 rounded-full border-2 mr-3 flex items-center justify-center
-                          ${profile?.message_preference === option.value 
-                            ? 'border-[var(--green)] bg-[var(--green)]' 
-                            : 'border-[var(--border2)]'
-                          }
-                        `}>
-                          {profile?.message_preference === option.value && (
-                            <div className="w-2 h-2 bg-white rounded-full"></div>
-                          )}
-                        </div>
-                        <h3 className="font-medium text-[var(--text)]">
-                          {option.label}
-                        </h3>
-                      </div>
-                      <p className="text-sm text-[var(--text2)] mt-1 ml-7">
-                        {option.description}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {saving && (
-            <div className="text-sm text-[var(--text2)] mt-4">
-              Saving...
-            </div>
-          )}
-        </div>
 
         {/* Account Section */}
         <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-6">

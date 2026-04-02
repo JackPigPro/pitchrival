@@ -2,6 +2,8 @@ import { createClient } from '@/utils/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { Database } from '@/types/database'
 
+type Profile = Database['public']['Tables']['profiles']['Row']
+
 export async function GET(request: NextRequest) {
   try {
     const supabase = await createClient()
@@ -57,10 +59,33 @@ export async function GET(request: NextRequest) {
       .eq('id', user.id)
       .single()
 
+    // Fetch accepted cofounder connections
+    const { data: connections } = await supabase
+      .from('cofounder_requests')
+      .select('sender_id, receiver_id')
+      .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`)
+      .eq('status', 'accepted')
+
+    // Extract partner IDs from connections
+    const partnerIds = connections?.map(conn => 
+      conn.sender_id === user.id ? conn.receiver_id : conn.sender_id
+    ).filter(Boolean) || []
+
+    // Fetch profiles for connected partners
+    let connectedProfiles: Profile[] = []
+    if (partnerIds.length > 0) {
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('*')
+        .in('id', partnerIds)
+      connectedProfiles = profiles || []
+    }
+
     return NextResponse.json({ 
       profiles: filteredProfiles, 
       requests, 
-      isListed: currentUserProfile?.open_to_cofounder || false 
+      isListed: currentUserProfile?.open_to_cofounder || false,
+      connectedProfiles 
     })
   } catch (error) {
     console.error('Error in GET /api/cofounder-match:', error)

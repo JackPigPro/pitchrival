@@ -68,7 +68,7 @@ export async function GET(request: NextRequest) {
       const partnerIds = Array.from(conversationMap.keys())
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
-        .select('id, username, display_name, message_preference')
+        .select('id, username, display_name')
         .in('id', partnerIds)
 
       if (profilesError) {
@@ -108,37 +108,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'receiver_id and content are required' }, { status: 400 })
     }
 
-    // Check receiver's message preference
-    const { data: receiverProfile, error: profileError } = await supabase
-      .from('profiles')
-      .select('message_preference')
-      .eq('id', receiver_id)
+    // Check if there's an accepted cofounder request between the two users
+    const { data: cofounderRequest, error: cofounderError } = await supabase
+      .from('cofounder_requests')
+      .select('*')
+      .or(`(sender_id.eq.${user.id},receiver_id.eq.${receiver_id}),(sender_id.eq.${receiver_id},receiver_id.eq.${user.id})`)
+      .eq('status', 'accepted')
       .single()
 
-    if (profileError) {
-      console.error('Error fetching receiver profile:', profileError)
-      return NextResponse.json({ error: 'Failed to fetch receiver profile' }, { status: 500 })
-    }
-
-    const messagePreference = receiverProfile?.message_preference || 'anyone'
-
-    // Check message preferences
-    if (messagePreference === 'nobody') {
-      return NextResponse.json({ error: 'This user is not accepting messages' }, { status: 403 })
-    }
-
-    if (messagePreference === 'cofounder_only') {
-      // Check if there's an accepted cofounder request between the two users
-      const { data: cofounderRequest, error: cofounderError } = await supabase
-        .from('cofounder_requests')
-        .select('*')
-        .or(`(sender_id.eq.${user.id},receiver_id.eq.${receiver_id}),(sender_id.eq.${receiver_id},receiver_id.eq.${user.id})`)
-        .eq('status', 'accepted')
-        .single()
-
-      if (cofounderError || !cofounderRequest) {
-        return NextResponse.json({ error: 'This user only accepts messages from co-founders' }, { status: 403 })
-      }
+    if (cofounderError || !cofounderRequest) {
+      return NextResponse.json({ error: 'You can only message your co-founders. Send them a co-founder request first.' }, { status: 403 })
     }
 
     // Insert the message

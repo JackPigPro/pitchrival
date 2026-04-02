@@ -38,26 +38,8 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const body = await request.json()
-    const { message_preference } = body
-
-    if (message_preference === undefined) {
-      return NextResponse.json({ error: 'message_preference is required' }, { status: 400 })
-    }
-
-    const { data: profile, error } = await supabase
-      .from('profiles')
-      .update({ message_preference })
-      .eq('id', user.id)
-      .select()
-      .single()
-
-    if (error) {
-      console.error('Error updating profile:', error)
-      return NextResponse.json({ error: 'Failed to update profile' }, { status: 500 })
-    }
-
-    return NextResponse.json({ success: true, profile })
+    // Currently no settings to update
+    return NextResponse.json({ success: true })
   } catch (error) {
     console.error('Error in PATCH /api/settings:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
