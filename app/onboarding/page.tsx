@@ -84,9 +84,22 @@ export default function OnboardingPage() {
       console.log('Starting onboarding submission...')
       
       // Get current user with better error handling
-      const { data: userData, error: userError } = await supabase.auth.getUser()
-      
-      console.log('Auth response:', { userData, userError })
+      let userData, userError
+      try {
+        console.log('Calling supabase.auth.getUser()...')
+        const authPromise = supabase.auth.getUser()
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Auth call timeout after 10 seconds')), 10000)
+        )
+        
+        const result = await Promise.race([authPromise, timeoutPromise]) as any
+        userData = result.data
+        userError = result.error
+        console.log('Auth response:', { userData, userError })
+      } catch (authErr) {
+        console.error('Auth call failed:', authErr)
+        throw new Error(`Auth call failed: ${authErr instanceof Error ? authErr.message : 'Unknown error'}`)
+      }
       
       if (userError) {
         console.error('Auth error:', userError)
