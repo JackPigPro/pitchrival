@@ -81,12 +81,15 @@ export default function OnboardingPage() {
     setError(null)
 
     try {
+      console.log('Starting onboarding submission...')
       // Get current user
       const { data: { user }, error: userError } = await supabase.auth.getUser()
       
       if (userError || !user) {
         throw new Error('User not authenticated')
       }
+
+      console.log('User authenticated:', user.id)
 
       // Update or create profile
       const { error: profileError } = await supabase
@@ -98,8 +101,11 @@ export default function OnboardingPage() {
         })
 
       if (profileError) {
+        console.error('Profile error:', profileError)
         throw profileError
       }
+
+      console.log('Profile updated successfully')
 
       // Create user_stats row with default values
       const { error: statsError } = await supabase
@@ -112,14 +118,20 @@ export default function OnboardingPage() {
         })
 
       if (statsError) {
+        console.error('Stats error:', statsError)
         throw statsError
       }
 
+      console.log('User stats created successfully')
+
       setLoading(false)
       
-      // Instant redirect without waiting for loading state
-      router.push('/dashboard')
-      router.refresh()
+      // Small delay to ensure UI updates before redirect
+      setTimeout(() => {
+        console.log('Redirecting to dashboard...')
+        router.push('/dashboard')
+        router.refresh()
+      }, 100)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred')
       setLoading(false)
