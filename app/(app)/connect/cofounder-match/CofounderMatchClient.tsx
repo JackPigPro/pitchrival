@@ -34,9 +34,20 @@ export default function CofounderMatchClient() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
+    console.log('🔍 [CofounderMatch] useEffect triggered:', { 
+      hasUser: !!user, 
+      authLoading, 
+      hasUserProfile: !!userProfile 
+    })
+    
     if (user && !authLoading) {
+      console.log('🚀 [CofounderMatch] User authenticated and auth loaded, starting data fetch...')
       fetchData()
       fetchUserProfile()
+    } else if (authLoading) {
+      console.log('⏳ [CofounderMatch] Auth still loading...')
+    } else if (!user) {
+      console.log('🚫 [CofounderMatch] No user authenticated')
     }
   }, [user, authLoading])
 
@@ -58,42 +69,67 @@ export default function CofounderMatchClient() {
   }
 
   const fetchData = async () => {
+    console.log('🔄 [CofounderMatch] Starting fetchData...')
+    
     try {
       setError(null)
       setLoading(true)
       
       // Add timeout to prevent hanging
       const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), 10000) // 10 second timeout
+      const timeoutId = setTimeout(() => {
+        console.log('⏰ [CofounderMatch] Request timeout, aborting...')
+        controller.abort()
+      }, 10000) // 10 second timeout
       
+      console.log('📡 [CofounderMatch] Sending fetch request...')
       const response = await fetch('/connect/cofounder-match/api', {
         signal: controller.signal
       })
       
       clearTimeout(timeoutId)
+      console.log('📡 [CofounderMatch] Response received:', response.status, response.statusText)
       
       if (!response.ok) {
-        throw new Error(`Failed to fetch data: ${response.status}`)
+        throw new Error(`Failed to fetch data: ${response.status} ${response.statusText}`)
       }
       
+      console.log('📊 [CofounderMatch] Parsing JSON response...')
       const data = await response.json()
+      console.log('📊 [CofounderMatch] Data received:', {
+        profilesCount: data.profiles?.length || 0,
+        requestsCount: data.requests?.length || 0,
+        connectedCount: data.connectedProfiles?.length || 0,
+        isListed: data.isListed
+      })
+      
       setProfiles(data.profiles || [])
       setRequests(data.requests || [])
       setConnectedProfiles(data.connectedProfiles || [])
       setIsListed(data.isListed || false)
+      
+      console.log('✅ [CofounderMatch] fetchData completed successfully')
     } catch (err: any) {
-      console.error('Error fetching data:', err)
+      console.error('❌ [CofounderMatch] Error in fetchData:', err)
+      
       if (err.name === 'AbortError') {
-        setError('Request timed out. Please refresh the page.')
+        console.log('⏰ [CofounderMatch] Request was aborted (timeout)')
+        setError('Request timed out after 10 seconds. Please refresh the page.')
+      } else if (err.message.includes('Failed to fetch')) {
+        console.log('🌐 [CofounderMatch] Network or server error')
+        setError('Unable to connect to server. Please check your connection and try again.')
       } else {
+        console.log('❓ [CofounderMatch] Unknown error type')
         setError('Failed to load cofounder data. Please try again.')
       }
+      
       // Set empty arrays to prevent UI issues
       setProfiles([])
       setRequests([])
       setConnectedProfiles([])
       setIsListed(false)
     } finally {
+      console.log('🏁 [CofounderMatch] fetchData finished, setting loading to false')
       setLoading(false)
     }
   }
