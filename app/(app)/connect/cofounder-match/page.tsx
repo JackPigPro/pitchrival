@@ -51,7 +51,8 @@ export default async function CoFounderMatchPage() {
     console.error('Error fetching cofounder requests:', requestsError)
   }
 
-  // Build a Set of user IDs who have ANY request (pending or accepted) with current user
+  // Build a Set of user IDs who have pending or accepted requests with current user
+  // Note: Declined/cancelled requests are deleted, so they won't appear in this query
   const allRequestedUserIds = new Set<string>()
   requests?.forEach(request => {
     if (request.sender_id === user.id) {
@@ -109,6 +110,20 @@ export default async function CoFounderMatchPage() {
     incomingRequestProfiles = profiles || []
   }
 
+  // Fetch profiles for outgoing request receivers (they might be filtered out from main profiles)
+  const outgoingRequestReceiverIds = requests
+    ?.filter(req => req.sender_id === user.id && req.status === 'pending')
+    .map(req => req.receiver_id) || []
+  
+  let outgoingRequestProfiles: Profile[] = []
+  if (outgoingRequestReceiverIds.length > 0) {
+    const { data: profiles } = await supabase
+      .from('profiles')
+      .select('*')
+      .in('id', outgoingRequestReceiverIds)
+    outgoingRequestProfiles = profiles || []
+  }
+
   return (
     <CofounderMatchClient 
       profiles={filteredProfiles}
@@ -116,6 +131,7 @@ export default async function CoFounderMatchPage() {
       isListed={currentUserProfile?.open_to_cofounder || false}
       connectedProfiles={connectedProfiles}
       incomingRequestProfiles={incomingRequestProfiles}
+      outgoingRequestProfiles={outgoingRequestProfiles}
       currentUserId={user.id}
     />
   )

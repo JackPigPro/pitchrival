@@ -28,6 +28,7 @@ interface CofounderMatchClientProps {
   isListed: boolean
   connectedProfiles: Profile[]
   incomingRequestProfiles: Profile[]
+  outgoingRequestProfiles: Profile[]
   currentUserId: string
 }
 
@@ -37,6 +38,7 @@ export default function CofounderMatchClient({
   isListed, 
   connectedProfiles,
   incomingRequestProfiles,
+  outgoingRequestProfiles,
   currentUserId 
 }: CofounderMatchClientProps) {
   const [loading, setLoading] = useState(false)
@@ -125,16 +127,15 @@ export default function CofounderMatchClient({
   }
 
   const getProfileById = (id: string) => {
-    return profiles.find(p => p.id === id) || incomingRequestProfiles.find(p => p.id === id)
+    return profiles.find(p => p.id === id) || 
+           incomingRequestProfiles.find(p => p.id === id) ||
+           outgoingRequestProfiles.find(p => p.id === id)
   }
 
   // Calculate the 4 sections
+  // Note: profiles array is already filtered on server side to exclude users with pending/accepted requests
   const discoverFounders = profiles.filter(profile => 
-    profile.id !== currentUserId && 
-    !requests.some(req => 
-      (req.sender_id === currentUserId && req.receiver_id === profile.id) ||
-      (req.receiver_id === currentUserId && req.sender_id === profile.id)
-    )
+    profile.id !== currentUserId
   )
 
   const outgoingRequests = requests
@@ -243,7 +244,7 @@ export default function CofounderMatchClient({
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-        {showConnectButton && (
+        {showConnectButton && !showAcceptDecline && (
           <button
             onClick={() => handleSendRequest(profile.id)}
             style={{

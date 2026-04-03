@@ -13,6 +13,9 @@ export default function ConditionalFooter({ onComingSoon, onScrollTo }: Conditio
   const { isAuthenticated, authLoading, profile } = useUser()
   const pathname = usePathname()
   
+  // Debug logging
+  console.log('🔍 ConditionalFooter debug:', { isAuthenticated, authLoading, pathname })
+  
   // Don't render anything while auth is loading to prevent flash, EXCEPT on landing page
   if (authLoading && pathname !== '/') {
     return null
@@ -31,6 +34,8 @@ export default function ConditionalFooter({ onComingSoon, onScrollTo }: Conditio
     const publicPages = ['/', '/terms', '/privacy', '/login', '/signup']
     const isPublicPage = publicPages.includes(pathname)
     showFooter = isPublicPage
+    
+    console.log('🔍 Footer visibility:', { isLoggedIn, showFooter, isPublicPage, publicPages })
   }
   
   if (!showFooter) {

@@ -116,9 +116,9 @@ export default function NotificationsBell() {
     console.log('🔔 Clear All notifications clicked')
     
     try {
-      console.log('🔔 Making API call to mark all as read...')
+      console.log('🔔 Making API call to delete all notifications...')
       const response = await fetch('/connect/notifications/api/notifications', {
-        method: 'PATCH'
+        method: 'DELETE'
       })
       
       console.log('🔔 API response status:', response.status)
@@ -133,12 +133,12 @@ export default function NotificationsBell() {
       const data = await response.json()
       console.log('🔔 API response data:', data)
       
-      console.log('🔔 Updating local state - marking all as read')
+      console.log('🔔 Updating local state - clearing all notifications')
       setNotifications(prev => {
         console.log('🔔 Previous notifications count:', prev.length)
-        const updated = prev.map(n => ({ ...n, read: true }))
-        console.log('🔔 Updated notifications count:', updated.length)
-        return updated
+        const cleared: Notification[] = []
+        console.log('🔔 Cleared notifications count:', cleared.length)
+        return cleared
       })
       
       console.log('🔔 Clear All completed successfully')

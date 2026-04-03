@@ -36,7 +36,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to fetch cofounder requests' }, { status: 500 })
     }
 
-    // Build a Set of user IDs who have ANY request (pending or accepted) with the current user
+    // Build a Set of user IDs who have pending or accepted requests with the current user
+    // Note: Declined/cancelled requests are deleted, so they won't appear in this query
     const allRequestedUserIds = new Set<string>()
     requests?.forEach(request => {
       if (request.sender_id === user.id) {
