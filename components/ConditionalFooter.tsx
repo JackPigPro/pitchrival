@@ -27,7 +27,7 @@ export default function ConditionalFooter({ onComingSoon, onScrollTo }: Conditio
     showFooter = true
   } else {
     // When logged in: show footer on landing page and specific pages
-    showFooter = pathname === '/' || pathname === '/about' || pathname === '/privacy' || pathname === '/terms' || pathname === '/contact'
+    showFooter = pathname === '/' || pathname === '/about' || pathname === '/legal/privacy' || pathname === '/legal/terms' || pathname === '/contact'
   }
   
   if (!showFooter) {
