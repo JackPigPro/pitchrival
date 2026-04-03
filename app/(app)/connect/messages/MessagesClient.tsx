@@ -49,37 +49,40 @@ export default function MessagesClient() {
     }
   }, [user])
 
-  // Auto-open conversation if ?user={userId} parameter exists
+  // Effect 1 — runs once when user and searchParams are ready, regardless of conversations
   useEffect(() => {
+    if (!user) return
+    const userId = searchParams.get('user')
+    if (!userId) return
+    // If conversations already loaded, check them
     if (conversations.length > 0) {
-      const userId = searchParams.get('user')
-      if (userId) {
-        // Check if this user exists in conversations
-        const conversation = conversations.find(c => c.partner.id === userId)
-        if (conversation) {
-          setActiveConversation(userId)
-          // Save to localStorage
-          localStorage.setItem('lastOpenedConversation', userId)
-          // Clear the user parameter from URL
-          const newUrl = new URL(window.location.href)
-          newUrl.searchParams.delete('user')
-          router.replace(newUrl.pathname + newUrl.search, { scroll: false })
-        } else {
-          // User doesn't exist in conversations, try to create a new conversation
-          createNewConversation(userId)
-        }
-      } else {
-        // No query parameter, try to open last conversation from localStorage
-        const lastConversation = localStorage.getItem('lastOpenedConversation')
-        if (lastConversation) {
-          const lastConv = conversations.find(c => c.partner.id === lastConversation)
-          if (lastConv) {
-            setActiveConversation(lastConversation)
-          }
-        }
+      const existing = conversations.find(c => c.partner.id === userId)
+      if (existing) {
+        setActiveConversation(userId)
+        const newUrl = new URL(window.location.href)
+        newUrl.searchParams.delete('user')
+        router.replace(newUrl.pathname + newUrl.search, { scroll: false })
+        return
       }
     }
-  }, [conversations, searchParams, router])
+    // No existing conversation found, create new one
+    createNewConversation(userId)
+    const newUrl = new URL(window.location.href)
+    newUrl.searchParams.delete('user')
+    router.replace(newUrl.pathname + newUrl.search, { scroll: false })
+  }, [user, searchParams])
+
+  // Effect 2 — existing logic for loading last conversation, no user param
+  useEffect(() => {
+    if (conversations.length === 0) return
+    const userId = searchParams.get('user')
+    if (userId) return // handled by Effect 1
+    const lastConversation = localStorage.getItem('lastOpenedConversation')
+    if (lastConversation) {
+      const lastConv = conversations.find(c => c.partner.id === lastConversation)
+      if (lastConv) setActiveConversation(lastConversation)
+    }
+  }, [conversations])
 
   useEffect(() => {
     if (activeConversation) {
