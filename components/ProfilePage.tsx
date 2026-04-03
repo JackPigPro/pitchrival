@@ -91,36 +91,33 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
     console.log('Skipping auth check for testing...')
     
     try {
-      console.log('Attempting to save to Supabase...')
+      console.log('Attempting to save via API route...')
       
-      // Add timeout to prevent hanging
-      const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Database operation timed out')), 10000)
-      })
-      
-      const updatePromise = supabase
-        .from('profiles')
-        .update({
-          username: editData.username.toLowerCase(),
+      const response = await fetch(`/profile/${currentProfile.username}/api/update-profile`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: editData.username,
           location: editData.location,
           bio: editData.bio,
           stage: editData.stage,
           skills: editData.skills,
           status_tags: editData.status_tags,
-          twitter: editData.twitter || null,
-          linkedin: editData.linkedin || null,
-          github: editData.github || null
+          twitter: editData.twitter,
+          linkedin: editData.linkedin,
+          github: editData.github
         })
-        .eq('id', currentProfile.id)
-        .select()
+      })
 
-      const { data, error } = await Promise.race([updatePromise, timeoutPromise]) as any
+      console.log('API response status:', response.status)
+      const result = await response.json()
+      console.log('API response:', result)
 
-      console.log('Supabase response:', { data, error })
-
-      if (error) {
-        console.error('Error saving profile:', error)
-        alert(`Error saving profile: ${error.message}`)
+      if (!response.ok) {
+        console.error('Error saving profile:', result.error)
+        alert(`Error saving profile: ${result.error}`)
         return
       }
 
