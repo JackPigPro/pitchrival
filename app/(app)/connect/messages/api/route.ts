@@ -187,16 +187,32 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Content must be at most 2000 characters' }, { status: 400 })
     }
 
-    // Check if there's an accepted cofounder request between the two users
-    const { data: cofounderRequest, error: cofounderError } = await supabase
-      .from('cofounder_requests')
-      .select('*')
-      .or(`(sender_id.eq.${user.id},receiver_id.eq.${receiver_id}),(sender_id.eq.${receiver_id},receiver_id.eq.${user.id})`)
-      .eq('status', 'accepted')
+    // Get target user's message preference
+    const { data: targetProfile, error: profileError } = await supabase
+      .from('profiles')
+      .select('message_preference')
+      .eq('id', receiver_id)
       .single()
 
-    if (cofounderError || !cofounderRequest) {
-      return NextResponse.json({ error: 'You can only message your co-founders. Send them a co-founder request first.' }, { status: 403 })
+    if (profileError || !targetProfile) {
+      return NextResponse.json({ error: 'Target user not found' }, { status: 404 })
+    }
+
+    // If target user allows messages from anyone, skip cofounder check
+    if (targetProfile.message_preference !== 'cofounder_only') {
+      // Proceed with message sending
+    } else {
+      // Check if there's an accepted cofounder request between the two users (bidirectional check)
+      const { data: cofounderRequest, error: cofounderError } = await supabase
+        .from('cofounder_requests')
+        .select('id')
+        .eq('status', 'accepted')
+        .or(`and(sender_id.eq.${user.id},receiver_id.eq.${receiver_id}),and(sender_id.eq.${receiver_id},receiver_id.eq.${user.id})`)
+        .single()
+
+      if (cofounderError || !cofounderRequest) {
+        return NextResponse.json({ error: 'You can only message your co-founders. Send them a co-founder request first.' }, { status: 403 })
+      }
     }
 
     // Insert the message
