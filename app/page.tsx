@@ -25,10 +25,11 @@ export default async function HomePage() {
   // Only show dashboard if user exists AND onboarding is complete
   if (profile?.onboarding_complete === true) {
     // Use username from profile
-    const name = profile.username || 
+    const name = profile?.username || (
       (user.user_metadata?.name as string | undefined) ??
       (user.user_metadata?.full_name as string | undefined) ??
       (user.email ? user.email.split('@')[0] : 'Founder')
+    )
 
     return (
       <main style={{ padding: '28px 32px' }}>
