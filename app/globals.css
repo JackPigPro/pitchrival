@@ -2,6 +2,19 @@
 
 @import "tailwindcss";
 
+/* Profile Page Responsive Layout */
+.profile-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+}
+
+@media (max-width: 768px) {
+  .profile-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* ═══════════════════════════════════════════════════════════
    PROFILE LOADING ANIMATIONS
    ═══════════════════════════════════════════════════════════ */

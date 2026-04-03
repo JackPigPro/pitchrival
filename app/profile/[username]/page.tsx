@@ -41,12 +41,60 @@ async function ProfileContent({ username }: { username: string }) {
   const { data: { user } } = await supabase.auth.getUser()
   const isOwnProfile = user?.id === profile.id
 
+  // Calculate daily rank (last 24 hours)
+  const { data: dailyHistory } = await supabase
+    .from('elo_history')
+    .select('new_elo, user_id')
+    .gte('created_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString())
+
+  // Calculate all-time rank
+  const { data: allTimeStats } = await supabase
+    .from('user_stats')
+    .select('elo, user_id')
+    .order('elo', { ascending: false })
+
+  // Calculate weekly duels count
+  const { data: weeklyDuels } = await supabase
+    .from('duel_submissions')
+    .select('id')
+    .eq('user_id', profile.id)
+
+  // Calculate ranks
+  let dailyRank = null
+  let alltimeRank = null
+
+  if (dailyHistory && allTimeStats) {
+    // Get unique users with their best daily ELO
+    const dailyUsers = new Map()
+    dailyHistory.forEach(entry => {
+      const current = dailyUsers.get(entry.user_id) || 0
+      if (entry.new_elo > current) {
+        dailyUsers.set(entry.user_id, entry.new_elo)
+      }
+    })
+
+    // Sort by ELO descending and find rank
+    const sortedDaily = Array.from(dailyUsers.entries())
+      .sort(([,a], [,b]) => b - a)
+    
+    dailyRank = sortedDaily.findIndex(([userId]) => userId === profile.id) + 1
+  }
+
+  if (allTimeStats) {
+    alltimeRank = allTimeStats.findIndex(stat => stat.user_id === profile.id) + 1
+  }
+
+  const weeklyDuelsCount = weeklyDuels?.length || 0
+
   return (
     <ProfilePage
       profile={profile}
       userStats={userStats || undefined}
       ideas={ideas || []}
       isOwnProfile={isOwnProfile}
+      dailyRank={dailyRank || undefined}
+      alltimeRank={alltimeRank || undefined}
+      weeklyDuelsCount={weeklyDuelsCount}
     />
   )
 }
