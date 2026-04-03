@@ -79,9 +79,9 @@ export function useUser() {
       setLoading(true)
       setError(null)
 
-      // Check cache first
+      // Check cache first - only use if all values are non-null
       const cached = userCache.get(userId)
-      if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+      if (cached && Date.now() - cached.timestamp < CACHE_TTL && cached.profile && cached.elo) {
         setProfile(cached.profile)
         setElo(cached.elo)
         setLoading(false)
@@ -102,8 +102,9 @@ export function useUser() {
           .single()
       ])
 
-      // Debug user_stats query
-      console.log('user_stats result:', eloResult.data, 'error:', eloResult.error)
+      // Debug both query results
+      console.log('Profile result - data:', profileResult.data, 'error:', profileResult.error)
+      console.log('ELO result - data:', eloResult.data, 'error:', eloResult.error)
 
       // Log errors for debugging
       if (profileResult.error) {
