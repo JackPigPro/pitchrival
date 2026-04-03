@@ -70,7 +70,7 @@ export default function DashboardClient() {
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [notificationsLoading, setNotificationsLoading] = useState(true)
 
-  const userElo = elo?.elo_rating || 0
+  const userElo = elo?.elo || 0
   const userRank = getRankByElo(userElo)
   const rankColor = getRankColor(userRank)
 

@@ -13,7 +13,7 @@ interface UserProfile {
 }
 
 interface UserElo {
-  elo_rating?: number
+  elo?: number
 }
 
 interface UserMessagePreference {
@@ -129,8 +129,8 @@ export function useUser() {
           .eq('id', userId)
           .single(),
         supabase
-          .from('user_elo')
-          .select('elo_rating')
+          .from('user_stats')
+          .select('elo')
           .eq('user_id', userId)
           .single(),
         supabase
@@ -139,6 +139,17 @@ export function useUser() {
           .eq('user_id', userId)
           .single()
       ])
+
+      // Log errors for debugging
+      if (profileResult.error) {
+        console.error('Error fetching profile:', profileResult.error)
+      }
+      if (eloResult.error) {
+        console.error('Error fetching user stats/ELO:', eloResult.error)
+      }
+      if (messagePrefResult.error) {
+        console.error('Error fetching message preference:', messagePrefResult.error)
+      }
 
       const newProfile = profileResult.data || null
       const newElo = eloResult.data || null
