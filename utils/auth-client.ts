@@ -39,22 +39,34 @@ export async function getAuthStateClient(): Promise<AuthResult> {
       let user: User | null = null
       let userError: any = null
       let retries = 0
-      const maxRetries = 3
+      const maxRetries = 2 // Reduce retries to be more conservative
 
       while (retries < maxRetries) {
         try {
           const result = await supabase.auth.getUser()
           user = result.data.user
           userError = result.error
+          
+          // If we get a lock error, retry
+          if (userError?.message?.includes('lock') || 
+              (userError && userError.message?.includes('stole it'))) {
+            retries++
+            await new Promise(resolve => setTimeout(resolve, 200 * retries))
+            continue
+          }
+          
+          // For any other error, don't retry
           break
         } catch (err: any) {
           retries++
-          if (err.message?.includes('lock') && retries < maxRetries) {
+          if (err.message?.includes('lock') || err.message?.includes('stole it')) {
             // Lock conflict, wait and retry
-            await new Promise(resolve => setTimeout(resolve, 100 * retries))
+            await new Promise(resolve => setTimeout(resolve, 200 * retries))
             continue
           }
-          throw err
+          // For other errors, treat as no user
+          console.log('Auth error, treating as logged out:', err.message)
+          break
         }
       }
       
