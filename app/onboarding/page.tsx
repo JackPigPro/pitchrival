@@ -48,20 +48,22 @@ export default function OnboardingPage() {
 
     const checkUsername = async () => {
       setUsernameStatus('checking')
-      // Check in lowercase for case-insensitive comparison
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('username')
-        .eq('username', username.trim().toLowerCase())
-        .single()
+      
+      try {
+        const response = await fetch(`/api/check-username?username=${encodeURIComponent(username.trim().toLowerCase())}`)
+        const result = await response.json()
 
-      if (error && error.code !== 'PGRST116') { // PGRST116 is "not found"
-        console.error('Error checking username:', error)
-        setUsernameStatus(null)
-        return
+        if (!response.ok) {
+          setUsernameStatus('invalid')
+          setUsernameError(result.error || 'Failed to check username availability')
+          return
+        }
+
+        setUsernameStatus(result.available ? 'available' : 'taken')
+      } catch (err) {
+        setUsernameStatus('invalid')
+        setUsernameError('Failed to check username availability')
       }
-
-      setUsernameStatus(data ? 'taken' : 'available')
     }
 
     const timeoutId = setTimeout(checkUsername, 300)
