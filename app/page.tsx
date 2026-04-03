@@ -1,4 +1,5 @@
 import LandingPage from '@/components/LandingPage'
+import Footer from '@/components/Footer'
 import { redirect } from 'next/navigation'
 import { getLiveStats } from '@/utils/stats'
 import { getAuthState } from '@/utils/auth'
@@ -41,5 +42,10 @@ export default async function HomePage() {
   }
 
   // Otherwise show landing page (logged out or no auth)
-  return <LandingPage stats={stats} />
+  return (
+    <>
+      <LandingPage stats={stats} />
+      <Footer onComingSoon={() => {}} onScrollTo={(id) => {}} stats={stats} />
+    </>
+  )
 }
