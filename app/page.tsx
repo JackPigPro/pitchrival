@@ -1,5 +1,5 @@
 import LandingPage from '@/components/LandingPage'
-import Footer from '@/components/Footer'
+import LandingFooter from './LandingFooter'
 import { redirect } from 'next/navigation'
 import { getLiveStats } from '@/utils/stats'
 import { getAuthState } from '@/utils/auth'
@@ -45,7 +45,7 @@ export default async function HomePage() {
   return (
     <>
       <LandingPage stats={stats} />
-      <Footer onComingSoon={() => {}} onScrollTo={(id) => {}} stats={stats} />
+      <LandingFooter stats={stats} />
     </>
   )
 }
