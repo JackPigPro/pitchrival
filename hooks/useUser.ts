@@ -140,6 +140,9 @@ export function useUser() {
           .single()
       ])
 
+      // Debug user_stats query
+      console.log('user_stats result:', eloResult.data, 'error:', eloResult.error)
+
       // Log errors for debugging
       if (profileResult.error) {
         console.error('Error fetching profile:', profileResult.error)
