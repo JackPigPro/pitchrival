@@ -107,8 +107,7 @@ export default function OnboardingPage() {
         .upsert({
           user_id: user.id,
           elo: 500,
-          rank: 'Builder',
-          weekly_duel_entered: 0
+          rank: 'Builder'
         })
 
       if (statsError) {
@@ -116,7 +115,7 @@ export default function OnboardingPage() {
       }
 
       // Instant redirect without waiting for loading state
-      router.push('/')
+      router.push('/dashboard')
       router.refresh()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred')
