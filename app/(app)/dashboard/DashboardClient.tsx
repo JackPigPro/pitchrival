@@ -14,6 +14,11 @@ interface Notification {
   created_at: string
 }
 
+interface DashboardClientProps {
+  initialProfile: { username: string, display_name: string | null, created_at: string } | null
+  initialStats: { elo: number, rank: string } | null
+}
+
 const getRankByElo = (elo?: number) => {
   if (!elo) return 'Builder'
   if (elo < 500) return 'Trainee'
@@ -66,10 +71,10 @@ const getTimeAgo = (timestamp: string) => {
   return `${diffDays}d ago`
 }
 
-export default function DashboardClient() {
+export default function DashboardClient({ initialProfile, initialStats }: DashboardClientProps) {
   const { user, authLoading } = useSupabase()
-  const [profile, setProfile] = useState<any>(null)
-  const [elo, setElo] = useState<any>(null)
+  const [profile, setProfile] = useState<any>(initialProfile)
+  const [elo, setElo] = useState<any>(initialStats)
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [notificationsLoading, setNotificationsLoading] = useState(true)
 
@@ -80,17 +85,6 @@ export default function DashboardClient() {
   const username = profile?.username
   const display_name = profile?.display_name
 
-  // Fetch profile and ELO data when user is available
-  useEffect(() => {
-    if (!user) return
-    const supabase = createClient()
-    
-    supabase.from('profiles').select('username, display_name, created_at').eq('id', user.id).single()
-      .then(({ data }: { data: any }) => setProfile(data))
-    
-    supabase.from('user_stats').select('elo').eq('user_id', user.id).single()
-      .then(({ data }: { data: any }) => setElo(data))
-  }, [user])
 
   // Fetch notifications
   useEffect(() => {

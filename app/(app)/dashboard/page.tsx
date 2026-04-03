@@ -10,5 +10,15 @@ export default async function DashboardPage() {
     redirect('/login')
   }
 
-  return <DashboardClient />
+  const [{ data: profile }, { data: stats }] = await Promise.all([
+    supabase.from('profiles').select('username, display_name, created_at').eq('id', user.id).single(),
+    supabase.from('user_stats').select('elo, rank').eq('user_id', user.id).single()
+  ])
+
+  return (
+    <DashboardClient
+      initialProfile={profile}
+      initialStats={stats}
+    />
+  )
 }
