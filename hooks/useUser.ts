@@ -48,27 +48,59 @@ export function useUser() {
     let mounted = true
     const supabase = createClient()
 
+    // Add timeout to prevent authLoading from getting stuck
+    const authTimeout = setTimeout(() => {
+      if (mounted && authLoading) {
+        console.log('⏰ [useUser] Auth check timeout, setting authLoading to false')
+        setAuthLoading(false)
+        setLoading(false)
+      }
+    }, 8000) // 8 second timeout
+
     // Get initial session immediately
+    console.log('🔍 [useUser] Getting initial session...')
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (mounted) {
+        console.log('📡 [useUser] Session received:', { 
+          hasSession: !!session, 
+          userId: session?.user?.id 
+        })
+        
         const user = session?.user ?? null
         setUser(user)
         setAuthLoading(false)
+        
         if (user) {
+          console.log('🚀 [useUser] User authenticated, fetching user data...')
           fetchUserData(user.id)
         } else {
+          console.log('🚫 [useUser] No user session')
           setLoading(false)
         }
+        
+        // Clear timeout if session resolves
+        clearTimeout(authTimeout)
+      }
+    }).catch((err) => {
+      console.error('❌ [useUser] Error getting session:', err)
+      if (mounted) {
+        setAuthLoading(false)
+        setLoading(false)
+        clearTimeout(authTimeout)
       }
     })
 
     // Listen for future auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (mounted) {
+        console.log('🔄 [useUser] Auth state changed:', { event, hasSession: !!session })
+        
         const user = session?.user ?? null
         setUser(user)
         setAuthLoading(false)
+        
         if (user && event !== 'INITIAL_SESSION') {
+          console.log('🚀 [useUser] User authenticated, fetching user data...')
           await fetchUserData(user.id)
         } else if (!user) {
           // Clear user data on logout
@@ -83,6 +115,7 @@ export function useUser() {
 
     return () => {
       mounted = false
+      clearTimeout(authTimeout)
       subscription.unsubscribe()
     }
   }, [])
