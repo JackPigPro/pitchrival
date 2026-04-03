@@ -93,26 +93,12 @@ export default function OnboardingPage() {
           id: user.id,
           username: username.trim().toLowerCase(), // Store in lowercase for consistency
           onboarding_complete: true,
-          age_confirmed: true,
-          agreed_to_terms: true,
         })
 
       if (profileError) {
         throw profileError
       }
 
-      // Create user_stats row with default values
-      const { error: statsError } = await supabase
-        .from('user_stats')
-        .upsert({
-          user_id: user.id,
-          elo: 500,
-          rank: 'Builder'
-        })
-
-      if (statsError) {
-        throw statsError
-      }
 
       // Instant redirect without waiting for loading state
       router.push('/dashboard')
@@ -280,7 +266,7 @@ export default function OnboardingPage() {
               <span style={{ color: 'var(--text)' }}>
                 I agree to the{' '}
                 <Link
-                  href="/legal/terms"
+                  href="/terms"
                   style={{ color: '#16a34a', textDecoration: 'underline' }}
                   target="_blank"
                 >
@@ -288,7 +274,7 @@ export default function OnboardingPage() {
                 </Link>
                 {' '}and{' '}
                 <Link
-                  href="/legal/privacy"
+                  href="/privacy"
                   style={{ color: '#16a34a', textDecoration: 'underline' }}
                   target="_blank"
                 >
