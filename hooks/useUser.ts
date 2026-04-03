@@ -1,22 +1,13 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { getAuthStateClient, type UserProfile } from '@/utils/auth-client'
 import { createClient } from '@/utils/supabase/client'
 import type { User } from '@supabase/supabase-js'
-
-interface UserProfile {
-  id: string
-  username: string
-  display_name?: string
-  status_tags?: string[]
-  onboarding_complete?: boolean
-  created_at: string
-}
 
 interface UserElo {
   elo?: number
 }
-
 
 interface UserCache {
   profile: UserProfile | null
@@ -38,6 +29,7 @@ export function useUser() {
 
   // Combined loading state for convenience
   const isLoading = loading || authLoading
+  // Use the same logic as server-side - user is only authenticated if onboarding is complete
   const isAuthenticated = !!user && !!profile && profile.onboarding_complete === true
 
   // Convenience properties
@@ -53,23 +45,22 @@ export function useUser() {
 
     const getSessionWithRetry = async () => {
       try {
-        
-        const { data: { session } } = await supabase.auth.getSession()
+        // Use shared auth logic to get consistent state
+        const authState = await getAuthStateClient()
         
         if (mounted) {
-          
-          const user = session?.user ?? null
-          setUser(user)
+          setUser(authState.user)
+          setProfile(authState.profile)
           setAuthLoading(false)
           
-          if (user) {
-            fetchUserData(user.id)
+          if (authState.user) {
+            fetchUserData(authState.user.id)
           } else {
             setLoading(false)
           }
         }
       } catch (err) {
-        console.error('❌ [useUser] Error getting session:', err)
+        console.error('❌ [useUser] Error getting auth state:', err)
         retryCount++
         
         if (retryCount < maxRetries && mounted) {
@@ -87,9 +78,8 @@ export function useUser() {
     getSessionWithRetry()
 
     // Listen for future auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event: any, session: any) => {
       if (mounted) {
-        
         const user = session?.user ?? null
         setUser(user)
         setAuthLoading(false)
@@ -128,28 +118,26 @@ export function useUser() {
       }
 
       // Fetch fresh data
-      const [profileResult, eloResult] = await Promise.all([
-        supabase
-          .from('profiles')
-          .select('id, username, display_name, status_tags, onboarding_complete, created_at')
-          .eq('id', userId)
-          .single(),
-        supabase
+      const profileResult = await supabase
+        .from('profiles')
+        .select('id, username, display_name, status_tags, onboarding_complete, created_at')
+        .eq('id', userId)
+        .single()
+
+      let eloResult = null
+      try {
+        eloResult = await supabase
           .from('user_stats')
           .select('elo')
           .eq('user_id', userId)
           .single()
-      ])
-
-      // Debug both query results
-
-      // Log errors for debugging
-      if (profileResult.error) {
-        
+      } catch (err) {
+        // user_stats table doesn't exist, that's okay
+        console.log('user_stats table not found, skipping ELO fetch')
       }
 
       const newProfile = profileResult.data || null
-      const newElo = eloResult.data || null
+      const newElo = eloResult?.data || null
 
       // Update cache
       userCache.set(userId, {

@@ -1,29 +1,23 @@
 import LandingPage from '@/components/LandingPage'
-import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import { getLiveStats } from '@/utils/stats'
+import { getAuthState } from '@/utils/auth'
 
 export default async function HomePage() {
-  const supabase = await createClient()
-  const { data } = await supabase.auth.getUser()
-  const user = data.user
-
   // Fetch live stats for the landing page
   const stats = await getLiveStats()
 
-  if (!user) {
-    return <LandingPage stats={stats} />
+  // Get consistent auth state
+  const authState = await getAuthState()
+  const { user, profile, isFullyAuthenticated, needsOnboarding } = authState
+
+  // If user exists but needs onboarding, redirect to onboarding
+  if (needsOnboarding) {
+    redirect('/onboarding')
   }
 
-  // Check if user has completed onboarding
-  const { data: profile, error } = await supabase
-    .from('profiles')
-    .select('onboarding_complete, username')
-    .eq('id', user.id)
-    .single()
-
-  // Only show dashboard if user exists AND onboarding is complete
-  if (profile?.onboarding_complete === true) {
+  // Only show dashboard if user is fully authenticated (completed onboarding)
+  if (isFullyAuthenticated && profile && user) {
     // Use username from profile
     const name = profile?.username || (
       (user.user_metadata?.name as string | undefined) ??
@@ -46,11 +40,6 @@ export default async function HomePage() {
     )
   }
 
-  // If user exists but onboarding is not complete, redirect to onboarding
-  if (user && (!profile || profile.onboarding_complete !== true)) {
-    redirect('/onboarding')
-  }
-
-  // Otherwise show landing page (logged out or incomplete onboarding)
+  // Otherwise show landing page (logged out or no auth)
   return <LandingPage stats={stats} />
 }
