@@ -12,11 +12,18 @@ export function useLiveStats() {
     async function fetchStats() {
       try {
         setLoading(true)
-        const response = await fetch('/api/stats')
+        console.log('Fetching stats from client...')
+        const response = await fetch('/api/stats', {
+          cache: 'no-store', // Disable caching
+          headers: {
+            'Cache-Control': 'no-cache',
+          },
+        })
         if (!response.ok) {
-          throw new Error('Failed to fetch stats')
+          throw new Error(`Failed to fetch stats: ${response.status}`)
         }
         const data = await response.json()
+        console.log('Client stats received:', data)
         setStats(data)
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Unknown error')
