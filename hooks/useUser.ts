@@ -9,6 +9,7 @@ interface UserProfile {
   username: string
   display_name?: string
   status_tags?: string[]
+  onboarding_complete?: boolean
   created_at: string
 }
 
@@ -37,7 +38,7 @@ export function useUser() {
 
   // Combined loading state for convenience
   const isLoading = loading || authLoading
-  const isAuthenticated = !!user
+  const isAuthenticated = !!user && !!profile && profile.onboarding_complete === true
 
   // Convenience properties
   const username = profile?.username
@@ -130,7 +131,7 @@ export function useUser() {
       const [profileResult, eloResult] = await Promise.all([
         supabase
           .from('profiles')
-          .select('id, username, display_name, status_tags, created_at')
+          .select('id, username, display_name, status_tags, onboarding_complete, created_at')
           .eq('id', userId)
           .single(),
         supabase
