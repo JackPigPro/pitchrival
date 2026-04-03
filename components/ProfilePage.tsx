@@ -839,7 +839,7 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
         }}>
 
           {/* LEFT COLUMN */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', width: '100%' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', width: '100%', justifyContent: 'space-between' }}>
             {/* ELO and Rank Card */}
             <div style={{ 
               background: 'var(--card)', 
@@ -904,6 +904,74 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
               </div>
             </div>
 
+            {/* Weekly Duels Entered Card */}
+            <div style={{ 
+              background: 'var(--card)', 
+              borderRadius: '16px', 
+              padding: '32px',
+              border: '1px solid var(--border)',
+              boxShadow: 'var(--shadow)',
+              width: '100%',
+              flex: 1
+            }}>
+              <h3 style={{ 
+                fontSize: '20px', 
+                fontWeight: '700', 
+                marginBottom: '20px', 
+                fontFamily: 'var(--font-display)',
+                color: 'var(--text)'
+              }}>
+                Weekly Duels Entered
+              </h3>
+              
+              <div style={{
+                textAlign: 'center',
+                padding: '40px 0'
+              }}>
+                <div style={{
+                  fontSize: '64px',
+                  fontWeight: '800',
+                  color: 'var(--green)',
+                  fontFamily: 'var(--font-display)',
+                  marginBottom: '16px'
+                }}>
+                  {weeklyDuelsCount || 0}
+                </div>
+                
+                {userStats?.weekly_duel_entered && userStats.weekly_duel_entered > 0 ? (
+                  <div style={{
+                    display: 'inline-block',
+                    padding: '8px 16px',
+                    borderRadius: '20px',
+                    background: 'var(--green)',
+                    color: '#fff',
+                    fontSize: '14px',
+                    fontWeight: '700',
+                    fontFamily: 'var(--font-display)'
+                  }}>
+                    Entered ✓
+                  </div>
+                ) : (
+                  <div style={{
+                    display: 'inline-block',
+                    padding: '8px 16px',
+                    borderRadius: '20px',
+                    background: 'var(--card2)',
+                    color: 'var(--text2)',
+                    fontSize: '14px',
+                    fontWeight: '700',
+                    fontFamily: 'var(--font-display)',
+                    border: '1px solid var(--border2)'
+                  }}>
+                    Not Entered
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* RIGHT COLUMN */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', width: '100%' }}>
             {/* Ideas Card */}
             <div style={{ 
               background: 'var(--card)', 
@@ -926,13 +994,26 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
               {ideas.length > 0 ? (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                   {ideas.slice(0, 3).map(idea => (
-                    <div key={idea.id} style={{
-                      padding: '16px',
-                      borderRadius: '12px',
-                      background: 'var(--card2)',
-                      border: '1px solid var(--border2)',
-                      transition: 'all 0.2s ease'
-                    }}>
+                    <a 
+                      key={idea.id}
+                      href="/connect/ideas"
+                      style={{
+                        padding: '16px',
+                        borderRadius: '12px',
+                        background: 'var(--card2)',
+                        border: '1px solid var(--border2)',
+                        transition: 'all 0.2s ease',
+                        cursor: 'pointer',
+                        textDecoration: 'none',
+                        display: 'block'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.border = '1px solid var(--green)'
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.border = '1px solid var(--border2)'
+                      }}
+                    >
                       <h4 style={{
                         fontSize: '16px',
                         fontWeight: '600',
@@ -957,25 +1038,30 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
                       }}>
                         {new Date(idea.created_at).toLocaleDateString()}
                       </div>
-                    </div>
+                    </a>
                   ))}
                   {ideas.length > 3 && (
                     <div style={{
                       textAlign: 'center',
                       paddingTop: '16px'
                     }}>
-                      <button style={{
-                        padding: '8px 16px',
-                        borderRadius: '8px',
-                        border: '1px solid var(--border2)',
-                        background: 'var(--card2)',
-                        color: 'var(--text)',
-                        fontSize: '14px',
-                        fontWeight: '600',
-                        cursor: 'pointer'
-                      }}>
+                      <a 
+                        href="/connect/ideas"
+                        style={{
+                          padding: '8px 16px',
+                          borderRadius: '8px',
+                          border: '1px solid var(--border2)',
+                          background: 'var(--card2)',
+                          color: 'var(--text)',
+                          fontSize: '14px',
+                          fontWeight: '600',
+                          cursor: 'pointer',
+                          textDecoration: 'none',
+                          display: 'inline-block'
+                        }}
+                      >
                         View All Ideas
-                      </button>
+                      </a>
                     </div>
                   )}
                 </div>
@@ -990,11 +1076,8 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
                 </div>
               )}
             </div>
-          </div>
 
-          {/* RIGHT COLUMN */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', width: '100%' }}>
-            {/* Weekly Duels Card */}
+            {/* Member Since Card */}
             <div style={{ 
               background: 'var(--card)', 
               borderRadius: '16px', 
@@ -1010,184 +1093,21 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
                 fontFamily: 'var(--font-display)',
                 color: 'var(--text)'
               }}>
-                Weekly Duels
+                Member Since
               </h3>
               
               <div style={{
-                display: 'grid',
-                gridTemplateColumns: '1fr 1fr',
-                gap: '16px'
-              }}>
-                <div style={{
-                  textAlign: 'center',
-                  padding: '20px',
-                  borderRadius: '12px',
-                  background: 'var(--card2)',
-                  border: '1px solid var(--border2)'
-                }}>
-                  <div style={{
-                    fontSize: '32px',
-                    fontWeight: '800',
-                    color: 'var(--green)',
-                    fontFamily: 'var(--font-display)',
-                    marginBottom: '8px'
-                  }}>
-                    {weeklyDuelsCount || 0}
-                  </div>
-                  <div style={{
-                    fontSize: '14px',
-                    color: 'var(--text2)',
-                    fontWeight: '600'
-                  }}>
-                    Duels Entered
-                  </div>
-                </div>
-                
-                <div style={{
-                  textAlign: 'center',
-                  padding: '20px',
-                  borderRadius: '12px',
-                  background: 'var(--card2)',
-                  border: '1px solid var(--border2)'
-                }}>
-                  <div style={{
-                    fontSize: '32px',
-                    fontWeight: '800',
-                    color: 'var(--blue)',
-                    fontFamily: 'var(--font-display)',
-                    marginBottom: '8px'
-                  }}>
-                    {userStats?.weekly_duel_entered || 0}
-                  </div>
-                  <div style={{
-                    fontSize: '14px',
-                    color: 'var(--text2)',
-                    fontWeight: '600'
-                  }}>
-                    This Week
-                  </div>
-                </div>
-              </div>
-
-              <div style={{
-                marginTop: '20px',
-                textAlign: 'center'
-              }}>
-                <button style={{
-                  padding: '12px 24px',
-                  borderRadius: '8px',
-                  border: 'none',
-                  background: 'var(--green)',
-                  color: 'white',
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  width: '100%'
-                }}>
-                  Enter Weekly Duel
-                </button>
-              </div>
-            </div>
-
-            {/* Activity Card */}
-            <div style={{ 
-              background: 'var(--card)', 
-              borderRadius: '16px', 
-              padding: '32px',
-              border: '1px solid var(--border)',
-              boxShadow: 'var(--shadow)',
-              width: '100%'
-            }}>
-              <h3 style={{ 
-                fontSize: '20px', 
-                fontWeight: '700', 
-                marginBottom: '20px', 
+                fontSize: '24px',
+                fontWeight: '700',
+                color: 'var(--text)',
                 fontFamily: 'var(--font-display)',
-                color: 'var(--text)'
+                lineHeight: '1.4'
               }}>
-                Recent Activity
-              </h3>
-              
-              <div style={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '16px'
-              }}>
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '12px',
-                  padding: '12px',
-                  borderRadius: '8px',
-                  background: 'var(--card2)',
-                  border: '1px solid var(--border2)'
-                }}>
-                  <div style={{
-                    width: '8px',
-                    height: '8px',
-                    borderRadius: '50%',
-                    background: 'var(--green)',
-                    flexShrink: 0
-                  }} />
-                  <div style={{ fontSize: '14px', color: 'var(--text)' }}>
-                    Profile created
-                  </div>
-                  <div style={{ fontSize: '12px', color: 'var(--text2)', marginLeft: 'auto' }}>
-                    {new Date(currentProfile.created_at).toLocaleDateString()}
-                  </div>
-                </div>
-                
-                {ideas.length > 0 && (
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '12px',
-                    padding: '12px',
-                    borderRadius: '8px',
-                    background: 'var(--card2)',
-                    border: '1px solid var(--border2)'
-                  }}>
-                    <div style={{
-                      width: '8px',
-                      height: '8px',
-                      borderRadius: '50%',
-                      background: 'var(--blue)',
-                      flexShrink: 0
-                    }} />
-                    <div style={{ fontSize: '14px', color: 'var(--text)' }}>
-                      Latest idea posted
-                    </div>
-                    <div style={{ fontSize: '12px', color: 'var(--text2)', marginLeft: 'auto' }}>
-                      {new Date(ideas[0].created_at).toLocaleDateString()}
-                    </div>
-                  </div>
-                )}
-                
-                {userStats?.elo && userStats.elo > 0 && (
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '12px',
-                    padding: '12px',
-                    borderRadius: '8px',
-                    background: 'var(--card2)',
-                    border: '1px solid var(--border2)'
-                  }}>
-                    <div style={{
-                      width: '8px',
-                      height: '8px',
-                      borderRadius: '50%',
-                      background: 'var(--purple)',
-                      flexShrink: 0
-                    }} />
-                    <div style={{ fontSize: '14px', color: 'var(--text)' }}>
-                      Current ELO: {userStats.elo}
-                    </div>
-                    <div style={{ fontSize: '12px', color: 'var(--text2)', marginLeft: 'auto' }}>
-                      {getRankByElo(userStats.elo)}
-                    </div>
-                  </div>
-                )}
+                {new Date(currentProfile.created_at).toLocaleDateString('en-US', { 
+                  year: 'numeric', 
+                  month: 'long', 
+                  day: 'numeric' 
+                })}
               </div>
             </div>
           </div>
