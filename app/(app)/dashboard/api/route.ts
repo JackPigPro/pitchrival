@@ -12,7 +12,6 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    console.log('Dashboard API: Fetching data for user:', user.id)
 
     // Fetch user profile
     const { data: profile, error: profileError } = await supabase
@@ -72,7 +71,6 @@ export async function GET() {
       rank: eloData?.rank || 'Trainee'
     }
 
-    console.log('Dashboard API: Returning data:', { profile: !!profile, stats })
 
     return NextResponse.json({
       profile,

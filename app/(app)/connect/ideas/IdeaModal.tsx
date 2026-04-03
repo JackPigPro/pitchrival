@@ -85,11 +85,6 @@ export default function IdeaModal({ idea, onClose, onUpdate, onDelete, currentUs
     try {
       setEditing(true)
       
-      console.log('Updating idea:', idea.id, {
-        title: editTitle.trim(),
-        content: editContent.trim(),
-        is_public: editIsPublic,
-      })
       
       const response = await fetch(`/connect/ideas/api/ideas/${idea.id}`, {
         method: 'PUT',
@@ -101,16 +96,13 @@ export default function IdeaModal({ idea, onClose, onUpdate, onDelete, currentUs
         }),
       })
 
-      console.log('Response status:', response.status)
       
       if (response.ok) {
         const { data } = await response.json()
-        console.log('Updated idea data:', data)
         onUpdate(data)
         setIsEditing(false)
       } else {
         const errorData = await response.json()
-        console.error('Failed to update idea:', errorData)
         throw new Error(errorData.error || 'Failed to update idea')
       }
     } catch (err) {
@@ -149,8 +141,6 @@ export default function IdeaModal({ idea, onClose, onUpdate, onDelete, currentUs
     try {
       setSubmittingComment(true)
       
-      console.log('Submitting comment for idea:', idea.id)
-      console.log('Comment content:', newComment.trim())
       
       const response = await fetch(`/connect/ideas/api/ideas/${idea.id}/comments`, {
         method: 'POST',
@@ -158,16 +148,13 @@ export default function IdeaModal({ idea, onClose, onUpdate, onDelete, currentUs
         body: JSON.stringify({ content: newComment.trim() }),
       })
 
-      console.log('Comment response status:', response.status)
 
       if (response.ok) {
         const { data } = await response.json()
-        console.log('Comment submitted successfully:', data)
         setComments(prev => [...prev, data])
         setNewComment('')
       } else {
         const errorData = await response.json()
-        console.error('Failed to submit comment:', errorData)
         alert(`Failed to submit comment: ${errorData.error || 'Unknown error'}`)
       }
     } catch (err) {

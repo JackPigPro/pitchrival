@@ -52,25 +52,18 @@ export function useUser() {
 
     const getSessionWithRetry = async () => {
       try {
-        console.log('🔍 [useUser] Getting initial session...', `attempt ${retryCount + 1}`)
         
         const { data: { session } } = await supabase.auth.getSession()
         
         if (mounted) {
-          console.log('📡 [useUser] Session received:', { 
-            hasSession: !!session, 
-            userId: session?.user?.id 
-          })
           
           const user = session?.user ?? null
           setUser(user)
           setAuthLoading(false)
           
           if (user) {
-            console.log('🚀 [useUser] User authenticated, fetching user data...')
             fetchUserData(user.id)
           } else {
-            console.log('🚫 [useUser] No user session')
             setLoading(false)
           }
         }
@@ -79,10 +72,8 @@ export function useUser() {
         retryCount++
         
         if (retryCount < maxRetries && mounted) {
-          console.log(`🔄 [useUser] Retrying session check... (${retryCount}/${maxRetries})`)
-          setTimeout(getSessionWithRetry, 1000 * retryCount) // Exponential backoff
+            setTimeout(getSessionWithRetry, 1000 * retryCount) // Exponential backoff
         } else {
-          console.log('❌ [useUser] Max retries reached, giving up')
           if (mounted) {
             setAuthLoading(false)
             setLoading(false)
@@ -97,14 +88,12 @@ export function useUser() {
     // Listen for future auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (mounted) {
-        console.log('🔄 [useUser] Auth state changed:', { event, hasSession: !!session })
         
         const user = session?.user ?? null
         setUser(user)
         setAuthLoading(false)
         
         if (user && event !== 'INITIAL_SESSION') {
-          console.log('🚀 [useUser] User authenticated, fetching user data...')
           await fetchUserData(user.id)
         } else if (!user) {
           // Clear user data on logout
@@ -152,15 +141,10 @@ export function useUser() {
       ])
 
       // Debug both query results
-      console.log('Profile result - data:', profileResult.data, 'error:', profileResult.error)
-      console.log('ELO result - data:', eloResult.data, 'error:', eloResult.error)
 
       // Log errors for debugging
       if (profileResult.error) {
-        console.error('Error fetching profile:', profileResult.error)
-      }
-      if (eloResult.error) {
-        console.error('Error fetching user stats/ELO:', eloResult.error)
+        
       }
 
       const newProfile = profileResult.data || null
