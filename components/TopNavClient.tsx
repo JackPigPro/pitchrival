@@ -158,13 +158,13 @@ export default function TopNavClient({
               pointerEvents: open === 'connect' ? 'auto' : 'none',
             }}
           >
-            <Link href="/login?mode=signup" className="topnav-dropdown-link" style={dropdownLinkStyle} onClick={handleNavPageClick}>
+            <Link href={isLoggedIn ? "/connect/cofounder-match" : "/login?mode=signup"} className="topnav-dropdown-link" style={dropdownLinkStyle} onClick={handleNavPageClick}>
               Co-founder Match
             </Link>
-            <Link href="/login?mode=signup" className="topnav-dropdown-link" style={dropdownLinkStyle} onClick={handleNavPageClick}>
+            <Link href={isLoggedIn ? "/connect/messages" : "/login?mode=signup"} className="topnav-dropdown-link" style={dropdownLinkStyle} onClick={handleNavPageClick}>
               Messages
             </Link>
-            <Link href="/login?mode=signup" className="topnav-dropdown-link" style={dropdownLinkStyle} onClick={handleNavPageClick}>
+            <Link href={isLoggedIn ? "/connect/ideas" : "/login?mode=signup"} className="topnav-dropdown-link" style={dropdownLinkStyle} onClick={handleNavPageClick}>
               Ideas
             </Link>
           </div>
@@ -203,7 +203,7 @@ export default function TopNavClient({
               pointerEvents: open === 'compete' ? 'auto' : 'none',
             }}
           >
-            <Link href="/login?mode=signup" className="topnav-dropdown-link" style={dropdownLinkStyle} onClick={handleNavPageClick}>
+            <Link href={isLoggedIn ? "/compete/weekly-duel" : "/login?mode=signup"} className="topnav-dropdown-link" style={dropdownLinkStyle} onClick={handleNavPageClick}>
               Weekly Duel
             </Link>
             <Link href="/compete/leaderboard" scroll className="topnav-dropdown-link" style={dropdownLinkStyle} onClick={handleNavPageClick}>
