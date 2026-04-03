@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import CountryDropdown from './CountryDropdown'
 
@@ -61,6 +61,13 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
   })
 
   const supabase = createClient()
+
+  useEffect(() => {
+    if (isEditing) {
+      setLoading(false)
+      setSaveSuccess(false)
+    }
+  }, [isEditing])
 
   const handleSave = async () => {
     setLoading(true)
@@ -461,7 +468,11 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
 
               <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
                 <button
-                  onClick={() => setIsEditing(false)}
+                  onClick={() => {
+                    setIsEditing(false)
+                    setLoading(false)
+                    setSaveSuccess(false)
+                  }}
                   style={{
                     padding: '12px 24px',
                     borderRadius: '8px',
