@@ -226,9 +226,10 @@ export async function PATCH(request: NextRequest) {
     }
 
     // Update the request status
+    const status = action === 'accept' ? 'accepted' : 'rejected'
     const { error: updateError } = await supabase
       .from('cofounder_requests')
-      .update({ status: action })
+      .update({ status })
       .eq('id', request_id)
 
     if (updateError) {

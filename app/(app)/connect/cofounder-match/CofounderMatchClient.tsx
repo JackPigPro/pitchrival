@@ -418,7 +418,7 @@ export default function CofounderMatchClient({
           View Profile
         </a>
         <a
-          href={`/connect/messages?with=${profile.id}`}
+          href={`/connect/messages?user=${profile.id}`}
           style={{
             padding: '8px 16px',
             background: 'var(--green)',
@@ -549,6 +549,7 @@ export default function CofounderMatchClient({
                 <ProfileCard 
                   key={request.id} 
                   profile={profile} 
+                  showConnectButton={false}
                   showCancelButton={true} 
                   request={request}
                 />
