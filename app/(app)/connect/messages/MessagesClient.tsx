@@ -213,7 +213,14 @@ export default function MessagesClient() {
 
       const response = await fetch(`/connect/messages/api?${params}`)
       if (!response.ok) {
-        throw new Error('Failed to fetch messages')
+        const errorData = await response.json().catch(() => ({}))
+        console.error('API Error Response:', {
+          status: response.status,
+          statusText: response.statusText,
+          error: errorData,
+          url: `/connect/messages/api?${params}`
+        })
+        throw new Error(`Failed to fetch messages: ${response.status} ${response.statusText}`)
       }
       
       const { data, pagination } = await response.json()
@@ -277,7 +284,7 @@ export default function MessagesClient() {
   }
 
   const formatTimeAgo = (timestamp: string) => {
-    const date = new Date(timestamp + 'Z')
+    const date = new Date(timestamp.endsWith('Z') ? timestamp : timestamp + 'Z')
     const now = new Date()
     const diffMs = now.getTime() - date.getTime()
     const diffMins = Math.floor(diffMs / 60000)
