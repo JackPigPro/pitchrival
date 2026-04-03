@@ -211,25 +211,43 @@ export default function CofounderMatchClient({
           {/* Main Content */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
             {/* Your Co-founders Section */}
-            {connectedProfiles.length > 0 && (
-              <div style={{ 
-                background: 'var(--card)', 
-                borderRadius: '16px', 
-                padding: '32px',
-                border: '1px solid var(--border)',
-                boxShadow: 'var(--shadow)'
+            <div style={{ 
+              background: 'var(--card)', 
+              borderRadius: '16px', 
+              padding: '32px',
+              border: '1px solid var(--border)',
+              boxShadow: 'var(--shadow)'
+            }}>
+              <h2 style={{ 
+                fontSize: '20px', 
+                fontWeight: 700, 
+                fontFamily: 'var(--font-display)', 
+                color: 'var(--text)', 
+                marginBottom: '24px',
+                letterSpacing: '-0.1px'
               }}>
-                <h2 style={{ 
-                  fontSize: '20px', 
-                  fontWeight: 700, 
-                  fontFamily: 'var(--font-display)', 
-                  color: 'var(--text)', 
-                  marginBottom: '24px',
-                  letterSpacing: '-0.1px'
+                Your Co-founders
+              </h2>
+              
+              {connectedProfiles.length === 0 ? (
+                <div style={{
+                  textAlign: 'center',
+                  padding: '40px 20px',
+                  color: 'var(--text2)',
+                  fontSize: '16px',
+                  fontFamily: 'var(--font-body)'
                 }}>
-                  Your Co-founders
-                </h2>
-                
+                  <div style={{ fontSize: '48px', fontWeight: 800, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '16px' }}>
+                    🤝
+                  </div>
+                  <div style={{ fontSize: '20px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '8px' }}>
+                    No cofounders yet
+                  </div>
+                  <div style={{ fontSize: '16px', color: 'var(--text2)' }}>
+                    Accept cofounder requests to see them here.
+                  </div>
+                </div>
+              ) : (
                 <div style={{ 
                   display: 'grid',
                   gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
@@ -349,29 +367,47 @@ export default function CofounderMatchClient({
                     </div>
                   ))}
                 </div>
-              </div>
-            )}
+              )}
+            </div>
 
             {/* Incoming Requests Section */}
-            {incomingRequests.length > 0 && (
-              <div style={{ 
-                background: 'var(--card)', 
-                borderRadius: '16px', 
-                padding: '32px',
-                border: '1px solid var(--border)',
-                boxShadow: 'var(--shadow)'
+            <div style={{ 
+              background: 'var(--card)', 
+              borderRadius: '16px', 
+              padding: '32px',
+              border: '1px solid var(--border)',
+              boxShadow: 'var(--shadow)'
+            }}>
+              <h2 style={{ 
+                fontSize: '20px', 
+                fontWeight: 700, 
+                fontFamily: 'var(--font-display)', 
+                color: 'var(--text)', 
+                marginBottom: '24px',
+                letterSpacing: '-0.1px'
               }}>
-                <h2 style={{ 
-                  fontSize: '20px', 
-                  fontWeight: 700, 
-                  fontFamily: 'var(--font-display)', 
-                  color: 'var(--text)', 
-                  marginBottom: '24px',
-                  letterSpacing: '-0.1px'
+                Incoming Requests
+              </h2>
+              
+              {incomingRequests.length === 0 ? (
+                <div style={{
+                  textAlign: 'center',
+                  padding: '40px 20px',
+                  color: 'var(--text2)',
+                  fontSize: '16px',
+                  fontFamily: 'var(--font-body)'
                 }}>
-                  Incoming Requests
-                </h2>
-                
+                  <div style={{ fontSize: '48px', fontWeight: 800, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '16px' }}>
+                    📬
+                  </div>
+                  <div style={{ fontSize: '20px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '8px' }}>
+                    No incoming requests
+                  </div>
+                  <div style={{ fontSize: '16px', color: 'var(--text2)' }}>
+                    When someone wants to co-found with you, their request will appear here.
+                  </div>
+                </div>
+              ) : (
                 <div style={{ 
                   display: 'grid',
                   gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
@@ -491,8 +527,8 @@ export default function CofounderMatchClient({
                     )
                   })}
                 </div>
-              </div>
-            )}
+              )}
+            </div>
 
             {/* Discover Founders Section */}
             <div style={{ 

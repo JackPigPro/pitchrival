@@ -113,26 +113,8 @@ export default function NotificationsBell() {
   }
 
   const clearAllNotifications = async () => {
-    // Store current notifications for rollback
-    const previousNotifications = [...notifications]
-    
-    // Optimistic update - clear immediately
-    setNotifications([])
-    
-    try {
-      const response = await fetch('/connect/notifications/api/notifications', {
-        method: 'DELETE'
-      })
-      if (!response.ok) {
-        // If the API call fails, restore notifications
-        setNotifications(previousNotifications)
-        console.error('Failed to clear notifications')
-      }
-    } catch (error) {
-      // If there's an error, restore notifications
-      setNotifications(previousNotifications)
-      console.error('Failed to clear notifications:', error)
-    }
+    // Just mark all as read instead of deleting to preserve dashboard activity
+    await markAllAsRead()
   }
 
   useEffect(() => {

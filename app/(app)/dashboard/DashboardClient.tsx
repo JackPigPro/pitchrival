@@ -77,6 +77,9 @@ export default function DashboardClient({ initialProfile, initialStats }: Dashbo
   const [elo, setElo] = useState<any>(initialStats)
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [notificationsLoading, setNotificationsLoading] = useState(true)
+  const [activityPage, setActivityPage] = useState(1)
+  const [hasMoreActivity, setHasMoreActivity] = useState(true)
+  const [loadingMoreActivity, setLoadingMoreActivity] = useState(false)
 
   const userElo = elo?.elo || 0
   const userRank = getRankByElo(userElo)
@@ -86,26 +89,47 @@ export default function DashboardClient({ initialProfile, initialStats }: Dashbo
   const display_name = profile?.display_name
 
 
-  // Fetch notifications
+  // Fetch notifications with pagination
   useEffect(() => {
     if (isAuthenticated) {
-      fetchNotifications()
+      fetchActivity(1, true)
     } else if (!authLoading) {
       setNotificationsLoading(false)
     }
   }, [isAuthenticated, authLoading])
 
-  const fetchNotifications = async () => {
+  const fetchActivity = async (page: number, reset: boolean = false) => {
     try {
-      const response = await fetch('/connect/notifications/api/notifications')
+      if (reset) {
+        setNotificationsLoading(true)
+      } else {
+        setLoadingMoreActivity(true)
+      }
+
+      const response = await fetch(`/dashboard/api/activity?page=${page}&limit=10`)
       if (response.ok) {
         const data = await response.json()
-        setNotifications(Array.isArray(data.notifications) ? data.notifications.slice(0, 5) : [])
+        
+        if (reset) {
+          setNotifications(data.activity || [])
+        } else {
+          setNotifications(prev => [...prev, ...(data.activity || [])])
+        }
+        
+        setHasMoreActivity(data.pagination?.hasMore || false)
+        setActivityPage(page)
       }
     } catch (error) {
-      console.error('Failed to fetch notifications:', error)
+      console.error('Failed to fetch activity:', error)
     } finally {
       setNotificationsLoading(false)
+      setLoadingMoreActivity(false)
+    }
+  }
+
+  const loadMoreActivity = () => {
+    if (hasMoreActivity && !loadingMoreActivity) {
+      fetchActivity(activityPage + 1, false)
     }
   }
 
@@ -534,6 +558,33 @@ export default function DashboardClient({ initialProfile, initialStats }: Dashbo
                       </div>
                     </div>
                   ))}
+                  
+                  {/* Infinite scroll trigger */}
+                  {hasMoreActivity && (
+                    <div 
+                      style={{ textAlign: 'center', padding: '20px' }}
+                      onClick={loadMoreActivity}
+                    >
+                      {loadingMoreActivity ? (
+                        <div style={{ color: 'var(--text2)' }}>Loading more activity...</div>
+                      ) : (
+                        <button
+                          style={{
+                            padding: '8px 16px',
+                            background: 'var(--surface)',
+                            border: '1px solid var(--border)',
+                            borderRadius: '8px',
+                            color: 'var(--text2)',
+                            fontSize: '14px',
+                            cursor: 'pointer',
+                            fontFamily: 'var(--font-display)'
+                          }}
+                        >
+                          Load More
+                        </button>
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
