@@ -22,9 +22,6 @@ interface UserStats {
   elo?: number
   rank?: string
   weekly_duel_entered?: number
-  daily_rank?: number
-  alltime_rank?: number
-  weekly_duels_count?: number
 }
 
 interface Idea {
@@ -39,12 +36,9 @@ interface ProfilePageProps {
   userStats?: UserStats
   ideas: Idea[]
   isOwnProfile: boolean
-  dailyRank?: number
-  alltimeRank?: number
-  weeklyDuelsCount?: number
 }
 
-export default function ProfilePage({ profile: initialProfile, userStats, ideas, isOwnProfile, dailyRank, alltimeRank, weeklyDuelsCount }: ProfilePageProps) {
+export default function ProfilePage({ profile: initialProfile, userStats, ideas, isOwnProfile }: ProfilePageProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [loading, setLoading] = useState(false)
   const [saveSuccess, setSaveSuccess] = useState(false)
@@ -493,20 +487,14 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
 
   return (
     <div style={{ 
-      minHeight: '100vh',
+      minHeight: '100vh', 
       background: 'var(--bg)',
       backgroundImage: 'linear-gradient(rgba(21,128,61,.065) 1px, transparent 1px), linear-gradient(90deg, rgba(21,128,61,.065) 1px, transparent 1px)',
       backgroundSize: '48px 48px',
       padding: '40px 24px'
     }}>
-      <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
-        {/* Header */}
-        <div style={{ marginBottom: '32px' }}>
-          <h1 style={{ fontSize: '48px', fontWeight: 800, letterSpacing: '-2px', fontFamily: 'var(--font-display)', color: 'var(--text)', margin: 0 }}>
-            {currentProfile.username}
-          </h1>
-        </div>
-
+      <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+        
         {/* TOP SECTION - Full Width Header */}
         <div style={{ 
           background: 'var(--card)', 
@@ -812,22 +800,30 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
           </div>
         </div>
 
-        {/* Two Column Layout for Content Below Profile */}
-        <div className="profile-grid">
-          {/* LEFT COLUMN */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-            
-            {/* ELO and Rank Card */}
+        {/* MIDDLE SECTION - Two Column Grid */}
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: '1fr 1fr', 
+          gap: '32px', 
+          marginBottom: '32px'
+        }}>
+
+          {/* Left Column: Stats Section */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', width: '100%' }}>
+            {/* Combined ELO and Rank Card */}
             <div style={{ 
               background: 'var(--card)', 
               borderRadius: '16px', 
               padding: '32px',
               border: '1px solid var(--border)',
-              boxShadow: 'var(--shadow)'
+              boxShadow: 'var(--shadow)',
+              textAlign: 'center',
+              transition: 'all 0.2s ease',
+              width: '100%'
             }}>
               <div style={{ marginBottom: '24px' }}>
                 <div style={{ 
-                  fontSize: '48px', 
+                  fontSize: '64px', 
                   fontWeight: '800', 
                   color: 'var(--green)', 
                   fontFamily: 'var(--font-display)',
@@ -844,7 +840,7 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
                   textTransform: 'uppercase',
                   marginBottom: '20px'
                 }}>
-                  Current ELO
+                  ELO Rating
                 </div>
               </div>
               
@@ -854,9 +850,9 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
                 margin: '20px 0' 
               }} />
               
-              <div style={{ marginBottom: '20px' }}>
+              <div>
                 <div style={{ 
-                  fontSize: '24px', 
+                  fontSize: '36px', 
                   fontWeight: '800', 
                   color: 'var(--blue)', 
                   fontFamily: 'var(--font-display)',
@@ -872,70 +868,21 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
                   letterSpacing: '2px',
                   textTransform: 'uppercase'
                 }}>
-                  Current Rank
-                </div>
-              </div>
-
-              <div style={{ 
-                height: '1px', 
-                background: 'var(--border)', 
-                margin: '20px 0' 
-              }} />
-              
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                <div style={{ textAlign: 'center' }}>
-                  <div style={{ 
-                    fontSize: '20px', 
-                    fontWeight: '800', 
-                    color: 'var(--purple)', 
-                    fontFamily: 'var(--font-display)',
-                    marginBottom: '4px'
-                  }}>
-                    #{dailyRank || '—'}
-                  </div>
-                  <div style={{ 
-                    fontSize: '11px', 
-                    color: 'var(--text2)',
-                    fontWeight: '600',
-                    fontFamily: 'var(--font-display)',
-                    letterSpacing: '1px',
-                    textTransform: 'uppercase'
-                  }}>
-                    Daily Rank
-                  </div>
-                </div>
-                <div style={{ textAlign: 'center' }}>
-                  <div style={{ 
-                    fontSize: '20px', 
-                    fontWeight: '800', 
-                    color: 'var(--purple)', 
-                    fontFamily: 'var(--font-display)',
-                    marginBottom: '4px'
-                  }}>
-                    #{alltimeRank || '—'}
-                  </div>
-                  <div style={{ 
-                    fontSize: '11px', 
-                    color: 'var(--text2)',
-                    fontWeight: '600',
-                    fontFamily: 'var(--font-display)',
-                    letterSpacing: '1px',
-                    textTransform: 'uppercase'
-                  }}>
-                    All-Time Rank
-                  </div>
+                  Rank Title
                 </div>
               </div>
             </div>
 
-            {/* Weekly Duels Entered Card */}
+            {/* Weekly Duels Card */}
             <div style={{ 
               background: 'var(--card)', 
               borderRadius: '16px', 
               padding: '32px',
               border: '1px solid var(--border)',
               boxShadow: 'var(--shadow)',
-              textAlign: 'center'
+              textAlign: 'center',
+              transition: 'all 0.2s ease',
+              width: '100%'
             }}>
               <div style={{ 
                 fontSize: '48px', 
@@ -944,7 +891,7 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
                 fontFamily: 'var(--font-display)',
                 marginBottom: '12px'
               }}>
-                {weeklyDuelsCount || 0}
+                {userStats?.weekly_duel_entered || 0}
               </div>
               <div style={{ 
                 fontSize: '13px', 
@@ -954,182 +901,259 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
                 letterSpacing: '2px',
                 textTransform: 'uppercase'
               }}>
-                Weekly Duels Entered
+                Weekly Duels
               </div>
             </div>
+
+            {/* Weekly Duels Button */}
+            <a
+              href="/compete"
+              className="btn-cta-primary"
+              style={{
+                textDecoration: 'none',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '100%'
+              }}
+            >
+              ⚔️ Weekly Duels →
+            </a>
+
+            {/* Leaderboard Button */}
+            <a
+              href="/compete/leaderboard"
+              className="btn-cta-ghost"
+              style={{
+                textDecoration: 'none',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '100%'
+              }}
+            >
+              🏆 Check Leaderboard →
+            </a>
           </div>
 
-          {/* RIGHT COLUMN */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-            
+          {/* Right Column: Actions Section */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', width: '100%' }}>
             {/* Ideas Posted Card */}
+            <a
+              href={ideas.length > 0 ? `/profile/${currentProfile.username}/ideas` : "#"}
+              onClick={(e) => {
+                if (ideas.length === 0) {
+                  e.preventDefault()
+                }
+              }}
+              style={{
+                display: 'block',
+                background: 'var(--card)', 
+                borderRadius: '16px', 
+                padding: '32px',
+                border: '1px solid var(--border)',
+                boxShadow: 'var(--shadow)',
+                textAlign: 'center',
+                transition: 'all 0.2s ease',
+                width: '100%',
+                textDecoration: 'none',
+                cursor: ideas.length > 0 ? 'pointer' : 'default'
+              }}
+              onMouseEnter={(e) => {
+                if (ideas.length > 0) {
+                  e.currentTarget.style.transform = 'translateY(-2px)'
+                  e.currentTarget.style.boxShadow = 'var(--shadow-lg)'
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (ideas.length > 0) {
+                  e.currentTarget.style.transform = 'translateY(0)'
+                  e.currentTarget.style.boxShadow = 'var(--shadow)'
+                }
+              }}
+            >
+              <div style={{ 
+                fontSize: '48px', 
+                fontWeight: '800', 
+                color: ideas.length > 0 ? 'var(--blue)' : 'var(--text2)', 
+                fontFamily: 'var(--font-display)',
+                marginBottom: '12px'
+              }}>
+                {ideas.length}
+              </div>
+              <div style={{ 
+                fontSize: '13px', 
+                color: 'var(--text2)',
+                fontWeight: '600',
+                fontFamily: 'var(--font-display)',
+                letterSpacing: '2px',
+                textTransform: 'uppercase'
+              }}>
+                Ideas Posted
+              </div>
+            </a>
+
+            {/* Create Idea Button */}
+            <a
+              href="/ideas/create"
+              className="btn-cta-primary"
+              style={{
+                textDecoration: 'none',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '100%'
+              }}
+            >
+              💡 Create Idea →
+            </a>
+
+            {/* Find Co-founder Card */}
             <div style={{ 
               background: 'var(--card)', 
               borderRadius: '16px', 
               padding: '32px',
               border: '1px solid var(--border)',
-              boxShadow: 'var(--shadow)'
+              boxShadow: 'var(--shadow)',
+              textAlign: 'center',
+              transition: 'all 0.2s ease',
+              width: '100%'
             }}>
-              {/* Header with Post New Idea Button */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-                <div>
-                  <div style={{ 
-                    fontSize: '24px', 
-                    fontWeight: '800', 
-                    color: 'var(--text)', 
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '12px',
+                marginBottom: '16px'
+              }}>
+                <div style={{
+                  width: '48px',
+                  height: '48px',
+                  borderRadius: '50%',
+                  background: currentProfile.status_tags?.includes('Looking for Co-founder') 
+                    ? 'linear-gradient(135deg, var(--green), #22c55e)'
+                    : 'var(--card2)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '20px',
+                  transition: 'all 0.3s ease'
+                }}>
+                  {currentProfile.status_tags?.includes('Looking for Co-founder') ? '🤝' : '👤'}
+                </div>
+                <div style={{ textAlign: 'left' }}>
+                  <div style={{
+                    fontSize: '16px',
+                    fontWeight: '700',
                     fontFamily: 'var(--font-display)',
-                    marginBottom: '4px'
+                    color: 'var(--text)',
+                    margin: 0,
+                    marginBottom: '2px',
+                    letterSpacing: '-0.1px'
                   }}>
-                    Ideas Posted
+                    {currentProfile.status_tags?.includes('Looking for Co-founder') 
+                      ? 'Looking for Co-founder' 
+                      : 'Find a Co-founder'}
                   </div>
-                  <div style={{ 
-                    fontSize: '13px', 
-                    color: 'var(--text2)',
+                  <div style={{
+                    fontSize: '11px',
+                    color: 'var(--text3)',
                     fontWeight: '600',
                     fontFamily: 'var(--font-display)',
                     letterSpacing: '2px',
                     textTransform: 'uppercase'
                   }}>
-                    {ideas.length} ideas
+                    {currentProfile.status_tags?.includes('Looking for Co-founder') 
+                      ? 'Available Now'
+                      : 'Not Seeking'}
                   </div>
                 </div>
-                {isOwnProfile && (
-                  <a
-                    href="/connect/ideas"
-                    className="btn-cta-primary"
-                    style={{
-                      textDecoration: 'none',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      padding: '12px 20px',
-                      fontSize: '14px'
-                    }}
-                  >
-                    Post New Idea
-                  </a>
-                )}
               </div>
-
-              {/* Ideas List */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                {ideas.length > 0 ? (
-                  ideas.map(idea => (
-                    <a
-                      key={idea.id}
-                      href="/connect/ideas"
-                      style={{
-                        display: 'block',
-                        padding: '16px',
-                        borderRadius: '12px',
-                        background: 'var(--card2)',
-                        border: '1px solid var(--border2)',
-                        textDecoration: 'none',
-                        color: 'inherit',
-                        transition: 'all 0.2s ease',
-                        cursor: 'pointer'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.transform = 'translateY(-2px)'
-                        e.currentTarget.style.boxShadow = 'var(--shadow-md)'
-                        e.currentTarget.style.borderColor = 'var(--border)'
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.transform = 'translateY(0)'
-                        e.currentTarget.style.boxShadow = 'none'
-                        e.currentTarget.style.borderColor = 'var(--border2)'
-                      }}
-                    >
-                      <div style={{
-                        fontSize: '16px',
-                        fontWeight: '700',
-                        fontFamily: 'var(--font-display)',
-                        color: 'var(--text)',
-                        marginBottom: '8px'
-                      }}>
-                        {idea.title}
-                      </div>
-                      <div style={{
-                        fontSize: '14px',
-                        color: 'var(--text2)',
-                        fontFamily: 'var(--font-body)',
-                        lineHeight: '1.4',
-                        overflow: 'hidden',
-                        display: '-webkit-box',
-                        WebkitLineClamp: 2,
-                        WebkitBoxOrient: 'vertical'
-                      }}>
-                        {idea.description}
-                      </div>
-                    </a>
-                  ))
-                ) : (
-                  <div style={{
-                    textAlign: 'center',
-                    padding: '40px 20px',
-                    color: 'var(--text2)',
-                    fontSize: '14px',
-                    fontFamily: 'var(--font-body)'
-                  }}>
-                    No ideas posted yet
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Member Since Card */}
-            <div style={{ 
-              background: 'var(--card)', 
-              borderRadius: '16px', 
-              padding: '32px',
-              border: '1px solid var(--border)',
-              boxShadow: 'var(--shadow)'
-            }}>
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '20px'
-              }}>
-                <div style={{
-                  width: '60px',
-                  height: '60px',
-                  borderRadius: '50%',
-                  background: 'linear-gradient(135deg, var(--gold), #f59e0b)',
-                  display: 'flex',
+              
+              <a
+                href="/connect"
+                className="btn-cta-primary"
+                style={{
+                  textDecoration: 'none',
+                  display: 'inline-flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: '24px',
-                  boxShadow: 'var(--shadow-md)'
-                }}>
-                  📅
-                </div>
-                <div>
-                  <div style={{
-                    fontSize: '13px',
-                    color: 'var(--text3)',
-                    fontWeight: '600',
-                    fontFamily: 'var(--font-display)',
-                    letterSpacing: '2px',
-                    textTransform: 'uppercase',
-                    marginBottom: '4px'
-                  }}>
-                    Member Since
-                  </div>
-                  <div style={{
-                    fontSize: '24px',
-                    fontWeight: '800',
-                    fontFamily: 'var(--font-display)',
-                    color: 'var(--gold)',
-                    marginBottom: '4px'
-                  }}>
-                    {(() => {
-                      const createdAt = currentProfile.created_at.endsWith('Z') ? currentProfile.created_at : currentProfile.created_at + 'Z'
-                      return new Date(createdAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
-                    })()}
-                  </div>
-                </div>
+                  width: '100%'
+                }}
+              >
+                🤝 Find Matches →
+              </a>
+            </div>
+          </div>
+        </div>
+
+        {/* BOTTOM SECTION - Full Width */}
+        
+        {/* Joined Date */}
+        <div style={{ 
+          background: 'var(--card)', 
+          borderRadius: '16px', 
+          padding: '48px',
+          border: '1px solid var(--border)',
+          boxShadow: 'var(--shadow)',
+          textAlign: 'center',
+          position: 'relative'
+        }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '20px',
+            marginBottom: '24px'
+          }}>
+            <div style={{
+              width: '80px',
+              height: '80px',
+              borderRadius: '50%',
+              background: 'linear-gradient(135deg, var(--gold), #f59e0b)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '32px',
+              boxShadow: 'var(--shadow)'
+            }}>
+              📅
+            </div>
+            <div style={{ textAlign: 'left' }}>
+              <div style={{
+                fontSize: '13px',
+                color: 'var(--text3)',
+                fontWeight: '600',
+                fontFamily: 'var(--font-display)',
+                letterSpacing: '2px',
+                textTransform: 'uppercase',
+                marginBottom: '4px'
+              }}>
+                Member Since
+              </div>
+              <div style={{
+                fontSize: '48px',
+                fontWeight: '800',
+                fontFamily: 'var(--font-display)',
+                color: 'var(--gold)',
+                margin: 0,
+                marginBottom: '8px',
+                letterSpacing: '-0.5px'
+              }}>
+                {(() => {
+                  // Fix: Append Z to ensure UTC parsing if not already present
+                  const createdAt = currentProfile.created_at.endsWith('Z') ? currentProfile.created_at : currentProfile.created_at + 'Z'
+                  return new Date(createdAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+                })()}
               </div>
             </div>
+          </div>
+          
+          <div style={{
+            fontSize: '16px',
+            color: 'var(--text2)',
+            fontFamily: 'var(--font-body)'
+          }}>
           </div>
         </div>
       </div>
