@@ -70,18 +70,18 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
   }, [isEditing])
 
   const handleSave = async () => {
-    console.log('handleSave called, loading:', loading, 'saveSuccess:', saveSuccess)
+    console.log('handleSave called')
     setLoading(true)
     setSaveSuccess(false)
     try {
-      // Get the authenticated user's ID from Supabase auth
+      console.log('getting session...')
       const { data: { session } } = await supabase.auth.getSession()
+      console.log('session result:', session?.user?.id)
       if (!session?.user) {
         throw new Error('User not authenticated')
       }
       const user = session.user
-
-      // Update profile using proper Supabase client
+      console.log('about to update profile...')
       const { error } = await supabase
         .from('profiles')
         .update({
@@ -96,6 +96,7 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
           github: editData.social_links.github || undefined
         })
         .eq('id', user.id)
+      console.log('update result error:', error)
 
       if (error) throw error
       
