@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { useSupabase } from '@/components/SupabaseProvider'
+import { useUser } from '@/hooks/useUser'
 
 interface Message {
   id: string
@@ -26,7 +26,7 @@ interface Conversation {
 }
 
 export default function MessagesClient() {
-  const { user, authLoading } = useSupabase()
+  const { user, authLoading } = useUser()
   const searchParams = useSearchParams()
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [activeConversation, setActiveConversation] = useState<string | null>(null)
@@ -48,15 +48,29 @@ export default function MessagesClient() {
     }
   }, [user])
 
-  // Auto-open conversation if ?with={userId} parameter exists
+  // Auto-open conversation if ?user={userId} parameter exists
   useEffect(() => {
     if (conversations.length > 0) {
-      const withUserId = searchParams.get('with')
-      if (withUserId) {
+      const userId = searchParams.get('user')
+      if (userId) {
         // Check if this user exists in conversations
-        const conversation = conversations.find(c => c.partner.id === withUserId)
+        const conversation = conversations.find(c => c.partner.id === userId)
         if (conversation) {
-          setActiveConversation(withUserId)
+          setActiveConversation(userId)
+          // Save to localStorage
+          localStorage.setItem('lastOpenedConversation', userId)
+        } else {
+          // User doesn't exist in conversations, try to create a new conversation
+          createNewConversation(userId)
+        }
+      } else {
+        // No query parameter, try to open last conversation from localStorage
+        const lastConversation = localStorage.getItem('lastOpenedConversation')
+        if (lastConversation) {
+          const lastConv = conversations.find(c => c.partner.id === lastConversation)
+          if (lastConv) {
+            setActiveConversation(lastConversation)
+          }
         }
       }
     }
@@ -98,6 +112,58 @@ export default function MessagesClient() {
       scrollHeightRef.current = 0
     }
   }, [loadingMore, nextCursor])
+
+  const createNewConversation = async (userId: string) => {
+    try {
+      // First, check if the user exists and get their profile
+      const response = await fetch(`/api/profiles/${userId}`)
+      if (!response.ok) {
+        console.error('User not found:', userId)
+        return
+      }
+      
+      const { data: profile } = await response.json()
+      if (!profile) {
+        console.error('Profile not found for user:', userId)
+        return
+      }
+
+      // Check if there's an accepted cofounder request between the two users
+      const cofounderResponse = await fetch(`/api/cofounder/check?user_id=${userId}`)
+      if (!cofounderResponse.ok) {
+        setError('You can only message your co-founders. Send them a co-founder request first.')
+        return
+      }
+
+      // Create a mock conversation object for the new conversation
+      const newConversation: Conversation = {
+        partner: {
+          id: profile.id,
+          username: profile.username,
+          display_name: profile.display_name,
+          message_preference: profile.message_preference
+        },
+        lastMessage: {
+          id: '',
+          sender_id: user!.id,
+          receiver_id: userId,
+          content: 'Start a conversation!',
+          created_at: new Date().toISOString()
+        },
+        unreadCount: 0
+      }
+
+      // Add to conversations list
+      setConversations(prev => [newConversation, ...prev])
+      setActiveConversation(userId)
+      
+      // Save to localStorage
+      localStorage.setItem('lastOpenedConversation', userId)
+    } catch (err) {
+      console.error('Error creating new conversation:', err)
+      setError('Failed to create conversation')
+    }
+  }
 
   const fetchConversations = async () => {
     try {
@@ -212,6 +278,12 @@ export default function MessagesClient() {
     return date.toLocaleDateString()
   }
 
+  const handleConversationClick = (conversationId: string) => {
+    setActiveConversation(conversationId)
+    // Save to localStorage
+    localStorage.setItem('lastOpenedConversation', conversationId)
+  }
+
   if (authLoading) {
     return (
       <div style={{ 
@@ -301,7 +373,7 @@ export default function MessagesClient() {
             conversations.map((conversation) => (
               <div
                 key={conversation.partner.id}
-                onClick={() => setActiveConversation(conversation.partner.id)}
+                onClick={() => handleConversationClick(conversation.partner.id)}
                 style={{
                   padding: '16px 20px',
                   borderBottom: '1px solid var(--border)',
