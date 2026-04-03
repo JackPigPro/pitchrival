@@ -8,7 +8,6 @@ import ConnectSection from './ConnectSection'
 import CompeteSection from './CompeteSection'
 import LearnSection from './LearnSection'
 import Schools from './Schools'
-import Footer from './Footer'
 import ComingSoon from './ComingSoon'
 import { LiveStats } from '@/utils/stats'
 
@@ -59,7 +58,6 @@ export default function Landing({ onComingSoon, onScrollTo, stats }: LandingProp
       <CompeteSection onComingSoon={handleShowComingSoon} />
       <LearnSection onComingSoon={handleShowComingSoon} />
       <Schools onComingSoon={handleShowComingSoon} />
-      <Footer onComingSoon={handleShowComingSoon} onScrollTo={scrollToCenter} stats={stats} />
     </div>
   )
 }
