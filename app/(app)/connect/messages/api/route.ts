@@ -22,12 +22,8 @@ export async function GET(request: NextRequest) {
       // Build query
       let query = supabase
         .from('messages')
-        .select(`
-          *,
-          sender:profiles!messages_sender_id_fkey(id, username, display_name),
-          receiver:profiles!messages_receiver_id_fkey(id, username, display_name)
-        `)
-        .or(`(sender_id.eq.${user.id},receiver_id.eq.${conversationId}),(sender_id.eq.${conversationId},receiver_id.eq.${user.id})`)
+        .select('*')
+        .or(`and(sender_id.eq.${user.id},receiver_id.eq.${conversationId}),and(sender_id.eq.${conversationId},receiver_id.eq.${user.id})`)
         .order('created_at', { ascending: false })
         .limit(limit + 1) // +1 to check if there are more messages
 
@@ -48,13 +44,43 @@ export async function GET(request: NextRequest) {
       const actualMessages = hasMore ? messages.slice(0, -1) : messages || []
       
       // Sort messages in ascending order for display (oldest first)
-      actualMessages.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
+      actualMessages.sort((a, b) => {
+        const dateA = new Date(a.created_at.endsWith('Z') ? a.created_at : a.created_at + 'Z')
+        const dateB = new Date(b.created_at.endsWith('Z') ? b.created_at : b.created_at + 'Z')
+        return dateA.getTime() - dateB.getTime()
+      })
 
       // Get cursor for next page (created_at of oldest message)
       const nextCursor = actualMessages.length > 0 ? actualMessages[0].created_at : null
 
+      // Fetch profiles for all unique user IDs in the messages
+      const userIds = new Set<string>()
+      actualMessages.forEach(message => {
+        userIds.add(message.sender_id)
+        userIds.add(message.receiver_id)
+      })
+
+      const { data: profiles, error: profilesError } = await supabase
+        .from('profiles')
+        .select('id, username, display_name')
+        .in('id', Array.from(userIds))
+
+      if (profilesError) {
+        console.error('Error fetching profiles:', profilesError)
+        return NextResponse.json({ error: 'Failed to fetch profiles' }, { status: 500 })
+      }
+
+      const profileMap = new Map(profiles?.map(p => [p.id, p]) || [])
+      
+      // Merge profiles into messages
+      const messagesWithProfiles = actualMessages.map(message => ({
+        ...message,
+        sender: profileMap.get(message.sender_id) || { id: message.sender_id, username: 'unknown', display_name: 'Unknown User' },
+        receiver: profileMap.get(message.receiver_id) || { id: message.receiver_id, username: 'unknown', display_name: 'Unknown User' }
+      }))
+
       return NextResponse.json({ 
-        data: actualMessages,
+        data: messagesWithProfiles,
         pagination: {
           hasMore,
           nextCursor
@@ -109,7 +135,12 @@ export async function GET(request: NextRequest) {
       
       const conversations = Array.from(conversationMap.values()).map(conversation => ({
         partner: profileMap.get(conversation.partnerId) || { username: 'unknown', display_name: 'Unknown User' },
-        lastMessage: conversation.lastMessage,
+        lastMessage: {
+          ...conversation.lastMessage,
+          created_at: conversation.lastMessage.created_at.endsWith('Z') ? 
+            conversation.lastMessage.created_at : 
+            conversation.lastMessage.created_at + 'Z'
+        },
         unreadCount: conversation.unreadCount
       }))
 
