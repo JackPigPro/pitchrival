@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useUser } from '@/hooks/useUser'
+import { useSupabase } from '@/components/SupabaseProvider'
 import { signOut } from '@/app/actions/auth'
 
 interface Profile {
@@ -11,7 +11,7 @@ interface Profile {
 }
 
 export default function SettingsClient({ initialProfile }: { initialProfile: Profile | null }) {
-  const { user, authLoading } = useUser()
+  const { user, authLoading } = useSupabase()
   const [profile, setProfile] = useState<Profile | null>(initialProfile)
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useUser } from '@/hooks/useUser'
+import { useSupabase } from '@/components/SupabaseProvider'
 import { createClient } from '@/utils/supabase/client'
 
 interface Profile {
@@ -21,7 +21,7 @@ interface CofounderRequest {
 }
 
 export default function CofounderMatchClient() {
-  const { user, authLoading } = useUser()
+  const { user, authLoading } = useSupabase()
   const [userProfile, setUserProfile] = useState<Profile | null>(null)
   const [profiles, setProfiles] = useState<Profile[]>([])
   const [requests, setRequests] = useState<CofounderRequest[]>([])
