@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useSupabase } from '@/components/SupabaseProvider'
+import { useUser } from '@/hooks/useUser'
 import { createClient } from '@/utils/supabase/client'
 
 interface Profile {
@@ -10,6 +10,9 @@ interface Profile {
   display_name?: string
   status_tags?: string[]
   created_at: string
+  bio?: string
+  skills?: string[]
+  cofounder_stage?: string
 }
 
 interface CofounderRequest {
@@ -21,7 +24,7 @@ interface CofounderRequest {
 }
 
 export default function CofounderMatchClient() {
-  const { user, authLoading } = useSupabase()
+  const { user, authLoading } = useUser()
   const [userProfile, setUserProfile] = useState<Profile | null>(null)
   const [profiles, setProfiles] = useState<Profile[]>([])
   const [requests, setRequests] = useState<CofounderRequest[]>([])
@@ -29,7 +32,6 @@ export default function CofounderMatchClient() {
   const [isListed, setIsListed] = useState(false)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-
 
   useEffect(() => {
     if (user && !authLoading) {
@@ -91,7 +93,6 @@ export default function CofounderMatchClient() {
       }
 
       setIsListed(!isListed)
-      // Refetch data to update the profiles list
       fetchData()
     } catch (err) {
       console.error('Error toggling listing:', err)
@@ -137,6 +138,9 @@ export default function CofounderMatchClient() {
           req.id === requestId ? { ...req, status } : req
         )
       )
+      
+      // Refresh data to update connected profiles
+      fetchData()
     } catch (err) {
       console.error(`Error ${action}ing request:`, err)
       alert(`Failed to ${action} request. Please try again.`)
@@ -172,8 +176,16 @@ export default function CofounderMatchClient() {
   // Show loading state while auth is loading
   if (authLoading) {
     return (
-      <div style={{ textAlign: 'center', padding: '60px 20px' }}>
-        <div style={{ fontSize: '18px', color: 'var(--text2)' }}>
+      <div style={{ 
+        minHeight: '100vh',
+        background: 'var(--bg)',
+        backgroundImage: 'linear-gradient(rgba(21,128,61,.065) 1px, transparent 1px), linear-gradient(90deg, rgba(21,128,61,.065) 1px, transparent 1px)',
+        backgroundSize: '48px 48px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}>
+        <div style={{ fontSize: '18px', color: 'var(--text2)', fontFamily: 'var(--font-body)' }}>
           Loading...
         </div>
       </div>
@@ -183,38 +195,53 @@ export default function CofounderMatchClient() {
   // Only show login prompt if auth is complete and user is not authenticated
   if (!user) {
     return (
-      <div style={{ textAlign: 'center', padding: '60px 20px' }}>
-        <h2 style={{ fontSize: '24px', fontWeight: 700, marginBottom: '16px', fontFamily: 'var(--font-display)' }}>
-          Please log in to find co-founders
-        </h2>
-        <p style={{ color: 'var(--text2)', marginBottom: '24px' }}>
-          You need to be signed in to connect with potential co-founders.
-        </p>
-        <a 
-          href="/login" 
-          style={{
-            display: 'inline-block',
-            padding: '12px 24px',
-            background: 'var(--green)',
-            color: 'white',
-            textDecoration: 'none',
-            borderRadius: '8px',
-            fontWeight: 600,
-          }}
-        >
-          Log In
-        </a>
+      <div style={{ 
+        minHeight: '100vh',
+        background: 'var(--bg)',
+        backgroundImage: 'linear-gradient(rgba(21,128,61,.065) 1px, transparent 1px), linear-gradient(90deg, rgba(21,128,61,.065) 1px, transparent 1px)',
+        backgroundSize: '48px 48px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '40px 24px'
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <h2 style={{ fontSize: '48px', fontWeight: 800, letterSpacing: '-2px', fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '16px' }}>
+            Co-founder Match
+          </h2>
+          <p style={{ fontSize: '18px', color: 'var(--text2)', marginBottom: '32px', fontFamily: 'var(--font-body)' }}>
+            Find your perfect co-founder match
+          </p>
+          <a 
+            href="/login" 
+            className="btn-cta-primary"
+            style={{ textDecoration: 'none' }}
+          >
+            Log In to Find Co-founders
+          </a>
+        </div>
       </div>
     )
   }
 
   if (error) {
     return (
-      <div style={{ textAlign: 'center', padding: '60px 20px' }}>
-        <h2 style={{ fontSize: '24px', fontWeight: 700, marginBottom: '16px', color: 'var(--red)', fontFamily: 'var(--font-display)' }}>
-          Error
-        </h2>
-        <p style={{ color: 'var(--text2)' }}>{error}</p>
+      <div style={{ 
+        minHeight: '100vh',
+        background: 'var(--bg)',
+        backgroundImage: 'linear-gradient(rgba(21,128,61,.065) 1px, transparent 1px), linear-gradient(90deg, rgba(21,128,61,.065) 1px, transparent 1px)',
+        backgroundSize: '48px 48px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '40px 24px'
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <h2 style={{ fontSize: '48px', fontWeight: 800, letterSpacing: '-2px', fontFamily: 'var(--font-display)', color: 'var(--red)', marginBottom: '16px' }}>
+            Error
+          </h2>
+          <p style={{ fontSize: '18px', color: 'var(--text2)', fontFamily: 'var(--font-body)' }}>{error}</p>
+        </div>
       </div>
     )
   }
@@ -232,363 +259,659 @@ export default function CofounderMatchClient() {
   ]
 
   return (
-    <div style={{ display: 'flex', gap: '24px', height: '100%' }}>
-      {/* Left side - User cards */}
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <h2 style={{ 
-          fontSize: '28px', 
-          fontWeight: 700, 
-          marginBottom: '16px', 
-          fontFamily: 'var(--font-display)' 
-        }}>
-          Find Co-founders
-        </h2>
-
-        {/* Toggle Button */}
-        <button
-          onClick={handleToggleListing}
-          style={{
-            width: '100%',
-            padding: '12px 24px',
-            background: isListed ? 'transparent' : 'var(--green)',
-            color: isListed ? 'var(--text)' : 'white',
-            border: isListed ? '1px solid var(--border)' : '1px solid var(--green)',
-            borderRadius: '8px',
-            fontSize: '16px',
-            fontWeight: 600,
-            cursor: 'pointer',
-            marginBottom: '24px',
-            fontFamily: 'var(--font-body)',
-          }}
-        >
-          {isListed ? 'Remove Myself from Pool' : 'List Myself as Available'}
-        </button>
-
-        {loading && profiles.length === 0 ? (
-          <div style={{
-            textAlign: 'center',
-            padding: '40px 20px',
-            color: 'var(--text2)',
-            fontSize: '16px'
-          }}>
-            Finding co-founders...
+    <div style={{ 
+      minHeight: '100vh',
+      background: 'var(--bg)',
+      backgroundImage: 'linear-gradient(rgba(21,128,61,.065) 1px, transparent 1px), linear-gradient(90deg, rgba(21,128,61,.065) 1px, transparent 1px)',
+      backgroundSize: '48px 48px',
+      padding: '40px 24px'
+    }}>
+      <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+        {/* Header */}
+        <div style={{ marginBottom: '32px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+            <h1 style={{ fontSize: '48px', fontWeight: 800, letterSpacing: '-2px', fontFamily: 'var(--font-display)', color: 'var(--text)', margin: 0 }}>
+              Co-founder Match
+            </h1>
+            <button
+              onClick={handleToggleListing}
+              style={{
+                padding: '12px 24px',
+                background: isListed ? 'var(--surface)' : 'var(--green)',
+                color: isListed ? 'var(--text)' : 'white',
+                border: isListed ? '1px solid var(--border)' : '1px solid var(--green)',
+                borderRadius: '8px',
+                fontSize: '14px',
+                fontWeight: 600,
+                cursor: 'pointer',
+                fontFamily: 'var(--font-display)',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              {isListed ? 'Remove Myself from Pool' : 'List Myself as Cofounder'}
+            </button>
           </div>
-        ) : !loading && visibleProfiles.length === 0 && !currentUserProfile ? (
-          <div style={{
-            textAlign: 'center',
-            padding: '60px 20px',
-            background: 'var(--card)',
-            border: '1px solid var(--border)',
-            borderRadius: '12px',
+          <div style={{ 
+            fontSize: '18px', 
+            fontWeight: '400', 
+            fontFamily: 'var(--font-body)', 
+            color: 'var(--text2)'
           }}>
-            <h3 style={{
-              fontSize: '20px',
-              fontWeight: 700,
-              marginBottom: '12px',
-              fontFamily: 'var(--font-display)',
-              color: 'var(--text)',
-            }}>
-              No profiles found
-            </h3>
-            <p style={{ color: 'var(--text2)', fontSize: '16px' }}>
-              No users are currently open to co-founding.
-            </p>
+            Find your perfect co-founder match
           </div>
-        ) : (
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(2, 1fr)',
-            gap: '16px',
-          }}>
-            {visibleProfiles.map((profile) => {
-              const hasPending = hasPendingRequest(profile.id)
-              const isCurrentUser = profile.id === user?.id
-              return (
-                <div
-                  key={profile.id}
-                  style={{
-                    background: 'var(--card)',
-                    border: '1px solid var(--border)',
-                    borderRadius: '12px',
-                    padding: '16px',
-                  }}
-                >
-                  <div style={{ marginBottom: '12px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                      <h3 style={{
-                        fontSize: '18px',
-                        fontWeight: 600,
-                        fontFamily: 'var(--font-display)',
-                        color: 'var(--text)',
-                        margin: 0,
-                      }}>
-                        {profile.display_name || profile.username || 'Unknown'}
-                      </h3>
-                      {isCurrentUser && (
-                        <span style={{
-                          background: 'var(--green)',
-                          color: 'white',
-                          fontSize: '12px',
-                          fontWeight: 500,
-                          padding: '2px 8px',
-                          borderRadius: '12px',
-                        }}>
-                          You
-                        </span>
-                      )}
-                    </div>
-                    <p style={{
-                      fontSize: '14px',
-                      color: 'var(--text2)',
-                      marginBottom: '8px',
-                    }}>
-                      {profile.username ? `@${profile.username}` : ''}
-                    </p>
-                    {profile.status_tags && profile.status_tags.length > 0 && (
-                      <p style={{
-                        fontSize: '12px',
-                        color: 'var(--text2)',
-                        fontStyle: 'italic',
-                      }}>
-                        {profile.status_tags.join(', ')}
-                      </p>
-                    )}
-                  </div>
-                  
-                  <button
-                    onClick={() => handleSendRequest(profile.id)}
-                    disabled={hasPending || isCurrentUser}
-                    style={{
-                      width: '100%',
-                      padding: '8px 16px',
-                      background: isCurrentUser ? 'var(--card2)' : (hasPending ? 'var(--card2)' : 'var(--green)'),
-                      color: isCurrentUser ? 'var(--text2)' : (hasPending ? 'var(--text2)' : 'white'),
-                      border: '1px solid var(--border)',
-                      borderRadius: '6px',
-                      fontSize: '14px',
-                      fontWeight: 500,
-                      cursor: isCurrentUser ? 'not-allowed' : (hasPending ? 'not-allowed' : 'pointer'),
-                      fontFamily: 'var(--font-body)',
-                      opacity: (hasPending || isCurrentUser) ? 0.6 : 1,
-                    }}
-                  >
-                    {isCurrentUser ? "It's You" : (hasPending ? 'Request Sent' : 'Send Request')}
-                  </button>
-                </div>
-              )
-            })}
-          </div>
-        )}
-      </div>
-
-      {/* Right side - Incoming requests */}
-      <div style={{ width: '320px', flexShrink: 0 }}>
-        <div style={{
-          background: 'var(--card)',
-          border: '1px solid var(--border)',
-          borderRadius: '12px',
-          padding: '20px',
-        }}>
-          <h3 style={{
-            fontSize: '18px',
-            fontWeight: 600,
-            marginBottom: '16px',
-            fontFamily: 'var(--font-display)',
-            color: 'var(--text)',
-          }}>
-            Incoming Requests
-          </h3>
-
-          {incomingRequests.length === 0 ? (
-            <p style={{
-              color: 'var(--text2)',
-              fontSize: '14px',
-              textAlign: 'center',
-              padding: '20px 0',
-            }}>
-              No pending requests
-            </p>
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              {incomingRequests.map((request) => {
-                const senderProfile = getProfileById(request.sender_id)
-                if (!senderProfile) return null
-
-                return (
-                  <div
-                    key={request.id}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '12px',
-                      padding: '12px',
-                      background: 'var(--card2)',
-                      borderRadius: '8px',
-                    }}
-                  >
-                    <div style={{
-                      width: '40px',
-                      height: '40px',
-                      borderRadius: '50%',
-                      background: 'var(--green)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      color: 'white',
-                      fontWeight: 600,
-                      fontSize: '16px',
-                    }}>
-                      {(senderProfile.display_name || senderProfile.username || 'Unknown').charAt(0).toUpperCase()}
-                    </div>
-                    
-                    <div style={{ flex: 1 }}>
-                      <p style={{
-                        fontSize: '14px',
-                        fontWeight: 500,
-                        color: 'var(--text)',
-                        marginBottom: '2px',
-                      }}>
-                        {senderProfile.display_name || senderProfile.username || 'Unknown'}
-                      </p>
-                      <p style={{
-                        fontSize: '12px',
-                        color: 'var(--text2)',
-                      }}>
-                        {senderProfile.username ? `@${senderProfile.username}` : ''}
-                      </p>
-                    </div>
-
-                    <div style={{ display: 'flex', gap: '6px' }}>
-                      <button
-                        onClick={() => handleRequestAction(request.id, 'accept')}
-                        style={{
-                          padding: '6px 12px',
-                          background: 'var(--green)',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '4px',
-                          fontSize: '12px',
-                          fontWeight: 500,
-                          cursor: 'pointer',
-                        }}
-                      >
-                        Accept
-                      </button>
-                      <button
-                        onClick={() => handleRequestAction(request.id, 'reject')}
-                        style={{
-                          padding: '6px 12px',
-                          background: 'var(--card2)',
-                          color: 'var(--text2)',
-                          border: '1px solid var(--border)',
-                          borderRadius: '4px',
-                          fontSize: '12px',
-                          fontWeight: 500,
-                          cursor: 'pointer',
-                        }}
-                      >
-                        Decline
-                      </button>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          )}
         </div>
 
-        {/* Your Co-founders Section */}
-        <div style={{
-          background: 'var(--card)',
-          border: '1px solid var(--border)',
-          borderRadius: '12px',
-          padding: '20px',
-          marginTop: '16px',
-        }}>
-          <h3 style={{
-            fontSize: '18px',
-            fontWeight: 600,
-            marginBottom: '16px',
-            fontFamily: 'var(--font-display)',
-            color: 'var(--text)',
-          }}>
-            Your Co-founders
-          </h3>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: '32px' }}>
+          {/* Main Content */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+            {/* Your Co-founders Section */}
+            {connectedProfiles.length > 0 && (
+              <div style={{ 
+                background: 'var(--card)', 
+                borderRadius: '16px', 
+                padding: '32px',
+                border: '1px solid var(--border)',
+                boxShadow: 'var(--shadow)'
+              }}>
+                <h2 style={{ 
+                  fontSize: '20px', 
+                  fontWeight: 700, 
+                  fontFamily: 'var(--font-display)', 
+                  color: 'var(--text)', 
+                  marginBottom: '24px',
+                  letterSpacing: '-0.1px'
+                }}>
+                  Your Co-founders
+                </h2>
+                
+                <div style={{ 
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+                  gap: '16px'
+                }}>
+                  {connectedProfiles.map((profile) => (
+                    <div
+                      key={profile.id}
+                      style={{
+                        background: 'var(--surface)',
+                        border: '1px solid var(--border)',
+                        borderRadius: '12px',
+                        padding: '20px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '12px'
+                      }}
+                    >
+                      <div style={{
+                        width: '48px',
+                        height: '48px',
+                        borderRadius: '50%',
+                        background: 'var(--green)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: 'white',
+                        fontWeight: 600,
+                        fontSize: '18px',
+                        fontFamily: 'var(--font-display)',
+                        flexShrink: 0
+                      }}>
+                        {(profile.display_name || profile.username || 'Unknown').charAt(0).toUpperCase()}
+                      </div>
+                      
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{
+                          fontSize: '16px',
+                          fontWeight: 700,
+                          fontFamily: 'var(--font-display)',
+                          color: 'var(--text)',
+                          marginBottom: '4px',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap'
+                        }}>
+                          {profile.display_name || profile.username || 'Unknown'}
+                        </div>
+                        <div style={{
+                          fontSize: '14px',
+                          color: 'var(--text2)',
+                          marginBottom: '8px',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap'
+                        }}>
+                          @{profile.username}
+                        </div>
+                        {profile.bio && (
+                          <div style={{
+                            fontSize: '13px',
+                            color: 'var(--text2)',
+                            lineHeight: '1.4',
+                            display: '-webkit-box',
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: 'vertical',
+                            overflow: 'hidden'
+                          }}>
+                            {profile.bio}
+                          </div>
+                        )}
+                      </div>
 
-          {connectedProfiles.length === 0 ? (
-            <p style={{
-              color: 'var(--text2)',
-              fontSize: '14px',
-              textAlign: 'center',
-              padding: '20px 0',
-            }}>
-              No co-founders yet. Send some requests!
-            </p>
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              {connectedProfiles.map((profile) => (
-                <div
-                  key={profile.id}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '12px',
-                    padding: '12px',
-                    background: 'var(--card2)',
-                    borderRadius: '8px',
-                  }}
-                >
-                  <div style={{
-                    width: '40px',
-                    height: '40px',
-                    borderRadius: '50%',
-                    background: 'var(--green)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: 'white',
-                    fontWeight: 600,
-                    fontSize: '16px',
-                  }}>
-                    {(profile.display_name || profile.username || 'Unknown').charAt(0).toUpperCase()}
-                  </div>
-                  
-                  <div style={{ flex: 1 }}>
-                    <p style={{
-                      fontSize: '14px',
-                      fontWeight: 500,
-                      color: 'var(--text)',
-                      marginBottom: '2px',
-                    }}>
-                      {profile.display_name || profile.username || 'Unknown'}
-                    </p>
-                    <p style={{
-                      fontSize: '12px',
-                      color: 'var(--text2)',
-                    }}>
-                      {profile.username ? `@${profile.username}` : ''}
-                    </p>
-                  </div>
-
-                  <a
-                    href={`/connect/messages?with=${profile.id}`}
-                    style={{
-                      padding: '6px 12px',
-                      background: 'var(--green)',
-                      color: 'white',
-                      textDecoration: 'none',
-                      borderRadius: '4px',
-                      fontSize: '12px',
-                      fontWeight: 500,
-                      cursor: 'pointer',
-                    }}
-                  >
-                    Message
-                  </a>
+                      <a
+                        href={`/connect/messages?with=${profile.id}`}
+                        style={{
+                          padding: '8px 16px',
+                          background: 'var(--green)',
+                          color: 'white',
+                          textDecoration: 'none',
+                          borderRadius: '6px',
+                          fontSize: '12px',
+                          fontWeight: 600,
+                          fontFamily: 'var(--font-display)',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s ease',
+                          whiteSpace: 'nowrap'
+                        }}
+                      >
+                        Message
+                      </a>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              </div>
+            )}
+
+            {/* Incoming Requests Section */}
+            {incomingRequests.length > 0 && (
+              <div style={{ 
+                background: 'var(--card)', 
+                borderRadius: '16px', 
+                padding: '32px',
+                border: '1px solid var(--border)',
+                boxShadow: 'var(--shadow)'
+              }}>
+                <h2 style={{ 
+                  fontSize: '20px', 
+                  fontWeight: 700, 
+                  fontFamily: 'var(--font-display)', 
+                  color: 'var(--text)', 
+                  marginBottom: '24px',
+                  letterSpacing: '-0.1px'
+                }}>
+                  Incoming Requests
+                </h2>
+                
+                <div style={{ 
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+                  gap: '16px'
+                }}>
+                  {incomingRequests.map((request) => {
+                    const senderProfile = getProfileById(request.sender_id)
+                    if (!senderProfile) return null
+
+                    return (
+                      <div
+                        key={request.id}
+                        style={{
+                          background: 'var(--surface)',
+                          border: '1px solid var(--border)',
+                          borderRadius: '12px',
+                          padding: '20px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '12px'
+                        }}
+                      >
+                        <div style={{
+                          width: '48px',
+                          height: '48px',
+                          borderRadius: '50%',
+                          background: 'var(--blue)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          color: 'white',
+                          fontWeight: 600,
+                          fontSize: '18px',
+                          fontFamily: 'var(--font-display)',
+                          flexShrink: 0
+                        }}>
+                          {(senderProfile.display_name || senderProfile.username || 'Unknown').charAt(0).toUpperCase()}
+                        </div>
+                        
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{
+                            fontSize: '16px',
+                            fontWeight: 700,
+                            fontFamily: 'var(--font-display)',
+                            color: 'var(--text)',
+                            marginBottom: '4px',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap'
+                          }}>
+                            {senderProfile.display_name || senderProfile.username || 'Unknown'}
+                          </div>
+                          <div style={{
+                            fontSize: '14px',
+                            color: 'var(--text2)',
+                            marginBottom: '8px',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap'
+                          }}>
+                            @{senderProfile.username}
+                          </div>
+                          {senderProfile.bio && (
+                            <div style={{
+                              fontSize: '13px',
+                              color: 'var(--text2)',
+                              lineHeight: '1.4',
+                              display: '-webkit-box',
+                              WebkitLineClamp: 2,
+                              WebkitBoxOrient: 'vertical',
+                              overflow: 'hidden'
+                            }}>
+                              {senderProfile.bio}
+                            </div>
+                          )}
+                        </div>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                          <button
+                            onClick={() => handleRequestAction(request.id, 'accept')}
+                            style={{
+                              padding: '8px 16px',
+                              background: 'var(--green)',
+                              color: 'white',
+                              border: 'none',
+                              borderRadius: '6px',
+                              fontSize: '12px',
+                              fontWeight: 600,
+                              fontFamily: 'var(--font-display)',
+                              cursor: 'pointer',
+                              transition: 'all 0.2s ease',
+                              whiteSpace: 'nowrap'
+                            }}
+                          >
+                            Accept
+                          </button>
+                          <button
+                            onClick={() => handleRequestAction(request.id, 'reject')}
+                            style={{
+                              padding: '8px 16px',
+                              background: 'var(--surface)',
+                              color: 'var(--text2)',
+                              border: '1px solid var(--border)',
+                              borderRadius: '6px',
+                              fontSize: '12px',
+                              fontWeight: 600,
+                              fontFamily: 'var(--font-display)',
+                              cursor: 'pointer',
+                              transition: 'all 0.2s ease',
+                              whiteSpace: 'nowrap'
+                            }}
+                          >
+                            Decline
+                          </button>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Discover Founders Section */}
+            <div style={{ 
+              background: 'var(--card)', 
+              borderRadius: '16px', 
+              padding: '32px',
+              border: '1px solid var(--border)',
+              boxShadow: 'var(--shadow)'
+            }}>
+              <h2 style={{ 
+                fontSize: '20px', 
+                fontWeight: 700, 
+                fontFamily: 'var(--font-display)', 
+                color: 'var(--text)', 
+                marginBottom: '24px',
+                letterSpacing: '-0.1px'
+              }}>
+                Discover Founders
+              </h2>
+
+              {loading && profiles.length === 0 ? (
+                <div style={{
+                  textAlign: 'center',
+                  padding: '60px 20px',
+                  color: 'var(--text2)',
+                  fontSize: '16px',
+                  fontFamily: 'var(--font-body)'
+                }}>
+                  Finding co-founders...
+                </div>
+              ) : !loading && visibleProfiles.length === 0 && !currentUserProfile ? (
+                <div style={{
+                  textAlign: 'center',
+                  padding: '60px 20px',
+                  color: 'var(--text2)',
+                  fontSize: '16px',
+                  fontFamily: 'var(--font-body)'
+                }}>
+                  <div style={{ fontSize: '48px', fontWeight: 800, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '16px' }}>
+                    🔍
+                  </div>
+                  <div style={{ fontSize: '20px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '8px' }}>
+                    No profiles found
+                  </div>
+                  <div style={{ fontSize: '16px', color: 'var(--text2)' }}>
+                    No users are currently open to co-founding.
+                  </div>
+                </div>
+              ) : (
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+                  gap: '20px'
+                }}>
+                  {visibleProfiles.map((profile) => {
+                    const hasPending = hasPendingRequest(profile.id)
+                    const isCurrentUser = profile.id === user?.id
+                    
+                    return (
+                      <div
+                        key={profile.id}
+                        style={{
+                          background: 'var(--surface)',
+                          border: isCurrentUser ? '2px solid var(--green)' : '1px solid var(--border)',
+                          borderRadius: '16px',
+                          padding: '24px',
+                          transition: 'all 0.2s ease',
+                          position: 'relative'
+                        }}
+                      >
+                        {isCurrentUser && (
+                          <div style={{
+                            position: 'absolute',
+                            top: '12px',
+                            right: '12px',
+                            background: 'var(--green)',
+                            color: 'white',
+                            fontSize: '12px',
+                            fontWeight: 600,
+                            padding: '4px 8px',
+                            borderRadius: '12px',
+                            fontFamily: 'var(--font-display)'
+                          }}>
+                            You
+                          </div>
+                        )}
+                        
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '16px' }}>
+                          <div style={{
+                            width: '56px',
+                            height: '56px',
+                            borderRadius: '50%',
+                            background: isCurrentUser ? 'var(--green)' : 'var(--blue)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            color: 'white',
+                            fontWeight: 600,
+                            fontSize: '20px',
+                            fontFamily: 'var(--font-display)',
+                            flexShrink: 0
+                          }}>
+                            {(profile.display_name || profile.username || 'Unknown').charAt(0).toUpperCase()}
+                          </div>
+                          
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{
+                              fontSize: '18px',
+                              fontWeight: 700,
+                              fontFamily: 'var(--font-display)',
+                              color: 'var(--text)',
+                              marginBottom: '4px',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap'
+                            }}>
+                              {profile.display_name || profile.username || 'Unknown'}
+                            </div>
+                            <div style={{
+                              fontSize: '14px',
+                              color: 'var(--text2)',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap'
+                            }}>
+                              @{profile.username}
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {profile.bio && (
+                          <div style={{
+                            fontSize: '14px',
+                            color: 'var(--text2)',
+                            lineHeight: '1.5',
+                            marginBottom: '16px',
+                            display: '-webkit-box',
+                            WebkitLineClamp: 3,
+                            WebkitBoxOrient: 'vertical',
+                            overflow: 'hidden'
+                          }}>
+                            {profile.bio}
+                          </div>
+                        )}
+                        
+                        {profile.cofounder_stage && (
+                          <div style={{
+                            display: 'inline-block',
+                            fontSize: '12px',
+                            fontWeight: 600,
+                            padding: '4px 12px',
+                            borderRadius: '6px',
+                            background: 'var(--blue-tint)',
+                            color: 'var(--blue)',
+                            marginBottom: '12px',
+                            fontFamily: 'var(--font-display)'
+                          }}>
+                            {profile.cofounder_stage}
+                          </div>
+                        )}
+                        
+                        {profile.skills && profile.skills.length > 0 && (
+                          <div style={{
+                            display: 'flex',
+                            flexWrap: 'wrap',
+                            gap: '6px',
+                            marginBottom: '16px'
+                          }}>
+                            {profile.skills.slice(0, 4).map((skill, index) => (
+                              <span
+                                key={index}
+                                style={{
+                                  fontSize: '11px',
+                                  fontWeight: 500,
+                                  padding: '3px 8px',
+                                  borderRadius: '4px',
+                                  background: 'var(--green-tint)',
+                                  color: 'var(--green)',
+                                  fontFamily: 'var(--font-body)'
+                                }}
+                              >
+                                {skill}
+                              </span>
+                            ))}
+                            {profile.skills.length > 4 && (
+                              <span style={{
+                                fontSize: '11px',
+                                fontWeight: 500,
+                                padding: '3px 8px',
+                                borderRadius: '4px',
+                                background: 'var(--surface)',
+                                color: 'var(--text2)',
+                                fontFamily: 'var(--font-body)'
+                              }}>
+                                +{profile.skills.length - 4} more
+                              </span>
+                            )}
+                          </div>
+                        )}
+                        
+                        {profile.status_tags && profile.status_tags.length > 0 && (
+                          <div style={{
+                            fontSize: '12px',
+                            color: 'var(--text2)',
+                            fontStyle: 'italic',
+                            marginBottom: '16px',
+                            lineHeight: '1.4'
+                          }}>
+                            {profile.status_tags.join(', ')}
+                          </div>
+                        )}
+                        
+                        <button
+                          onClick={() => handleSendRequest(profile.id)}
+                          disabled={hasPending || isCurrentUser}
+                          className={isCurrentUser || hasPending ? '' : 'btn-cta-primary'}
+                          style={{
+                            width: '100%',
+                            padding: '12px',
+                            background: isCurrentUser ? 'var(--surface)' : (hasPending ? 'var(--surface)' : ''),
+                            color: isCurrentUser ? 'var(--text2)' : (hasPending ? 'var(--text2)' : ''),
+                            border: isCurrentUser ? '1px solid var(--border)' : (hasPending ? '1px solid var(--border)' : ''),
+                            borderRadius: '8px',
+                            fontSize: '14px',
+                            fontWeight: 600,
+                            cursor: isCurrentUser ? 'not-allowed' : (hasPending ? 'not-allowed' : 'pointer'),
+                            fontFamily: 'var(--font-display)',
+                            transition: 'all 0.2s ease',
+                            opacity: (hasPending || isCurrentUser) ? 0.6 : 1
+                          }}
+                        >
+                          {isCurrentUser ? "It's You" : (hasPending ? 'Request Sent' : 'Connect')}
+                        </button>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
             </div>
-          )}
+          </div>
+
+          {/* Right Sidebar */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            {/* Stats Card */}
+            <div style={{ 
+              background: 'var(--card)', 
+              borderRadius: '16px', 
+              padding: '32px',
+              border: '1px solid var(--border)',
+              boxShadow: 'var(--shadow)',
+              textAlign: 'center'
+            }}>
+              <div style={{ marginBottom: '24px' }}>
+                <div style={{ 
+                  fontSize: '48px', 
+                  fontWeight: 800, 
+                  color: 'var(--blue)', 
+                  fontFamily: 'var(--font-display)',
+                  marginBottom: '8px'
+                }}>
+                  {visibleProfiles.length}
+                </div>
+                <div style={{ 
+                  fontSize: '13px', 
+                  color: 'var(--text2)',
+                  fontWeight: 600,
+                  fontFamily: 'var(--font-display)',
+                  letterSpacing: '2px',
+                  textTransform: 'uppercase'
+                }}>
+                  Available
+                </div>
+              </div>
+              
+              <div style={{ 
+                height: '1px', 
+                background: 'var(--border)', 
+                margin: '20px 0' 
+              }} />
+              
+              <div>
+                <div style={{ 
+                  fontSize: '36px', 
+                  fontWeight: 800, 
+                  color: 'var(--green)', 
+                  fontFamily: 'var(--font-display)',
+                  marginBottom: '8px'
+                }}>
+                  {connectedProfiles.length}
+                </div>
+                <div style={{ 
+                  fontSize: '13px', 
+                  color: 'var(--text2)',
+                  fontWeight: 600,
+                  fontFamily: 'var(--font-display)',
+                  letterSpacing: '2px',
+                  textTransform: 'uppercase'
+                }}>
+                  Connected
+                </div>
+              </div>
+            </div>
+
+            {/* Tips Card */}
+            <div style={{ 
+              background: 'var(--card)', 
+              borderRadius: '16px', 
+              padding: '32px',
+              border: '1px solid var(--border)',
+              boxShadow: 'var(--shadow)'
+            }}>
+              <div style={{ 
+                fontSize: '16px', 
+                fontWeight: 700, 
+                fontFamily: 'var(--font-display)', 
+                color: 'var(--text)', 
+                marginBottom: '20px',
+                letterSpacing: '-0.1px'
+              }}>
+                💡 Tips
+              </div>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div style={{
+                  fontSize: '13px',
+                  color: 'var(--text2)',
+                  lineHeight: '1.5',
+                  fontFamily: 'var(--font-body)'
+                }}>
+                  Complete your profile to increase match quality and attract better co-founders.
+                </div>
+                <div style={{
+                  fontSize: '13px',
+                  color: 'var(--text2)',
+                  lineHeight: '1.5',
+                  fontFamily: 'var(--font-body)'
+                }}>
+                  Be specific about your skills and what you're looking for in a co-founder.
+                </div>
+                <div style={{
+                  fontSize: '13px',
+                  color: 'var(--text2)',
+                  lineHeight: '1.5',
+                  fontFamily: 'var(--font-body)'
+                }}>
+                  Respond to requests promptly to build momentum in your cofounder search.
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
