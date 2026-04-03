@@ -93,6 +93,7 @@ export interface Database {
           linkedin?: string
           github?: string
           message_preference?: 'anyone' | 'cofounders_only' | 'nobody'
+          theme_preference?: 'light' | 'dark'
           onboarding_complete?: boolean
           created_at: string
         }
@@ -109,6 +110,7 @@ export interface Database {
           linkedin?: string
           github?: string
           message_preference?: 'anyone' | 'cofounders_only' | 'nobody'
+          theme_preference?: 'light' | 'dark'
           onboarding_complete?: boolean
           created_at?: string
         }
@@ -125,6 +127,7 @@ export interface Database {
           linkedin?: string
           github?: string
           message_preference?: 'anyone' | 'cofounders_only' | 'nobody'
+          theme_preference?: 'light' | 'dark'
           onboarding_complete?: boolean
           created_at?: string
         }

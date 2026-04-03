@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useSupabase } from '@/components/SupabaseProvider'
 import { signOut } from '@/app/actions/auth'
+import { useTheme } from '@/components/ThemeProvider'
 
 interface Profile {
   id: string
@@ -12,25 +13,17 @@ interface Profile {
 
 export default function SettingsClient({ initialProfile }: { initialProfile: Profile | null }) {
   const { user, authLoading } = useSupabase()
+  const { theme, setTheme, isLoading: themeLoading } = useTheme()
   const [profile, setProfile] = useState<Profile | null>(initialProfile)
-  const [loading, setLoading] = useState(false)
-  const [saving, setSaving] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [success, setSuccess] = useState(false)
 
   useEffect(() => {
-    if (user) {
-      if (!profile) {
-        fetchProfile()
-      }
+    if (user && !profile) {
+      fetchProfile()
     }
   }, [user, profile])
 
   const fetchProfile = async () => {
     try {
-      setLoading(true)
-      setError(null)
-      
       const response = await fetch('/settings/api')
       if (!response.ok) {
         throw new Error('Failed to fetch profile')
@@ -39,112 +32,281 @@ export default function SettingsClient({ initialProfile }: { initialProfile: Pro
       const data = await response.json()
       setProfile(data.profile)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred')
-    } finally {
-      setLoading(false)
+      console.error('Failed to fetch profile:', err)
     }
   }
 
-
-  if (authLoading) {
-    return (
-      <div className="min-h-screen bg-[var(--bg)] p-4 md:p-8">
-        <div className="max-w-2xl mx-auto">
-          <div style={{ textAlign: 'center', padding: '60px 20px' }}>
-            <div style={{
-              width: '40px',
-              height: '40px',
-              border: '3px solid var(--border)',
-              borderTop: '3px solid var(--green)',
-              borderRadius: '50%',
-              animation: 'spin 1s linear infinite',
-              margin: '0 auto 20px'
-            }} />
-            <p style={{ color: 'var(--text2)', fontSize: '16px' }}>Loading...</p>
-          </div>
-        </div>
-      </div>
-    )
+  if (authLoading || themeLoading) {
+    return null
   }
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-[var(--bg)] p-4 md:p-8">
-        <div className="max-w-2xl mx-auto">
-          <div style={{ textAlign: 'center', padding: '60px 20px' }}>
-            <h2 style={{ fontSize: '24px', fontWeight: 700, marginBottom: '16px', fontFamily: 'var(--font-display)' }}>
-              Please log in to view settings
-            </h2>
-            <p style={{ color: 'var(--text2)', marginBottom: '24px' }}>
-              You need to be signed in to access your settings.
-            </p>
-            <a 
-              href="/login" 
-              style={{
-                display: 'inline-block',
-                padding: '12px 24px',
-                background: 'var(--green)',
-                color: 'white',
-                textDecoration: 'none',
-                borderRadius: '8px',
-                fontWeight: 600,
-              }}
-            >
-              Log In
-            </a>
-          </div>
+      <div 
+        style={{
+          minHeight: '100vh',
+          background: 'var(--bg)',
+          backgroundImage: 'linear-gradient(rgba(21,128,61,.065) 1px, transparent 1px), linear-gradient(90deg, rgba(21,128,61,.065) 1px, transparent 1px)',
+          backgroundSize: '48px 48px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '40px 24px'
+        }}
+      >
+        <div style={{ textAlign: 'center', maxWidth: '400px' }}>
+          <h2 style={{ 
+            fontSize: '32px', 
+            fontWeight: 800, 
+            marginBottom: '16px', 
+            fontFamily: 'var(--font-display)',
+            letterSpacing: '-1px'
+          }}>
+            Please log in
+          </h2>
+          <p style={{ 
+            color: 'var(--text2)', 
+            marginBottom: '24px', 
+            fontSize: '16px',
+            lineHeight: 1.5
+          }}>
+            You need to be signed in to access your settings.
+          </p>
+          <a 
+            href="/login" 
+            style={{
+              display: 'inline-block',
+              padding: '12px 24px',
+              background: 'var(--green)',
+              color: 'white',
+              textDecoration: 'none',
+              borderRadius: '8px',
+              fontWeight: 600,
+              fontSize: '16px'
+            }}
+          >
+            Log In
+          </a>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-[var(--bg)] p-4 md:p-8">
-      <div className="max-w-2xl mx-auto space-y-8">
-        {/* Header */}
-        <div>
-          <h1 className="text-3xl font-bold text-[var(--text)] font-[var(--font-display)]">
+    <div 
+      style={{
+        minHeight: '100vh',
+        background: 'var(--bg)',
+        backgroundImage: 'linear-gradient(rgba(21,128,61,.065) 1px, transparent 1px), linear-gradient(90deg, rgba(21,128,61,.065) 1px, transparent 1px)',
+        backgroundSize: '48px 48px',
+        padding: '40px 24px'
+      }}
+    >
+      <div style={{ maxWidth: '600px', margin: '0 auto' }}>
+        {/* Page Header */}
+        <div style={{ marginBottom: '48px' }}>
+          <h1 style={{ 
+            fontSize: '48px', 
+            fontWeight: 800, 
+            fontFamily: 'var(--font-display)',
+            letterSpacing: '-2px',
+            color: 'var(--text)',
+            marginBottom: '8px'
+          }}>
             Settings
           </h1>
-          <p className="text-[var(--text2)] mt-2">
-            Manage your account preferences and privacy settings
+          <p style={{ 
+            color: 'var(--text2)', 
+            fontSize: '16px',
+            margin: 0
+          }}>
+            Manage your account
           </p>
         </div>
 
-        {/* Success Message */}
-        {success && (
-          <div className="bg-[var(--green-tint)] border border-[var(--green-mid)] text-[var(--green)] px-4 py-3 rounded-lg">
-            Settings saved successfully!
+        {/* Dark / Light Mode Card */}
+        <div style={{
+          background: 'var(--card)',
+          border: '1px solid var(--border)',
+          borderRadius: '16px',
+          padding: '32px',
+          marginBottom: '24px',
+          boxShadow: 'var(--shadow)'
+        }}>
+          <h2 style={{ 
+            fontSize: '20px', 
+            fontWeight: 700, 
+            fontFamily: 'var(--font-display)',
+            color: 'var(--text)',
+            marginBottom: '24px'
+          }}>
+            Appearance
+          </h2>
+          
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: '1fr 1fr', 
+            gap: '16px' 
+          }}>
+            {/* Light Option */}
+            <div
+              onClick={() => setTheme('light')}
+              style={{
+                border: theme === 'light' ? '2px solid var(--green)' : '1px solid var(--border)',
+                background: theme === 'light' ? 'var(--green-tint)' : 'var(--card2)',
+                borderRadius: '12px',
+                padding: '16px',
+                cursor: theme === 'light' ? 'default' : 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              <div style={{
+                height: '80px',
+                borderRadius: '10px',
+                background: '#ffffff',
+                border: '1px solid #e5e7eb',
+                marginBottom: '12px',
+                position: 'relative',
+                overflow: 'hidden'
+              }}>
+                {/* Grid lines for light theme */}
+                <div style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  backgroundImage: 'linear-gradient(rgba(0,0,0,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.05) 1px, transparent 1px)',
+                  backgroundSize: '20px 20px'
+                }} />
+                {/* Green square representing logo */}
+                <div style={{
+                  position: 'absolute',
+                  top: '8px',
+                  right: '8px',
+                  width: '12px',
+                  height: '12px',
+                  background: 'var(--green)',
+                  borderRadius: '2px'
+                }} />
+              </div>
+              <div style={{ fontWeight: 700, color: 'var(--text)', marginBottom: '4px' }}>
+                Light
+              </div>
+              <div style={{ fontSize: '13px', color: 'var(--text2)' }}>
+                Default
+              </div>
+            </div>
+
+            {/* Dark Option */}
+            <div
+              onClick={() => setTheme('dark')}
+              style={{
+                border: theme === 'dark' ? '2px solid var(--green)' : '1px solid var(--border)',
+                background: theme === 'dark' ? 'var(--green-tint)' : 'var(--card2)',
+                borderRadius: '12px',
+                padding: '16px',
+                cursor: theme === 'dark' ? 'default' : 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              <div style={{
+                height: '80px',
+                borderRadius: '10px',
+                background: '#0b1220',
+                border: '1px solid #1e293b',
+                marginBottom: '12px',
+                position: 'relative',
+                overflow: 'hidden'
+              }}>
+                {/* Grid lines for dark theme */}
+                <div style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  backgroundImage: 'linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)',
+                  backgroundSize: '20px 20px'
+                }} />
+                {/* Green square representing logo */}
+                <div style={{
+                  position: 'absolute',
+                  top: '8px',
+                  right: '8px',
+                  width: '12px',
+                  height: '12px',
+                  background: 'var(--green)',
+                  borderRadius: '2px'
+                }} />
+              </div>
+              <div style={{ fontWeight: 700, color: 'var(--text)', marginBottom: '4px' }}>
+                Dark
+              </div>
+              <div style={{ fontSize: '13px', color: 'var(--text2)' }}>
+                Easy on the eyes
+              </div>
+            </div>
           </div>
-        )}
+        </div>
 
-        {/* Error Message */}
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-            {error}
-          </div>
-        )}
-
-
-        {/* Account Section */}
-        <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-6">
-          <h2 className="text-xl font-semibold text-[var(--text)] font-[var(--font-display)] mb-4">
+        {/* Account Card */}
+        <div style={{
+          background: 'var(--card)',
+          border: '1px solid var(--border)',
+          borderRadius: '16px',
+          padding: '32px',
+          boxShadow: 'var(--shadow)'
+        }}>
+          <h2 style={{ 
+            fontSize: '20px', 
+            fontWeight: 700, 
+            fontFamily: 'var(--font-display)',
+            color: 'var(--text)',
+            marginBottom: '16px'
+          }}>
             Account
           </h2>
-          <div className="space-y-4">
-            <p className="text-[var(--text2)]">
-              More settings coming soon.
+          
+          {profile?.username && (
+            <p style={{ 
+              color: 'var(--text2)', 
+              fontSize: '14px',
+              marginBottom: '20px'
+            }}>
+              @{profile.username}
             </p>
-            <div className="pt-4 border-t border-[var(--border)]">
-              <form action={signOut}>
-                <button
-                  type="submit"
-                  className="w-full md:w-auto px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors"
-                >
-                  Sign Out
-                </button>
-              </form>
-            </div>
+          )}
+          
+          <div style={{ 
+            borderTop: '1px solid var(--border)',
+            paddingTop: '20px'
+          }}>
+            <form action={signOut}>
+              <button
+                type="submit"
+                style={{
+                  width: '100%',
+                  padding: '12px 24px',
+                  background: '#dc2626',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontWeight: 600,
+                  fontSize: '16px',
+                  cursor: 'pointer',
+                  transition: 'background-color 0.2s ease'
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.backgroundColor = '#b91c1c'
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.backgroundColor = '#dc2626'
+                }}
+              >
+                Sign Out
+              </button>
+            </form>
           </div>
         </div>
       </div>

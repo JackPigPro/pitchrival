@@ -949,7 +949,7 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
                     fontWeight: '700',
                     fontFamily: 'var(--font-display)'
                   }}>
-                    Entered the weekly duel
+                    Entered the current weekly duel
                   </div>
                 ) : (
                   <div style={{
@@ -963,7 +963,7 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
                     fontFamily: 'var(--font-display)',
                     border: '1px solid var(--border2)'
                   }}>
-                    Not entered the weekly duel
+                    not entered the current weekly duel
                   </div>
                 )}
               </div>

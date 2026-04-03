@@ -4,6 +4,7 @@ import TopNav from '@/components/TopNav'
 import { AppStateProvider } from '@/components/AppStateProvider'
 import { SupabaseProvider } from '@/components/SupabaseProvider'
 import PageLayout from '@/components/PageLayout'
+import { ThemeProvider } from '@/components/ThemeProvider'
 
 export const metadata: Metadata = {
   title: 'PitchRival — Where founders get good.',
@@ -19,16 +20,18 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <SupabaseProvider>
-          <AppStateProvider>
-            <TopNav />
-            <div style={{ paddingTop: '68px' }}>
-              <PageLayout>
-                {children}
-              </PageLayout>
-            </div>
-          </AppStateProvider>
-        </SupabaseProvider>
+        <ThemeProvider>
+          <SupabaseProvider>
+            <AppStateProvider>
+              <TopNav />
+              <div style={{ paddingTop: '68px' }}>
+                <PageLayout>
+                  {children}
+                </PageLayout>
+              </div>
+            </AppStateProvider>
+          </SupabaseProvider>
+        </ThemeProvider>
       </body>
     </html>
   )
