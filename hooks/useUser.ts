@@ -46,18 +46,31 @@ export function useUser() {
 
   useEffect(() => {
     let mounted = true
+    const supabase = createClient()
 
-    // Listen for auth changes (this also gets initial session)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      const user = session?.user ?? null
-      
+    // Get initial session immediately
+    supabase.auth.getSession().then(({ data: { session } }) => {
       if (mounted) {
+        const user = session?.user ?? null
         setUser(user)
         setAuthLoading(false)
-        
         if (user) {
-          await fetchUserData(user.id)
+          fetchUserData(user.id)
         } else {
+          setLoading(false)
+        }
+      }
+    })
+
+    // Listen for future auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (mounted) {
+        const user = session?.user ?? null
+        setUser(user)
+        setAuthLoading(false)
+        if (user && event !== 'INITIAL_SESSION') {
+          await fetchUserData(user.id)
+        } else if (!user) {
           // Clear user data on logout
           setProfile(null)
           setElo(null)
