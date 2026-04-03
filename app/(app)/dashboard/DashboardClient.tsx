@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { useUser } from '@/hooks/useUser'
+import { useSupabase } from '@/components/SupabaseProvider'
+import { createClient } from '@/utils/supabase/client'
 
 interface Notification {
   id: string
@@ -66,13 +67,30 @@ const getTimeAgo = (timestamp: string) => {
 }
 
 export default function DashboardClient() {
-  const { profile, elo, authLoading, isAuthenticated, username, display_name } = useUser()
+  const { user, authLoading } = useSupabase()
+  const [profile, setProfile] = useState<any>(null)
+  const [elo, setElo] = useState<any>(null)
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [notificationsLoading, setNotificationsLoading] = useState(true)
 
   const userElo = elo?.elo || 0
   const userRank = getRankByElo(userElo)
   const rankColor = getRankColor(userRank)
+  const isAuthenticated = !!user
+  const username = profile?.username
+  const display_name = profile?.display_name
+
+  // Fetch profile and ELO data when user is available
+  useEffect(() => {
+    if (!user) return
+    const supabase = createClient()
+    
+    supabase.from('profiles').select('username, display_name, created_at').eq('id', user.id).single()
+      .then(({ data }: { data: any }) => setProfile(data))
+    
+    supabase.from('user_stats').select('elo').eq('user_id', user.id).single()
+      .then(({ data }: { data: any }) => setElo(data))
+  }, [user])
 
   // Fetch notifications
   useEffect(() => {
