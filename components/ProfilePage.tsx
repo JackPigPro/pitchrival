@@ -75,11 +75,32 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
     }
   }, [isEditing, currentProfile])
 
-  const handleSave = async () => {
-    if (!currentProfile?.id) return
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault()
+    console.log('Save button clicked')
+    console.log('Current profile ID:', currentProfile?.id)
+    console.log('Edit data:', editData)
+    
+    if (!currentProfile?.id) {
+      console.error('No profile ID found')
+      alert('No profile ID found')
+      return
+    }
+
+    // Check if user is authenticated
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    if (authError || !user) {
+      console.error('User not authenticated:', authError)
+      alert('You must be logged in to edit your profile')
+      return
+    }
+
+    console.log('User authenticated:', user.id)
+    console.log('Profile ID matches user ID:', currentProfile.id === user.id)
     
     try {
-      const { error } = await supabase
+      console.log('Attempting to save to Supabase...')
+      const { data, error } = await supabase
         .from('profiles')
         .update({
           username: editData.username.toLowerCase(),
@@ -93,12 +114,17 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
           github: editData.github || null
         })
         .eq('id', currentProfile.id)
+        .select()
+
+      console.log('Supabase response:', { data, error })
 
       if (error) {
         console.error('Error saving profile:', error)
-        alert('Error saving profile. Please try again.')
+        alert(`Error saving profile: ${error.message}`)
         return
       }
+
+      console.log('Profile saved successfully!')
 
       // Update local state
       setCurrentProfile(prev => ({
