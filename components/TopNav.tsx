@@ -7,6 +7,8 @@ export default async function TopNav({ forceLoggedOut }: { forceLoggedOut?: bool
   const user = data.user
 
   let name = null
+  let showLoggedOutNav = forceLoggedOut
+  
   if (user && !forceLoggedOut) {
     // Try to get username and onboarding status from profile
     const { data: profile } = await supabase
@@ -16,11 +18,16 @@ export default async function TopNav({ forceLoggedOut }: { forceLoggedOut?: bool
       .single()
     
     // Only use username from profile if onboarding is complete
+    // If onboarding is not complete, show logged out navbar
     if (profile?.onboarding_complete && profile.username) {
       name = profile.username
+      showLoggedOutNav = false
+    } else {
+      // User exists but hasn't completed onboarding - show logged out navbar
+      showLoggedOutNav = true
     }
   }
 
-  return <TopNavClient user={user ? { email: user.email, name, username: name } : null} />
+  return <TopNavClient user={user ? { email: user.email, name, username: name } : null} forceLoggedOut={showLoggedOutNav} />
 }
 

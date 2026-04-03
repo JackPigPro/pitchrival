@@ -7,14 +7,53 @@ export async function middleware(request: NextRequest) {
   const user = data.user
   const { pathname, search } = request.nextUrl
 
-  // Redirect authenticated users from root to dashboard - FIRST check
-  if (pathname === '/' && user) {
-    const redirectUrl = request.nextUrl.clone()
-    redirectUrl.pathname = '/dashboard'
-    return NextResponse.redirect(redirectUrl)
+  // Define completely public routes that require no auth check
+  const publicRoutes = [
+    '/terms',
+    '/privacy',
+    '/login',
+    '/auth/callback',
+    '/signup',
+    '/about',
+    '/contact',
+    // Static assets and API routes are handled by Next.js automatically
+  ]
+
+  const isPublicRoute = publicRoutes.some(route => pathname.startsWith(route))
+
+  // If user is logged in but hasn't completed onboarding, redirect to onboarding
+  // Only check this for non-public routes and not already on onboarding
+  if (user && !isPublicRoute && pathname !== '/onboarding') {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('onboarding_complete')
+      .eq('id', user.id)
+      .single()
+
+    if (!profile?.onboarding_complete) {
+      const redirectUrl = request.nextUrl.clone()
+      redirectUrl.pathname = '/onboarding'
+      return NextResponse.redirect(redirectUrl)
+    }
   }
 
-  // Check authentication for protected routes (except /onboarding and /compete/leaderboard)
+  // Redirect authenticated users from root to dashboard - AFTER onboarding check
+  if (pathname === '/' && user) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('onboarding_complete')
+      .eq('id', user.id)
+      .single()
+
+    // Only redirect to dashboard if onboarding is complete
+    if (profile?.onboarding_complete) {
+      const redirectUrl = request.nextUrl.clone()
+      redirectUrl.pathname = '/dashboard'
+      return NextResponse.redirect(redirectUrl)
+    }
+  }
+
+  // Check authentication for protected routes
   const protectedRoutes = [
     '/compete',
     '/connect',

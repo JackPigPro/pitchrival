@@ -9,8 +9,10 @@ import { signOut } from '@/app/actions/auth'
 
 export default function TopNavClient({
   user,
+  forceLoggedOut,
 }: {
   user: { email?: string | null; name?: string | null; username?: string | null } | null
+  forceLoggedOut?: boolean
 }) {
   const pathname = usePathname()
   const router = useRouter()
@@ -61,7 +63,7 @@ export default function TopNavClient({
     fontSize: '14px',
   }
 
-  const isLoggedIn = Boolean(user)
+  const isLoggedIn = Boolean(user) && !forceLoggedOut
   const isOnLanding = pathname === '/'
 
   const scrollToLandingSection = (id: string, align: 'center' | 'top') => {
