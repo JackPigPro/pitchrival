@@ -2,58 +2,98 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useUser } from '@/hooks/useUser'
 
-interface UserProfile {
+interface Notification {
   id: string
-  username: string
-  display_name?: string
+  type: 'idea_liked' | 'idea_commented' | 'comment_replied' | 'cofounder_request_received' | 'cofounder_request_accepted' | 'new_message'
+  title: string
+  body: string
+  read: boolean
   created_at: string
 }
 
-interface UserStats {
-  ideas_count: number
-  likes_received: number
-  comments_count: number
-  rank?: string
-  elo_rating?: number
+const getRankByElo = (elo?: number) => {
+  if (!elo) return 'Builder'
+  if (elo < 500) return 'Trainee'
+  if (elo >= 500 && elo < 750) return 'Builder'
+  if (elo >= 750 && elo < 1000) return 'Creator'
+  if (elo >= 1000 && elo < 1250) return 'Founder'
+  if (elo >= 1250 && elo < 1500) return 'Visionary'
+  if (elo >= 1500 && elo < 1750) return 'Icon'
+  if (elo >= 1750 && elo < 2000) return 'Titan'
+  return 'Unicorn'
 }
 
-interface DashboardClientProps {
-  initialProfile: any
-  initialStats: { elo: number, rank: string } | null
-  userId: string
+const getRankColor = (rank: string) => {
+  switch (rank) {
+    case 'Trainee': return '#9ca3af'
+    case 'Builder': return '#2563eb'
+    case 'Creator': return '#16a34a'
+    case 'Founder': return '#ca8a04'
+    case 'Visionary': return '#7c3aed'
+    case 'Icon': return '#ea580c'
+    case 'Titan': return '#dc2626'
+    case 'Unicorn': return 'linear-gradient(135deg, #7c3aed, #ec4899, #10b981)'
+    default: return '#9ca3af'
+  }
 }
 
-export default function DashboardClient({ initialProfile, initialStats, userId }: DashboardClientProps) {
-  const [userStats, setUserStats] = useState(initialStats)
-  const [userProfile, setUserProfile] = useState(initialProfile)
+const getNotificationIcon = (type: Notification['type']) => {
+  switch (type) {
+    case 'idea_liked': return '❤️'
+    case 'idea_commented': return '💬'
+    case 'comment_replied': return '↩️'
+    case 'cofounder_request_received': return '🤝'
+    case 'cofounder_request_accepted': return '🎉'
+    case 'new_message': return '✉️'
+    default: return '🔔'
+  }
+}
 
-  // Fetch user stats for background refresh
+const getTimeAgo = (timestamp: string) => {
+  const date = new Date(timestamp.endsWith('Z') ? timestamp : timestamp + 'Z')
+  const now = new Date()
+  const diffMs = now.getTime() - date.getTime()
+  const diffMins = Math.floor(diffMs / 60000)
+  const diffHours = Math.floor(diffMins / 60)
+  const diffDays = Math.floor(diffHours / 24)
+
+  if (diffMins < 1) return 'just now'
+  if (diffMins < 60) return `${diffMins}m ago`
+  if (diffHours < 24) return `${diffHours}h ago`
+  return `${diffDays}d ago`
+}
+
+export default function DashboardClient() {
+  const { profile, elo, authLoading, isAuthenticated, username, display_name } = useUser()
+  const [notifications, setNotifications] = useState<Notification[]>([])
+  const [notificationsLoading, setNotificationsLoading] = useState(true)
+
+  const userElo = elo?.elo_rating || 0
+  const userRank = getRankByElo(userElo)
+  const rankColor = getRankColor(userRank)
+
+  // Fetch notifications
   useEffect(() => {
-    if (userId) {
-      fetchUserStats()
+    if (isAuthenticated) {
+      fetchNotifications()
+    } else if (!authLoading) {
+      setNotificationsLoading(false)
     }
-  }, [userId])
+  }, [isAuthenticated, authLoading])
 
-  const fetchUserStats = async () => {
+  const fetchNotifications = async () => {
     try {
-      const apiUrl = '/dashboard/api'
-      console.log('Dashboard: Fetching from URL:', apiUrl)
-      
-      const response = await fetch(apiUrl)
-      console.log('Dashboard: Response status:', response.status)
-      
-      if (!response.ok) {
-        throw new Error(`Failed to fetch user data: ${response.status} ${response.statusText}`)
+      const response = await fetch('/connect/notifications/api/notifications')
+      if (response.ok) {
+        const data = await response.json()
+        setNotifications(Array.isArray(data.notifications) ? data.notifications.slice(0, 5) : [])
       }
-      
-      const data = await response.json()
-      console.log('Dashboard: Received data:', data)
-      
-      setUserStats(data.stats || null)
-    } catch (err) {
-      console.error('Error fetching user data:', err)
-      // Error handling is now managed by useUser hook
+    } catch (error) {
+      console.error('Failed to fetch notifications:', error)
+    } finally {
+      setNotificationsLoading(false)
     }
   }
 
@@ -66,260 +106,484 @@ export default function DashboardClient({ initialProfile, initialStats, userId }
     })
   }
 
-
-  // Error handling is now managed by useUser hook
-
-  const displayProfile = userProfile || { username: '', display_name: '', created_at: new Date().toISOString() }
-  const displayStats = userStats ? {
-    ideas_count: 0, // These will come from the API refresh
-    likes_received: 0,
-    comments_count: 0,
-    elo_rating: userStats.elo
-  } : {
-    ideas_count: 0,
-    likes_received: 0,
-    comments_count: 0,
-    elo_rating: null
+  // Show loading skeleton while auth is loading
+  if (authLoading) {
+    return (
+      <div style={{ 
+        minHeight: '100vh',
+        background: 'var(--bg)',
+        backgroundImage: 'linear-gradient(rgba(21,128,61,.065) 1px, transparent 1px), linear-gradient(90deg, rgba(21,128,61,.065) 1px, transparent 1px)',
+        backgroundSize: '48px 48px',
+        padding: '40px 24px'
+      }}>
+        <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+          <div style={{ 
+            fontSize: '48px', 
+            fontWeight: 800, 
+            letterSpacing: '-2px', 
+            fontFamily: 'var(--font-display)', 
+            color: 'var(--text)', 
+            marginBottom: '32px',
+            background: 'var(--border)',
+            width: '200px',
+            height: '48px',
+            borderRadius: '8px'
+          }} />
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} style={{
+                background: 'var(--card)',
+                border: '1px solid var(--border)',
+                borderRadius: '16px',
+                padding: '32px',
+                height: '200px'
+              }} />
+            ))}
+          </div>
+        </div>
+      </div>
+    )
   }
-  const isLoadingData = !userStats
+
+  // Show login screen if not authenticated
+  if (!isAuthenticated) {
+    return (
+      <div style={{ 
+        minHeight: '100vh',
+        background: 'var(--bg)',
+        backgroundImage: 'linear-gradient(rgba(21,128,61,.065) 1px, transparent 1px), linear-gradient(90deg, rgba(21,128,61,.065) 1px, transparent 1px)',
+        backgroundSize: '48px 48px',
+        padding: '40px 24px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}>
+        <div style={{ 
+          background: 'var(--card)', 
+          borderRadius: '16px', 
+          padding: '48px',
+          border: '1px solid var(--border)',
+          boxShadow: 'var(--shadow)',
+          textAlign: 'center',
+          maxWidth: '400px'
+        }}>
+          <h1 style={{ fontSize: '24px', fontWeight: 700, marginBottom: '16px', fontFamily: 'var(--font-display)' }}>
+            Please Log In
+          </h1>
+          <p style={{ color: 'var(--text2)', marginBottom: '24px' }}>
+            You need to be logged in to view your dashboard.
+          </p>
+          <Link
+            href="/login"
+            style={{
+              display: 'inline-block',
+              padding: '12px 24px',
+              background: 'var(--green)',
+              color: 'white',
+              textDecoration: 'none',
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontWeight: 600,
+              fontFamily: 'var(--font-display)'
+            }}
+          >
+            Log In
+          </Link>
+        </div>
+      </div>
+    )
+  }
 
   return (
-    <div style={{ padding: '24px', maxWidth: '1200px', margin: '0 auto' }}>
-      {/* Header */}
-      <div style={{ marginBottom: '32px' }}>
-        <h1 style={{ 
-          fontSize: '32px', 
-          fontWeight: 700, 
-          marginBottom: '8px', 
-          fontFamily: 'var(--font-display)',
-          color: 'var(--text)'
-        }}>
-          Dashboard
-        </h1>
-        <p style={{ color: 'var(--text2)', fontSize: '16px' }}>
-          Welcome back, {displayProfile.display_name || displayProfile.username || 'User'}!
-        </p>
-      </div>
-
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
-          {/* Profile Card */}
-          <div style={{
-            background: 'var(--card)',
-            border: '1px solid var(--border)',
-            borderRadius: '12px',
-            padding: '24px',
-            opacity: isLoadingData ? 0.6 : 1,
-            transition: 'opacity 0.2s'
+    <div style={{ 
+      minHeight: '100vh',
+      background: 'var(--bg)',
+      backgroundImage: 'linear-gradient(rgba(21,128,61,.065) 1px, transparent 1px), linear-gradient(90deg, rgba(21,128,61,.065) 1px, transparent 1px)',
+      backgroundSize: '48px 48px',
+      padding: '40px 24px'
+    }}>
+      <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+        {/* Header */}
+        <div style={{ marginBottom: '32px' }}>
+          <h1 style={{ fontSize: '48px', fontWeight: 800, letterSpacing: '-2px', fontFamily: 'var(--font-display)', color: 'var(--text)', margin: 0 }}>
+            Dashboard
+          </h1>
+          <div style={{ 
+            fontSize: '18px', 
+            fontWeight: '400', 
+            fontFamily: 'var(--font-body)', 
+            color: 'var(--text2)', 
+            marginTop: '8px' 
           }}>
-            <h2 style={{ 
-              fontSize: '20px', 
-              fontWeight: 600, 
-              marginBottom: '16px',
-              fontFamily: 'var(--font-display)',
-              color: 'var(--text)'
+            Welcome back, {display_name || username || 'User'}!
+          </div>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px' }}>
+          {/* Left Column */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            {/* Player Stats Card */}
+            <div style={{ 
+              background: 'var(--card)', 
+              borderRadius: '16px', 
+              padding: '32px',
+              border: '1px solid var(--border)',
+              boxShadow: 'var(--shadow)'
             }}>
-              Profile
-            </h2>
-            <div>
-              <div style={{ marginBottom: '12px' }}>
-                <span style={{ color: 'var(--text2)', fontSize: '14px' }}>Username:</span>
-                <span style={{ marginLeft: '8px', color: 'var(--text)', fontWeight: 500 }}>
-                  {displayProfile.username ? `@${displayProfile.username}` : (
-                    <span style={{ 
-                      display: 'inline-block',
-                      width: '80px',
-                      height: '16px',
-                      background: 'var(--border)',
-                      borderRadius: '4px'
-                    }} />
-                  )}
-                </span>
+              <h2 style={{ 
+                fontSize: '20px', 
+                fontWeight: 700, 
+                marginBottom: '24px',
+                fontFamily: 'var(--font-display)',
+                color: 'var(--text)',
+                letterSpacing: '-0.1px'
+              }}>
+                Player Stats
+              </h2>
+              
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+                <div style={{ textAlign: 'center' }}>
+                  <div style={{ 
+                    fontSize: '48px', 
+                    fontWeight: 800, 
+                    color: 'var(--green)', 
+                    fontFamily: 'var(--font-display)',
+                    marginBottom: '8px',
+                    letterSpacing: '-1px'
+                  }}>
+                    {userElo}
+                  </div>
+                  <div style={{ 
+                    fontSize: '13px', 
+                    color: 'var(--text2)',
+                    fontWeight: 600,
+                    fontFamily: 'var(--font-display)',
+                    letterSpacing: '2px',
+                    textTransform: 'uppercase'
+                  }}>
+                    ELO Rating
+                  </div>
+                </div>
+                
+                <div style={{ textAlign: 'center' }}>
+                  <div style={{ 
+                    fontSize: '24px', 
+                    fontWeight: 800, 
+                    color: rankColor,
+                    fontFamily: 'var(--font-display)',
+                    marginBottom: '8px',
+                    letterSpacing: '-0.5px'
+                  }}>
+                    {userRank}
+                  </div>
+                  <div style={{ 
+                    fontSize: '13px', 
+                    color: 'var(--text2)',
+                    fontWeight: 600,
+                    fontFamily: 'var(--font-display)',
+                    letterSpacing: '2px',
+                    textTransform: 'uppercase'
+                  }}>
+                    Current Rank
+                  </div>
+                </div>
               </div>
-              {displayProfile.display_name ? (
-                <div style={{ marginBottom: '12px' }}>
-                  <span style={{ color: 'var(--text2)', fontSize: '14px' }}>Display Name:</span>
-                  <span style={{ marginLeft: '8px', color: 'var(--text)', fontWeight: 500 }}>
-                    {displayProfile.display_name}
-                  </span>
+              
+              <div style={{ 
+                height: '1px', 
+                background: 'var(--border)', 
+                margin: '24px 0' 
+              }} />
+              
+              <div style={{ fontSize: '14px', color: 'var(--text2)', fontFamily: 'var(--font-body)' }}>
+                <div style={{ marginBottom: '8px' }}>
+                  <strong>Username:</strong> @{username}
+                </div>
+                {display_name && (
+                  <div style={{ marginBottom: '8px' }}>
+                    <strong>Display Name:</strong> {display_name}
+                  </div>
+                )}
+                <div>
+                  <strong>Member Since:</strong> {profile?.created_at ? formatDate(profile.created_at) : 'Loading...'}
+                </div>
+              </div>
+            </div>
+
+            {/* Quick Actions */}
+            <div style={{ 
+              background: 'var(--card)', 
+              borderRadius: '16px', 
+              padding: '32px',
+              border: '1px solid var(--border)',
+              boxShadow: 'var(--shadow)'
+            }}>
+              <h2 style={{ 
+                fontSize: '20px', 
+                fontWeight: 700, 
+                marginBottom: '24px',
+                fontFamily: 'var(--font-display)',
+                color: 'var(--text)',
+                letterSpacing: '-0.1px'
+              }}>
+                Quick Actions
+              </h2>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <Link
+                  href="/connect/ideas"
+                  style={{
+                    display: 'block',
+                    padding: '16px 20px',
+                    background: 'var(--green)',
+                    color: 'white',
+                    textDecoration: 'none',
+                    borderRadius: '12px',
+                    fontSize: '15px',
+                    fontWeight: 600,
+                    fontFamily: 'var(--font-display)',
+                    textAlign: 'center',
+                    transition: 'all 0.2s ease',
+                    letterSpacing: '-0.1px'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = '#22c55e'
+                    e.currentTarget.style.transform = 'translateY(-1px)'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'var(--green)'
+                    e.currentTarget.style.transform = 'translateY(0)'
+                  }}
+                >
+                  📝 Share an Idea
+                </Link>
+                <Link
+                  href="/compete/weekly-duel"
+                  style={{
+                    display: 'block',
+                    padding: '16px 20px',
+                    background: 'var(--blue)',
+                    color: 'white',
+                    textDecoration: 'none',
+                    borderRadius: '12px',
+                    fontSize: '15px',
+                    fontWeight: 600,
+                    fontFamily: 'var(--font-display)',
+                    textAlign: 'center',
+                    transition: 'all 0.2s ease',
+                    letterSpacing: '-0.1px'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = '#3b82f6'
+                    e.currentTarget.style.transform = 'translateY(-1px)'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'var(--blue)'
+                    e.currentTarget.style.transform = 'translateY(0)'
+                  }}
+                >
+                  ⚔️ Weekly Duel
+                </Link>
+                <Link
+                  href="/connect/cofounder-match"
+                  style={{
+                    display: 'block',
+                    padding: '16px 20px',
+                    background: 'var(--purple)',
+                    color: 'white',
+                    textDecoration: 'none',
+                    borderRadius: '12px',
+                    fontSize: '15px',
+                    fontWeight: 600,
+                    fontFamily: 'var(--font-display)',
+                    textAlign: 'center',
+                    transition: 'all 0.2s ease',
+                    letterSpacing: '-0.1px'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = '#a855f7'
+                    e.currentTarget.style.transform = 'translateY(-1px)'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'var(--purple)'
+                    e.currentTarget.style.transform = 'translateY(0)'
+                  }}
+                >
+                  🤝 Find Co-founders
+                </Link>
+                <Link
+                  href="/connect/messages"
+                  style={{
+                    display: 'block',
+                    padding: '16px 20px',
+                    background: 'var(--orange)',
+                    color: 'white',
+                    textDecoration: 'none',
+                    borderRadius: '12px',
+                    fontSize: '15px',
+                    fontWeight: 600,
+                    fontFamily: 'var(--font-display)',
+                    textAlign: 'center',
+                    transition: 'all 0.2s ease',
+                    letterSpacing: '-0.1px'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = '#f97316'
+                    e.currentTarget.style.transform = 'translateY(-1px)'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'var(--orange)'
+                    e.currentTarget.style.transform = 'translateY(0)'
+                  }}
+                >
+                  💬 Messages
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            {/* Recent Activity */}
+            <div style={{ 
+              background: 'var(--card)', 
+              borderRadius: '16px', 
+              padding: '32px',
+              border: '1px solid var(--border)',
+              boxShadow: 'var(--shadow)'
+            }}>
+              <h2 style={{ 
+                fontSize: '20px', 
+                fontWeight: 700, 
+                marginBottom: '24px',
+                fontFamily: 'var(--font-display)',
+                color: 'var(--text)',
+                letterSpacing: '-0.1px'
+              }}>
+                Recent Activity
+              </h2>
+              
+              {notificationsLoading ? (
+                <div style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--text2)' }}>
+                  <div style={{ fontSize: '24px', marginBottom: '16px' }}>⏳</div>
+                  <p>Loading activity...</p>
+                </div>
+              ) : notifications.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--text2)' }}>
+                  <div style={{ fontSize: '48px', marginBottom: '16px' }}>🎯</div>
+                  <p>No recent activity</p>
+                  <p style={{ fontSize: '14px', marginTop: '8px' }}>Start sharing ideas and competing to see your activity here!</p>
                 </div>
               ) : (
-                !isLoadingData && !displayProfile.display_name && null
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {notifications.map((notification) => (
+                    <div
+                      key={notification.id}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'flex-start',
+                        gap: '12px',
+                        padding: '16px',
+                        borderRadius: '12px',
+                        background: notification.read ? 'var(--surface)' : 'var(--green-tint)',
+                        border: notification.read ? '1px solid var(--border)' : '1px solid var(--green)',
+                        transition: 'all 0.2s ease'
+                      }}
+                    >
+                      <span style={{ fontSize: '20px' }}>{getNotificationIcon(notification.type)}</span>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ 
+                          fontWeight: '700', 
+                          fontFamily: 'var(--font-display)', 
+                          fontSize: '14px', 
+                          marginBottom: '4px',
+                          color: 'var(--text)',
+                          letterSpacing: '-0.1px'
+                        }}>
+                          {notification.title}
+                        </div>
+                        <div style={{ 
+                          color: 'var(--text2)', 
+                          fontSize: '13px', 
+                          lineHeight: '1.4',
+                          fontFamily: 'var(--font-body)'
+                        }}>
+                          {notification.body}
+                        </div>
+                        <div style={{ 
+                          color: 'var(--text2)', 
+                          fontSize: '11px', 
+                          marginTop: '8px',
+                          fontFamily: 'var(--font-display)',
+                          fontWeight: 600,
+                          letterSpacing: '0.5px'
+                        }}>
+                          {getTimeAgo(notification.created_at)}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               )}
-              <div style={{ marginBottom: '12px' }}>
-                <span style={{ color: 'var(--text2)', fontSize: '14px' }}>Member Since:</span>
-                <span style={{ marginLeft: '8px', color: 'var(--text)', fontWeight: 500 }}>
-                  {displayProfile.created_at ? formatDate(displayProfile.created_at) : (
-                    <span style={{ 
-                      display: 'inline-block',
-                      width: '100px',
-                      height: '16px',
-                      background: 'var(--border)',
-                      borderRadius: '4px'
-                    }} />
-                  )}
-                </span>
-              </div>
             </div>
-          </div>
 
-          {/* Stats Card */}
-          <div style={{
-            background: 'var(--card)',
-            border: '1px solid var(--border)',
-            borderRadius: '12px',
-            padding: '24px',
-            opacity: isLoadingData ? 0.6 : 1,
-            transition: 'opacity 0.2s'
-          }}>
-            <h2 style={{ 
-              fontSize: '20px', 
-              fontWeight: 600, 
-              marginBottom: '16px',
-              fontFamily: 'var(--font-display)',
-              color: 'var(--text)'
+            {/* Rank Progress */}
+            <div style={{ 
+              background: 'var(--card)', 
+              borderRadius: '16px', 
+              padding: '32px',
+              border: '1px solid var(--border)',
+              boxShadow: 'var(--shadow)'
             }}>
-              Your Stats
-            </h2>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-              <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: '24px', fontWeight: 700, color: 'var(--green)' }}>
-                  {displayStats.ideas_count}
+              <h2 style={{ 
+                fontSize: '20px', 
+                fontWeight: 700, 
+                marginBottom: '24px',
+                fontFamily: 'var(--font-display)',
+                color: 'var(--text)',
+                letterSpacing: '-0.1px'
+              }}>
+                Rank Progress
+              </h2>
+              
+              <div style={{
+                padding: '20px',
+                borderRadius: '12px',
+                background: 'var(--surface)',
+                border: '1px solid var(--border)'
+              }}>
+                <div style={{
+                  fontSize: '16px',
+                  fontWeight: 700,
+                  fontFamily: 'var(--font-display)',
+                  color: rankColor,
+                  marginBottom: '8px',
+                  letterSpacing: '-0.1px'
+                }}>
+                  {userRank}
                 </div>
-                <div style={{ fontSize: '14px', color: 'var(--text2)' }}>Ideas Posted</div>
-              </div>
-              <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: '24px', fontWeight: 700, color: 'var(--blue)' }}>
-                  {displayStats.likes_received}
+                <div style={{
+                  fontSize: '32px',
+                  fontWeight: 800,
+                  color: 'var(--green)',
+                  fontFamily: 'var(--font-display)',
+                  marginBottom: '16px',
+                  letterSpacing: '-0.5px'
+                }}>
+                  {userElo} ELO
                 </div>
-                <div style={{ fontSize: '14px', color: 'var(--text2)' }}>Likes Received</div>
-              </div>
-              <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: '24px', fontWeight: 700, color: 'var(--purple)' }}>
-                  {displayStats.comments_count}
+                <div style={{
+                  fontSize: '13px',
+                  color: 'var(--text2)',
+                  fontFamily: 'var(--font-body)',
+                  lineHeight: '1.5'
+                }}>
+                  Keep competing to climb the ranks and unlock new achievements!
                 </div>
-                <div style={{ fontSize: '14px', color: 'var(--text2)' }}>Comments</div>
               </div>
-              <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: '24px', fontWeight: 700, color: 'var(--orange)' }}>
-                  {displayStats.elo_rating || '--'}
-                </div>
-                <div style={{ fontSize: '14px', color: 'var(--text2)' }}>ELO Rating</div>
-              </div>
-            </div>
-          </div>
-
-          {/* Quick Actions */}
-          <div style={{
-            background: 'var(--card)',
-            border: '1px solid var(--border)',
-            borderRadius: '12px',
-            padding: '24px',
-          }}>
-            <h2 style={{ 
-              fontSize: '20px', 
-              fontWeight: 600, 
-              marginBottom: '16px',
-              fontFamily: 'var(--font-display)',
-              color: 'var(--text)'
-            }}>
-              Quick Actions
-            </h2>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <Link
-                href="/connect/ideas"
-                style={{
-                  display: 'block',
-                  padding: '12px 16px',
-                  background: 'var(--green)',
-                  color: 'white',
-                  textDecoration: 'none',
-                  borderRadius: '8px',
-                  fontSize: '14px',
-                  fontWeight: 500,
-                  textAlign: 'center',
-                  transition: 'background-color 0.2s',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = 'var(--green-dark)'
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'var(--green)'
-                }}
-              >
-                📝 Share an Idea
-              </Link>
-              <Link
-                href="/connect/cofounder-match"
-                style={{
-                  display: 'block',
-                  padding: '12px 16px',
-                  background: 'var(--blue)',
-                  color: 'white',
-                  textDecoration: 'none',
-                  borderRadius: '8px',
-                  fontSize: '14px',
-                  fontWeight: 500,
-                  textAlign: 'center',
-                  transition: 'background-color 0.2s',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = 'var(--blue-dark)'
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'var(--blue)'
-                }}
-              >
-                🤝 Find Co-founders
-              </Link>
-              <Link
-                href="/connect/messages"
-                style={{
-                  display: 'block',
-                  padding: '12px 16px',
-                  background: 'var(--purple)',
-                  color: 'white',
-                  textDecoration: 'none',
-                  borderRadius: '8px',
-                  fontSize: '14px',
-                  fontWeight: 500,
-                  textAlign: 'center',
-                  transition: 'background-color 0.2s',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = 'var(--purple-dark)'
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'var(--purple)'
-                }}
-              >
-                💬 Messages
-              </Link>
-            </div>
-          </div>
-
-          {/* Recent Activity */}
-          <div style={{
-            background: 'var(--card)',
-            border: '1px solid var(--border)',
-            borderRadius: '12px',
-            padding: '24px',
-            gridColumn: '1 / -1',
-          }}>
-            <h2 style={{ 
-              fontSize: '20px', 
-              fontWeight: 600, 
-              marginBottom: '16px',
-              fontFamily: 'var(--font-display)',
-              color: 'var(--text)'
-            }}>
-              Recent Activity
-            </h2>
-            <div style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--text2)' }}>
-              <div style={{ fontSize: '48px', marginBottom: '16px' }}>📊</div>
-              <p>Activity tracking coming soon!</p>
             </div>
           </div>
         </div>
+      </div>
     </div>
   )
 }

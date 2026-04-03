@@ -10,23 +10,5 @@ export default async function DashboardPage() {
     redirect('/login')
   }
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', user.id)
-    .single()
-
-  const { data: userStats } = await supabase
-    .from('user_stats')
-    .select('elo, rank')
-    .eq('user_id', user.id)
-    .single()
-
-  return (
-    <DashboardClient
-      initialProfile={profile}
-      initialStats={userStats}
-      userId={user.id}
-    />
-  )
+  return <DashboardClient />
 }
