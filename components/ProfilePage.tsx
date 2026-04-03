@@ -1,6 +1,7 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
+import { useState, useEffect } from 'react'
+import { createClient } from '@/utils/supabase/client'
 import CountryDropdown from './CountryDropdown'
 
 interface Profile {
@@ -17,10 +18,23 @@ interface Profile {
   created_at: string
 }
 
+interface UserStats {
+  elo?: number
+  rank?: string
+  weekly_duel_entered?: number
+}
+
+interface Idea {
+  id: string
+  title: string
+  content: string
+  created_at: string
+}
+
 interface ProfilePageProps {
   profile: Profile
-  userStats?: any
-  ideas: any[]
+  userStats?: UserStats
+  ideas: Idea[]
   isOwnProfile: boolean
   allTimeRank?: number | null
   dailyRank?: number | null
@@ -28,8 +42,103 @@ interface ProfilePageProps {
 }
 
 export default function ProfilePage({ profile: initialProfile, userStats, ideas, isOwnProfile, allTimeRank, dailyRank, weeklyDuelsCount }: ProfilePageProps) {
-  const router = useRouter()
-  const currentProfile = initialProfile
+  const [isEditing, setIsEditing] = useState(false)
+  const [currentProfile, setCurrentProfile] = useState(initialProfile)
+  const [editData, setEditData] = useState({
+    username: initialProfile.username || '',
+    location: initialProfile.location || '',
+    bio: initialProfile.bio || '',
+    stage: initialProfile.stage || '',
+    skills: initialProfile.skills || [],
+    status_tags: initialProfile.status_tags || [],
+    twitter: initialProfile.twitter || '',
+    linkedin: initialProfile.linkedin || '',
+    github: initialProfile.github || ''
+  })
+
+  const supabase = createClient()
+
+  useEffect(() => {
+    // Reset edit data when entering edit mode
+    if (isEditing) {
+      setEditData({
+        username: currentProfile.username || '',
+        location: currentProfile.location || '',
+        bio: currentProfile.bio || '',
+        stage: currentProfile.stage || '',
+        skills: currentProfile.skills || [],
+        status_tags: currentProfile.status_tags || [],
+        twitter: currentProfile.twitter || '',
+        linkedin: currentProfile.linkedin || '',
+        github: currentProfile.github || ''
+      })
+    }
+  }, [isEditing, currentProfile])
+
+  const handleSave = async () => {
+    if (!currentProfile?.id) return
+    
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          username: editData.username.toLowerCase(),
+          location: editData.location,
+          bio: editData.bio,
+          stage: editData.stage,
+          skills: editData.skills,
+          status_tags: editData.status_tags,
+          twitter: editData.twitter || null,
+          linkedin: editData.linkedin || null,
+          github: editData.github || null
+        })
+        .eq('id', currentProfile.id)
+
+      if (error) {
+        console.error('Error saving profile:', error)
+        alert('Error saving profile. Please try again.')
+        return
+      }
+
+      // Update local state
+      setCurrentProfile(prev => ({
+        ...prev,
+        username: editData.username.toLowerCase(),
+        location: editData.location,
+        bio: editData.bio,
+        stage: editData.stage,
+        skills: editData.skills,
+        status_tags: editData.status_tags,
+        twitter: editData.twitter,
+        linkedin: editData.linkedin,
+        github: editData.github
+      }))
+      
+      setIsEditing(false)
+      alert('Profile updated successfully!')
+    } catch (error) {
+      console.error('Error saving profile:', error)
+      alert('Error saving profile. Please try again.')
+    }
+  }
+
+  const toggleSkill = (skill: string) => {
+    setEditData(prev => ({
+      ...prev,
+      skills: prev.skills.includes(skill)
+        ? prev.skills.filter(s => s !== skill)
+        : [...prev.skills, skill]
+    }))
+  }
+
+  const toggleStatusTag = (tag: string) => {
+    setEditData(prev => ({
+      ...prev,
+      status_tags: prev.status_tags.includes(tag)
+        ? prev.status_tags.filter(t => t !== tag)
+        : [...prev.status_tags, tag]
+    }))
+  }
 
   const getProfileColor = (username: string) => {
     const colors = ['#16a34a', '#2563eb', '#7c3aed', '#dc2626', '#ca8a04']
@@ -142,6 +251,262 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
     }
   }
 
+  const stageOptions = ['Idea Stage', 'Building MVP', 'Already Launched']
+  const skillOptions = ['Design', 'Code', 'Marketing', 'Sales', 'Finance']
+  const statusTagOptions = ['Looking for Co-founder', 'Open to be a Co-founder', 'Message me for ideas', 'Open to feedback']
+
+  // Edit Mode View
+  if (isEditing) {
+    return (
+      <div style={{ 
+        minHeight: '100vh', 
+        background: 'var(--bg)',
+        backgroundImage: 'linear-gradient(rgba(21,128,61,.065) 1px, transparent 1px), linear-gradient(90deg, rgba(21,128,61,.065) 1px, transparent 1px)',
+        backgroundSize: '48px 48px',
+        padding: '40px 24px'
+      }}>
+        <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+          <div style={{ 
+            background: 'var(--card)', 
+            borderRadius: '16px', 
+            padding: '32px',
+            border: '1px solid var(--border)',
+            boxShadow: 'var(--shadow)'
+          }}>
+            <h2 style={{ fontSize: '24px', fontWeight: '700', marginBottom: '24px', fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
+              Edit Profile
+            </h2>
+
+            <form onSubmit={handleSave} style={{ display: 'grid', gap: '20px' }}>
+              <div>
+                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', fontSize: '14px', color: 'var(--text)' }}>
+                  Username
+                </label>
+                <input
+                  type="text"
+                  value={editData.username}
+                  onChange={(e) => setEditData(prev => ({ ...prev, username: e.target.value }))}
+                  required
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    borderRadius: '8px',
+                    border: '1px solid var(--border2)',
+                    background: 'var(--card2)',
+                    fontSize: '14px',
+                    color: 'var(--text)'
+                  }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', fontSize: '14px', color: 'var(--text)' }}>
+                  Location
+                </label>
+                <CountryDropdown
+                  value={editData.location}
+                  onChange={(value) => setEditData(prev => ({ ...prev, location: value }))}
+                  placeholder="Select country"
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', fontSize: '14px', color: 'var(--text)' }}>
+                  Bio
+                </label>
+                <textarea
+                  value={editData.bio}
+                  onChange={(e) => setEditData(prev => ({ ...prev, bio: e.target.value }))}
+                  placeholder="Tell us about yourself..."
+                  rows={4}
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    borderRadius: '8px',
+                    border: '1px solid var(--border2)',
+                    background: 'var(--card2)',
+                    fontSize: '14px',
+                    color: 'var(--text)',
+                    resize: 'vertical'
+                  }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', fontSize: '14px', color: 'var(--text)' }}>
+                  Stage
+                </label>
+                <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                  {stageOptions.map(stage => (
+                    <button
+                      key={stage}
+                      type="button"
+                      onClick={() => setEditData(prev => ({ ...prev, stage }))}
+                      style={{
+                        padding: '8px 16px',
+                        borderRadius: '20px',
+                        border: `1px solid ${editData.stage === stage ? 'var(--green)' : 'var(--border2)'}`,
+                        background: editData.stage === stage ? 'var(--green-tint)' : 'var(--card2)',
+                        color: editData.stage === stage ? 'var(--green)' : 'var(--text2)',
+                        fontSize: '12px',
+                        fontWeight: '600',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      {stage}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', fontSize: '14px', color: 'var(--text)' }}>
+                  Skills
+                </label>
+                <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                  {skillOptions.map(skill => (
+                    <button
+                      key={skill}
+                      type="button"
+                      onClick={() => toggleSkill(skill)}
+                      style={{
+                        padding: '8px 16px',
+                        borderRadius: '20px',
+                        border: `1px solid ${editData.skills.includes(skill) ? 'var(--blue)' : 'var(--border2)'}`,
+                        background: editData.skills.includes(skill) ? 'var(--blue-tint)' : 'var(--card2)',
+                        color: editData.skills.includes(skill) ? 'var(--blue)' : 'var(--text2)',
+                        fontSize: '12px',
+                        fontWeight: '600',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      {skill}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', fontSize: '14px', color: 'var(--text)' }}>
+                  Status Tags
+                </label>
+                <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                  {statusTagOptions.map(tag => (
+                    <button
+                      key={tag}
+                      type="button"
+                      onClick={() => toggleStatusTag(tag)}
+                      style={{
+                        padding: '8px 16px',
+                        borderRadius: '20px',
+                        border: `1px solid ${editData.status_tags.includes(tag) ? 'var(--purple)' : 'var(--border2)'}`,
+                        background: editData.status_tags.includes(tag) ? 'var(--purple-tint)' : 'var(--card2)',
+                        color: editData.status_tags.includes(tag) ? 'var(--purple)' : 'var(--text2)',
+                        fontSize: '12px',
+                        fontWeight: '600',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      {tag}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', fontSize: '14px', color: 'var(--text)' }}>
+                  Social Links
+                </label>
+                <div style={{ display: 'grid', gap: '12px' }}>
+                  <input
+                    type="text"
+                    placeholder="X username"
+                    value={editData.twitter}
+                    onChange={(e) => setEditData(prev => ({ ...prev, twitter: e.target.value }))}
+                    style={{
+                      width: '100%',
+                      padding: '12px',
+                      borderRadius: '8px',
+                      border: '1px solid var(--border2)',
+                      background: 'var(--card2)',
+                      fontSize: '14px',
+                      color: 'var(--text)'
+                    }}
+                  />
+                  <input
+                    type="text"
+                    placeholder="LinkedIn username"
+                    value={editData.linkedin}
+                    onChange={(e) => setEditData(prev => ({ ...prev, linkedin: e.target.value }))}
+                    style={{
+                      width: '100%',
+                      padding: '12px',
+                      borderRadius: '8px',
+                      border: '1px solid var(--border2)',
+                      background: 'var(--card2)',
+                      fontSize: '14px',
+                      color: 'var(--text)'
+                    }}
+                  />
+                  <input
+                    type="text"
+                    placeholder="GitHub username"
+                    value={editData.github}
+                    onChange={(e) => setEditData(prev => ({ ...prev, github: e.target.value }))}
+                    style={{
+                      width: '100%',
+                      padding: '12px',
+                      borderRadius: '8px',
+                      border: '1px solid var(--border2)',
+                      background: 'var(--card2)',
+                      fontSize: '14px',
+                      color: 'var(--text)'
+                    }}
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', paddingTop: '20px' }}>
+                <button
+                  type="button"
+                  onClick={() => setIsEditing(false)}
+                  style={{
+                    padding: '12px 24px',
+                    borderRadius: '8px',
+                    border: '1px solid var(--border2)',
+                    background: 'var(--card2)',
+                    color: 'var(--text)',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  style={{
+                    padding: '12px 24px',
+                    borderRadius: '8px',
+                    border: 'none',
+                    background: 'var(--green)',
+                    color: 'white',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Save Changes
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Normal View
   return (
     <div style={{ 
       minHeight: '100vh', 
@@ -165,7 +530,7 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
           {/* Edit Profile Button - Top Right */}
           {isOwnProfile && (
             <button
-              onClick={() => router.push('/profile/edit')}
+              onClick={() => setIsEditing(true)}
               className="btn-cta-ghost"
               style={{
                 position: 'absolute',
@@ -486,320 +851,335 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
                   fontFamily: 'var(--font-display)',
                   marginBottom: '8px'
                 }}>
-                  {userStats?.elo || '—'}
+                  {userStats?.elo || 0}
                 </div>
                 <div style={{ 
-                  fontSize: '13px', 
-                  color: 'var(--text2)',
-                  fontWeight: '600',
+                  fontSize: '18px', 
+                  fontWeight: '600', 
+                  color: 'var(--text2)', 
                   fontFamily: 'var(--font-display)',
-                  letterSpacing: '2px',
-                  textTransform: 'uppercase',
-                  marginBottom: '20px'
+                  marginBottom: '16px'
                 }}>
-                  Current ELO
+                  ELO Rating
                 </div>
-              </div>
-              
-              <div style={{ 
-                height: '1px', 
-                background: 'var(--border)', 
-                margin: '20px 0' 
-              }} />
-              
-              <div style={{ marginBottom: '20px' }}>
-                <div style={{ 
-                  fontSize: '36px', 
-                  fontWeight: '800', 
-                  color: getRankColor(getRankByElo(userStats?.elo)), 
+                <div style={{
+                  fontSize: '16px',
+                  fontWeight: '700',
                   fontFamily: 'var(--font-display)',
+                  color: getRankColor(getRankByElo(userStats?.elo)),
                   marginBottom: '8px'
                 }}>
                   {getRankByElo(userStats?.elo)}
                 </div>
-                <div style={{ 
-                  fontSize: '13px', 
-                  color: 'var(--text2)',
-                  fontWeight: '600',
-                  fontFamily: 'var(--font-display)',
-                  letterSpacing: '2px',
-                  textTransform: 'uppercase'
-                }}>
-                  Current Rank
-                </div>
               </div>
 
+              {/* Rank Information */}
               <div style={{ 
-                height: '1px', 
-                background: 'var(--border)', 
-                margin: '20px 0' 
-              }} />
-
-              <div style={{ display: 'flex', justifyContent: 'space-between', textAlign: 'center' }}>
-                <div style={{ flex: 1 }}>
-                  <div style={{ 
-                    fontSize: '24px', 
-                    fontWeight: '800', 
-                    color: 'var(--blue)', 
-                    fontFamily: 'var(--font-display)',
-                    marginBottom: '4px'
-                  }}>
-                    {dailyRank ? `#${dailyRank}` : '—'}
-                  </div>
-                  <div style={{ 
-                    fontSize: '11px', 
-                    color: 'var(--text2)',
-                    fontWeight: '600',
-                    fontFamily: 'var(--font-display)',
-                    letterSpacing: '1px',
-                    textTransform: 'uppercase'
-                  }}>
-                    Daily Rank
+                display: 'grid', 
+                gridTemplateColumns: '1fr 1fr', 
+                gap: '16px',
+                paddingTop: '24px',
+                borderTop: '1px solid var(--border2)'
+              }}>
+                <div>
+                  <div style={{ fontSize: '14px', color: 'var(--text2)', marginBottom: '4px' }}>All-Time Rank</div>
+                  <div style={{ fontSize: '20px', fontWeight: '700', color: 'var(--text)', fontFamily: 'var(--font-display)' }}>
+                    #{allTimeRank || 'N/A'}
                   </div>
                 </div>
-                <div style={{ 
-                  width: '1px', 
-                  background: 'var(--border)', 
-                  margin: '0 16px' 
-                }} />
-                <div style={{ flex: 1 }}>
-                  <div style={{ 
-                    fontSize: '24px', 
-                    fontWeight: '800', 
-                    color: 'var(--purple)', 
-                    fontFamily: 'var(--font-display)',
-                    marginBottom: '4px'
-                  }}>
-                    {allTimeRank ? `#${allTimeRank}` : '—'}
-                  </div>
-                  <div style={{ 
-                    fontSize: '11px', 
-                    color: 'var(--text2)',
-                    fontWeight: '600',
-                    fontFamily: 'var(--font-display)',
-                    letterSpacing: '1px',
-                    textTransform: 'uppercase'
-                  }}>
-                    All Time Rank
+                <div>
+                  <div style={{ fontSize: '14px', color: 'var(--text2)', marginBottom: '4px' }}>Daily Rank</div>
+                  <div style={{ fontSize: '20px', fontWeight: '700', color: 'var(--text)', fontFamily: 'var(--font-display)' }}>
+                    #{dailyRank || 'N/A'}
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Weekly Duels Entered Card */}
+            {/* Ideas Card */}
             <div style={{ 
               background: 'var(--card)', 
               borderRadius: '16px', 
               padding: '32px',
               border: '1px solid var(--border)',
               boxShadow: 'var(--shadow)',
-              textAlign: 'center',
-              transition: 'all 0.2s ease',
               width: '100%'
             }}>
-              <div style={{ 
-                fontSize: '48px', 
-                fontWeight: '800', 
-                color: 'var(--purple)', 
+              <h3 style={{ 
+                fontSize: '20px', 
+                fontWeight: '700', 
+                marginBottom: '20px', 
                 fontFamily: 'var(--font-display)',
-                marginBottom: '12px'
+                color: 'var(--text)'
               }}>
-                {weeklyDuelsCount || 0}
-              </div>
-              <div style={{ 
-                fontSize: '13px', 
-                color: 'var(--text2)',
-                fontWeight: '600',
-                fontFamily: 'var(--font-display)',
-                letterSpacing: '2px',
-                textTransform: 'uppercase'
-              }}>
-                Weekly Duels Entered
-              </div>
+                Ideas ({ideas.length})
+              </h3>
+              
+              {ideas.length > 0 ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  {ideas.slice(0, 3).map(idea => (
+                    <div key={idea.id} style={{
+                      padding: '16px',
+                      borderRadius: '12px',
+                      background: 'var(--card2)',
+                      border: '1px solid var(--border2)',
+                      transition: 'all 0.2s ease'
+                    }}>
+                      <h4 style={{
+                        fontSize: '16px',
+                        fontWeight: '600',
+                        marginBottom: '8px',
+                        color: 'var(--text)',
+                        fontFamily: 'var(--font-display)'
+                      }}>
+                        {idea.title}
+                      </h4>
+                      <p style={{
+                        fontSize: '14px',
+                        color: 'var(--text2)',
+                        lineHeight: '1.5',
+                        marginBottom: '8px'
+                      }}>
+                        {idea.content.length > 150 ? idea.content.substring(0, 150) + '...' : idea.content}
+                      </p>
+                      <div style={{
+                        fontSize: '12px',
+                        color: 'var(--text2)',
+                        fontFamily: 'var(--font-body)'
+                      }}>
+                        {new Date(idea.created_at).toLocaleDateString()}
+                      </div>
+                    </div>
+                  ))}
+                  {ideas.length > 3 && (
+                    <div style={{
+                      textAlign: 'center',
+                      paddingTop: '16px'
+                    }}>
+                      <button style={{
+                        padding: '8px 16px',
+                        borderRadius: '8px',
+                        border: '1px solid var(--border2)',
+                        background: 'var(--card2)',
+                        color: 'var(--text)',
+                        fontSize: '14px',
+                        fontWeight: '600',
+                        cursor: 'pointer'
+                      }}>
+                        View All Ideas
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div style={{
+                  textAlign: 'center',
+                  padding: '40px 0',
+                  color: 'var(--text2)'
+                }}>
+                  <div style={{ fontSize: '16px', marginBottom: '8px' }}>No ideas yet</div>
+                  <div style={{ fontSize: '14px' }}>Start sharing your brilliant ideas!</div>
+                </div>
+              )}
             </div>
           </div>
 
           {/* RIGHT COLUMN */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', width: '100%' }}>
-            {/* Ideas Posted Card */}
+            {/* Weekly Duels Card */}
             <div style={{ 
               background: 'var(--card)', 
               borderRadius: '16px', 
               padding: '32px',
               border: '1px solid var(--border)',
               boxShadow: 'var(--shadow)',
-              transition: 'all 0.2s ease',
               width: '100%'
             }}>
-              {/* Post New Idea Button */}
-              <a
-                href="/connect/ideas"
-                className="btn-cta-primary"
-                style={{
-                  textDecoration: 'none',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  width: '100%',
-                  marginBottom: '24px'
-                }}
-              >
-                💡 Post New Idea →
-              </a>
-
-              {/* Ideas Count */}
-              <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-                <div style={{ 
-                  fontSize: '48px', 
-                  fontWeight: '800', 
-                  color: ideas.length > 0 ? 'var(--blue)' : 'var(--text2)', 
-                  fontFamily: 'var(--font-display)',
-                  marginBottom: '12px'
-                }}>
-                  {ideas.length}
-                </div>
-                <div style={{ 
-                  fontSize: '13px', 
-                  color: 'var(--text2)',
-                  fontWeight: '600',
-                  fontFamily: 'var(--font-display)',
-                  letterSpacing: '2px',
-                  textTransform: 'uppercase'
-                }}>
-                  Ideas Posted
-                </div>
-              </div>
-
-              {/* Ideas Preview */}
-              {ideas.length > 0 && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  {ideas.slice(0, 3).map((idea) => (
-                    <a
-                      key={idea.id}
-                      href="/connect/ideas"
-                      style={{
-                        display: 'block',
-                        padding: '16px',
-                        borderRadius: '8px',
-                        background: 'var(--surface)',
-                        border: '1px solid var(--border)',
-                        textDecoration: 'none',
-                        transition: 'all 0.2s ease',
-                        cursor: 'pointer'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.background = 'var(--card2)'
-                        e.currentTarget.style.transform = 'translateY(-1px)'
-                        e.currentTarget.style.boxShadow = 'var(--shadow-sm)'
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.background = 'var(--surface)'
-                        e.currentTarget.style.transform = 'translateY(0)'
-                        e.currentTarget.style.boxShadow = 'none'
-                      }}
-                    >
-                      <div style={{ 
-                        fontSize: '16px', 
-                        fontWeight: '700', 
-                        fontFamily: 'var(--font-display)', 
-                        color: 'var(--text)', 
-                        marginBottom: '4px',
-                        letterSpacing: '-0.1px'
-                      }}>
-                        {idea.title}
-                      </div>
-                      <div style={{ 
-                        fontSize: '14px', 
-                        color: 'var(--text2)', 
-                        fontFamily: 'var(--font-body)',
-                        fontWeight: '500',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap'
-                      }}>
-                        {idea.content}
-                      </div>
-                    </a>
-                  ))}
-                  {ideas.length > 3 && (
-                    <div style={{ textAlign: 'center', paddingTop: '8px' }}>
-                      <a
-                        href="/connect/ideas"
-                        style={{
-                          fontSize: '14px',
-                          color: 'var(--blue)',
-                          fontWeight: '600',
-                          textDecoration: 'none',
-                          fontFamily: 'var(--font-display)'
-                        }}
-                      >
-                        View all {ideas.length} ideas →
-                      </a>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-
-            {/* Member Since Card */}
-            <div style={{ 
-              background: 'var(--card)', 
-              borderRadius: '16px', 
-              padding: '32px',
-              border: '1px solid var(--border)',
-              boxShadow: 'var(--shadow)',
-              textAlign: 'center',
-              transition: 'all 0.2s ease',
-              width: '100%'
-            }}>
+              <h3 style={{ 
+                fontSize: '20px', 
+                fontWeight: '700', 
+                marginBottom: '20px', 
+                fontFamily: 'var(--font-display)',
+                color: 'var(--text)'
+              }}>
+                Weekly Duels
+              </h3>
+              
               <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '20px',
-                marginBottom: '16px'
+                display: 'grid',
+                gridTemplateColumns: '1fr 1fr',
+                gap: '16px'
               }}>
                 <div style={{
-                  width: '60px',
-                  height: '60px',
-                  borderRadius: '50%',
-                  background: 'linear-gradient(135deg, var(--gold), #f59e0b)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '24px',
-                  boxShadow: 'var(--shadow)'
+                  textAlign: 'center',
+                  padding: '20px',
+                  borderRadius: '12px',
+                  background: 'var(--card2)',
+                  border: '1px solid var(--border2)'
                 }}>
-                  📅
-                </div>
-                <div style={{ textAlign: 'left' }}>
-                  <div style={{
-                    fontSize: '13px',
-                    color: 'var(--text3)',
-                    fontWeight: '600',
-                    fontFamily: 'var(--font-display)',
-                    letterSpacing: '2px',
-                    textTransform: 'uppercase',
-                    marginBottom: '4px'
-                  }}>
-                    Member Since
-                  </div>
                   <div style={{
                     fontSize: '32px',
                     fontWeight: '800',
+                    color: 'var(--green)',
                     fontFamily: 'var(--font-display)',
-                    color: 'var(--gold)',
-                    margin: 0,
-                    marginBottom: '4px',
-                    letterSpacing: '-0.5px'
+                    marginBottom: '8px'
                   }}>
-                    {(() => {
-                      // Fix: Append Z to ensure UTC parsing if not already present
-                      const createdAt = currentProfile.created_at.endsWith('Z') ? currentProfile.created_at : currentProfile.created_at + 'Z'
-                      return new Date(createdAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
-                    })()}
+                    {weeklyDuelsCount || 0}
+                  </div>
+                  <div style={{
+                    fontSize: '14px',
+                    color: 'var(--text2)',
+                    fontWeight: '600'
+                  }}>
+                    Duels Entered
                   </div>
                 </div>
+                
+                <div style={{
+                  textAlign: 'center',
+                  padding: '20px',
+                  borderRadius: '12px',
+                  background: 'var(--card2)',
+                  border: '1px solid var(--border2)'
+                }}>
+                  <div style={{
+                    fontSize: '32px',
+                    fontWeight: '800',
+                    color: 'var(--blue)',
+                    fontFamily: 'var(--font-display)',
+                    marginBottom: '8px'
+                  }}>
+                    {userStats?.weekly_duel_entered || 0}
+                  </div>
+                  <div style={{
+                    fontSize: '14px',
+                    color: 'var(--text2)',
+                    fontWeight: '600'
+                  }}>
+                    This Week
+                  </div>
+                </div>
+              </div>
+
+              <div style={{
+                marginTop: '20px',
+                textAlign: 'center'
+              }}>
+                <button style={{
+                  padding: '12px 24px',
+                  borderRadius: '8px',
+                  border: 'none',
+                  background: 'var(--green)',
+                  color: 'white',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  width: '100%'
+                }}>
+                  Enter Weekly Duel
+                </button>
+              </div>
+            </div>
+
+            {/* Activity Card */}
+            <div style={{ 
+              background: 'var(--card)', 
+              borderRadius: '16px', 
+              padding: '32px',
+              border: '1px solid var(--border)',
+              boxShadow: 'var(--shadow)',
+              width: '100%'
+            }}>
+              <h3 style={{ 
+                fontSize: '20px', 
+                fontWeight: '700', 
+                marginBottom: '20px', 
+                fontFamily: 'var(--font-display)',
+                color: 'var(--text)'
+              }}>
+                Recent Activity
+              </h3>
+              
+              <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '16px'
+              }}>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  padding: '12px',
+                  borderRadius: '8px',
+                  background: 'var(--card2)',
+                  border: '1px solid var(--border2)'
+                }}>
+                  <div style={{
+                    width: '8px',
+                    height: '8px',
+                    borderRadius: '50%',
+                    background: 'var(--green)',
+                    flexShrink: 0
+                  }} />
+                  <div style={{ fontSize: '14px', color: 'var(--text)' }}>
+                    Profile created
+                  </div>
+                  <div style={{ fontSize: '12px', color: 'var(--text2)', marginLeft: 'auto' }}>
+                    {new Date(currentProfile.created_at).toLocaleDateString()}
+                  </div>
+                </div>
+                
+                {ideas.length > 0 && (
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    padding: '12px',
+                    borderRadius: '8px',
+                    background: 'var(--card2)',
+                    border: '1px solid var(--border2)'
+                  }}>
+                    <div style={{
+                      width: '8px',
+                      height: '8px',
+                      borderRadius: '50%',
+                      background: 'var(--blue)',
+                      flexShrink: 0
+                    }} />
+                    <div style={{ fontSize: '14px', color: 'var(--text)' }}>
+                      Latest idea posted
+                    </div>
+                    <div style={{ fontSize: '12px', color: 'var(--text2)', marginLeft: 'auto' }}>
+                      {new Date(ideas[0].created_at).toLocaleDateString()}
+                    </div>
+                  </div>
+                )}
+                
+                {userStats?.elo && userStats.elo > 0 && (
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    padding: '12px',
+                    borderRadius: '8px',
+                    background: 'var(--card2)',
+                    border: '1px solid var(--border2)'
+                  }}>
+                    <div style={{
+                      width: '8px',
+                      height: '8px',
+                      borderRadius: '50%',
+                      background: 'var(--purple)',
+                      flexShrink: 0
+                    }} />
+                    <div style={{ fontSize: '14px', color: 'var(--text)' }}>
+                      Current ELO: {userStats.elo}
+                    </div>
+                    <div style={{ fontSize: '12px', color: 'var(--text2)', marginLeft: 'auto' }}>
+                      {getRankByElo(userStats.elo)}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
