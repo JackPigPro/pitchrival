@@ -16,12 +16,8 @@ const getRankLabel = (elo: number) => {
 export default async function LeaderboardPage() {
   const supabase = await createClient()
   
-  // Check if user is authenticated
+  // Check if user is authenticated (optional now)
   const { data: { user } } = await supabase.auth.getUser()
-  
-  if (!user) {
-    redirect('/login')
-  }
 
   // Step 1: Fetch all rows from user_stats
   const { data: userStats, error: statsError } = await supabase
@@ -126,19 +122,26 @@ export default async function LeaderboardPage() {
   }).sort((a, b) => b.new_elo - a.new_elo) // Sort by period gain descending
 
 
-  // Get current user's stats
-  const { data: currentUserStats } = await supabase
-    .from('user_stats')
-    .select('elo, rank')
-    .eq('user_id', user.id)
-    .single()
+  // Get current user's stats (only if authenticated)
+  let currentUserStats = null
+  let currentUserId = null
+  
+  if (user) {
+    const { data } = await supabase
+      .from('user_stats')
+      .select('elo, rank')
+      .eq('user_id', user.id)
+      .single()
+    currentUserStats = data
+    currentUserId = user.id
+  }
 
   return (
     <LeaderboardClient 
       allUsers={transformedAllUsers}
       dailyHistory={completeDailyList}
       weeklyHistory={completeWeeklyList}
-      currentUserId={user.id}
+      currentUserId={currentUserId}
       currentUserStats={currentUserStats}
     />
   )

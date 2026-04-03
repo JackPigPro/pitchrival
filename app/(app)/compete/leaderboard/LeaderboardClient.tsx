@@ -26,8 +26,8 @@ interface LeaderboardClientProps {
   allUsers: User[]
   dailyHistory: EloHistory[]
   weeklyHistory: EloHistory[]
-  currentUserId: string
-  currentUserStats: {
+  currentUserId?: string | null
+  currentUserStats?: {
     elo: number
     rank: string
   } | null
@@ -120,9 +120,9 @@ export default function LeaderboardClient({
   const displayUsers = getDisplayUsers()
   const currentUserRank = getRankByElo(currentUserStats?.elo)
 
-  // Get top 10 users, then add current user if not in top 10
+  // Get top 10 users, then add current user if not in top 10 (only if authenticated)
   const top10Users = displayUsers.slice(0, 10)
-  const currentUserInList = displayUsers.find(user => user.user_id === currentUserId)
+  const currentUserInList = currentUserId ? displayUsers.find(user => user.user_id === currentUserId) : null
   
   let displayList = top10Users
   if (currentUserInList && !top10Users.find(user => user.user_id === currentUserId)) {
@@ -256,7 +256,7 @@ export default function LeaderboardClient({
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               {displayList.map((user, index) => {
                 const rank = index + 1
-                const isCurrentUser = user.user_id === currentUserId
+                const isCurrentUser = currentUserId && user.user_id === currentUserId
                 const userRank = activeTab === 'alltime' ? getRankByElo(user.elo) : user.rank_label
                 const rankColor = getRankColor(userRank)
 
@@ -372,65 +372,67 @@ export default function LeaderboardClient({
               ⚔️ Compete in Weekly Duel to earn ELO →
             </a>
 
-            {/* Current User Stats */}
-            <div style={{ 
-              background: 'var(--card)', 
-              borderRadius: '16px', 
-              padding: '32px',
-              border: '1px solid var(--border)',
-              boxShadow: 'var(--shadow)',
-              textAlign: 'center'
-            }}>
-              <div style={{ marginBottom: '24px' }}>
-                <div style={{ 
-                  fontSize: '64px', 
-                  fontWeight: '800', 
-                  color: 'var(--green)', 
-                  fontFamily: 'var(--font-display)',
-                  marginBottom: '8px'
-                }}>
-                  {currentUserStats?.elo || 0}
-                </div>
-                <div style={{ 
-                  fontSize: '13px', 
-                  color: 'var(--text2)',
-                  fontWeight: '600',
-                  fontFamily: 'var(--font-display)',
-                  letterSpacing: '2px',
-                  textTransform: 'uppercase'
-                }}>
-                  Your ELO
-                </div>
-              </div>
-              
+            {/* Current User Stats - Only show if authenticated */}
+            {currentUserId && (
               <div style={{ 
-                height: '1px', 
-                background: 'var(--border)', 
-                margin: '20px 0' 
-              }} />
-              
-              <div>
-                <div style={{ 
-                  fontSize: '36px', 
-                  fontWeight: '800', 
-                  color: getRankColor(currentUserRank), 
-                  fontFamily: 'var(--font-display)',
-                  marginBottom: '8px'
-                }}>
-                  {currentUserRank}
+                background: 'var(--card)', 
+                borderRadius: '16px', 
+                padding: '32px',
+                border: '1px solid var(--border)',
+                boxShadow: 'var(--shadow)',
+                textAlign: 'center'
+              }}>
+                <div style={{ marginBottom: '24px' }}>
+                  <div style={{ 
+                    fontSize: '64px', 
+                    fontWeight: '800', 
+                    color: 'var(--green)', 
+                    fontFamily: 'var(--font-display)',
+                    marginBottom: '8px'
+                  }}>
+                    {currentUserStats?.elo || 0}
+                  </div>
+                  <div style={{ 
+                    fontSize: '13px', 
+                    color: 'var(--text2)',
+                    fontWeight: '600',
+                    fontFamily: 'var(--font-display)',
+                    letterSpacing: '2px',
+                    textTransform: 'uppercase'
+                  }}>
+                    Your ELO
+                  </div>
                 </div>
+                
                 <div style={{ 
-                  fontSize: '13px', 
-                  color: 'var(--text2)',
-                  fontWeight: '600',
-                  fontFamily: 'var(--font-display)',
-                  letterSpacing: '2px',
-                  textTransform: 'uppercase'
-                }}>
-                  Your Rank
+                  height: '1px', 
+                  background: 'var(--border)', 
+                  margin: '20px 0' 
+                }} />
+                
+                <div>
+                  <div style={{ 
+                    fontSize: '36px', 
+                    fontWeight: '800', 
+                    color: getRankColor(currentUserRank), 
+                    fontFamily: 'var(--font-display)',
+                    marginBottom: '8px'
+                  }}>
+                    {currentUserRank}
+                  </div>
+                  <div style={{ 
+                    fontSize: '13px', 
+                    color: 'var(--text2)',
+                    fontWeight: '600',
+                    fontFamily: 'var(--font-display)',
+                    letterSpacing: '2px',
+                    textTransform: 'uppercase'
+                  }}>
+                    Your Rank
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
 
             {/* Rank Tiers */}
             <div style={{ 
@@ -453,7 +455,7 @@ export default function LeaderboardClient({
               
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {rankTiers.map((tier) => {
-                  const isCurrentTier = currentUserRank === tier.name
+                  const isCurrentTier = currentUserId && currentUserRank === tier.name
                   const tierColor = getRankColor(tier.name)
                   
                   return (
