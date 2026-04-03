@@ -439,7 +439,7 @@ export default function DashboardClient({ initialProfile, initialStats }: Dashbo
                     letterSpacing: '-0.1px'
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.background = '#e67e22'
+                    e.currentTarget.style.background = '#f97316'
                     e.currentTarget.style.transform = 'translateY(-1px)'
                   }}
                   onMouseLeave={(e) => {

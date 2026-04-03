@@ -17,9 +17,8 @@ export default function TopNavClient({
   const pathname = usePathname()
   const router = useRouter()
   const supabase = createClient()
-  const [open, setOpen] = useState<'connect' | 'compete' | 'settings' | null>(
-    null
-  )
+  const [open, setOpen] = useState<'connect' | 'compete' | 'settings' | null>(null)
+  const [hoveredItem, setHoveredItem] = useState<string | null>(null)
 
   const menuItemStyle: React.CSSProperties = {
     textDecoration: 'none',
@@ -271,13 +270,7 @@ export default function TopNavClient({
               onMouseEnter={() => setOpen('settings')}
               onMouseLeave={() => setOpen(null)}
             >
-              <button className="nav-login" style={{ display: 'inline-flex', alignItems: 'center' }} onMouseEnter={(e) => {
-                e.currentTarget.style.background = '#8b5cf6'
-                e.currentTarget.style.transform = 'translateY(-1px)'
-              }} onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'var(--surface)'
-                e.currentTarget.style.transform = 'translateY(0)'
-              }}>
+              <button className="nav-login" style={{ display: 'inline-flex', alignItems: 'center' }}>
                 Settings <span style={{ fontSize: '12px', opacity: 0.7, marginLeft: '6px' }}>▾</span>
               </button>
               <div
@@ -294,7 +287,7 @@ export default function TopNavClient({
                   pointerEvents: open === 'settings' ? 'auto' : 'none',
                 }}
               >
-                <Link href="/settings" style={dropdownLinkStyle}>
+                <Link href="/settings" className="topnav-dropdown-link" style={{...dropdownLinkStyle, border: hoveredItem === 'settings' ? '2px solid var(--green)' : '2px solid var(--border)'}} onClick={handleNavPageClick} onMouseEnter={() => setHoveredItem('settings')} onMouseLeave={() => setHoveredItem(null)}>
                   All Settings
                 </Link>
                 <form action={signOut}>
@@ -303,11 +296,13 @@ export default function TopNavClient({
                     style={{
                       ...dropdownLinkStyle,
                       width: '100%',
-                      border: 'none',
+                      border: hoveredItem === 'signout' ? '2px solid var(--green)' : '2px solid var(--border)',
                       background: 'transparent',
                       textAlign: 'left',
                       cursor: 'pointer',
+                      padding: '12px'
                     }}
+                    onMouseEnter={() => setHoveredItem('signout')} onMouseLeave={() => setHoveredItem(null)}
                   >
                     Sign Out
                   </button>
