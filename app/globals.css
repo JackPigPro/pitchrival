@@ -72,6 +72,10 @@ body[data-theme='dark'] {
   --text: #ecf3ff;
   --text2: #b8c4d9;
   --text3: #8092b0;
+  --green-tint: rgba(21,128,61,0.2);
+  --green-mid: rgba(21,128,61,0.3);
+  --blue-tint: rgba(37,99,235,0.2);
+  --purple-tint: rgba(124,58,237,0.2);
 }
 
 /* ═══════════════════════════════════════════════════════════

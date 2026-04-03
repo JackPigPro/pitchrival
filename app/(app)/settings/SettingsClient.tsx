@@ -190,10 +190,10 @@ export default function SettingsClient({ initialProfile }: { initialProfile: Pro
                   borderRadius: '2px'
                 }} />
               </div>
-              <div style={{ fontWeight: 700, color: 'var(--text)', marginBottom: '4px' }}>
+              <div style={{ fontWeight: 700, color: theme === 'light' ? 'var(--text)' : 'var(--text)', marginBottom: '4px' }}>
                 Light
               </div>
-              <div style={{ fontSize: '13px', color: 'var(--text2)' }}>
+              <div style={{ fontSize: '13px', color: theme === 'light' ? 'var(--text2)' : 'var(--text2)' }}>
                 Default
               </div>
             </div>
@@ -240,10 +240,10 @@ export default function SettingsClient({ initialProfile }: { initialProfile: Pro
                   borderRadius: '2px'
                 }} />
               </div>
-              <div style={{ fontWeight: 700, color: 'var(--text)', marginBottom: '4px' }}>
+              <div style={{ fontWeight: 700, color: theme === 'dark' ? '#15803d' : 'var(--text)', marginBottom: '4px' }}>
                 Dark
               </div>
-              <div style={{ fontSize: '13px', color: 'var(--text2)' }}>
+              <div style={{ fontSize: '13px', color: theme === 'dark' ? '#166534' : 'var(--text2)' }}>
                 Easy on the eyes
               </div>
             </div>
