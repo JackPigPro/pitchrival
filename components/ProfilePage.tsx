@@ -43,8 +43,6 @@ interface ProfilePageProps {
 
 export default function ProfilePage({ profile: initialProfile, userStats, ideas, isOwnProfile, allTimeRank, dailyRank, weeklyDuelsCount }: ProfilePageProps) {
   const [isEditing, setIsEditing] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const [saveSuccess, setSaveSuccess] = useState(false)
   const [currentProfile, setCurrentProfile] = useState(initialProfile)
   const [editData, setEditData] = useState({
     username: initialProfile.username || '',
@@ -63,64 +61,34 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
   const supabase = createClient()
 
   useEffect(() => {
-    if (isEditing) {
-      setLoading(false)
-      setSaveSuccess(false)
-    }
+    // Reset when entering edit mode
   }, [isEditing])
 
   const handleSave = async () => {
-    setLoading(true)
-    setSaveSuccess(false)
-    try {
-      const userId = currentProfile.id
-      if (!userId) {
-        throw new Error('No user ID found')
-      }
-      
-      const { error } = await supabase
-        .from('profiles')
-        .update({
-          username: editData.username.toLowerCase(),
-          location: editData.location,
-          bio: editData.bio,
-          stage: editData.stage,
-          skills: editData.skills,
-          status_tags: editData.status_tags,
-          twitter: editData.social_links.x || undefined,
-          linkedin: editData.social_links.linkedin || undefined,
-          github: editData.social_links.github || undefined
-        })
-        .eq('id', userId)
-
-      if (error) throw error
-      
-      // Update local state with saved data
-      const updatedProfile = {
-        ...currentProfile,
-        id: userId,
+    if (!currentProfile?.id) return
+    
+    const { error } = await supabase
+      .from('profiles')
+      .update({
         username: editData.username.toLowerCase(),
         location: editData.location,
         bio: editData.bio,
         stage: editData.stage,
         skills: editData.skills,
         status_tags: editData.status_tags,
-        twitter: editData.social_links.x || undefined,
-        linkedin: editData.social_links.linkedin || undefined,
-        github: editData.social_links.github || undefined
-      }
-      setCurrentProfile(updatedProfile)
-      setSaveSuccess(true)
-      setTimeout(() => {
-        setIsEditing(false)
-        setSaveSuccess(false)
-      }, 1000)
-    } catch (error) {
-      console.error('Error updating profile:', error)
-      alert('Error saving profile. Please try again.')
-    } finally {
-      setLoading(false)
+        twitter: editData.social_links?.x || null,
+        linkedin: editData.social_links?.linkedin || null,
+        github: editData.social_links?.github || null
+      })
+      .eq('id', currentProfile.id)
+
+    if (error) {
+      alert('Error saving. Please try again.')
+      return
     }
+
+    setCurrentProfile(prev => ({ ...prev, ...editData }))
+    setIsEditing(false)
   }
 
   const toggleSkill = (skill: string) => {
@@ -464,13 +432,8 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
               </div>
 
               <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
-                {(() => { console.log('Button disabled state:', loading, saveSuccess); return null; })()}
                 <button
-                  onClick={() => {
-                    setIsEditing(false)
-                    setLoading(false)
-                    setSaveSuccess(false)
-                  }}
+                  onClick={() => setIsEditing(false)}
                   style={{
                     padding: '12px 24px',
                     borderRadius: '8px',
@@ -486,23 +449,20 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
                 </button>
                 <button
                   onClick={handleSave}
-                  disabled={loading || saveSuccess}
                   style={{
                     padding: '12px 24px',
                     borderRadius: '8px',
                     border: 'none',
-                    background: saveSuccess ? 'linear-gradient(135deg, #22c55e, #16a34a)' : 'var(--green)',
+                    background: 'var(--green)',
                     color: '#fff',
                     fontSize: '14px',
                     fontWeight: '600',
-                    cursor: loading || saveSuccess ? 'not-allowed' : 'pointer',
-                    opacity: loading || saveSuccess ? 0.9 : 1,
+                    cursor: 'pointer',
                     transition: 'all 0.2s ease',
-                    boxShadow: saveSuccess ? '0 4px 12px rgba(34,197,94,0.4)' : 'var(--shadow-md)',
-                    transform: saveSuccess ? 'scale(0.98)' : 'scale(1)'
+                    boxShadow: 'var(--shadow-md)'
                   }}
                 >
-                  {saveSuccess ? '✓ Saved!' : loading ? 'Saving...' : 'Save Changes'}
+                  Save Changes
                 </button>
               </div>
             </div>
