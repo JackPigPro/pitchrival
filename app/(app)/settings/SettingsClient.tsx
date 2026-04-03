@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useSupabase } from '@/components/SupabaseProvider'
+import { useUser } from '@/hooks/useUser'
 import { signOut } from '@/app/actions/auth'
 
 interface Profile {
@@ -11,7 +11,7 @@ interface Profile {
 }
 
 export default function SettingsClient({ initialProfile }: { initialProfile: Profile | null }) {
-  const { user, authLoading } = useSupabase()
+  const { user, authLoading } = useUser()
   const [profile, setProfile] = useState<Profile | null>(initialProfile)
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -47,7 +47,24 @@ export default function SettingsClient({ initialProfile }: { initialProfile: Pro
 
 
   if (authLoading) {
-    return null
+    return (
+      <div className="min-h-screen bg-[var(--bg)] p-4 md:p-8">
+        <div className="max-w-2xl mx-auto">
+          <div style={{ textAlign: 'center', padding: '60px 20px' }}>
+            <div style={{
+              width: '40px',
+              height: '40px',
+              border: '3px solid var(--border)',
+              borderTop: '3px solid var(--green)',
+              borderRadius: '50%',
+              animation: 'spin 1s linear infinite',
+              margin: '0 auto 20px'
+            }} />
+            <p style={{ color: 'var(--text2)', fontSize: '16px' }}>Loading...</p>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   if (!user) {

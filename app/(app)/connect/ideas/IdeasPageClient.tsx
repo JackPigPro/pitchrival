@@ -6,10 +6,10 @@ import IdeasFeed from './IdeasFeed'
 import CreateIdeaForm from './CreateIdeaForm'
 import IdeaModal from './IdeaModal'
 import { IdeaWithDetails } from '@/types/database'
-import { useSupabase } from '@/components/SupabaseProvider'
+import { useUser } from '@/hooks/useUser'
 
 export default function IdeasPageClient() {
-  const { user, authLoading } = useSupabase()
+  const { user, authLoading } = useUser()
   const [ideas, setIdeas] = useState<IdeaWithDetails[]>([])
   const [selectedIdea, setSelectedIdea] = useState<IdeaWithDetails | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)

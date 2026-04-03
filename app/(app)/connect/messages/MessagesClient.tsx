@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { useSupabase } from '@/components/SupabaseProvider'
+import { useUser } from '@/hooks/useUser'
 
 interface Message {
   id: string
@@ -26,7 +26,7 @@ interface Conversation {
 }
 
 export default function MessagesClient() {
-  const { user, authLoading } = useSupabase()
+  const { user, authLoading } = useUser()
   const searchParams = useSearchParams()
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [activeConversation, setActiveConversation] = useState<string | null>(null)
