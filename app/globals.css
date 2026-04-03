@@ -159,6 +159,12 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
   backface-visibility: hidden;
   transform: translateZ(0);
 }
+
+/* Hero section card positioning */
+.hdc-1 { top: 120px; left: 5%; }
+.hdc-2 { top: 180px; right: 5%; }
+.hdc-3 { bottom: 200px; left: 8%; }
+.hdc-4 { bottom: 40px; right: 5%; } /* Moved to bottom right to avoid overlap */
 .auth-deco-1 { top: 14%; left: 10%; animation: float1 4s ease-in-out infinite; }
 .auth-deco-2 { top: 18%; right: 10%; animation: float2 6s ease-in-out infinite; }
 .auth-deco-3 { bottom: 18%; left: 16%; animation: float3 5s ease-in-out infinite; }
@@ -166,13 +172,21 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text);
 .auth-deco-5 { bottom: 25%; right: 12%; animation: float5 4.5s ease-in-out infinite; }
 .auth-deco-6 { top: 8%; left: 22%; animation: float6 5.5s ease-in-out infinite; }
 
-/* Different positioning for signup page */
-.signup-page .auth-deco-1 { top: 20%; left: 8%; }
-.signup-page .auth-deco-2 { top: 12%; right: 15%; }
-.signup-page .auth-deco-3 { bottom: 15%; left: 10%; }
-.signup-page .auth-deco-4 { top: 30%; right: 8%; }
-.signup-page .auth-deco-5 { bottom: 30%; right: 20%; }
-.signup-page .auth-deco-6 { top: 5%; left: 18%; }
+/* Login page positioning */
+.login-page .auth-deco-1 { top: 14%; left: 10%; }
+.login-page .auth-deco-2 { top: 18%; right: 10%; }
+.login-page .auth-deco-3 { bottom: 18%; left: 16%; }
+.login-page .auth-deco-4 { top: 25%; right: 18%; }
+.login-page .auth-deco-5 { bottom: 25%; right: 12%; }
+.login-page .auth-deco-6 { top: 8%; left: 22%; }
+
+/* Signup page positioning - noticeably different */
+.signup-page .auth-deco-1 { bottom: 20%; right: 15%; }
+.signup-page .auth-deco-2 { top: 30%; left: 8%; }
+.signup-page .auth-deco-3 { top: 10%; right: 20%; }
+.signup-page .auth-deco-4 { bottom: 10%; left: 25%; }
+.signup-page .auth-deco-5 { top: 40%; right: 5%; }
+.signup-page .auth-deco-6 { bottom: 35%; left: 5%; }
 @keyframes float1 {
   0%, 100% { transform: translateY(0px) rotate(0deg); }
   50% { transform: translateY(-12px) rotate(1deg); }

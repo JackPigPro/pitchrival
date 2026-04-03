@@ -11,6 +11,7 @@ export default async function LoginPage({
 
   return (
     <main
+      className={mode === 'signup' ? 'signup-page' : 'login-page'}
       style={{
         minHeight: '100vh',
         display: 'grid',
