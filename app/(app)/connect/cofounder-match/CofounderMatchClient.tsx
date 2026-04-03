@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useUser } from '@/hooks/useUser'
 import { createClient } from '@/utils/supabase/client'
 
 interface Profile {
@@ -23,116 +22,24 @@ interface CofounderRequest {
   created_at: string
 }
 
-export default function CofounderMatchClient() {
-  const { user, authLoading } = useUser()
-  const [userProfile, setUserProfile] = useState<Profile | null>(null)
-  const [profiles, setProfiles] = useState<Profile[]>([])
-  const [requests, setRequests] = useState<CofounderRequest[]>([])
-  const [connectedProfiles, setConnectedProfiles] = useState<Profile[]>([])
-  const [isListed, setIsListed] = useState(false)
-  const [loading, setLoading] = useState(true)
+interface CofounderMatchClientProps {
+  profiles: Profile[]
+  requests: CofounderRequest[]
+  isListed: boolean
+  connectedProfiles: Profile[]
+  currentUserId: string
+}
+
+export default function CofounderMatchClient({ 
+  profiles, 
+  requests, 
+  isListed, 
+  connectedProfiles,
+  currentUserId 
+}: CofounderMatchClientProps) {
+  const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-
-  useEffect(() => {
-    console.log('🔍 [CofounderMatch] useEffect triggered:', { 
-      hasUser: !!user, 
-      authLoading, 
-      hasUserProfile: !!userProfile 
-    })
-    
-    if (user && !authLoading) {
-      console.log('🚀 [CofounderMatch] User authenticated and auth loaded, starting data fetch...')
-      fetchData()
-      fetchUserProfile()
-    } else if (authLoading) {
-      console.log('⏳ [CofounderMatch] Auth still loading...')
-    } else if (!user) {
-      console.log('🚫 [CofounderMatch] No user authenticated')
-    }
-  }, [user, authLoading])
-
-  const fetchUserProfile = async () => {
-    if (!user) return
-    
-    try {
-      const supabase = createClient()
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single()
-      
-      setUserProfile(profile)
-    } catch (err) {
-      console.error('Error fetching user profile:', err)
-    }
-  }
-
-  const fetchData = async () => {
-    console.log('🔄 [CofounderMatch] Starting fetchData...')
-    
-    try {
-      setError(null)
-      setLoading(true)
-      
-      // Add timeout to prevent hanging
-      const controller = new AbortController()
-      const timeoutId = setTimeout(() => {
-        console.log('⏰ [CofounderMatch] Request timeout, aborting...')
-        controller.abort()
-      }, 10000) // 10 second timeout
-      
-      console.log('📡 [CofounderMatch] Sending fetch request...')
-      const response = await fetch('/connect/cofounder-match/api', {
-        signal: controller.signal
-      })
-      
-      clearTimeout(timeoutId)
-      console.log('📡 [CofounderMatch] Response received:', response.status, response.statusText)
-      
-      if (!response.ok) {
-        throw new Error(`Failed to fetch data: ${response.status} ${response.statusText}`)
-      }
-      
-      console.log('📊 [CofounderMatch] Parsing JSON response...')
-      const data = await response.json()
-      console.log('📊 [CofounderMatch] Data received:', {
-        profilesCount: data.profiles?.length || 0,
-        requestsCount: data.requests?.length || 0,
-        connectedCount: data.connectedProfiles?.length || 0,
-        isListed: data.isListed
-      })
-      
-      setProfiles(data.profiles || [])
-      setRequests(data.requests || [])
-      setConnectedProfiles(data.connectedProfiles || [])
-      setIsListed(data.isListed || false)
-      
-      console.log('✅ [CofounderMatch] fetchData completed successfully')
-    } catch (err: any) {
-      console.error('❌ [CofounderMatch] Error in fetchData:', err)
-      
-      if (err.name === 'AbortError') {
-        console.log('⏰ [CofounderMatch] Request was aborted (timeout)')
-        setError('Request timed out after 10 seconds. Please refresh the page.')
-      } else if (err.message.includes('Failed to fetch')) {
-        console.log('🌐 [CofounderMatch] Network or server error')
-        setError('Unable to connect to server. Please check your connection and try again.')
-      } else {
-        console.log('❓ [CofounderMatch] Unknown error type')
-        setError('Failed to load cofounder data. Please try again.')
-      }
-      
-      // Set empty arrays to prevent UI issues
-      setProfiles([])
-      setRequests([])
-      setConnectedProfiles([])
-      setIsListed(false)
-    } finally {
-      console.log('🏁 [CofounderMatch] fetchData finished, setting loading to false')
-      setLoading(false)
-    }
-  }
+  const supabase = createClient()
 
   const handleToggleListing = async () => {
     try {
@@ -146,8 +53,8 @@ export default function CofounderMatchClient() {
         throw new Error('Failed to update listing status')
       }
 
-      setIsListed(!isListed)
-      fetchData()
+      // Refresh page to show updated data
+      window.location.reload()
     } catch (err) {
       console.error('Error toggling listing:', err)
       alert('Failed to update listing status. Please try again.')
@@ -167,7 +74,8 @@ export default function CofounderMatchClient() {
       }
 
       const newRequest = await response.json()
-      setRequests(prev => [...prev, newRequest])
+      // Refresh page to show updated state
+      window.location.reload()
     } catch (err) {
       console.error('Error sending request:', err)
       alert('Failed to send request. Please try again.')
@@ -186,15 +94,8 @@ export default function CofounderMatchClient() {
         throw new Error(`Failed to ${action} request`)
       }
 
-      const status = action === 'accept' ? 'accepted' : 'rejected'
-      setRequests(prev => 
-        prev.map(req => 
-          req.id === requestId ? { ...req, status } : req
-        )
-      )
-      
-      // Refresh data to update connected profiles
-      fetchData()
+      // Refresh page to show updated state
+      window.location.reload()
     } catch (err) {
       console.error(`Error ${action}ing request:`, err)
       alert(`Failed to ${action} request. Please try again.`)
@@ -207,7 +108,7 @@ export default function CofounderMatchClient() {
 
   const hasPendingRequest = (profileId: string) => {
     return requests.some(req => 
-      req.sender_id === user?.id && 
+      req.sender_id === currentUserId && 
       req.receiver_id === profileId && 
       req.status === 'pending'
     )
@@ -215,68 +116,29 @@ export default function CofounderMatchClient() {
 
   const hasAnyRequest = (profileId: string) => {
     return requests.some(req => 
-      (req.sender_id === user?.id && req.receiver_id === profileId) ||
-      (req.receiver_id === user?.id && req.sender_id === profileId)
+      (req.sender_id === currentUserId && req.receiver_id === profileId) ||
+      (req.receiver_id === currentUserId && req.sender_id === profileId)
     )
   }
 
   const getIncomingRequests = () => {
     return requests.filter(req => 
-      req.receiver_id === user?.id && 
+      req.receiver_id === currentUserId && 
       req.status === 'pending'
     )
   }
 
-  // Show loading state while auth is loading
-  if (authLoading) {
-    return (
-      <div style={{ 
-        minHeight: '100vh',
-        background: 'var(--bg)',
-        backgroundImage: 'linear-gradient(rgba(21,128,61,.065) 1px, transparent 1px), linear-gradient(90deg, rgba(21,128,61,.065) 1px, transparent 1px)',
-        backgroundSize: '48px 48px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center'
-      }}>
-        <div style={{ fontSize: '18px', color: 'var(--text2)', fontFamily: 'var(--font-body)' }}>
-          Loading...
-        </div>
-      </div>
-    )
-  }
+  // Separate current user from other profiles
+  const currentUserProfile = profiles.find(profile => profile.id === currentUserId)
+  const otherProfiles = profiles.filter(profile => profile.id !== currentUserId)
+  
+  // Show current user at top if they are listed, then other users
+  const visibleProfiles = [
+    ...(currentUserProfile ? [currentUserProfile] : []),
+    ...otherProfiles.filter(profile => !hasAnyRequest(profile.id))
+  ]
 
-  // Only show login prompt if auth is complete and user is not authenticated
-  if (!user) {
-    return (
-      <div style={{ 
-        minHeight: '100vh',
-        background: 'var(--bg)',
-        backgroundImage: 'linear-gradient(rgba(21,128,61,.065) 1px, transparent 1px), linear-gradient(90deg, rgba(21,128,61,.065) 1px, transparent 1px)',
-        backgroundSize: '48px 48px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '40px 24px'
-      }}>
-        <div style={{ textAlign: 'center' }}>
-          <h2 style={{ fontSize: '48px', fontWeight: 800, letterSpacing: '-2px', fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '16px' }}>
-            Co-founder Match
-          </h2>
-          <p style={{ fontSize: '18px', color: 'var(--text2)', marginBottom: '32px', fontFamily: 'var(--font-body)' }}>
-            Find your perfect co-founder match
-          </p>
-          <a 
-            href="/login" 
-            className="btn-cta-primary"
-            style={{ textDecoration: 'none' }}
-          >
-            Log In to Find Co-founders
-          </a>
-        </div>
-      </div>
-    )
-  }
+  const incomingRequests = getIncomingRequests()
 
   if (error) {
     return (
@@ -299,18 +161,6 @@ export default function CofounderMatchClient() {
       </div>
     )
   }
-
-  const incomingRequests = getIncomingRequests()
-  
-  // Separate current user from other profiles
-  const currentUserProfile = profiles.find(profile => profile.id === user?.id)
-  const otherProfiles = profiles.filter(profile => profile.id !== user?.id)
-  
-  // Show current user at top if they are listed, then other users
-  const visibleProfiles = [
-    ...(currentUserProfile ? [currentUserProfile] : []),
-    ...otherProfiles.filter(profile => !hasAnyRequest(profile.id))
-  ]
 
   return (
     <div style={{ 
@@ -636,17 +486,7 @@ export default function CofounderMatchClient() {
                 Discover Founders
               </h2>
 
-              {loading && profiles.length === 0 ? (
-                <div style={{
-                  textAlign: 'center',
-                  padding: '60px 20px',
-                  color: 'var(--text2)',
-                  fontSize: '16px',
-                  fontFamily: 'var(--font-body)'
-                }}>
-                  Finding co-founders...
-                </div>
-              ) : !loading && visibleProfiles.length === 0 && !currentUserProfile ? (
+              {visibleProfiles.length === 0 ? (
                 <div style={{
                   textAlign: 'center',
                   padding: '60px 20px',
@@ -672,7 +512,7 @@ export default function CofounderMatchClient() {
                 }}>
                   {visibleProfiles.map((profile) => {
                     const hasPending = hasPendingRequest(profile.id)
-                    const isCurrentUser = profile.id === user?.id
+                    const isCurrentUser = profile.id === currentUserId
                     
                     return (
                       <div
