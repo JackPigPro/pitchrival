@@ -113,8 +113,39 @@ export default function NotificationsBell() {
   }
 
   const clearAllNotifications = async () => {
-    // Just mark all as read instead of deleting to preserve dashboard activity
-    await markAllAsRead()
+    console.log('🔔 Clear All notifications clicked')
+    
+    try {
+      console.log('🔔 Making API call to mark all as read...')
+      const response = await fetch('/connect/notifications/api/notifications', {
+        method: 'PATCH'
+      })
+      
+      console.log('🔔 API response status:', response.status)
+      console.log('🔔 API response ok:', response.ok)
+      
+      if (!response.ok) {
+        const errorText = await response.text()
+        console.error('🔔 API call failed:', response.status, errorText)
+        throw new Error(`API call failed: ${response.status} ${errorText}`)
+      }
+      
+      const data = await response.json()
+      console.log('🔔 API response data:', data)
+      
+      console.log('🔔 Updating local state - marking all as read')
+      setNotifications(prev => {
+        console.log('🔔 Previous notifications count:', prev.length)
+        const updated = prev.map(n => ({ ...n, read: true }))
+        console.log('🔔 Updated notifications count:', updated.length)
+        return updated
+      })
+      
+      console.log('🔔 Clear All completed successfully')
+    } catch (error) {
+      console.error('🔔 Failed to clear all notifications:', error)
+      alert('Failed to clear notifications. Please try again.')
+    }
   }
 
   useEffect(() => {

@@ -510,7 +510,14 @@ export default function DashboardClient({ initialProfile, initialStats }: Dashbo
                   <p style={{ fontSize: '14px', marginTop: '8px' }}>Start sharing ideas and competing to see your activity here!</p>
                 </div>
               ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div style={{ 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  gap: '12px',
+                  maxHeight: '400px',
+                  overflowY: 'auto',
+                  paddingRight: '8px'
+                }}>
                   {notifications.map((notification) => (
                     <div
                       key={notification.id}
