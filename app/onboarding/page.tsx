@@ -81,8 +81,6 @@ export default function OnboardingPage() {
     setError(null)
 
     try {
-      console.log('Starting onboarding submission...')
-      
       // Call API route to complete onboarding
       const response = await fetch('/api/complete-onboarding', {
         method: 'POST',
@@ -94,27 +92,21 @@ export default function OnboardingPage() {
         })
       })
 
-      console.log('API response status:', response.status)
-
       if (!response.ok) {
         const errorData = await response.json()
-        console.error('API error:', errorData)
         throw new Error(errorData.error || 'Failed to complete onboarding')
       }
 
       const result = await response.json()
-      console.log('Onboarding completed successfully:', result)
 
       setLoading(false)
       
       // Small delay to ensure UI updates before redirect
       setTimeout(() => {
-        console.log('Redirecting to dashboard...')
         router.push('/dashboard')
         router.refresh()
       }, 100)
     } catch (err) {
-      console.error('Onboarding submission error:', err)
       setError(err instanceof Error ? err.message : 'An error occurred')
       setLoading(false)
     }
