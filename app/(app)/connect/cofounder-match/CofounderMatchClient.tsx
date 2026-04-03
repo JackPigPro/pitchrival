@@ -710,87 +710,98 @@ export default function CofounderMatchClient() {
                           </div>
                         </div>
                         
-                        {profile.bio && (
-                          <div style={{
-                            fontSize: '14px',
-                            color: 'var(--text2)',
-                            lineHeight: '1.5',
-                            marginBottom: '16px',
-                            display: '-webkit-box',
-                            WebkitLineClamp: 3,
-                            WebkitBoxOrient: 'vertical',
-                            overflow: 'hidden'
-                          }}>
-                            {profile.bio}
-                          </div>
-                        )}
+                        <div style={{
+                          fontSize: '14px',
+                          color: 'var(--text2)',
+                          lineHeight: '1.5',
+                          marginBottom: '16px',
+                          display: '-webkit-box',
+                          WebkitLineClamp: 3,
+                          WebkitBoxOrient: 'vertical',
+                          overflow: 'hidden'
+                        }}>
+                          {profile.bio || 'No bio provided. Add one to help others get to know you!'}
+                        </div>
                         
-                        {profile.cofounder_stage && (
-                          <div style={{
-                            display: 'inline-block',
-                            fontSize: '12px',
-                            fontWeight: 600,
-                            padding: '4px 12px',
-                            borderRadius: '6px',
-                            background: 'var(--blue-tint)',
-                            color: 'var(--blue)',
-                            marginBottom: '12px',
-                            fontFamily: 'var(--font-display)'
-                          }}>
-                            {profile.cofounder_stage}
-                          </div>
-                        )}
+                        <div style={{
+                          display: 'inline-block',
+                          fontSize: '12px',
+                          fontWeight: 600,
+                          padding: '4px 12px',
+                          borderRadius: '6px',
+                          background: 'var(--blue-tint)',
+                          color: 'var(--blue)',
+                          marginBottom: '12px',
+                          fontFamily: 'var(--font-display)'
+                        }}>
+                          {profile.cofounder_stage || 'Exploring Opportunities'}
+                        </div>
                         
-                        {profile.skills && profile.skills.length > 0 && (
-                          <div style={{
-                            display: 'flex',
-                            flexWrap: 'wrap',
-                            gap: '6px',
-                            marginBottom: '16px'
-                          }}>
-                            {profile.skills.slice(0, 4).map((skill, index) => (
-                              <span
-                                key={index}
-                                style={{
+                        <div style={{
+                          display: 'flex',
+                          flexWrap: 'wrap',
+                          gap: '6px',
+                          marginBottom: '16px'
+                        }}>
+                          {(profile.skills && profile.skills.length > 0) ? (
+                            <>
+                              {profile.skills.slice(0, 4).map((skill, index) => (
+                                <span
+                                  key={index}
+                                  style={{
+                                    fontSize: '11px',
+                                    fontWeight: 500,
+                                    padding: '3px 8px',
+                                    borderRadius: '4px',
+                                    background: 'var(--green-tint)',
+                                    color: 'var(--green)',
+                                    fontFamily: 'var(--font-body)'
+                                  }}
+                                >
+                                  {skill}
+                                </span>
+                              ))}
+                              {profile.skills.length > 4 && (
+                                <span style={{
                                   fontSize: '11px',
                                   fontWeight: 500,
                                   padding: '3px 8px',
                                   borderRadius: '4px',
-                                  background: 'var(--green-tint)',
-                                  color: 'var(--green)',
+                                  background: 'var(--surface)',
+                                  color: 'var(--text2)',
                                   fontFamily: 'var(--font-body)'
-                                }}
-                              >
-                                {skill}
-                              </span>
-                            ))}
-                            {profile.skills.length > 4 && (
-                              <span style={{
-                                fontSize: '11px',
-                                fontWeight: 500,
-                                padding: '3px 8px',
-                                borderRadius: '4px',
-                                background: 'var(--surface)',
-                                color: 'var(--text2)',
-                                fontFamily: 'var(--font-body)'
-                              }}>
-                                +{profile.skills.length - 4} more
-                              </span>
-                            )}
-                          </div>
-                        )}
+                                }}>
+                                  +{profile.skills.length - 4} more
+                                </span>
+                              )}
+                            </>
+                          ) : (
+                            <span style={{
+                              fontSize: '11px',
+                              fontWeight: 500,
+                              padding: '3px 8px',
+                              borderRadius: '4px',
+                              background: 'var(--surface)',
+                              color: 'var(--text2)',
+                              fontFamily: 'var(--font-body)'
+                            }}>
+                              No skills listed
+                            </span>
+                          )}
+                        </div>
                         
-                        {profile.status_tags && profile.status_tags.length > 0 && (
-                          <div style={{
-                            fontSize: '12px',
-                            color: 'var(--text2)',
-                            fontStyle: 'italic',
-                            marginBottom: '16px',
-                            lineHeight: '1.4'
-                          }}>
-                            {profile.status_tags.join(', ')}
-                          </div>
-                        )}
+                        <div style={{
+                          fontSize: '12px',
+                          color: 'var(--text2)',
+                          fontStyle: 'italic',
+                          marginBottom: '16px',
+                          lineHeight: '1.4'
+                        }}>
+                          {profile.status_tags && profile.status_tags.length > 0 
+                            ? profile.status_tags.join(', ')
+                            : 'Open to new connections and opportunities'
+                          }
+                        </div>
                         
                         <button
                           onClick={() => handleSendRequest(profile.id)}
