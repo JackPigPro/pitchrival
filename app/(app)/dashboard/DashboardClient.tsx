@@ -439,7 +439,7 @@ export default function DashboardClient({ initialProfile, initialStats }: Dashbo
                     letterSpacing: '-0.1px'
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.background = '#f97316'
+                    e.currentTarget.style.background = '#e67e22'
                     e.currentTarget.style.transform = 'translateY(-1px)'
                   }}
                   onMouseLeave={(e) => {
@@ -536,62 +536,6 @@ export default function DashboardClient({ initialProfile, initialStats }: Dashbo
                   ))}
                 </div>
               )}
-            </div>
-
-            {/* Rank Progress */}
-            <div style={{ 
-              background: 'var(--card)', 
-              borderRadius: '16px', 
-              padding: '32px',
-              border: '1px solid var(--border)',
-              boxShadow: 'var(--shadow)'
-            }}>
-              <h2 style={{ 
-                fontSize: '20px', 
-                fontWeight: 700, 
-                marginBottom: '24px',
-                fontFamily: 'var(--font-display)',
-                color: 'var(--text)',
-                letterSpacing: '-0.1px'
-              }}>
-                Rank Progress
-              </h2>
-              
-              <div style={{
-                padding: '20px',
-                borderRadius: '12px',
-                background: 'var(--surface)',
-                border: '1px solid var(--border)'
-              }}>
-                <div style={{
-                  fontSize: '16px',
-                  fontWeight: 700,
-                  fontFamily: 'var(--font-display)',
-                  color: rankColor,
-                  marginBottom: '8px',
-                  letterSpacing: '-0.1px'
-                }}>
-                  {userRank}
-                </div>
-                <div style={{
-                  fontSize: '32px',
-                  fontWeight: 800,
-                  color: 'var(--green)',
-                  fontFamily: 'var(--font-display)',
-                  marginBottom: '16px',
-                  letterSpacing: '-0.5px'
-                }}>
-                  {userElo} ELO
-                </div>
-                <div style={{
-                  fontSize: '13px',
-                  color: 'var(--text2)',
-                  fontFamily: 'var(--font-body)',
-                  lineHeight: '1.5'
-                }}>
-                  Keep competing to climb the ranks and unlock new achievements!
-                </div>
-              </div>
             </div>
           </div>
         </div>

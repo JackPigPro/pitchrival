@@ -271,7 +271,13 @@ export default function TopNavClient({
               onMouseEnter={() => setOpen('settings')}
               onMouseLeave={() => setOpen(null)}
             >
-              <button className="nav-login" style={{ display: 'inline-flex', alignItems: 'center' }}>
+              <button className="nav-login" style={{ display: 'inline-flex', alignItems: 'center' }} onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#8b5cf6'
+                e.currentTarget.style.transform = 'translateY(-1px)'
+              }} onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'var(--surface)'
+                e.currentTarget.style.transform = 'translateY(0)'
+              }}>
                 Settings <span style={{ fontSize: '12px', opacity: 0.7, marginLeft: '6px' }}>▾</span>
               </button>
               <div
