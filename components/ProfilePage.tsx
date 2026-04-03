@@ -70,18 +70,14 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
   }, [isEditing])
 
   const handleSave = async () => {
-    console.log('handleSave called')
     setLoading(true)
     setSaveSuccess(false)
     try {
-      console.log('getting session...')
-      const { data: { session } } = await supabase.auth.getSession()
-      console.log('session result:', session?.user?.id)
-      if (!session?.user) {
-        throw new Error('User not authenticated')
+      const userId = currentProfile.id
+      if (!userId) {
+        throw new Error('No user ID found')
       }
-      const user = session.user
-      console.log('about to update profile...')
+      
       const { error } = await supabase
         .from('profiles')
         .update({
@@ -95,15 +91,14 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
           linkedin: editData.social_links.linkedin || undefined,
           github: editData.social_links.github || undefined
         })
-        .eq('id', user.id)
-      console.log('update result error:', error)
+        .eq('id', userId)
 
       if (error) throw error
       
       // Update local state with saved data
       const updatedProfile = {
         ...currentProfile,
-        id: user.id,
+        id: userId,
         username: editData.username.toLowerCase(),
         location: editData.location,
         bio: editData.bio,
