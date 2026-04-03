@@ -280,16 +280,16 @@ export default function OnboardingPage() {
               />
               <span style={{ color: 'var(--text)' }}>
                 I agree to the{' '}
-                <Link 
-                  href="/terms" 
+                <Link
+                  href="/legal/terms"
                   style={{ color: '#16a34a', textDecoration: 'underline' }}
                   target="_blank"
                 >
                   Terms of Service
                 </Link>
                 {' '}and{' '}
-                <Link 
-                  href="/privacy" 
+                <Link
+                  href="/legal/privacy"
                   style={{ color: '#16a34a', textDecoration: 'underline' }}
                   target="_blank"
                 >

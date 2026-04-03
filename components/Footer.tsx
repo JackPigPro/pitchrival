@@ -78,8 +78,8 @@ export default function Footer({ onComingSoon, onScrollTo, stats }: FooterProps)
           <div className="sf-col-title">Company</div>
           <div className="sf-col-links">
             <Link href="/about" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>About PitchRival</Link>
-            <Link href="/privacy" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>Privacy Policy</Link>
-            <Link href="/terms" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>Terms of Service</Link>
+            <Link href="/legal/privacy" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>Privacy Policy</Link>
+            <Link href="/legal/terms" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>Terms of Service</Link>
             <Link href="/contact" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>Contact</Link>
           </div>
         </div>
