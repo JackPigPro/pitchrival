@@ -34,7 +34,12 @@ export default function MessagesClient() {
   const [messageInput, setMessageInput] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const [hasMore, setHasMore] = useState(true)
+  const [nextCursor, setNextCursor] = useState<string | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const messagesContainerRef = useRef<HTMLDivElement>(null)
+  const scrollHeightRef = useRef<number>(0)
 
 
   useEffect(() => {
@@ -59,7 +64,7 @@ export default function MessagesClient() {
 
   useEffect(() => {
     if (activeConversation) {
-      fetchMessages(activeConversation)
+      fetchMessages(activeConversation, true) // true for initial load
     }
   }, [activeConversation])
 
@@ -70,6 +75,29 @@ export default function MessagesClient() {
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
+
+  const handleScroll = () => {
+    const container = messagesContainerRef.current
+    if (!container || loadingMore || !hasMore || !activeConversation) return
+
+    // Check if scrolled to top (for infinite scroll)
+    if (container.scrollTop === 0) {
+      // Save current scroll height to maintain position after loading
+      scrollHeightRef.current = container.scrollHeight
+      fetchMessages(activeConversation, false)
+    }
+  }
+
+  // Restore scroll position after loading more messages
+  useEffect(() => {
+    if (!loadingMore && messagesContainerRef.current && scrollHeightRef.current > 0) {
+      const container = messagesContainerRef.current
+      const newScrollHeight = container.scrollHeight
+      const heightDifference = newScrollHeight - scrollHeightRef.current
+      container.scrollTop = heightDifference
+      scrollHeightRef.current = 0
+    }
+  }, [loadingMore, nextCursor])
 
   const fetchConversations = async () => {
     try {
@@ -87,21 +115,45 @@ export default function MessagesClient() {
     }
   }
 
-  const fetchMessages = async (conversationId: string) => {
+  const fetchMessages = async (conversationId: string, isInitial = false) => {
     try {
-      setLoading(true)
-      const response = await fetch(`/connect/messages/api?conversationId=${conversationId}`)
+      if (isInitial) {
+        setLoading(true)
+        setMessages([])
+        setHasMore(true)
+        setNextCursor(null)
+      } else {
+        setLoadingMore(true)
+      }
+
+      const params = new URLSearchParams({ conversationId })
+      if (!isInitial && nextCursor) {
+        params.append('cursor', nextCursor)
+      }
+      params.append('limit', '30')
+
+      const response = await fetch(`/connect/messages/api?${params}`)
       if (!response.ok) {
         throw new Error('Failed to fetch messages')
       }
       
-      const { data } = await response.json()
-      setMessages(data || [])
+      const { data, pagination } = await response.json()
+      
+      if (isInitial) {
+        setMessages(data || [])
+      } else {
+        // Prepend older messages for infinite scroll
+        setMessages(prev => [...data, ...prev])
+      }
+      
+      setHasMore(pagination?.hasMore || false)
+      setNextCursor(pagination?.nextCursor || null)
     } catch (err) {
       console.error('Error fetching messages:', err)
       setError('Failed to load messages')
     } finally {
       setLoading(false)
+      setLoadingMore(false)
     }
   }
 
@@ -387,14 +439,21 @@ export default function MessagesClient() {
             </div>
 
             {/* Messages */}
-            <div style={{
-              flex: 1,
-              overflow: 'auto',
-              padding: '20px',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '16px'
-            }}>
+            <div 
+              ref={messagesContainerRef}
+              onScroll={handleScroll}
+              style={{
+                flex: 1,
+                overflow: 'auto',
+                padding: '20px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '16px',
+                scrollBehavior: 'smooth',
+                // Ensure proper scroll anchoring
+                overflowAnchor: 'none'
+              }}
+            >
               {loading ? (
                 <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text2)' }}>
                   Loading messages...
@@ -404,35 +463,65 @@ export default function MessagesClient() {
                   No messages yet. Start the conversation!
                 </div>
               ) : (
-                messages.map((message) => (
-                  <div
-                    key={message.id}
-                    style={{
-                      display: 'flex',
-                      justifyContent: message.sender_id === user.id ? 'flex-end' : 'flex-start',
-                      maxWidth: '70%'
-                    }}
-                  >
-                    <div style={{
-                      padding: '12px 16px',
-                      borderRadius: message.sender_id === user.id ? '12px 12px 2px 12px' : '12px 12px 12px 2px',
-                      background: message.sender_id === user.id ? 'var(--green)' : 'var(--card)',
-                      color: message.sender_id === user.id ? 'white' : 'var(--text)',
-                      wordBreak: 'break-word'
+                <>
+                  {/* Load more indicator */}
+                  {hasMore && !loadingMore && (
+                    <div style={{ 
+                      textAlign: 'center', 
+                      padding: '10px', 
+                      color: 'var(--text2)',
+                      fontSize: '12px',
+                      fontStyle: 'italic'
                     }}>
-                      <div>{message.content}</div>
+                      Scroll up for older messages
+                    </div>
+                  )}
+                  
+                  {/* Loading more indicator */}
+                  {loadingMore && (
+                    <div style={{ 
+                      textAlign: 'center', 
+                      padding: '20px', 
+                      color: 'var(--text2)',
+                      fontSize: '14px'
+                    }}>
+                      Loading older messages...
+                    </div>
+                  )}
+                  
+                  {/* Messages */}
+                  {messages.map((message) => (
+                    <div
+                      key={message.id}
+                      style={{
+                        display: 'flex',
+                        justifyContent: message.sender_id === user.id ? 'flex-end' : 'flex-start',
+                        maxWidth: '70%'
+                      }}
+                    >
                       <div style={{
-                        fontSize: '11px',
-                        opacity: 0.7,
-                        marginTop: '4px'
+                        padding: '12px 16px',
+                        borderRadius: message.sender_id === user.id ? '12px 12px 2px 12px' : '12px 12px 12px 2px',
+                        background: message.sender_id === user.id ? 'var(--green)' : 'var(--card)',
+                        color: message.sender_id === user.id ? 'white' : 'var(--text)',
+                        wordBreak: 'break-word'
                       }}>
-                        {formatTimeAgo(message.created_at)}
+                        <div>{message.content}</div>
+                        <div style={{
+                          fontSize: '11px',
+                          opacity: 0.7,
+                          marginTop: '4px'
+                        }}>
+                          {formatTimeAgo(message.created_at)}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))
+                  ))}
+                  
+                  {/* Scroll anchor for new messages */}
+                  <div ref={messagesEndRef} />
+                </>
               )}
-              <div ref={messagesEndRef} />
             </div>
 
             {/* Input */}

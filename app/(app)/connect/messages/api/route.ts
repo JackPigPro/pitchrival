@@ -14,8 +14,12 @@ export async function GET(request: NextRequest) {
     const conversationId = searchParams.get('conversationId')
 
     if (conversationId) {
-      // Return all messages between user and conversationId
-      const { data: messages, error } = await supabase
+      // Parse pagination parameters
+      const limit = parseInt(searchParams.get('limit') || '50')
+      const cursor = searchParams.get('cursor')
+      
+      // Build query
+      let query = supabase
         .from('messages')
         .select(`
           *,
@@ -23,14 +27,38 @@ export async function GET(request: NextRequest) {
           receiver:profiles!messages_receiver_id_fkey(id, username, display_name)
         `)
         .or(`(sender_id.eq.${user.id},receiver_id.eq.${conversationId}),(sender_id.eq.${conversationId},receiver_id.eq.${user.id})`)
-        .order('created_at', { ascending: true })
+        .order('created_at', { ascending: false })
+        .limit(limit + 1) // +1 to check if there are more messages
+
+      // Add cursor if provided (for pagination)
+      if (cursor) {
+        query = query.lt('created_at', cursor)
+      }
+
+      const { data: messages, error } = await query
 
       if (error) {
         console.error('Error fetching messages:', error)
         return NextResponse.json({ error: 'Failed to fetch messages' }, { status: 500 })
       }
 
-      return NextResponse.json({ data: messages })
+      // Check if there are more messages
+      const hasMore = messages && messages.length > limit
+      const actualMessages = hasMore ? messages.slice(0, -1) : messages || []
+      
+      // Sort messages in ascending order for display (oldest first)
+      actualMessages.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
+
+      // Get cursor for next page (created_at of oldest message)
+      const nextCursor = actualMessages.length > 0 ? actualMessages[0].created_at : null
+
+      return NextResponse.json({ 
+        data: actualMessages,
+        pagination: {
+          hasMore,
+          nextCursor
+        }
+      })
     } else {
       // Return list of conversations
       const { data: messages, error } = await supabase
