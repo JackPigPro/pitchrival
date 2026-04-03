@@ -77,22 +77,13 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log('Save button clicked')
-    console.log('Current profile ID:', currentProfile?.id)
-    console.log('Edit data:', editData)
     
     if (!currentProfile?.id) {
-      console.error('No profile ID found')
       alert('No profile ID found')
       return
     }
-
-    // Temporarily bypass auth check to test database update
-    console.log('Skipping auth check for testing...')
     
     try {
-      console.log('Attempting to save via API route...')
-      
       const response = await fetch(`/profile/${currentProfile.username}/api/update-profile`, {
         method: 'POST',
         headers: {
@@ -111,17 +102,12 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
         })
       })
 
-      console.log('API response status:', response.status)
       const result = await response.json()
-      console.log('API response:', result)
 
       if (!response.ok) {
-        console.error('Error saving profile:', result.error)
         alert(`Error saving profile: ${result.error}`)
         return
       }
-
-      console.log('Profile saved successfully!')
 
       // Update local state
       setCurrentProfile(prev => ({
@@ -138,7 +124,6 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
       }))
       
       setIsEditing(false)
-      alert('Profile updated successfully!')
     } catch (error) {
       console.error('Error saving profile:', error)
       alert('Error saving profile. Please try again.')
