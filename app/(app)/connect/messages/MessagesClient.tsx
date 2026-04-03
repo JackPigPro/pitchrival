@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useSearchParams, useRouter } from 'next/navigation'
 import { useUser } from '@/hooks/useUser'
 
 interface Message {
@@ -28,6 +28,7 @@ interface Conversation {
 export default function MessagesClient() {
   const { user, authLoading } = useUser()
   const searchParams = useSearchParams()
+  const router = useRouter()
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [activeConversation, setActiveConversation] = useState<string | null>(null)
   const [messages, setMessages] = useState<Message[]>([])
@@ -59,6 +60,10 @@ export default function MessagesClient() {
           setActiveConversation(userId)
           // Save to localStorage
           localStorage.setItem('lastOpenedConversation', userId)
+          // Clear the user parameter from URL
+          const newUrl = new URL(window.location.href)
+          newUrl.searchParams.delete('user')
+          router.replace(newUrl.pathname + newUrl.search, { scroll: false })
         } else {
           // User doesn't exist in conversations, try to create a new conversation
           createNewConversation(userId)
@@ -74,7 +79,7 @@ export default function MessagesClient() {
         }
       }
     }
-  }, [conversations, searchParams])
+  }, [conversations, searchParams, router])
 
   useEffect(() => {
     if (activeConversation) {
@@ -159,6 +164,11 @@ export default function MessagesClient() {
       
       // Save to localStorage
       localStorage.setItem('lastOpenedConversation', userId)
+      
+      // Clear the user parameter from URL
+      const newUrl = new URL(window.location.href)
+      newUrl.searchParams.delete('user')
+      router.replace(newUrl.pathname + newUrl.search, { scroll: false })
     } catch (err) {
       console.error('Error creating new conversation:', err)
       setError('Failed to create conversation')
