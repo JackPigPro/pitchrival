@@ -448,7 +448,7 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
                   Cancel
                 </button>
                 <button
-                  onClick={handleSave}
+                  onMouseDown={handleSave}
                   style={{
                     padding: '12px 24px',
                     borderRadius: '8px',
