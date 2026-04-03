@@ -95,12 +95,27 @@ export default async function CoFounderMatchPage() {
     connectedProfiles = profiles || []
   }
 
+  // Fetch profiles for incoming request senders (they might be filtered out from main profiles)
+  const incomingRequestSenderIds = requests
+    ?.filter(req => req.receiver_id === user.id && req.status === 'pending')
+    .map(req => req.sender_id) || []
+  
+  let incomingRequestProfiles: Profile[] = []
+  if (incomingRequestSenderIds.length > 0) {
+    const { data: profiles } = await supabase
+      .from('profiles')
+      .select('*')
+      .in('id', incomingRequestSenderIds)
+    incomingRequestProfiles = profiles || []
+  }
+
   return (
     <CofounderMatchClient 
       profiles={filteredProfiles}
       requests={requests || []}
       isListed={currentUserProfile?.open_to_cofounder || false}
       connectedProfiles={connectedProfiles}
+      incomingRequestProfiles={incomingRequestProfiles}
       currentUserId={user.id}
     />
   )

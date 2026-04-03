@@ -38,7 +38,7 @@ export async function GET() {
 
     const { data: likes, error: likesError } = await supabase
       .from('idea_likes')
-      .select('idea_id')
+      .select('idea_id, created_at, user_id')
       .in('idea_id', ideas?.map((i: any) => i.id) || [])
 
     if (likesError) {
@@ -48,13 +48,32 @@ export async function GET() {
 
     const { data: comments, error: commentsError } = await supabase
       .from('idea_comments')
-      .select('id')
-      .eq('user_id', user.id)
+      .select('id, idea_id, created_at, user_id, content')
+      .in('idea_id', ideas?.map((i: any) => i.id) || [])
+      .neq('user_id', user.id) // Exclude user's own comments
 
     if (commentsError) {
       console.error('Comments error:', commentsError)
       return NextResponse.json({ error: 'Failed to fetch comments' }, { status: 500 })
     }
+
+    // Combine and sort recent activity
+    const recentActivity = [
+      ...(likes?.map(like => ({
+        type: 'like',
+        idea_id: like.idea_id,
+        created_at: like.created_at,
+        user_id: like.user_id
+      })) || []),
+      ...(comments?.map(comment => ({
+        type: 'comment',
+        idea_id: comment.idea_id,
+        created_at: comment.created_at,
+        user_id: comment.user_id,
+        content: comment.content
+      })) || [])
+    ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+     .slice(0, 10) // Get latest 10 activities
 
     // Get ELO rating if it exists
     const { data: eloData } = await supabase
@@ -71,10 +90,10 @@ export async function GET() {
       rank: eloData?.rank || 'Trainee'
     }
 
-
     return NextResponse.json({
       profile,
-      stats
+      stats,
+      recentActivity
     })
 
   } catch (error) {

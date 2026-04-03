@@ -80,11 +80,26 @@ export async function GET(request: NextRequest) {
       connectedProfiles = profiles || []
     }
 
+    // Fetch profiles for incoming request senders (they might be filtered out from main profiles)
+    const incomingRequestSenderIds = requests
+      ?.filter(req => req.receiver_id === user.id && req.status === 'pending')
+      .map(req => req.sender_id) || []
+    
+    let incomingRequestProfiles: Profile[] = []
+    if (incomingRequestSenderIds.length > 0) {
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('*')
+        .in('id', incomingRequestSenderIds)
+      incomingRequestProfiles = profiles || []
+    }
+
     return NextResponse.json({ 
       profiles: filteredProfiles, 
       requests, 
       isListed: currentUserProfile?.open_to_cofounder || false,
-      connectedProfiles 
+      connectedProfiles,
+      incomingRequestProfiles
     })
   } catch (error) {
     console.error('Error in GET /api/cofounder-match:', error)
@@ -169,21 +184,74 @@ export async function PATCH(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { open_to_cofounder } = body
+    const { request_id, action, open_to_cofounder } = body
 
-    if (typeof open_to_cofounder !== 'boolean') {
-      return NextResponse.json({ error: 'open_to_cofounder must be a boolean' }, { status: 400 })
+    // Handle profile update
+    if (open_to_cofounder !== undefined) {
+      if (typeof open_to_cofounder !== 'boolean') {
+        return NextResponse.json({ error: 'open_to_cofounder must be a boolean' }, { status: 400 })
+      }
+
+      // Update the user's profile
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ open_to_cofounder })
+        .eq('id', user.id)
+
+      if (updateError) {
+        console.error('Error updating profile:', updateError)
+        return NextResponse.json({ error: 'Failed to update profile' }, { status: 500 })
+      }
+
+      return NextResponse.json({ success: true })
     }
 
-    // Update the user's profile
+    // Handle request action (accept/reject)
+    if (!request_id || !action || !['accept', 'reject'].includes(action)) {
+      return NextResponse.json({ error: 'request_id and action (accept/reject) are required' }, { status: 400 })
+    }
+
+    // First, get the request to verify it's for the current user
+    const { data: existingRequest, error: fetchError } = await supabase
+      .from('cofounder_requests')
+      .select('*')
+      .eq('id', request_id)
+      .eq('receiver_id', user.id) // Ensure user is the receiver
+      .eq('status', 'pending')
+      .single()
+
+    if (fetchError || !existingRequest) {
+      return NextResponse.json({ error: 'Request not found or already processed' }, { status: 404 })
+    }
+
+    // Update the request status
     const { error: updateError } = await supabase
-      .from('profiles')
-      .update({ open_to_cofounder })
-      .eq('id', user.id)
+      .from('cofounder_requests')
+      .update({ status: action })
+      .eq('id', request_id)
 
     if (updateError) {
-      console.error('Error updating profile:', updateError)
-      return NextResponse.json({ error: 'Failed to update profile' }, { status: 500 })
+      console.error('Error updating request:', updateError)
+      return NextResponse.json({ error: 'Failed to update request' }, { status: 500 })
+    }
+
+    // If accepted, create notification for sender
+    if (action === 'accept') {
+      const { error: notificationError } = await supabase
+        .from('notifications')
+        .insert({
+          user_id: existingRequest.sender_id,
+          type: 'cofounder_request_accepted',
+          title: 'Co-founder Request Accepted!',
+          body: 'Someone accepted your co-founder request',
+          reference_id: user.id,
+          reference_type: 'cofounder_request'
+        })
+
+      if (notificationError) {
+        console.error('Error creating notification:', notificationError)
+        // Don't fail the request if notification fails
+      }
     }
 
     return NextResponse.json({ success: true })

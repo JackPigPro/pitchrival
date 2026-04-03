@@ -26,8 +26,10 @@ export default function ConditionalFooter({ onComingSoon, onScrollTo }: Conditio
     // When logged out: show footer on every page
     showFooter = true
   } else {
-    // When logged in: show footer on landing page and specific pages
-    showFooter = pathname === '/' || pathname === '/about' || pathname === '/privacy' || pathname === '/terms' || pathname === '/contact'
+    // When logged in: only show footer on public pages (landing, about, legal, contact)
+    // Exclude all protected pages in (app) directory
+    const publicPages = ['/', '/about', '/privacy', '/terms', '/contact']
+    showFooter = publicPages.includes(pathname)
   }
   
   if (!showFooter) {

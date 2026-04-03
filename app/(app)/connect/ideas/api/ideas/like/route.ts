@@ -58,6 +58,32 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'Failed to like idea' }, { status: 500 })
       }
 
+      // Get idea owner to send notification
+      const { data: idea, error: ideaError } = await supabase
+        .from('ideas')
+        .select('user_id')
+        .eq('id', idea_id)
+        .single()
+
+      if (!ideaError && idea && idea.user_id !== user.id) {
+        // Send notification to idea owner (don't notify self)
+        const { error: notificationError } = await supabase
+          .from('notifications')
+          .insert({
+            user_id: idea.user_id,
+            type: 'idea_liked',
+            title: 'Someone liked your idea',
+            body: 'Your idea received a like',
+            reference_id: idea_id,
+            reference_type: 'idea'
+          })
+
+        if (notificationError) {
+          console.error('Error creating notification:', notificationError)
+          // Don't fail the request if notification fails
+        }
+      }
+
       return NextResponse.json({ liked: true })
     }
   } catch (error) {

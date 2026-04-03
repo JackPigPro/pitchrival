@@ -27,6 +27,7 @@ interface CofounderMatchClientProps {
   requests: CofounderRequest[]
   isListed: boolean
   connectedProfiles: Profile[]
+  incomingRequestProfiles: Profile[]
   currentUserId: string
 }
 
@@ -35,6 +36,7 @@ export default function CofounderMatchClient({
   requests, 
   isListed, 
   connectedProfiles,
+  incomingRequestProfiles,
   currentUserId 
 }: CofounderMatchClientProps) {
   const [loading, setLoading] = useState(false)
@@ -103,7 +105,7 @@ export default function CofounderMatchClient({
   }
 
   const getProfileById = (id: string) => {
-    return profiles.find(p => p.id === id)
+    return profiles.find(p => p.id === id) || incomingRequestProfiles.find(p => p.id === id)
   }
 
   const hasPendingRequest = (profileId: string) => {
@@ -301,24 +303,49 @@ export default function CofounderMatchClient({
                         )}
                       </div>
 
-                      <a
-                        href={`/connect/messages?with=${profile.id}`}
-                        style={{
-                          padding: '8px 16px',
-                          background: 'var(--green)',
-                          color: 'white',
-                          textDecoration: 'none',
-                          borderRadius: '6px',
-                          fontSize: '12px',
-                          fontWeight: 600,
-                          fontFamily: 'var(--font-display)',
-                          cursor: 'pointer',
-                          transition: 'all 0.2s ease',
-                          whiteSpace: 'nowrap'
-                        }}
-                      >
-                        Message
-                      </a>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        <a
+                          href={`/profile/${profile.username}`}
+                          style={{
+                            padding: '8px 16px',
+                            background: 'var(--surface)',
+                            color: 'var(--text)',
+                            textDecoration: 'none',
+                            border: '1px solid var(--border)',
+                            borderRadius: '6px',
+                            fontSize: '12px',
+                            fontWeight: 600,
+                            fontFamily: 'var(--font-display)',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s ease',
+                            whiteSpace: 'nowrap',
+                            textAlign: 'center',
+                            display: 'block'
+                          }}
+                        >
+                          View Profile
+                        </a>
+                        <a
+                          href={`/connect/messages?with=${profile.id}`}
+                          style={{
+                            padding: '8px 16px',
+                            background: 'var(--green)',
+                            color: 'white',
+                            textDecoration: 'none',
+                            borderRadius: '6px',
+                            fontSize: '12px',
+                            fontWeight: 600,
+                            fontFamily: 'var(--font-display)',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s ease',
+                            whiteSpace: 'nowrap',
+                            textAlign: 'center',
+                            display: 'block'
+                          }}
+                        >
+                          Message
+                        </a>
+                      </div>
                     </div>
                   ))}
                 </div>

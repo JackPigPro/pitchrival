@@ -21,6 +21,16 @@ export async function middleware(request: NextRequest) {
 
   const isPublicRoute = publicRoutes.some(route => pathname.startsWith(route))
 
+  // Server-side admin check - redirect non-admins immediately
+  if (pathname.startsWith('/admin')) {
+    const ADMIN_USER_ID = '9caa7790-28ca-4b10-92fb-960cf95fd4fe'
+    if (!user || user.id !== ADMIN_USER_ID) {
+      const redirectUrl = request.nextUrl.clone()
+      redirectUrl.pathname = '/'
+      return NextResponse.redirect(redirectUrl)
+    }
+  }
+
   // If user is logged in but hasn't completed onboarding, redirect to onboarding
   // Only check this for non-public routes and not already on onboarding
   if (user && !isPublicRoute && pathname !== '/onboarding') {
