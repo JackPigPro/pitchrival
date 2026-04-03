@@ -464,6 +464,7 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
               </div>
 
               <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+                {(() => { console.log('Button disabled state:', loading, saveSuccess); return null; })()}
                 <button
                   onClick={() => {
                     setIsEditing(false)
@@ -484,7 +485,7 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
                   Cancel
                 </button>
                 <button
-                  onClick={() => { console.log('Save button clicked'); handleSave() }}
+                  onClick={handleSave}
                   disabled={loading || saveSuccess}
                   style={{
                     padding: '12px 24px',
