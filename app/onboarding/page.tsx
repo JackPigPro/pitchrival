@@ -83,69 +83,27 @@ export default function OnboardingPage() {
     try {
       console.log('Starting onboarding submission...')
       
-      // Get current user with better error handling
-      let userData, userError
-      try {
-        console.log('Calling supabase.auth.getUser()...')
-        const authPromise = supabase.auth.getUser()
-        const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Auth call timeout after 10 seconds')), 10000)
-        )
-        
-        const result = await Promise.race([authPromise, timeoutPromise]) as any
-        userData = result.data
-        userError = result.error
-        console.log('Auth response:', { userData, userError })
-      } catch (authErr) {
-        console.error('Auth call failed:', authErr)
-        throw new Error(`Auth call failed: ${authErr instanceof Error ? authErr.message : 'Unknown error'}`)
-      }
-      
-      if (userError) {
-        console.error('Auth error:', userError)
-        throw new Error(`Authentication error: ${userError.message}`)
-      }
-      
-      if (!userData?.user) {
-        console.error('No user found in auth response')
-        throw new Error('User not authenticated - no user data found')
-      }
-
-      const user = userData.user
-      console.log('User authenticated:', user.id)
-
-      // Update or create profile
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .upsert({
-          id: user.id,
-          username: username.trim().toLowerCase(), // Store in lowercase for consistency
-          onboarding_complete: true,
+      // Call API route to complete onboarding
+      const response = await fetch('/api/complete-onboarding', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: username.trim().toLowerCase()
         })
+      })
 
-      if (profileError) {
-        console.error('Profile error:', profileError)
-        throw profileError
+      console.log('API response status:', response.status)
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        console.error('API error:', errorData)
+        throw new Error(errorData.error || 'Failed to complete onboarding')
       }
 
-      console.log('Profile updated successfully')
-
-      // Create user_stats row with default values
-      const { error: statsError } = await supabase
-        .from('user_stats')
-        .upsert({
-          user_id: user.id,
-          elo: 500,
-          rank: 'Builder',
-          weekly_duel_entered: false
-        })
-
-      if (statsError) {
-        console.error('Stats error:', statsError)
-        throw statsError
-      }
-
-      console.log('User stats created successfully')
+      const result = await response.json()
+      console.log('Onboarding completed successfully:', result)
 
       setLoading(false)
       
