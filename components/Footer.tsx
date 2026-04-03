@@ -2,13 +2,15 @@
 
 import Link from 'next/link'
 import { useRouter, usePathname } from 'next/navigation'
+import { LiveStats } from '@/utils/stats'
 
 interface FooterProps {
   onComingSoon: () => void
   onScrollTo: (id: string) => void
+  stats?: LiveStats
 }
 
-export default function Footer({ onComingSoon, onScrollTo }: FooterProps) {
+export default function Footer({ onComingSoon, onScrollTo, stats }: FooterProps) {
   const router = useRouter()
   const pathname = usePathname()
 
@@ -46,16 +48,16 @@ export default function Footer({ onComingSoon, onScrollTo }: FooterProps) {
           </div>
           <div className="sf-stats-row">
             <div className="sf-stat">
-              <div className="sf-stat-num g">48k+</div>
+              <div className="sf-stat-num g">{stats?.totalUsers.toLocaleString() || '48k+'}</div>
               <div className="sf-stat-label">Founders</div>
             </div>
             <div className="sf-stat">
-              <div className="sf-stat-num b">2.4M</div>
+              <div className="sf-stat-num b">{stats?.acceptedMatches.toLocaleString() || '2.4M'}</div>
               <div className="sf-stat-label">Matches</div>
             </div>
             <div className="sf-stat">
-              <div className="sf-stat-num p">18k+</div>
-              <div className="sf-stat-label">Weekly competitors active</div>
+              <div className="sf-stat-num p">{stats?.totalIdeas.toLocaleString() || '18k+'}</div>
+              <div className="sf-stat-label">Ideas posted</div>
             </div>
           </div>
         </div>

@@ -21,8 +21,7 @@ export default function ConnectSection({ onComingSoon }: ConnectSectionProps) {
         <div className="ft-label b">🤝 Connect</div>
         <h2 className="ft-h2">Share your idea.<br />Find your people.</h2>
         <p className="ft-desc">
-          Post your idea, get real feedback from other founders, and find someone to build with.
-          Your rank shows up on your profile — so credibility is established before you even say hello.
+          Post your startup idea, get real feedback from other builders, and find someone to build it with.
         </p>
         <div className="ft-bullets">
           <div className="ft-b">
@@ -93,7 +92,6 @@ export default function ConnectSection({ onComingSoon }: ConnectSectionProps) {
             <div className="cf-match-card">
               <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '8px' }}>
                 <div>
-                  <div className="cf-match-pct">94%</div>
                   <div className="cf-match-label">Co-founder match</div>
                 </div>
                 <div style={{ fontSize: '22px' }}>🤝</div>

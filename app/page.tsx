@@ -1,14 +1,18 @@
 import LandingPage from '@/components/LandingPage'
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
+import { getLiveStats } from '@/utils/stats'
 
 export default async function HomePage() {
   const supabase = await createClient()
   const { data } = await supabase.auth.getUser()
   const user = data.user
 
+  // Fetch live stats for the landing page
+  const stats = await getLiveStats()
+
   if (!user) {
-    return <LandingPage />
+    return <LandingPage stats={stats} />
   }
 
   // Check if user has completed onboarding

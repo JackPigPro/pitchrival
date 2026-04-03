@@ -31,7 +31,7 @@ export default function CompeteSection({ onComingSoon }: CompeteSectionProps) {
       {/* Text side */}
       <div className="feature-text">
         <div className="ft-label g">⚔️ Compete</div>
-        <h2 className="ft-h2">Build your rank.<br />Every single week.</h2>
+        <h2 className="ft-h2">Weekly Founder Competitions.<br />Build your rank.</h2>
         <p className="ft-desc">
           Phase 1 starts with weekly founder competitions. One prompt, one submission window,
           community judging, and leaderboard movement.
@@ -73,7 +73,7 @@ export default function CompeteSection({ onComingSoon }: CompeteSectionProps) {
 
           {/* Prompt */}
           <div className="ma-prompt-card">
-            <div className="ma-prompt-label">Today&apos;s Prompt</div>
+            <div className="ma-prompt-label">This Week&apos;s Prompt</div>
             <div className="ma-prompt-text">
               &ldquo;A luxury camping brand targeting college students who want to go off-grid.&rdquo;
             </div>

@@ -1,12 +1,14 @@
 'use client'
 
-import Link from 'next/link' // 1. Added the Link import
+import Link from 'next/link'
+import { LiveStats } from '@/utils/stats'
 
 interface HeroProps {
   onScrollTo: (id: string) => void
+  stats?: LiveStats
 }
 
-export default function Hero({ onScrollTo }: HeroProps) {
+export default function Hero({ onScrollTo, stats }: HeroProps) {
   return (
     <section className="hero" id="top">
       <div className="hero-bg"></div>
@@ -14,15 +16,14 @@ export default function Hero({ onScrollTo }: HeroProps) {
       {/* Floating decoration cards */}
       <div className="hero-deco-card hdc-1">
         <div className="hdc-badge b">🤝 Connect</div>
-        <div className="hdc-val b">94%</div>
         <div className="hdc-text">Marcus T. — Co-founder match</div>
-        <div className="hdc-chip b">Full-stack Dev · ELO 1,340</div>
+        <div className="hdc-chip b">Full-stack Dev</div>
       </div>
 
       <div className="hero-deco-card hdc-2">
         <div className="hdc-badge g">⚔️ Compete</div>
-        <div className="hdc-val g">+18 ELO</div>
-        <div className="hdc-text">Won vs. DesignWolf</div>
+        <div className="hdc-val g">+18</div>
+        <div className="hdc-text">Won Weekly Competition</div>
         <div className="hdc-chip g">Now: Founder rank 🏅</div>
       </div>
 
@@ -50,8 +51,7 @@ export default function Hero({ onScrollTo }: HeroProps) {
 
       {/* Subtitle */}
       <p className="hero-sub">
-        Share your idea, get real feedback, and join weekly founder challenges.
-        Learn how to actually start a company in one focused MVP platform.
+        Share your idea, get real feedback, match and meet aspiring founders, and compete in weekly founder competitions.
       </p>
 
       {/* CTA buttons - UPDATED TO USE LINK */}
@@ -74,11 +74,11 @@ export default function Hero({ onScrollTo }: HeroProps) {
 
       {/* Social proof */}
       <div className="hero-proof">
-        <span><strong>48,200</strong> founders</span>
+        <span><strong>{stats?.totalUsers.toLocaleString() || '48,200'}</strong> founders</span>
         <span className="proof-dot"></span>
-        <span><strong>2.4M</strong> founder matches</span>
+        <span><strong>{stats?.acceptedMatches.toLocaleString() || '2.4M'}</strong> founder matches</span>
         <span className="proof-dot"></span>
-        <span className="live"><strong>18k+</strong> weekly competitors active</span>
+        <span className="live"><strong>{stats?.totalIdeas.toLocaleString() || '18k+'}</strong> ideas posted</span>
       </div>
 
       {/* Pillar cards */}
@@ -116,9 +116,9 @@ export default function Hero({ onScrollTo }: HeroProps) {
               <span className="pc-icon">🤝</span>
               <span className="pc-label connect">Connect</span>
             </div>
-            <div className="pc-title">Share Ideas &amp; Find Co-Founders</div>
+            <div className="pc-title">Post Ideas &amp; Find Co-Founders</div>
             <p className="pc-desc">
-              Post your idea, get honest feedback from other builders, and find someone to build it with.
+              Post your startup idea, get real feedback from other builders, and find someone to build it with.
             </p>
             <button
               className="pc-cta connect"
@@ -128,18 +128,16 @@ export default function Hero({ onScrollTo }: HeroProps) {
             </button>
             <div className="pc-preview">
               <div className="pc-cf">
-                <div className="pc-cf-title">Co-Founder Match · 94%</div>
+                <div className="pc-cf-title">Co-Founder Match</div>
                 <div className="pc-cf-card">
                   <div className="pc-cf-top">
                     <div className="pc-cf-av">M</div>
                     <div className="pc-cf-name">Marcus T.</div>
-                    <div className="pc-cf-tag">ELO 1,340</div>
                   </div>
-                  <div className="pc-cf-match">94% skill compatibility</div>
                   <div className="pc-cf-bio">Full-stack dev looking to build in fintech or edtech.</div>
                   <div className="pc-cf-skills">
                     <div className="pc-cf-skill">React</div>
-                    <div className="pc-cf-skill) skill">Python</div>
+                    <div className="pc-cf-skill">Python</div>
                     <div className="pc-cf-skill">Fintech</div>
                   </div>
                 </div>
@@ -153,9 +151,9 @@ export default function Hero({ onScrollTo }: HeroProps) {
               <span className="pc-icon">⚔️</span>
               <span className="pc-label compete">Compete</span>
             </div>
-            <div className="pc-title">Ranked 1v1 Battles</div>
+            <div className="pc-title">Weekly Founder Competitions</div>
             <p className="pc-desc">
-              Same prompt. Same clock. Community judges pick the winner. Build a rank that actually means something.
+              One prompt. One week. Community votes pick the winner. Build your rank and prove your thinking.
             </p>
             <button
               className="pc-cta compete"
@@ -204,7 +202,8 @@ export default function Hero({ onScrollTo }: HeroProps) {
             </div>
             <div className="pc-title">Free Startup Courses</div>
             <p className="pc-desc">
-              Structured courses with real exercises. For the person with their first idea and no idea what to do next.
+              Structured startup courses built for first-time founders. Coming soon.
+              <span className="inline-coming-soon">Coming soon</span>
             </p>
             <button
               className="pc-cta learn"

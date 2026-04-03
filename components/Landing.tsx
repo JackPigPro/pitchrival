@@ -10,13 +10,15 @@ import LearnSection from './LearnSection'
 import Schools from './Schools'
 import Footer from './Footer'
 import ComingSoon from './ComingSoon'
+import { LiveStats } from '@/utils/stats'
 
 interface LandingProps {
   onComingSoon?: () => void
   onScrollTo?: (id: string) => void
+  stats?: LiveStats
 }
 
-export default function Landing({ onComingSoon, onScrollTo }: LandingProps = {}) {
+export default function Landing({ onComingSoon, onScrollTo, stats }: LandingProps = {}) {
   const [showComingSoon, setShowComingSoon] = useState(false)
 
   const handleShowComingSoon = useCallback(() => {
@@ -51,78 +53,13 @@ export default function Landing({ onComingSoon, onScrollTo }: LandingProps = {})
 
   return (
     <div id="landing">
-      <Hero onScrollTo={scrollToCenter} />
+      <Hero onScrollTo={scrollToCenter} stats={stats} />
       <Testimonials />
       <ConnectSection onComingSoon={handleShowComingSoon} />
       <CompeteSection onComingSoon={handleShowComingSoon} />
       <LearnSection onComingSoon={handleShowComingSoon} />
       <Schools onComingSoon={handleShowComingSoon} />
-      <section
-        style={{
-          padding: '120px 24px 86px',
-          backgroundImage:
-            'linear-gradient(rgba(21,128,61,.065) 1px, transparent 1px), linear-gradient(90deg, rgba(21,128,61,.065) 1px, transparent 1px)',
-          backgroundSize: '48px 48px',
-          textAlign: 'center',
-        }}
-      >
-        <div
-          style={{
-            maxWidth: '760px',
-            margin: '0 auto',
-            position: 'relative',
-            zIndex: 1,
-          }}
-        >
-          <div style={{ marginBottom: '10px', fontSize: '13px', letterSpacing: '2.4px', textTransform: 'uppercase', color: 'var(--text3)', fontFamily: 'var(--font-display)', fontWeight: 700 }}>
-            Built by founders, for founders
-          </div>
-          <h3
-            style={{
-              fontSize: '78px',
-              fontWeight: 800,
-              letterSpacing: '-3.5px',
-              lineHeight: '.95',
-              margin: '0 0 20px',
-              color: 'var(--text)',
-              fontFamily: 'var(--font-display)',
-            }}
-          >
-            Stop watching,<br />
-            <span style={{ color: 'var(--green)' }}>start building.</span>
-          </h3>
-          <p style={{ color: 'var(--text2)', marginBottom: '28px', fontSize: '18px', lineHeight: 1.65 }}>
-            Share your idea, get real feedback, and join weekly founder challenges.
-            Learn how to actually start a company in one focused MVP platform.
-          </p>
-          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center' }}>
-            <Link
-              href="/login?mode=signup"
-              className="btn-cta-primary"
-              style={{
-                textDecoration: 'none',
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              ⚡ Get Started Free
-            </Link>
-            <Link
-              href="/login?mode=login"
-              className="btn-cta-ghost"
-              style={{
-                textDecoration: 'none',
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              Sign In →
-            </Link>
-          </div>
-        </div>
-      </section>
+      <Footer onComingSoon={handleShowComingSoon} onScrollTo={scrollToCenter} stats={stats} />
     </div>
   )
 }

@@ -33,11 +33,9 @@ export default function LearnSection({ onComingSoon }: LearnSectionProps) {
         <div className="ft-label p">📚 Learn</div>
         <h2 className="ft-h2">
           Learn how to<br />actually build.
-          <span className="inline-coming-soon">Coming soon</span>
         </h2>
         <p className="ft-desc">
-          Coming soon for Phase 1: structured startup lessons with practical execution tasks,
-          challenge-aligned prompts, and guided founder workflows.
+          Structured startup courses built for first-time founders. Coming soon.
         </p>
         <div className="ft-bullets">
           <div className="ft-b">

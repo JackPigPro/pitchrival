@@ -2,8 +2,13 @@
 
 import { useState, useCallback } from 'react'
 import Landing from './Landing'
+import { LiveStats } from '@/utils/stats'
 
-export default function LandingPage() {
+interface LandingPageProps {
+  stats?: LiveStats
+}
+
+export default function LandingPage({ stats }: LandingPageProps) {
   const [showComingSoon, setShowComingSoon] = useState(false)
 
   const handleShowComingSoon = useCallback(() => {
@@ -34,6 +39,7 @@ export default function LandingPage() {
     <Landing 
       onComingSoon={handleShowComingSoon}
       onScrollTo={scrollToCenter}
+      stats={stats}
     />
   )
 }

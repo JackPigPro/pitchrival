@@ -15,9 +15,9 @@ export default function Testimonials() {
           <div className="t-featured-icon">🎓</div>
           <div>
             <p className="t-featured-quote">
-              &ldquo;I replaced written business reports with PitchRival challenges this semester.
-              Students compete anonymously, get honest peer feedback, and actually stay engaged.
-              This feels like a real startup lab, not just another worksheet.&rdquo;
+              &ldquo;I used to have students write business plans that nobody read. Now they compete in
+              PitchRival tournaments every week. They actually practice startup skills instead of just
+              talking about them. The engagement is completely different.&rdquo;
             </p>
             <div className="t-featured-author">
               <div className="t-featured-av">R</div>
@@ -37,8 +37,8 @@ export default function Testimonials() {
           <div className="testimonial">
             <div className="t-stars">★★★★★</div>
             <p className="t-quote">
-              &ldquo;I used to scroll X watching people talk about startups. Now I actually practice the
-              skills every single day. My ELO went from 800 to 1,400 in two months.&rdquo;
+              &ldquo;Honestly, I used to just scroll TikTok watching startup videos. Now I actually
+              build stuff every week. My rank went from 800 to 1,400 and I found my co-founder here.&rdquo;
             </p>
             <div className="t-author">
               <div className="t-av g">M</div>
@@ -52,8 +52,8 @@ export default function Testimonials() {
           <div className="testimonial">
             <div className="t-stars">★★★★★</div>
             <p className="t-quote">
-              &ldquo;Found my co-founder here. We matched on skills, competed against each other first,
-              then decided to build together. That never would&apos;ve happened on LinkedIn.&rdquo;
+              &ldquo;Found my co-founder on here. We competed against each other for a few weeks first,
+              then decided to build together. Would've never happened on LinkedIn — everyone's so fake there.&rdquo;
             </p>
             <div className="t-author">
               <div className="t-av b">P</div>
@@ -67,8 +67,8 @@ export default function Testimonials() {
           <div className="testimonial">
             <div className="t-stars">★★★★★</div>
             <p className="t-quote">
-              &ldquo;The anonymous judging is the best part. No names. No bias. Most honest feedback I&apos;ve
-              ever gotten — better than any accelerator workshop I&apos;ve attended.&rdquo;
+              &ldquo;The anonymous judging is fire. No names, no bias, just honest feedback. Way better
+              than those accelerator programs where everyone's just trying to network.&rdquo;
             </p>
             <div className="t-author">
               <div className="t-av p">J</div>
@@ -81,7 +81,8 @@ export default function Testimonials() {
         </div>
         <div className="testimonial">
           <p className="t-quote" style={{ marginBottom: 0 }}>
-            “This platform makes startup practice feel real, focused, and fun. We come here to build, not just talk.”
+            "This place actually lets you practice building stuff, not just talk about it. It's like
+            a gym for startup skills."
           </p>
         </div>
       </div>
