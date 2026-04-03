@@ -448,30 +448,26 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
                   Cancel
                 </button>
                 <button
-                  ref={(el) => {
-                    if (el) {
-                      el.onclick = async () => {
-                        if (!currentProfile?.id) return
-                        const supabase = createClient()
-                        const { error } = await supabase
-                          .from('profiles')
-                          .update({
-                            username: editData.username.toLowerCase(),
-                            location: editData.location,
-                            bio: editData.bio,
-                            stage: editData.stage,
-                            skills: editData.skills,
-                            status_tags: editData.status_tags,
-                            twitter: editData.social_links?.x || null,
-                            linkedin: editData.social_links?.linkedin || null,
-                            github: editData.social_links?.github || null
-                          })
-                          .eq('id', currentProfile.id)
-                        if (error) { alert('Error saving'); return }
-                        setIsEditing(false)
-                        window.location.reload()
-                      }
-                    }
+                  onClick={async () => {
+                    if (!currentProfile?.id) return
+                    const supabase = createClient()
+                    const { error } = await supabase
+                      .from('profiles')
+                      .update({
+                        username: editData.username.toLowerCase(),
+                        location: editData.location,
+                        bio: editData.bio,
+                        stage: editData.stage,
+                        skills: editData.skills,
+                        status_tags: editData.status_tags,
+                        twitter: editData.social_links?.x || null,
+                        linkedin: editData.social_links?.linkedin || null,
+                        github: editData.social_links?.github || null
+                      })
+                      .eq('id', currentProfile.id)
+                    if (error) { alert('Error saving'); return }
+                    setIsEditing(false)
+                    window.location.reload()
                   }}
                   style={{
                     padding: '12px 24px',
