@@ -62,9 +62,18 @@ export default function CofounderMatchClient() {
       setError(null)
       setLoading(true)
       
-      const response = await fetch('/connect/cofounder-match/api')
+      // Add timeout to prevent hanging
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 10000) // 10 second timeout
+      
+      const response = await fetch('/connect/cofounder-match/api', {
+        signal: controller.signal
+      })
+      
+      clearTimeout(timeoutId)
+      
       if (!response.ok) {
-        throw new Error('Failed to fetch data')
+        throw new Error(`Failed to fetch data: ${response.status}`)
       }
       
       const data = await response.json()
@@ -72,10 +81,19 @@ export default function CofounderMatchClient() {
       setRequests(data.requests || [])
       setConnectedProfiles(data.connectedProfiles || [])
       setIsListed(data.isListed || false)
-      setLoading(false)
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error fetching data:', err)
-      setError('Failed to load data')
+      if (err.name === 'AbortError') {
+        setError('Request timed out. Please refresh the page.')
+      } else {
+        setError('Failed to load cofounder data. Please try again.')
+      }
+      // Set empty arrays to prevent UI issues
+      setProfiles([])
+      setRequests([])
+      setConnectedProfiles([])
+      setIsListed(false)
+    } finally {
       setLoading(false)
     }
   }
