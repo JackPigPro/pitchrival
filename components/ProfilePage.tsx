@@ -27,7 +27,7 @@ interface UserStats {
 interface Idea {
   id: string
   title: string
-  description: string
+  content: string
   created_at: string
 }
 
@@ -36,9 +36,12 @@ interface ProfilePageProps {
   userStats?: UserStats
   ideas: Idea[]
   isOwnProfile: boolean
+  allTimeRank?: number | null
+  dailyRank?: number | null
+  weeklyDuelsCount?: number
 }
 
-export default function ProfilePage({ profile: initialProfile, userStats, ideas, isOwnProfile }: ProfilePageProps) {
+export default function ProfilePage({ profile: initialProfile, userStats, ideas, isOwnProfile, allTimeRank, dailyRank, weeklyDuelsCount }: ProfilePageProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [loading, setLoading] = useState(false)
   const [saveSuccess, setSaveSuccess] = useState(false)
@@ -64,10 +67,11 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
     setSaveSuccess(false)
     try {
       // Get the authenticated user's ID from Supabase auth
-      const { data: { user }, error: authError } = await supabase.auth.getUser()
-      if (authError || !user) {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session?.user) {
         throw new Error('User not authenticated')
       }
+      const user = session.user
 
       // Update profile using proper Supabase client
       const { error } = await supabase
@@ -228,6 +232,20 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
     if (elo >= 1500 && elo < 1750) return 'Icon'
     if (elo >= 1750 && elo < 2000) return 'Titan'
     return 'Unicorn'
+  }
+
+  const getRankColor = (rank: string) => {
+    switch (rank) {
+      case 'Trainee': return '#9ca3af' // grey
+      case 'Builder': return '#2563eb' // blue
+      case 'Creator': return '#16a34a' // green
+      case 'Founder': return '#ca8a04' // gold
+      case 'Visionary': return '#7c3aed' // purple
+      case 'Icon': return '#ea580c' // orange
+      case 'Titan': return '#dc2626' // red
+      case 'Unicorn': return 'linear-gradient(135deg, #7c3aed, #ec4899, #10b981)' // rainbow gradient
+      default: return '#9ca3af'
+    }
   }
 
   const stageOptions = ['Idea Stage', 'Building MVP', 'Already Launched']
@@ -800,7 +818,7 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
           </div>
         </div>
 
-        {/* MIDDLE SECTION - Two Column Grid */}
+        {/* TWO COLUMN LAYOUT */}
         <div style={{ 
           display: 'grid', 
           gridTemplateColumns: '1fr 1fr', 
@@ -808,9 +826,9 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
           marginBottom: '32px'
         }}>
 
-          {/* Left Column: Stats Section */}
+          {/* LEFT COLUMN */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', width: '100%' }}>
-            {/* Combined ELO and Rank Card */}
+            {/* ELO and Rank Card */}
             <div style={{ 
               background: 'var(--card)', 
               borderRadius: '16px', 
@@ -840,7 +858,7 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
                   textTransform: 'uppercase',
                   marginBottom: '20px'
                 }}>
-                  ELO Rating
+                  Current ELO
                 </div>
               </div>
               
@@ -850,11 +868,11 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
                 margin: '20px 0' 
               }} />
               
-              <div>
+              <div style={{ marginBottom: '20px' }}>
                 <div style={{ 
                   fontSize: '36px', 
                   fontWeight: '800', 
-                  color: 'var(--blue)', 
+                  color: getRankColor(getRankByElo(userStats?.elo)), 
                   fontFamily: 'var(--font-display)',
                   marginBottom: '8px'
                 }}>
@@ -868,12 +886,68 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
                   letterSpacing: '2px',
                   textTransform: 'uppercase'
                 }}>
-                  Rank Title
+                  Current Rank
+                </div>
+              </div>
+
+              <div style={{ 
+                height: '1px', 
+                background: 'var(--border)', 
+                margin: '20px 0' 
+              }} />
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', textAlign: 'center' }}>
+                <div style={{ flex: 1 }}>
+                  <div style={{ 
+                    fontSize: '24px', 
+                    fontWeight: '800', 
+                    color: 'var(--blue)', 
+                    fontFamily: 'var(--font-display)',
+                    marginBottom: '4px'
+                  }}>
+                    {dailyRank ? `#${dailyRank}` : '—'}
+                  </div>
+                  <div style={{ 
+                    fontSize: '11px', 
+                    color: 'var(--text2)',
+                    fontWeight: '600',
+                    fontFamily: 'var(--font-display)',
+                    letterSpacing: '1px',
+                    textTransform: 'uppercase'
+                  }}>
+                    Daily Rank
+                  </div>
+                </div>
+                <div style={{ 
+                  width: '1px', 
+                  background: 'var(--border)', 
+                  margin: '0 16px' 
+                }} />
+                <div style={{ flex: 1 }}>
+                  <div style={{ 
+                    fontSize: '24px', 
+                    fontWeight: '800', 
+                    color: 'var(--purple)', 
+                    fontFamily: 'var(--font-display)',
+                    marginBottom: '4px'
+                  }}>
+                    {allTimeRank ? `#${allTimeRank}` : '—'}
+                  </div>
+                  <div style={{ 
+                    fontSize: '11px', 
+                    color: 'var(--text2)',
+                    fontWeight: '600',
+                    fontFamily: 'var(--font-display)',
+                    letterSpacing: '1px',
+                    textTransform: 'uppercase'
+                  }}>
+                    All Time Rank
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Weekly Duels Card */}
+            {/* Weekly Duels Entered Card */}
             <div style={{ 
               background: 'var(--card)', 
               borderRadius: '16px', 
@@ -891,7 +965,7 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
                 fontFamily: 'var(--font-display)',
                 marginBottom: '12px'
               }}>
-                {userStats?.weekly_duel_entered || 0}
+                {weeklyDuelsCount || 0}
               </div>
               <div style={{ 
                 fontSize: '13px', 
@@ -901,114 +975,134 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
                 letterSpacing: '2px',
                 textTransform: 'uppercase'
               }}>
-                Weekly Duels
+                Weekly Duels Entered
               </div>
             </div>
-
-            {/* Weekly Duels Button */}
-            <a
-              href="/compete"
-              className="btn-cta-primary"
-              style={{
-                textDecoration: 'none',
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                width: '100%'
-              }}
-            >
-              ⚔️ Weekly Duels →
-            </a>
-
-            {/* Leaderboard Button */}
-            <a
-              href="/compete/leaderboard"
-              className="btn-cta-ghost"
-              style={{
-                textDecoration: 'none',
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                width: '100%'
-              }}
-            >
-              🏆 Check Leaderboard →
-            </a>
           </div>
 
-          {/* Right Column: Actions Section */}
+          {/* RIGHT COLUMN */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', width: '100%' }}>
             {/* Ideas Posted Card */}
-            <a
-              href={ideas.length > 0 ? `/profile/${currentProfile.username}/ideas` : "#"}
-              onClick={(e) => {
-                if (ideas.length === 0) {
-                  e.preventDefault()
-                }
-              }}
-              style={{
-                display: 'block',
-                background: 'var(--card)', 
-                borderRadius: '16px', 
-                padding: '32px',
-                border: '1px solid var(--border)',
-                boxShadow: 'var(--shadow)',
-                textAlign: 'center',
-                transition: 'all 0.2s ease',
-                width: '100%',
-                textDecoration: 'none',
-                cursor: ideas.length > 0 ? 'pointer' : 'default'
-              }}
-              onMouseEnter={(e) => {
-                if (ideas.length > 0) {
-                  e.currentTarget.style.transform = 'translateY(-2px)'
-                  e.currentTarget.style.boxShadow = 'var(--shadow-lg)'
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (ideas.length > 0) {
-                  e.currentTarget.style.transform = 'translateY(0)'
-                  e.currentTarget.style.boxShadow = 'var(--shadow)'
-                }
-              }}
-            >
-              <div style={{ 
-                fontSize: '48px', 
-                fontWeight: '800', 
-                color: ideas.length > 0 ? 'var(--blue)' : 'var(--text2)', 
-                fontFamily: 'var(--font-display)',
-                marginBottom: '12px'
-              }}>
-                {ideas.length}
-              </div>
-              <div style={{ 
-                fontSize: '13px', 
-                color: 'var(--text2)',
-                fontWeight: '600',
-                fontFamily: 'var(--font-display)',
-                letterSpacing: '2px',
-                textTransform: 'uppercase'
-              }}>
-                Ideas Posted
-              </div>
-            </a>
+            <div style={{ 
+              background: 'var(--card)', 
+              borderRadius: '16px', 
+              padding: '32px',
+              border: '1px solid var(--border)',
+              boxShadow: 'var(--shadow)',
+              transition: 'all 0.2s ease',
+              width: '100%'
+            }}>
+              {/* Post New Idea Button */}
+              <a
+                href="/connect/ideas"
+                className="btn-cta-primary"
+                style={{
+                  textDecoration: 'none',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: '100%',
+                  marginBottom: '24px'
+                }}
+              >
+                💡 Post New Idea →
+              </a>
 
-            {/* Create Idea Button */}
-            <a
-              href="/ideas/create"
-              className="btn-cta-primary"
-              style={{
-                textDecoration: 'none',
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                width: '100%'
-              }}
-            >
-              💡 Create Idea →
-            </a>
+              {/* Ideas Count */}
+              <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+                <div style={{ 
+                  fontSize: '48px', 
+                  fontWeight: '800', 
+                  color: ideas.length > 0 ? 'var(--blue)' : 'var(--text2)', 
+                  fontFamily: 'var(--font-display)',
+                  marginBottom: '12px'
+                }}>
+                  {ideas.length}
+                </div>
+                <div style={{ 
+                  fontSize: '13px', 
+                  color: 'var(--text2)',
+                  fontWeight: '600',
+                  fontFamily: 'var(--font-display)',
+                  letterSpacing: '2px',
+                  textTransform: 'uppercase'
+                }}>
+                  Ideas Posted
+                </div>
+              </div>
 
-            {/* Find Co-founder Card */}
+              {/* Ideas Preview */}
+              {ideas.length > 0 && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {ideas.slice(0, 3).map((idea) => (
+                    <a
+                      key={idea.id}
+                      href="/connect/ideas"
+                      style={{
+                        display: 'block',
+                        padding: '16px',
+                        borderRadius: '8px',
+                        background: 'var(--surface)',
+                        border: '1px solid var(--border)',
+                        textDecoration: 'none',
+                        transition: 'all 0.2s ease',
+                        cursor: 'pointer'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = 'var(--card2)'
+                        e.currentTarget.style.transform = 'translateY(-1px)'
+                        e.currentTarget.style.boxShadow = 'var(--shadow-sm)'
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = 'var(--surface)'
+                        e.currentTarget.style.transform = 'translateY(0)'
+                        e.currentTarget.style.boxShadow = 'none'
+                      }}
+                    >
+                      <div style={{ 
+                        fontSize: '16px', 
+                        fontWeight: '700', 
+                        fontFamily: 'var(--font-display)', 
+                        color: 'var(--text)', 
+                        marginBottom: '4px',
+                        letterSpacing: '-0.1px'
+                      }}>
+                        {idea.title}
+                      </div>
+                      <div style={{ 
+                        fontSize: '14px', 
+                        color: 'var(--text2)', 
+                        fontFamily: 'var(--font-body)',
+                        fontWeight: '500',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap'
+                      }}>
+                        {idea.content}
+                      </div>
+                    </a>
+                  ))}
+                  {ideas.length > 3 && (
+                    <div style={{ textAlign: 'center', paddingTop: '8px' }}>
+                      <a
+                        href="/connect/ideas"
+                        style={{
+                          fontSize: '14px',
+                          color: 'var(--blue)',
+                          fontWeight: '600',
+                          textDecoration: 'none',
+                          fontFamily: 'var(--font-display)'
+                        }}
+                      >
+                        View all {ideas.length} ideas →
+                      </a>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Member Since Card */}
             <div style={{ 
               background: 'var(--card)', 
               borderRadius: '16px', 
@@ -1023,137 +1117,52 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '12px',
+                gap: '20px',
                 marginBottom: '16px'
               }}>
                 <div style={{
-                  width: '48px',
-                  height: '48px',
+                  width: '60px',
+                  height: '60px',
                   borderRadius: '50%',
-                  background: currentProfile.status_tags?.includes('Looking for Co-founder') 
-                    ? 'linear-gradient(135deg, var(--green), #22c55e)'
-                    : 'var(--card2)',
+                  background: 'linear-gradient(135deg, var(--gold), #f59e0b)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: '20px',
-                  transition: 'all 0.3s ease'
+                  fontSize: '24px',
+                  boxShadow: 'var(--shadow)'
                 }}>
-                  {currentProfile.status_tags?.includes('Looking for Co-founder') ? '🤝' : '👤'}
+                  📅
                 </div>
                 <div style={{ textAlign: 'left' }}>
                   <div style={{
-                    fontSize: '16px',
-                    fontWeight: '700',
-                    fontFamily: 'var(--font-display)',
-                    color: 'var(--text)',
-                    margin: 0,
-                    marginBottom: '2px',
-                    letterSpacing: '-0.1px'
-                  }}>
-                    {currentProfile.status_tags?.includes('Looking for Co-founder') 
-                      ? 'Looking for Co-founder' 
-                      : 'Find a Co-founder'}
-                  </div>
-                  <div style={{
-                    fontSize: '11px',
+                    fontSize: '13px',
                     color: 'var(--text3)',
                     fontWeight: '600',
                     fontFamily: 'var(--font-display)',
                     letterSpacing: '2px',
-                    textTransform: 'uppercase'
+                    textTransform: 'uppercase',
+                    marginBottom: '4px'
                   }}>
-                    {currentProfile.status_tags?.includes('Looking for Co-founder') 
-                      ? 'Available Now'
-                      : 'Not Seeking'}
+                    Member Since
+                  </div>
+                  <div style={{
+                    fontSize: '32px',
+                    fontWeight: '800',
+                    fontFamily: 'var(--font-display)',
+                    color: 'var(--gold)',
+                    margin: 0,
+                    marginBottom: '4px',
+                    letterSpacing: '-0.5px'
+                  }}>
+                    {(() => {
+                      // Fix: Append Z to ensure UTC parsing if not already present
+                      const createdAt = currentProfile.created_at.endsWith('Z') ? currentProfile.created_at : currentProfile.created_at + 'Z'
+                      return new Date(createdAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+                    })()}
                   </div>
                 </div>
               </div>
-              
-              <a
-                href="/connect"
-                className="btn-cta-primary"
-                style={{
-                  textDecoration: 'none',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  width: '100%'
-                }}
-              >
-                🤝 Find Matches →
-              </a>
             </div>
-          </div>
-        </div>
-
-        {/* BOTTOM SECTION - Full Width */}
-        
-        {/* Joined Date */}
-        <div style={{ 
-          background: 'var(--card)', 
-          borderRadius: '16px', 
-          padding: '48px',
-          border: '1px solid var(--border)',
-          boxShadow: 'var(--shadow)',
-          textAlign: 'center',
-          position: 'relative'
-        }}>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '20px',
-            marginBottom: '24px'
-          }}>
-            <div style={{
-              width: '80px',
-              height: '80px',
-              borderRadius: '50%',
-              background: 'linear-gradient(135deg, var(--gold), #f59e0b)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '32px',
-              boxShadow: 'var(--shadow)'
-            }}>
-              📅
-            </div>
-            <div style={{ textAlign: 'left' }}>
-              <div style={{
-                fontSize: '13px',
-                color: 'var(--text3)',
-                fontWeight: '600',
-                fontFamily: 'var(--font-display)',
-                letterSpacing: '2px',
-                textTransform: 'uppercase',
-                marginBottom: '4px'
-              }}>
-                Member Since
-              </div>
-              <div style={{
-                fontSize: '48px',
-                fontWeight: '800',
-                fontFamily: 'var(--font-display)',
-                color: 'var(--gold)',
-                margin: 0,
-                marginBottom: '8px',
-                letterSpacing: '-0.5px'
-              }}>
-                {(() => {
-                  // Fix: Append Z to ensure UTC parsing if not already present
-                  const createdAt = currentProfile.created_at.endsWith('Z') ? currentProfile.created_at : currentProfile.created_at + 'Z'
-                  return new Date(createdAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
-                })()}
-              </div>
-            </div>
-          </div>
-          
-          <div style={{
-            fontSize: '16px',
-            color: 'var(--text2)',
-            fontFamily: 'var(--font-body)'
-          }}>
           </div>
         </div>
       </div>
