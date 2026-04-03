@@ -44,7 +44,7 @@ async function ProfileContent({ username }: { username: string }) {
   // Calculate daily rank (last 24 hours)
   const { data: dailyHistory } = await supabase
     .from('elo_history')
-    .select('new_elo, user_id')
+    .select('elo_change, user_id')
     .gte('created_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString())
 
   // Calculate all-time rank
@@ -63,25 +63,34 @@ async function ProfileContent({ username }: { username: string }) {
   let dailyRank = null
   let alltimeRank = null
 
-  if (dailyHistory && allTimeStats) {
-    // Get unique users with their best daily ELO
-    const dailyUsers = new Map()
-    dailyHistory.forEach(entry => {
-      const current = dailyUsers.get(entry.user_id) || 0
-      if (entry.new_elo > current) {
-        dailyUsers.set(entry.user_id, entry.new_elo)
-      }
-    })
-
-    // Sort by ELO descending and find rank
-    const sortedDaily = Array.from(dailyUsers.entries())
-      .sort(([,a], [,b]) => b - a)
-    
-    dailyRank = sortedDaily.findIndex(([userId]) => userId === profile.id) + 1
-  }
-
+  // Calculate all-time rank first (we need this for fallback)
   if (allTimeStats) {
     alltimeRank = allTimeStats.findIndex(stat => stat.user_id === profile.id) + 1
+  }
+
+  // Calculate daily rank based on ELO gained today
+  if (dailyHistory) {
+    // Calculate total ELO gained today for each user
+    const dailyGains = new Map<string, number>()
+    
+    dailyHistory.forEach(entry => {
+      const currentGain = dailyGains.get(entry.user_id) || 0
+      dailyGains.set(entry.user_id, currentGain + (entry.elo_change || 0))
+    })
+
+    // Sort by daily ELO gained descending and find rank
+    const sortedDailyGains = Array.from(dailyGains.entries())
+      .sort(([,a], [,b]) => b - a)
+      .filter(([,gain]) => gain > 0) // Only include users who gained ELO today
+    
+    if (sortedDailyGains.length > 0) {
+      dailyRank = sortedDailyGains.findIndex(([userId]) => userId === profile.id) + 1
+    }
+  }
+
+  // If no daily rank (no ELO gained today or no daily history), use all-time rank
+  if (!dailyRank && alltimeRank) {
+    dailyRank = alltimeRank
   }
 
   const weeklyDuelsCount = weeklyDuels?.length || 0

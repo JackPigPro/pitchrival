@@ -66,17 +66,40 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
   const supabase = createClient()
 
   const handleSave = async () => {
+    console.log('🔧 Save button clicked - starting save process')
     setLoading(true)
     setSaveSuccess(false)
+    
     try {
+      console.log('🔍 Getting authenticated user...')
       // Get the authenticated user's ID from Supabase auth
       const { data: { user }, error: authError } = await supabase.auth.getUser()
-      if (authError || !user) {
+      
+      if (authError) {
+        console.error('❌ Auth error:', authError)
+        throw new Error(`Auth error: ${authError.message}`)
+      }
+      
+      if (!user) {
+        console.error('❌ No user found')
         throw new Error('User not authenticated')
       }
+      
+      console.log('✅ User authenticated:', user.id)
+      console.log('📝 Updating profile with data:', {
+        username: editData.username.toLowerCase(),
+        location: editData.location,
+        bio: editData.bio,
+        stage: editData.stage,
+        skills: editData.skills,
+        status_tags: editData.status_tags,
+        twitter: editData.social_links.x || undefined,
+        linkedin: editData.social_links.linkedin || undefined,
+        github: editData.social_links.github || undefined
+      })
 
       // Update profile using proper Supabase client
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('profiles')
         .update({
           username: editData.username.toLowerCase(),
@@ -91,7 +114,14 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
         })
         .eq('id', user.id)
 
-      if (error) throw error
+      console.log('📊 Supabase update response:', { data, error })
+
+      if (error) {
+        console.error('❌ Database update error:', error)
+        throw new Error(`Database error: ${error.message}`)
+      }
+      
+      console.log('✅ Profile updated successfully')
       
       // Update local state with saved data
       const updatedProfile = {
@@ -107,16 +137,23 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
         linkedin: editData.social_links.linkedin || undefined,
         github: editData.social_links.github || undefined
       }
+      
+      console.log('🔄 Updating local state...')
       setCurrentProfile(updatedProfile)
       setSaveSuccess(true)
+      
+      console.log('⏰ Setting timeout to exit edit mode...')
       setTimeout(() => {
+        console.log('🚪 Exiting edit mode')
         setIsEditing(false)
         setSaveSuccess(false)
       }, 1000)
+      
     } catch (error) {
-      console.error('Error updating profile:', error)
-      alert('Error saving profile. Please try again.')
+      console.error('💥 Error updating profile:', error)
+      alert(`Error saving profile: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again.`)
     } finally {
+      console.log('🏁 Save process completed, setting loading to false')
       setLoading(false)
     }
   }
@@ -507,284 +544,285 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
           </h1>
         </div>
 
-        {/* Two Column Layout */}
+        {/* FULL WIDTH PROFILE CARD */}
+        <div style={{ 
+          background: 'var(--card)', 
+          borderRadius: '16px', 
+          padding: '32px',
+          border: '1px solid var(--border)',
+          boxShadow: 'var(--shadow)',
+          marginBottom: '32px'
+        }}>
+          {/* Profile Header */}
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '24px', marginBottom: '24px' }}>
+            {/* Profile Circle */}
+            <div style={{
+              width: '80px',
+              height: '80px',
+              borderRadius: '50%',
+              background: `linear-gradient(135deg, ${getProfileColor(currentProfile.username)}, ${getProfileColor(currentProfile.username)}dd)`,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#fff',
+              fontSize: '32px',
+              fontWeight: '800',
+              fontFamily: 'var(--font-display)',
+              flexShrink: 0,
+              boxShadow: 'var(--shadow-md)',
+              border: '3px solid var(--card)'
+            }}>
+              {currentProfile.username.charAt(0).toUpperCase()}
+            </div>
+
+            {/* Profile Info */}
+            <div style={{ flex: 1 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px', flexWrap: 'wrap' }}>
+                <h2 style={{ 
+                  fontSize: '24px', 
+                  fontWeight: '700', 
+                  fontFamily: 'var(--font-display)', 
+                  color: 'var(--text)', 
+                  margin: 0
+                }}>
+                  {currentProfile.username}
+                </h2>
+                {currentProfile.stage && (
+                  <span style={{
+                    padding: '4px 12px',
+                    borderRadius: '16px',
+                    background: 'var(--green)',
+                    color: '#fff',
+                    fontSize: '11px',
+                    fontWeight: '700',
+                    fontFamily: 'var(--font-display)',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px'
+                  }}>
+                    {currentProfile.stage}
+                  </span>
+                )}
+              </div>
+
+              {/* Location */}
+              {currentProfile.location && (
+                <div style={{ 
+                  fontSize: '14px', 
+                  color: 'var(--text2)', 
+                  marginBottom: '12px',
+                  fontWeight: '600',
+                  fontFamily: 'var(--font-body)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px'
+                }}>
+                  {getCountryFlag(currentProfile.location)} {currentProfile.location}
+                </div>
+              )}
+
+              {/* Bio */}
+              {currentProfile.bio && (
+                <p style={{ 
+                  fontSize: '14px', 
+                  lineHeight: '1.5', 
+                  color: 'var(--text)', 
+                  marginBottom: '16px',
+                  fontFamily: 'var(--font-body)',
+                  fontWeight: '500'
+                }}>
+                  {currentProfile.bio}
+                </p>
+              )}
+
+              {/* Skills */}
+              {currentProfile.skills && currentProfile.skills.length > 0 && (
+                <div style={{ marginBottom: '12px' }}>
+                  <div style={{ fontSize: '12px', color: 'var(--text3)', fontWeight: '600', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                    Skills
+                  </div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                    {currentProfile.skills.map(skill => (
+                      <span 
+                        key={skill}
+                        style={{
+                          padding: '6px 12px',
+                          borderRadius: '16px',
+                          background: 'var(--blue-tint)',
+                          color: 'var(--blue)',
+                          fontSize: '11px',
+                          fontWeight: '700',
+                          fontFamily: 'var(--font-display)',
+                          border: '1px solid var(--blue)'
+                        }}
+                      >
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Status Tags */}
+              {currentProfile.status_tags && currentProfile.status_tags.length > 0 && (
+                <div style={{ marginBottom: '16px' }}>
+                  <div style={{ fontSize: '12px', color: 'var(--text3)', fontWeight: '600', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                    Status
+                  </div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                    {currentProfile.status_tags.map(tag => (
+                      <span 
+                        key={tag}
+                        style={{
+                          padding: '6px 12px',
+                          borderRadius: '16px',
+                          background: 'var(--purple-tint)',
+                          color: 'var(--purple)',
+                          fontSize: '11px',
+                          fontWeight: '700',
+                          fontFamily: 'var(--font-display)',
+                          border: '1px solid var(--purple)'
+                        }}
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Social Links */}
+              {(currentProfile.twitter || currentProfile.linkedin || currentProfile.github) && (
+                <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+                  {currentProfile.twitter && (
+                    <a 
+                      href={`https://x.com/${currentProfile.twitter}`} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        width: '36px',
+                        height: '36px',
+                        borderRadius: '8px',
+                        background: 'var(--card2)',
+                        border: '1px solid var(--border2)',
+                        color: 'var(--text2)',
+                        textDecoration: 'none',
+                        fontSize: '14px',
+                        fontWeight: '700',
+                        transition: 'all 0.2s ease'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = '#000'
+                        e.currentTarget.style.color = '#fff'
+                        e.currentTarget.style.borderColor = '#000'
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = 'var(--card2)'
+                        e.currentTarget.style.color = 'var(--text2)'
+                        e.currentTarget.style.borderColor = 'var(--border2)'
+                      }}
+                    >
+                      𝕏
+                    </a>
+                  )}
+                  {currentProfile.linkedin && (
+                    <a 
+                      href={`https://linkedin.com/in/${currentProfile.linkedin}`} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        width: '36px',
+                        height: '36px',
+                        borderRadius: '8px',
+                        background: 'var(--card2)',
+                        border: '1px solid var(--border2)',
+                        color: 'var(--text2)',
+                        textDecoration: 'none',
+                        fontSize: '14px',
+                        fontWeight: '700',
+                        transition: 'all 0.2s ease'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = '#0077b5'
+                        e.currentTarget.style.color = '#fff'
+                        e.currentTarget.style.borderColor = '#0077b5'
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = 'var(--card2)'
+                        e.currentTarget.style.color = 'var(--text2)'
+                        e.currentTarget.style.borderColor = 'var(--border2)'
+                      }}
+                    >
+                      in
+                    </a>
+                  )}
+                  {currentProfile.github && (
+                    <a 
+                      href={`https://github.com/${currentProfile.github}`} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        width: '36px',
+                        height: '36px',
+                        borderRadius: '8px',
+                        background: 'var(--card2)',
+                        border: '1px solid var(--border2)',
+                        color: 'var(--text2)',
+                        textDecoration: 'none',
+                        fontSize: '14px',
+                        fontWeight: '700',
+                        transition: 'all 0.2s ease'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = '#333'
+                        e.currentTarget.style.color = '#fff'
+                        e.currentTarget.style.borderColor = '#333'
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = 'var(--card2)'
+                        e.currentTarget.style.color = 'var(--text2)'
+                        e.currentTarget.style.borderColor = 'var(--border2)'
+                      }}
+                    >
+                      ⚡
+                    </a>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Edit Profile Button */}
+          {isOwnProfile && (
+            <button
+              onClick={() => setIsEditing(true)}
+              className="btn-cta-primary"
+              style={{
+                width: '100%',
+                textDecoration: 'none',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+            >
+              Edit Profile
+            </button>
+          )}
+        </div>
+
+        {/* Two Column Layout for Content Below Profile */}
         <div className="profile-grid">
           {/* LEFT COLUMN */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
             
-            {/* Profile Card */}
-            <div style={{ 
-              background: 'var(--card)', 
-              borderRadius: '16px', 
-              padding: '32px',
-              border: '1px solid var(--border)',
-              boxShadow: 'var(--shadow)'
-            }}>
-              {/* Profile Header */}
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '24px', marginBottom: '24px' }}>
-                {/* Profile Circle */}
-                <div style={{
-                  width: '80px',
-                  height: '80px',
-                  borderRadius: '50%',
-                  background: `linear-gradient(135deg, ${getProfileColor(currentProfile.username)}, ${getProfileColor(currentProfile.username)}dd)`,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#fff',
-                  fontSize: '32px',
-                  fontWeight: '800',
-                  fontFamily: 'var(--font-display)',
-                  flexShrink: 0,
-                  boxShadow: 'var(--shadow-md)',
-                  border: '3px solid var(--card)'
-                }}>
-                  {currentProfile.username.charAt(0).toUpperCase()}
-                </div>
-
-                {/* Profile Info */}
-                <div style={{ flex: 1 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px', flexWrap: 'wrap' }}>
-                    <h2 style={{ 
-                      fontSize: '24px', 
-                      fontWeight: '700', 
-                      fontFamily: 'var(--font-display)', 
-                      color: 'var(--text)', 
-                      margin: 0
-                    }}>
-                      {currentProfile.username}
-                    </h2>
-                    {currentProfile.stage && (
-                      <span style={{
-                        padding: '4px 12px',
-                        borderRadius: '16px',
-                        background: 'var(--green)',
-                        color: '#fff',
-                        fontSize: '11px',
-                        fontWeight: '700',
-                        fontFamily: 'var(--font-display)',
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.5px'
-                      }}>
-                        {currentProfile.stage}
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Location */}
-                  {currentProfile.location && (
-                    <div style={{ 
-                      fontSize: '14px', 
-                      color: 'var(--text2)', 
-                      marginBottom: '12px',
-                      fontWeight: '600',
-                      fontFamily: 'var(--font-body)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '6px'
-                    }}>
-                      {getCountryFlag(currentProfile.location)} {currentProfile.location}
-                    </div>
-                  )}
-
-                  {/* Bio */}
-                  {currentProfile.bio && (
-                    <p style={{ 
-                      fontSize: '14px', 
-                      lineHeight: '1.5', 
-                      color: 'var(--text)', 
-                      marginBottom: '16px',
-                      fontFamily: 'var(--font-body)',
-                      fontWeight: '500'
-                    }}>
-                      {currentProfile.bio}
-                    </p>
-                  )}
-
-                  {/* Skills */}
-                  {currentProfile.skills && currentProfile.skills.length > 0 && (
-                    <div style={{ marginBottom: '12px' }}>
-                      <div style={{ fontSize: '12px', color: 'var(--text3)', fontWeight: '600', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                        Skills
-                      </div>
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                        {currentProfile.skills.map(skill => (
-                          <span 
-                            key={skill}
-                            style={{
-                              padding: '6px 12px',
-                              borderRadius: '16px',
-                              background: 'var(--blue-tint)',
-                              color: 'var(--blue)',
-                              fontSize: '11px',
-                              fontWeight: '700',
-                              fontFamily: 'var(--font-display)',
-                              border: '1px solid var(--blue)'
-                            }}
-                          >
-                            {skill}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Status Tags */}
-                  {currentProfile.status_tags && currentProfile.status_tags.length > 0 && (
-                    <div style={{ marginBottom: '16px' }}>
-                      <div style={{ fontSize: '12px', color: 'var(--text3)', fontWeight: '600', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                        Status
-                      </div>
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                        {currentProfile.status_tags.map(tag => (
-                          <span 
-                            key={tag}
-                            style={{
-                              padding: '6px 12px',
-                              borderRadius: '16px',
-                              background: 'var(--purple-tint)',
-                              color: 'var(--purple)',
-                              fontSize: '11px',
-                              fontWeight: '700',
-                              fontFamily: 'var(--font-display)',
-                              border: '1px solid var(--purple)'
-                            }}
-                          >
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Social Links */}
-                  {(currentProfile.twitter || currentProfile.linkedin || currentProfile.github) && (
-                    <div style={{ display: 'flex', gap: '8px' }}>
-                      {currentProfile.twitter && (
-                        <a 
-                          href={`https://x.com/${currentProfile.twitter}`} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            width: '36px',
-                            height: '36px',
-                            borderRadius: '8px',
-                            background: 'var(--card2)',
-                            border: '1px solid var(--border2)',
-                            color: 'var(--text2)',
-                            textDecoration: 'none',
-                            fontSize: '14px',
-                            fontWeight: '700',
-                            transition: 'all 0.2s ease'
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.background = '#000'
-                            e.currentTarget.style.color = '#fff'
-                            e.currentTarget.style.borderColor = '#000'
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.background = 'var(--card2)'
-                            e.currentTarget.style.color = 'var(--text2)'
-                            e.currentTarget.style.borderColor = 'var(--border2)'
-                          }}
-                        >
-                          𝕏
-                        </a>
-                      )}
-                      {currentProfile.linkedin && (
-                        <a 
-                          href={`https://linkedin.com/in/${currentProfile.linkedin}`} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            width: '36px',
-                            height: '36px',
-                            borderRadius: '8px',
-                            background: 'var(--card2)',
-                            border: '1px solid var(--border2)',
-                            color: 'var(--text2)',
-                            textDecoration: 'none',
-                            fontSize: '14px',
-                            fontWeight: '700',
-                            transition: 'all 0.2s ease'
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.background = '#0077b5'
-                            e.currentTarget.style.color = '#fff'
-                            e.currentTarget.style.borderColor = '#0077b5'
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.background = 'var(--card2)'
-                            e.currentTarget.style.color = 'var(--text2)'
-                            e.currentTarget.style.borderColor = 'var(--border2)'
-                          }}
-                        >
-                          in
-                        </a>
-                      )}
-                      {currentProfile.github && (
-                        <a 
-                          href={`https://github.com/${currentProfile.github}`} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            width: '36px',
-                            height: '36px',
-                            borderRadius: '8px',
-                            background: 'var(--card2)',
-                            border: '1px solid var(--border2)',
-                            color: 'var(--text2)',
-                            textDecoration: 'none',
-                            fontSize: '14px',
-                            fontWeight: '700',
-                            transition: 'all 0.2s ease'
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.background = '#333'
-                            e.currentTarget.style.color = '#fff'
-                            e.currentTarget.style.borderColor = '#333'
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.background = 'var(--card2)'
-                            e.currentTarget.style.color = 'var(--text2)'
-                            e.currentTarget.style.borderColor = 'var(--border2)'
-                          }}
-                        >
-                          ⚡
-                        </a>
-                      )}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Edit Profile Button */}
-              {isOwnProfile && (
-                <button
-                  onClick={() => setIsEditing(true)}
-                  className="btn-cta-primary"
-                  style={{
-                    width: '100%',
-                    textDecoration: 'none',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                  }}
-                >
-                  Edit Profile
-                </button>
-              )}
-            </div>
-
             {/* ELO and Rank Card */}
             <div style={{ 
               background: 'var(--card)', 
