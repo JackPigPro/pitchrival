@@ -223,11 +223,7 @@ export async function POST(request: NextRequest) {
         receiver_id,
         content,
       })
-      .select(`
-        *,
-        sender:profiles!messages_sender_id_fkey(id, username, display_name),
-        receiver:profiles!messages_receiver_id_fkey(id, username, display_name)
-      `)
+      .select('*')
       .single()
 
     if (error) {
@@ -243,7 +239,8 @@ export async function POST(request: NextRequest) {
         type: 'new_message',
         title: 'New Message',
         body: content.substring(0, 60) + (content.length > 60 ? '...' : ''),
-        related_user_id: user.id,
+        reference_id: user.id,
+        reference_type: 'message'
       })
 
     if (notificationError) {
