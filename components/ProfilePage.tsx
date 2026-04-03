@@ -92,7 +92,13 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
     
     try {
       console.log('Attempting to save to Supabase...')
-      const { data, error } = await supabase
+      
+      // Add timeout to prevent hanging
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Database operation timed out')), 10000)
+      })
+      
+      const updatePromise = supabase
         .from('profiles')
         .update({
           username: editData.username.toLowerCase(),
@@ -107,6 +113,8 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
         })
         .eq('id', currentProfile.id)
         .select()
+
+      const { data, error } = await Promise.race([updatePromise, timeoutPromise]) as any
 
       console.log('Supabase response:', { data, error })
 
