@@ -4,6 +4,7 @@ import LoginForm from '@/app/login/LoginForm'
 export default function SignupPage() {
   return (
     <main
+      className="signup-page"
       style={{
         minHeight: '100vh',
         display: 'grid',
@@ -28,7 +29,6 @@ export default function SignupPage() {
       />
       <div className="auth-deco auth-deco-1 hero-deco-card">
         <div className="hdc-badge b">Connect</div>
-        <div className="hdc-val b">94%</div>
         <div className="hdc-text">Co-founder match score</div>
       </div>
       <div className="auth-deco auth-deco-2 hero-deco-card">
@@ -40,6 +40,21 @@ export default function SignupPage() {
         <div className="hdc-badge p">Learn</div>
         <div className="hdc-val p">Lesson 3</div>
         <div className="hdc-text">35% complete</div>
+      </div>
+      <div className="auth-deco auth-deco-4 hero-deco-card">
+        <div className="hdc-badge o">Build</div>
+        <div className="hdc-val o">12</div>
+        <div className="hdc-text">Projects shipped</div>
+      </div>
+      <div className="auth-deco auth-deco-5 hero-deco-card">
+        <div className="hdc-badge b">Network</div>
+        <div className="hdc-val b">248</div>
+        <div className="hdc-text">Connections made</div>
+      </div>
+      <div className="auth-deco auth-deco-6 hero-deco-card">
+        <div className="hdc-badge g">Grow</div>
+        <div className="hdc-val g">Level 7</div>
+        <div className="hdc-text">Skill progression</div>
       </div>
       <div style={{ position: 'relative', zIndex: 2 }}>
         <LoginForm mode="signup" />
