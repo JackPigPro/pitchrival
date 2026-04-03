@@ -82,13 +82,23 @@ export default function OnboardingPage() {
 
     try {
       console.log('Starting onboarding submission...')
-      // Get current user
-      const { data: { user }, error: userError } = await supabase.auth.getUser()
       
-      if (userError || !user) {
-        throw new Error('User not authenticated')
+      // Get current user with better error handling
+      const { data: userData, error: userError } = await supabase.auth.getUser()
+      
+      console.log('Auth response:', { userData, userError })
+      
+      if (userError) {
+        console.error('Auth error:', userError)
+        throw new Error(`Authentication error: ${userError.message}`)
+      }
+      
+      if (!userData?.user) {
+        console.error('No user found in auth response')
+        throw new Error('User not authenticated - no user data found')
       }
 
+      const user = userData.user
       console.log('User authenticated:', user.id)
 
       // Update or create profile
@@ -133,6 +143,7 @@ export default function OnboardingPage() {
         router.refresh()
       }, 100)
     } catch (err) {
+      console.error('Onboarding submission error:', err)
       setError(err instanceof Error ? err.message : 'An error occurred')
       setLoading(false)
     }
