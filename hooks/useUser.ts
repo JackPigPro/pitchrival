@@ -43,6 +43,16 @@ export function useUser() {
     const maxRetries = 3
     const supabase = createClient()
 
+    // Listen for auth state changes from other tabs
+    const broadcastChannel = new BroadcastChannel('auth-sync')
+    
+    broadcastChannel.onmessage = (event) => {
+      if (event.data.type === 'AUTH_STATE_CHANGED' && mounted) {
+        // Force refresh when another tab changes auth state
+        getSessionWithRetry()
+      }
+    }
+
     const getSessionWithRetry = async () => {
       try {
         // Use shared auth logic to get consistent state
@@ -59,14 +69,21 @@ export function useUser() {
             setLoading(false)
           }
         }
-      } catch (err) {
-        console.error('❌ [useUser] Error getting auth state:', err)
+      } catch (err: any) {
+        // Don't log lock conflicts as errors - they're expected with multiple tabs
+        if (!err.message?.includes('lock')) {
+          console.error('❌ [useUser] Error getting auth state:', err)
+        }
+        
         retryCount++
         
         if (retryCount < maxRetries && mounted) {
             setTimeout(getSessionWithRetry, 1000 * retryCount) // Exponential backoff
         } else {
           if (mounted) {
+            // On auth errors, ensure user is treated as logged out
+            setUser(null)
+            setProfile(null)
             setAuthLoading(false)
             setLoading(false)
           }
@@ -84,6 +101,9 @@ export function useUser() {
         setUser(user)
         setAuthLoading(false)
         
+        // Notify other tabs of auth state change
+        broadcastChannel.postMessage({ type: 'AUTH_STATE_CHANGED' })
+        
         if (user && event !== 'INITIAL_SESSION') {
           await fetchUserData(user.id)
         } else if (!user) {
@@ -100,6 +120,7 @@ export function useUser() {
     return () => {
       mounted = false
       subscription.unsubscribe()
+      broadcastChannel.close()
     }
   }, [])
 
