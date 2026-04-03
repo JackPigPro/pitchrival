@@ -1,7 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { createClient } from '@/utils/supabase/client'
+import { useRouter } from 'next/navigation'
 import CountryDropdown from './CountryDropdown'
 
 interface Profile {
@@ -18,23 +17,10 @@ interface Profile {
   created_at: string
 }
 
-interface UserStats {
-  elo?: number
-  rank?: string
-  weekly_duel_entered?: number
-}
-
-interface Idea {
-  id: string
-  title: string
-  content: string
-  created_at: string
-}
-
 interface ProfilePageProps {
   profile: Profile
-  userStats?: UserStats
-  ideas: Idea[]
+  userStats?: any
+  ideas: any[]
   isOwnProfile: boolean
   allTimeRank?: number | null
   dailyRank?: number | null
@@ -42,72 +28,8 @@ interface ProfilePageProps {
 }
 
 export default function ProfilePage({ profile: initialProfile, userStats, ideas, isOwnProfile, allTimeRank, dailyRank, weeklyDuelsCount }: ProfilePageProps) {
-  const [isEditing, setIsEditing] = useState(false)
-  const [currentProfile, setCurrentProfile] = useState(initialProfile)
-  const [editData, setEditData] = useState({
-    username: initialProfile.username || '',
-    location: initialProfile.location || '',
-    bio: initialProfile.bio || '',
-    stage: initialProfile.stage || '',
-    skills: initialProfile.skills || [],
-    status_tags: initialProfile.status_tags || [],
-    social_links: {
-      x: initialProfile.twitter || '',
-      linkedin: initialProfile.linkedin || '',
-      github: initialProfile.github || ''
-    }
-  })
-
-  const supabase = createClient()
-
-  useEffect(() => {
-    // Reset when entering edit mode
-  }, [isEditing])
-
-  const handleSave = async () => {
-    if (!currentProfile?.id) return
-    
-    const { error } = await supabase
-      .from('profiles')
-      .update({
-        username: editData.username.toLowerCase(),
-        location: editData.location,
-        bio: editData.bio,
-        stage: editData.stage,
-        skills: editData.skills,
-        status_tags: editData.status_tags,
-        twitter: editData.social_links?.x || null,
-        linkedin: editData.social_links?.linkedin || null,
-        github: editData.social_links?.github || null
-      })
-      .eq('id', currentProfile.id)
-
-    if (error) {
-      alert('Error saving. Please try again.')
-      return
-    }
-
-    setCurrentProfile(prev => ({ ...prev, ...editData }))
-    setIsEditing(false)
-  }
-
-  const toggleSkill = (skill: string) => {
-    setEditData(prev => ({
-      ...prev,
-      skills: prev.skills.includes(skill)
-        ? prev.skills.filter(s => s !== skill)
-        : [...prev.skills, skill]
-    }))
-  }
-
-  const toggleStatusTag = (tag: string) => {
-    setEditData(prev => ({
-      ...prev,
-      status_tags: prev.status_tags.includes(tag)
-        ? prev.status_tags.filter(t => t !== tag)
-        : [...prev.status_tags, tag]
-    }))
-  }
+  const router = useRouter()
+  const currentProfile = initialProfile
 
   const getProfileColor = (username: string) => {
     const colors = ['#16a34a', '#2563eb', '#7c3aed', '#dc2626', '#ca8a04']
@@ -220,276 +142,6 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
     }
   }
 
-  const stageOptions = ['Idea Stage', 'Building MVP', 'Already Launched']
-  const skillOptions = ['Design', 'Code', 'Marketing', 'Sales', 'Finance']
-  const statusTagOptions = ['Looking for Co-founder', 'Open to be a Co-founder', 'Message me for ideas', 'Open to feedback']
-
-  if (isEditing) {
-    return (
-      <div style={{ minHeight: '100vh', background: 'var(--bg)', padding: '24px' }}>
-        <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-          <div style={{ 
-            background: 'var(--card)', 
-            borderRadius: '16px', 
-            padding: '32px',
-            border: '1px solid var(--border)',
-            boxShadow: 'var(--shadow)'
-          }}>
-            <h2 style={{ fontSize: '24px', fontWeight: '700', marginBottom: '24px', fontFamily: 'var(--font-display)' }}>
-              Edit Profile
-            </h2>
-
-            <div style={{ display: 'grid', gap: '20px' }}>
-              <div>
-                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', fontSize: '14px' }}>
-                  Username
-                </label>
-                <input
-                  type="text"
-                  value={editData.username}
-                  onChange={(e) => setEditData(prev => ({ ...prev, username: e.target.value }))}
-                  style={{
-                    width: '100%',
-                    padding: '12px',
-                    borderRadius: '8px',
-                    border: '1px solid var(--border2)',
-                    background: 'var(--card2)',
-                    fontSize: '14px'
-                  }}
-                />
-              </div>
-
-              <div>
-                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', fontSize: '14px' }}>
-                  Location
-                </label>
-                <CountryDropdown
-                  value={editData.location}
-                  onChange={(value) => setEditData(prev => ({ ...prev, location: value }))}
-                  placeholder="Select country"
-                />
-              </div>
-
-              <div>
-                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', fontSize: '14px' }}>
-                  Bio
-                </label>
-                <textarea
-                  value={editData.bio}
-                  onChange={(e) => setEditData(prev => ({ ...prev, bio: e.target.value }))}
-                  placeholder="Tell us about yourself..."
-                  rows={4}
-                  style={{
-                    width: '100%',
-                    padding: '12px',
-                    borderRadius: '8px',
-                    border: '1px solid var(--border2)',
-                    background: 'var(--card2)',
-                    fontSize: '14px',
-                    resize: 'vertical'
-                  }}
-                />
-              </div>
-
-              <div>
-                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', fontSize: '14px' }}>
-                  Stage
-                </label>
-                <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-                  {stageOptions.map(stage => (
-                    <button
-                      key={stage}
-                      type="button"
-                      onClick={() => setEditData(prev => ({ ...prev, stage }))}
-                      style={{
-                        padding: '8px 16px',
-                        borderRadius: '20px',
-                        border: `1px solid ${editData.stage === stage ? 'var(--green)' : 'var(--border2)'}`,
-                        background: editData.stage === stage ? 'var(--green-tint)' : 'var(--card2)',
-                        color: editData.stage === stage ? 'var(--green)' : 'var(--text2)',
-                        fontSize: '12px',
-                        fontWeight: '600',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      {stage}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', fontSize: '14px' }}>
-                  Skills
-                </label>
-                <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-                  {skillOptions.map(skill => (
-                    <button
-                      key={skill}
-                      type="button"
-                      onClick={() => toggleSkill(skill)}
-                      style={{
-                        padding: '8px 16px',
-                        borderRadius: '20px',
-                        border: `1px solid ${editData.skills.includes(skill) ? 'var(--blue)' : 'var(--border2)'}`,
-                        background: editData.skills.includes(skill) ? 'var(--blue-tint)' : 'var(--card2)',
-                        color: editData.skills.includes(skill) ? 'var(--blue)' : 'var(--text2)',
-                        fontSize: '12px',
-                        fontWeight: '600',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      {skill}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', fontSize: '14px' }}>
-                  Status Tags
-                </label>
-                <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-                  {statusTagOptions.map(tag => (
-                    <button
-                      key={tag}
-                      type="button"
-                      onClick={() => toggleStatusTag(tag)}
-                      style={{
-                        padding: '8px 16px',
-                        borderRadius: '20px',
-                        border: `1px solid ${editData.status_tags.includes(tag) ? 'var(--purple)' : 'var(--border2)'}`,
-                        background: editData.status_tags.includes(tag) ? 'var(--purple-tint)' : 'var(--card2)',
-                        color: editData.status_tags.includes(tag) ? 'var(--purple)' : 'var(--text2)',
-                        fontSize: '12px',
-                        fontWeight: '600',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      {tag}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', fontSize: '14px' }}>
-                  Social Links
-                </label>
-                <div style={{ display: 'grid', gap: '12px' }}>
-                  <input
-                    type="text"
-                    placeholder="X username"
-                    value={editData.social_links.x || ''}
-                    onChange={(e) => setEditData(prev => ({
-                      ...prev,
-                      social_links: { ...prev.social_links, x: e.target.value }
-                    }))}
-                    style={{
-                      width: '100%',
-                      padding: '12px',
-                      borderRadius: '8px',
-                      border: '1px solid var(--border2)',
-                      background: 'var(--card2)',
-                      fontSize: '14px'
-                    }}
-                  />
-                  <input
-                    type="text"
-                    placeholder="LinkedIn username"
-                    value={editData.social_links.linkedin || ''}
-                    onChange={(e) => setEditData(prev => ({
-                      ...prev,
-                      social_links: { ...prev.social_links, linkedin: e.target.value }
-                    }))}
-                    style={{
-                      width: '100%',
-                      padding: '12px',
-                      borderRadius: '8px',
-                      border: '1px solid var(--border2)',
-                      background: 'var(--card2)',
-                      fontSize: '14px'
-                    }}
-                  />
-                  <input
-                    type="text"
-                    placeholder="GitHub username"
-                    value={editData.social_links.github || ''}
-                    onChange={(e) => setEditData(prev => ({
-                      ...prev,
-                      social_links: { ...prev.social_links, github: e.target.value }
-                    }))}
-                    style={{
-                      width: '100%',
-                      padding: '12px',
-                      borderRadius: '8px',
-                      border: '1px solid var(--border2)',
-                      background: 'var(--card2)',
-                      fontSize: '14px'
-                    }}
-                  />
-                </div>
-              </div>
-
-              <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
-                <button
-                  onClick={() => setIsEditing(false)}
-                  style={{
-                    padding: '12px 24px',
-                    borderRadius: '8px',
-                    border: '1px solid var(--border2)',
-                    background: 'var(--card2)',
-                    color: 'var(--text)',
-                    fontSize: '14px',
-                    fontWeight: '600',
-                    cursor: 'pointer'
-                  }}
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={async () => {
-                    if (!currentProfile?.id) return
-                    const supabase = createClient()
-                    const { error } = await supabase
-                      .from('profiles')
-                      .update({
-                        username: editData.username.toLowerCase(),
-                        location: editData.location,
-                        bio: editData.bio,
-                        stage: editData.stage,
-                        skills: editData.skills,
-                        status_tags: editData.status_tags,
-                        twitter: editData.social_links?.x || null,
-                        linkedin: editData.social_links?.linkedin || null,
-                        github: editData.social_links?.github || null
-                      })
-                      .eq('id', currentProfile.id)
-                    if (error) { alert('Error saving'); return }
-                    setIsEditing(false)
-                    window.location.reload()
-                  }}
-                  style={{
-                    padding: '12px 24px',
-                    borderRadius: '8px',
-                    border: 'none',
-                    background: 'var(--green)',
-                    color: 'white',
-                    fontSize: '14px',
-                    fontWeight: '600',
-                    cursor: 'pointer'
-                  }}
-                >
-                  Save Changes
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
   return (
     <div style={{ 
       minHeight: '100vh', 
@@ -513,7 +165,7 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
           {/* Edit Profile Button - Top Right */}
           {isOwnProfile && (
             <button
-              onClick={() => setIsEditing(true)}
+              onClick={() => router.push('/profile/edit')}
               className="btn-cta-ghost"
               style={{
                 position: 'absolute',
