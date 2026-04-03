@@ -1,6 +1,5 @@
 import Link from 'next/link'
 import LoginForm from './LoginForm'
-import Footer from '@/components/Footer'
 
 export default async function LoginPage({
   searchParams,
@@ -11,8 +10,7 @@ export default async function LoginPage({
   const mode = sp.mode === 'signup' ? 'signup' : 'login'
 
   return (
-    <>
-      <main
+    <main
         className={mode === 'signup' ? 'signup-page' : 'login-page'}
         style={{
           minHeight: '100vh',
@@ -80,7 +78,5 @@ export default async function LoginPage({
           </div>
         </div>
       </main>
-      <Footer onComingSoon={() => {}} onScrollTo={(id) => {}} />
-    </>
-  )
+    )
 }
