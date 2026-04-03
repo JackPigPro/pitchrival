@@ -1,5 +1,6 @@
 import { createClient } from '@/utils/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
+import { rateLimit } from '@/utils/rateLimit'
 
 export async function POST(request: NextRequest) {
   try {
@@ -7,9 +8,34 @@ export async function POST(request: NextRequest) {
     
     const { content, duel_id } = await request.json()
     
-    if (!content || !duel_id) {
+    // UUID validation helper
+    const isValidUUID = (str: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str)
+
+    // Input validation
+    if (!content || typeof content !== 'string' || content.trim() === '') {
       return NextResponse.json(
-        { error: 'Missing content or duel_id' },
+        { error: 'Content is required and must be a non-empty string' },
+        { status: 400 }
+      )
+    }
+    
+    if (content.length < 10) {
+      return NextResponse.json(
+        { error: 'Content must be at least 10 characters' },
+        { status: 400 }
+      )
+    }
+    
+    if (content.length > 10000) {
+      return NextResponse.json(
+        { error: 'Content must be at most 10000 characters' },
+        { status: 400 }
+      )
+    }
+    
+    if (!duel_id || typeof duel_id !== 'string' || !isValidUUID(duel_id)) {
+      return NextResponse.json(
+        { error: 'duel_id is required and must be a valid UUID format' },
         { status: 400 }
       )
     }
@@ -32,6 +58,9 @@ export async function POST(request: NextRequest) {
         { status: 401 }
       )
     }
+
+    const allowed = rateLimit(user.id + '_duel_submit', 1, 10080 * 60 * 1000)
+    if (!allowed) return NextResponse.json({ error: 'Too many requests, please slow down' }, { status: 429 })
 
     // Check if user already submitted to this duel
     const { data: existingSubmission } = await supabase

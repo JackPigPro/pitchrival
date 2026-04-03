@@ -1,5 +1,6 @@
 import { createClient } from '@/utils/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
+import { rateLimit } from '@/utils/rateLimit'
 
 export async function GET(
   request: NextRequest,
@@ -84,11 +85,32 @@ export async function POST(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const allowed = rateLimit(user.id + '_comments', 30, 60 * 60 * 1000)
+    if (!allowed) return NextResponse.json({ error: 'Too many requests, please slow down' }, { status: 429 })
+
     const body = await request.json()
     const { content, parent_id = null } = body
 
-    if (!content || content.trim() === '') {
-      return NextResponse.json({ error: 'Content is required' }, { status: 400 })
+    // UUID validation helper
+    const isValidUUID = (str: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str)
+
+    // Input validation
+    if (!content || typeof content !== 'string' || content.trim() === '') {
+      return NextResponse.json({ error: 'Content is required and must be a non-empty string' }, { status: 400 })
+    }
+    
+    if (content.length < 1) {
+      return NextResponse.json({ error: 'Content must be at least 1 character' }, { status: 400 })
+    }
+    
+    if (content.length > 1000) {
+      return NextResponse.json({ error: 'Content must be at most 1000 characters' }, { status: 400 })
+    }
+    
+    if (parent_id !== null && parent_id !== undefined) {
+      if (typeof parent_id !== 'string' || !isValidUUID(parent_id)) {
+        return NextResponse.json({ error: 'parent_id must be a valid UUID format' }, { status: 400 })
+      }
     }
 
     const { data, error } = await supabase

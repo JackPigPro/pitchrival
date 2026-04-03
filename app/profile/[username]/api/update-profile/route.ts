@@ -14,6 +14,43 @@ export async function POST(request: Request) {
 
     const profileData = await request.json()
     
+    // Input validation for profile update
+    const { username, display_name, bio } = profileData
+    
+    if (username !== undefined) {
+      if (typeof username !== 'string' || username.trim() === '') {
+        return NextResponse.json({ error: 'Username must be a non-empty string' }, { status: 400 })
+      }
+      
+      if (username.length > 30) {
+        return NextResponse.json({ error: 'Username must be at most 30 characters' }, { status: 400 })
+      }
+      
+      if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+        return NextResponse.json({ error: 'Username can only contain alphanumeric characters and underscores' }, { status: 400 })
+      }
+    }
+    
+    if (display_name !== undefined) {
+      if (typeof display_name !== 'string' || display_name.trim() === '') {
+        return NextResponse.json({ error: 'Display name must be a non-empty string' }, { status: 400 })
+      }
+      
+      if (display_name.length > 50) {
+        return NextResponse.json({ error: 'Display name must be at most 50 characters' }, { status: 400 })
+      }
+    }
+    
+    if (bio !== undefined) {
+      if (typeof bio !== 'string') {
+        return NextResponse.json({ error: 'Bio must be a string' }, { status: 400 })
+      }
+      
+      if (bio.length > 500) {
+        return NextResponse.json({ error: 'Bio must be at most 500 characters' }, { status: 400 })
+      }
+    }
+    
     // Update the profile
     const { data, error } = await supabase
       .from('profiles')

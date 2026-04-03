@@ -1,6 +1,7 @@
 import { createClient } from '@/utils/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { Database } from '@/types/database'
+import { rateLimit } from '@/utils/rateLimit'
 
 export async function GET(request: NextRequest) {
   try {
@@ -31,8 +32,8 @@ export async function GET(request: NextRequest) {
       // Show only public ideas
       query = query.eq('is_public', true)
       
-      // If userId is provided, also include private ideas for that user
-      if (userId) {
+      // If userId is provided, also include private ideas for that user ONLY if it matches the logged-in user
+      if (userId && userId === user.id) {
         query = query.or(`is_public.eq.true,user_id.eq.${userId}`)
       }
     }
@@ -90,11 +91,31 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const allowed = rateLimit(user.id + '_ideas', 10, 60 * 60 * 1000)
+    if (!allowed) return NextResponse.json({ error: 'Too many requests, please slow down' }, { status: 429 })
+
     const body = await request.json()
     const { title, content, is_public = true } = body
 
-    if (!title || !content) {
-      return NextResponse.json({ error: 'Title and content are required' }, { status: 400 })
+    // Input validation
+    if (!title || typeof title !== 'string' || title.trim() === '') {
+      return NextResponse.json({ error: 'Title is required and must be a non-empty string' }, { status: 400 })
+    }
+    
+    if (title.length > 100) {
+      return NextResponse.json({ error: 'Title must be at most 100 characters' }, { status: 400 })
+    }
+    
+    if (!content || typeof content !== 'string' || content.trim() === '') {
+      return NextResponse.json({ error: 'Content is required and must be a non-empty string' }, { status: 400 })
+    }
+    
+    if (content.length > 5000) {
+      return NextResponse.json({ error: 'Content must be at most 5000 characters' }, { status: 400 })
+    }
+    
+    if (typeof is_public !== 'boolean') {
+      return NextResponse.json({ error: 'is_public must be a boolean' }, { status: 400 })
     }
 
     const { data: idea, error } = await supabase

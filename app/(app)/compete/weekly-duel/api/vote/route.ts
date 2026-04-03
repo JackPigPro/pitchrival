@@ -1,5 +1,6 @@
 import { createClient } from '@/utils/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
+import { rateLimit } from '@/utils/rateLimit'
 
 export async function POST(request: NextRequest) {
   try {
@@ -33,6 +34,9 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    const allowed = rateLimit(user.id + '_duel_vote', 120, 60 * 60 * 1000)
+    if (!allowed) return NextResponse.json({ error: 'Too many requests, please slow down' }, { status: 429 })
+
     // Get user's current ELO
     const { data: userStats } = await supabase
       .from('user_stats')
@@ -65,6 +69,28 @@ export async function POST(request: NextRequest) {
       .select('duel_id')
       .eq('id', winner_submission_id)
       .single()
+
+    if (!duelData) {
+      return NextResponse.json(
+        { error: 'Invalid submission' },
+        { status: 404 }
+      )
+    }
+
+    // Verify voter has a submission in the current duel
+    const { data: voterSubmission } = await supabase
+      .from('duel_submissions')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('duel_id', duelData.duel_id)
+      .single()
+
+    if (!voterSubmission) {
+      return NextResponse.json(
+        { error: 'You must participate in this duel to vote' },
+        { status: 403 }
+      )
+    }
 
     // Call the submit_vote function
     const { data, error: voteError } = await supabase

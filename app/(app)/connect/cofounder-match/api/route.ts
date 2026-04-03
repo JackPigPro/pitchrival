@@ -1,6 +1,7 @@
 import { createClient } from '@/utils/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { Database } from '@/types/database'
+import { rateLimit } from '@/utils/rateLimit'
 
 type Profile = Database['public']['Tables']['profiles']['Row']
 
@@ -100,11 +101,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const allowed = rateLimit(user.id + '_cofounder', 10, 60 * 60 * 1000)
+    if (!allowed) return NextResponse.json({ error: 'Too many requests, please slow down' }, { status: 429 })
+
     const body = await request.json()
     const { receiver_id } = body
 
-    if (!receiver_id) {
-      return NextResponse.json({ error: 'receiver_id is required' }, { status: 400 })
+    // UUID validation helper
+    const isValidUUID = (str: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str)
+
+    // Input validation
+    if (!receiver_id || typeof receiver_id !== 'string' || !isValidUUID(receiver_id)) {
+      return NextResponse.json({ error: 'receiver_id is required and must be a valid UUID format' }, { status: 400 })
     }
 
     if (receiver_id === user.id) {
@@ -201,12 +209,12 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'request_id is required' }, { status: 400 })
     }
 
-    // Delete the request where user is the sender
+    // Delete the request where user is the sender - this ensures only requests you sent can be deleted
     const { error: deleteError } = await supabase
       .from('cofounder_requests')
       .delete()
       .eq('id', request_id)
-      .eq('sender_id', user.id)
+      .eq('sender_id', user.id) // Explicit ownership verification - prevents deleting requests you didn't send
 
     if (deleteError) {
       console.error('Error deleting cofounder request:', deleteError)

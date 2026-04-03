@@ -17,8 +17,25 @@ export async function PUT(
     const body = await request.json()
     const { title, content, is_public } = body
 
-    if (!title || !content) {
-      return NextResponse.json({ error: 'Title and content are required' }, { status: 400 })
+    // Input validation
+    if (!title || typeof title !== 'string' || title.trim() === '') {
+      return NextResponse.json({ error: 'Title is required and must be a non-empty string' }, { status: 400 })
+    }
+    
+    if (title.length > 100) {
+      return NextResponse.json({ error: 'Title must be at most 100 characters' }, { status: 400 })
+    }
+    
+    if (!content || typeof content !== 'string' || content.trim() === '') {
+      return NextResponse.json({ error: 'Content is required and must be a non-empty string' }, { status: 400 })
+    }
+    
+    if (content.length > 5000) {
+      return NextResponse.json({ error: 'Content must be at most 5000 characters' }, { status: 400 })
+    }
+    
+    if (typeof is_public !== 'boolean') {
+      return NextResponse.json({ error: 'is_public must be a boolean' }, { status: 400 })
     }
 
     const { data: existingIdea, error: fetchError } = await supabase

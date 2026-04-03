@@ -1,5 +1,6 @@
 import { createClient } from '@/utils/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
+import { rateLimit } from '@/utils/rateLimit'
 
 export async function GET(request: NextRequest) {
   try {
@@ -129,11 +130,30 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const allowed = rateLimit(user.id + '_messages', 30, 60 * 60 * 1000)
+    if (!allowed) return NextResponse.json({ error: 'Too many requests, please slow down' }, { status: 429 })
+
     const body = await request.json()
     const { receiver_id, content } = body
 
-    if (!receiver_id || !content) {
-      return NextResponse.json({ error: 'receiver_id and content are required' }, { status: 400 })
+    // UUID validation helper
+    const isValidUUID = (str: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str)
+
+    // Input validation
+    if (!receiver_id || typeof receiver_id !== 'string' || !isValidUUID(receiver_id)) {
+      return NextResponse.json({ error: 'receiver_id is required and must be a valid UUID format' }, { status: 400 })
+    }
+    
+    if (!content || typeof content !== 'string' || content.trim() === '') {
+      return NextResponse.json({ error: 'Content is required and must be a non-empty string' }, { status: 400 })
+    }
+    
+    if (content.length < 1) {
+      return NextResponse.json({ error: 'Content must be at least 1 character' }, { status: 400 })
+    }
+    
+    if (content.length > 2000) {
+      return NextResponse.json({ error: 'Content must be at most 2000 characters' }, { status: 400 })
     }
 
     // Check if there's an accepted cofounder request between the two users
