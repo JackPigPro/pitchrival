@@ -44,56 +44,40 @@ async function ProfileContent({ username }: { username: string }) {
     .gt('elo', userStats?.elo || 0)
   const allTimeRank = allTimeRankCount !== null ? allTimeRankCount + 1 : null
 
-  // Fetch daily rank from elo_history (last 24 hours)
+  // Fetch daily rank using same approach as leaderboard
   const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
-  console.log('Fetching daily history since:', oneDayAgo)
   
+  // Get all user stats for daily ranking
+  const { data: allUserStats, error: allStatsError } = await supabase
+    .from('user_stats')
+    .select('user_id, elo')
+    .order('elo', { ascending: false })
+
+  // Get all daily history
   const { data: dailyHistory, error: dailyError } = await supabase
     .from('elo_history')
-    .select('user_id, elo_change, new_elo')
+    .select('elo_change, user_id')
     .gte('created_at', oneDayAgo)
-    .eq('user_id', profile.id)
 
-  console.log('Daily history for user:', { dailyHistory, dailyError })
-
-  // Calculate daily rank position (simplified approach)
+  // Calculate daily rank like leaderboard does
   let dailyRank = null
-  if (dailyHistory && dailyHistory.length > 0) {
-    const totalDailyEloGain = dailyHistory.reduce((sum, entry) => sum + (entry.elo_change || 0), 0)
-    console.log('User total daily gain:', totalDailyEloGain)
-    
-    // For now, we'll fetch all daily history and calculate rank on the client side
-    // This is less efficient but works with Supabase limitations
-    const { data: allDailyHistory, error: allHistoryError } = await supabase
-      .from('elo_history')
-      .select('user_id, elo_change')
-      .gte('created_at', oneDayAgo)
-    
-    console.log('All daily history:', { allDailyHistory, allHistoryError })
-    
-    if (allDailyHistory) {
-      // Group by user and calculate total gains
-      const userGains = new Map<string, number>()
-      allDailyHistory.forEach(entry => {
-        const currentGain = userGains.get(entry.user_id) || 0
-        userGains.set(entry.user_id, currentGain + (entry.elo_change || 0))
-      })
+  if (allUserStats && dailyHistory) {
+    // Create complete daily list with all users and their gains
+    const completeDailyList = allUserStats.map(user => {
+      const userDailyEntries = dailyHistory.filter(entry => entry.user_id === user.user_id)
+      const totalDailyGain = userDailyEntries.reduce((sum, entry) => sum + (entry.elo_change || 0), 0)
       
-      console.log('User gains map:', userGains)
-      
-      // Count users with higher gains
-      let usersWithHigherGain = 0
-      userGains.forEach(gain => {
-        if (gain > totalDailyEloGain) {
-          usersWithHigherGain++
-        }
-      })
-      
-      dailyRank = usersWithHigherGain + 1
-      console.log('Calculated daily rank:', dailyRank)
+      return {
+        user_id: user.user_id,
+        dailyGain: totalDailyGain
+      }
+    }).sort((a, b) => b.dailyGain - a.dailyGain) // Sort by daily gain descending
+
+    // Find current user's rank
+    const userIndex = completeDailyList.findIndex(user => user.user_id === profile.id)
+    if (userIndex !== -1) {
+      dailyRank = userIndex + 1
     }
-  } else {
-    console.log('No daily history found for user')
   }
 
   // Fetch weekly duels entered count
