@@ -46,49 +46,53 @@ export function useUser() {
 
   useEffect(() => {
     let mounted = true
+    let retryCount = 0
+    const maxRetries = 3
     const supabase = createClient()
 
-    // Add timeout to prevent authLoading from getting stuck
-    const authTimeout = setTimeout(() => {
-      if (mounted && authLoading) {
-        console.log('⏰ [useUser] Auth check timeout, setting authLoading to false')
-        setAuthLoading(false)
-        setLoading(false)
-      }
-    }, 8000) // 8 second timeout
-
-    // Get initial session immediately
-    console.log('🔍 [useUser] Getting initial session...')
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (mounted) {
-        console.log('📡 [useUser] Session received:', { 
-          hasSession: !!session, 
-          userId: session?.user?.id 
-        })
+    const getSessionWithRetry = async () => {
+      try {
+        console.log('🔍 [useUser] Getting initial session...', `attempt ${retryCount + 1}`)
         
-        const user = session?.user ?? null
-        setUser(user)
-        setAuthLoading(false)
+        const { data: { session } } = await supabase.auth.getSession()
         
-        if (user) {
-          console.log('🚀 [useUser] User authenticated, fetching user data...')
-          fetchUserData(user.id)
-        } else {
-          console.log('🚫 [useUser] No user session')
-          setLoading(false)
+        if (mounted) {
+          console.log('📡 [useUser] Session received:', { 
+            hasSession: !!session, 
+            userId: session?.user?.id 
+          })
+          
+          const user = session?.user ?? null
+          setUser(user)
+          setAuthLoading(false)
+          
+          if (user) {
+            console.log('🚀 [useUser] User authenticated, fetching user data...')
+            fetchUserData(user.id)
+          } else {
+            console.log('🚫 [useUser] No user session')
+            setLoading(false)
+          }
         }
+      } catch (err) {
+        console.error('❌ [useUser] Error getting session:', err)
+        retryCount++
         
-        // Clear timeout if session resolves
-        clearTimeout(authTimeout)
+        if (retryCount < maxRetries && mounted) {
+          console.log(`🔄 [useUser] Retrying session check... (${retryCount}/${maxRetries})`)
+          setTimeout(getSessionWithRetry, 1000 * retryCount) // Exponential backoff
+        } else {
+          console.log('❌ [useUser] Max retries reached, giving up')
+          if (mounted) {
+            setAuthLoading(false)
+            setLoading(false)
+          }
+        }
       }
-    }).catch((err) => {
-      console.error('❌ [useUser] Error getting session:', err)
-      if (mounted) {
-        setAuthLoading(false)
-        setLoading(false)
-        clearTimeout(authTimeout)
-      }
-    })
+    }
+
+    // Initial session check
+    getSessionWithRetry()
 
     // Listen for future auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
@@ -115,7 +119,6 @@ export function useUser() {
 
     return () => {
       mounted = false
-      clearTimeout(authTimeout)
       subscription.unsubscribe()
     }
   }, [])
