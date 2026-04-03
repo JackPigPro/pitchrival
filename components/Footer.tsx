@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useRouter, usePathname } from 'next/navigation'
 import { LiveStats } from '@/utils/stats'
+import { useLiveStats } from '@/hooks/useLiveStats'
 
 interface FooterProps {
   onComingSoon: () => void
@@ -10,9 +11,13 @@ interface FooterProps {
   stats?: LiveStats
 }
 
-export default function Footer({ onComingSoon, onScrollTo, stats }: FooterProps) {
+export default function Footer({ onComingSoon, onScrollTo, stats: serverStats }: FooterProps) {
   const router = useRouter()
   const pathname = usePathname()
+  const { stats: clientStats } = useLiveStats()
+  
+  // Use server stats if available (SSR), otherwise use client stats
+  const stats = serverStats || clientStats
 
   const handleLandingNavigation = (sectionId: string) => {
     if (pathname === '/') {

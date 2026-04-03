@@ -2,13 +2,18 @@
 
 import Link from 'next/link'
 import { LiveStats } from '@/utils/stats'
+import { useLiveStats } from '@/hooks/useLiveStats'
 
 interface HeroProps {
   onScrollTo: (id: string) => void
   stats?: LiveStats
 }
 
-export default function Hero({ onScrollTo, stats }: HeroProps) {
+export default function Hero({ onScrollTo, stats: serverStats }: HeroProps) {
+  const { stats: clientStats } = useLiveStats()
+  
+  // Use server stats if available (SSR), otherwise use client stats
+  const stats = serverStats || clientStats
   return (
     <section className="hero" id="top">
       <div className="hero-bg"></div>
