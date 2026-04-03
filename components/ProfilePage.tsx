@@ -70,6 +70,7 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
   }, [isEditing])
 
   const handleSave = async () => {
+    console.log('handleSave called, loading:', loading, 'saveSuccess:', saveSuccess)
     setLoading(true)
     setSaveSuccess(false)
     try {
@@ -487,7 +488,7 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
                   Cancel
                 </button>
                 <button
-                  onClick={handleSave}
+                  onClick={() => { console.log('Save button clicked'); handleSave() }}
                   disabled={loading || saveSuccess}
                   style={{
                     padding: '12px 24px',
