@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { useUser } from '@/hooks/useUser'
+import { createClient } from '@/utils/supabase/client'
 
 interface Message {
   id: string
@@ -93,6 +94,33 @@ export default function MessagesClient() {
   useEffect(() => {
     scrollToBottom()
   }, [messages])
+
+  useEffect(() => {
+    if (!user || !activeConversation) return
+
+    const supabase = createClient()
+    const channel = supabase
+      .channel('messages-realtime')
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'messages',
+        filter: `receiver_id=eq.${user.id}` 
+      }, (payload) => {
+        const newMessage = payload.new as Message
+        // Only add to chat if it's from the active conversation
+        if (newMessage.sender_id === activeConversation) {
+          setMessages(prev => [...prev, newMessage])
+        }
+        // Update conversations list with new last message
+        fetchConversations()
+      })
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [user, activeConversation])
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
