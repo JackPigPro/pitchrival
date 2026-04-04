@@ -33,20 +33,26 @@ export async function POST(request: Request) {
     }
 
     // Call the Supabase function
+    console.log('Calling create_weekly_duel function with prompt:', prompt.trim())
     const { data, error } = await supabase.rpc('create_weekly_duel', {
       prompt_text: prompt.trim()
     })
 
+    console.log('Supabase response - data:', data)
+    console.log('Supabase response - error:', error)
+
     if (error) {
       console.error('Error creating weekly duel:', error)
-      return NextResponse.json({ success: false, error: 'Failed to create weekly duel' }, { status: 500 })
+      return NextResponse.json({ success: false, error: 'Failed to create weekly duel', details: error }, { status: 500 })
     }
 
-    // Ensure the response has the expected structure
-    if (data && data.success) {
-      return NextResponse.json(data, { status: 200 })
+    // The function returns a UUID directly, not an object
+    if (data) {
+      console.log('Duel created successfully with ID:', data)
+      return NextResponse.json({ success: true, duel_id: data }, { status: 200 })
     } else {
-      return NextResponse.json({ success: false, error: 'Unexpected response from database' }, { status: 500 })
+      console.log('No data returned from create_weekly_duel function')
+      return NextResponse.json({ success: false, error: 'Failed to create duel' }, { status: 500 })
     }
   } catch (error) {
     console.error('Error in create-weekly-duel API:', error)
