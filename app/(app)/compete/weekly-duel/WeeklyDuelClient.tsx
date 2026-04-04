@@ -514,7 +514,7 @@ export default function WeeklyDuelClient({
                 </button>
               </div>
             ) : (
-              // Submission Confirmation
+              // Active State - Already Submitted
               <div style={{ textAlign: 'center' }}>
                 <div style={{ 
                   width: '80px', 
@@ -554,7 +554,7 @@ export default function WeeklyDuelClient({
                     whiteSpace: 'pre-wrap',
                     lineHeight: '1.5'
                   }}>
-                    {displayUserSubmission.content}
+                    {userSubmission?.content || displayUserSubmission.content}
                   </div>
                 </div>
               </div>
@@ -620,17 +620,6 @@ export default function WeeklyDuelClient({
                 </div>
               )}
 
-              {/* Active State - Already Submitted */}
-              {displayState === 'active' && displayUserSubmission && (
-                <div style={{ textAlign: 'center', fontSize: '18px', color: 'var(--text2)', fontFamily: 'var(--font-body)', padding: '32px' }}>
-                  <div style={{ fontSize: '64px', fontWeight: 800, fontFamily: 'var(--font-display)', color: 'var(--green)', marginBottom: '16px' }}>
-                    ✓ Submitted
-                  </div>
-                  <div style={{ fontSize: '20px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
-                    Your submission has been received
-                  </div>
-                </div>
-              )}
 
               {/* Voting State */}
               {displayState === 'voting' && (
