@@ -91,9 +91,9 @@ export default function MessagesClient() {
     }
   }, [activeConversation])
 
-  // useEffect(() => {
-  //   scrollToBottom()
-  // }, [messages])
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages])
 
   useEffect(() => {
     if (!user || !activeConversation) return
