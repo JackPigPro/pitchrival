@@ -39,10 +39,15 @@ export async function POST(request: Request) {
 
     if (error) {
       console.error('Error creating weekly duel:', error)
-      return NextResponse.json({ error: 'Failed to create weekly duel' }, { status: 500 })
+      return NextResponse.json({ success: false, error: 'Failed to create weekly duel' }, { status: 500 })
     }
 
-    return NextResponse.json(data)
+    // Ensure the response has the expected structure
+    if (data && data.success) {
+      return NextResponse.json(data, { status: 200 })
+    } else {
+      return NextResponse.json({ success: false, error: 'Unexpected response from database' }, { status: 500 })
+    }
   } catch (error) {
     console.error('Error in create-weekly-duel API:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
