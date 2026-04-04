@@ -91,9 +91,9 @@ export default function MessagesClient() {
     }
   }, [activeConversation])
 
-  useEffect(() => {
-    scrollToBottom()
-  }, [messages])
+  // useEffect(() => {
+  //   scrollToBottom()
+  // }, [messages])
 
   useEffect(() => {
     if (!user || !activeConversation) return
