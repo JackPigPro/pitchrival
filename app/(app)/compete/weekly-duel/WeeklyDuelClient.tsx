@@ -107,7 +107,7 @@ export default function WeeklyDuelClient({
       // Update countdown display
       const countdownElement = document.getElementById('countdown')
       if (countdownElement) {
-        countdownElement.textContent = `Time remaining: ${timeString}`
+        countdownElement.textContent = `Submissions close in: ${timeString}`
       }
     }, 1000)
 
@@ -146,7 +146,7 @@ export default function WeeklyDuelClient({
       // Update countdown display
       const countdownElement = document.getElementById('voting-countdown')
       if (countdownElement) {
-        countdownElement.textContent = `Voting ends in: ${timeString}`
+        countdownElement.textContent = `Voting closes in: ${timeString}`
       }
     }, 1000)
 
@@ -564,7 +564,7 @@ export default function WeeklyDuelClient({
             {submissionDeadline && (
               <div style={{ marginTop: '24px' }}>
                 <div style={{ fontSize: '14px', color: 'var(--text2)', fontFamily: 'var(--font-body)', marginBottom: '8px', textAlign: 'center' }}>
-                  Submission period ends in:
+                  Submissions close in:
                 </div>
                 <div id="countdown" style={{ fontSize: '20px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--purple)', textAlign: 'center', padding: '12px', borderRadius: '8px', background: 'var(--purple-tint)', border: "1px solid var(--purple)" }}>
                   Loading countdown...
@@ -745,26 +745,65 @@ export default function WeeklyDuelClient({
 
               {/* Results State */}
               {displayState === 'results' && (
-                <div style={{ textAlign: 'center', padding: '32px' }}>
-                  {displayUserSubmission ? (
+                <div style={{ 
+                  background: 'var(--card)', 
+                  borderRadius: '16px', 
+                  padding: '32px',
+                  border: "1px solid var(--border)",
+                  boxShadow: 'var(--shadow)',
+                  textAlign: 'center'
+                }}>
+                  {currentDuel?.prize_distributed ? (
+                    // Show winners once prizes are distributed
                     <>
-                      <div style={{ fontSize: '64px', fontWeight: 800, fontFamily: 'var(--font-display)', color: getRankColor(displayUserSubmission.final_rank || 0), marginBottom: '16px' }}>
-                        #{displayUserSubmission.final_rank || '—'}
-                      </div>
-                      <div style={{ fontSize: '24px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '16px' }}>
-                        {displayUserSubmission.final_rank ? `Place #${displayUserSubmission.final_rank}` : 'Did not place'}
-                      </div>
-                      <div style={{ fontSize: '20px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--green)', marginBottom: '16px' }}>
-                        {displayUserSubmission.elo_awarded ? `+${displayUserSubmission.elo_awarded} ELO` : 'No ELO earned'}
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <div style={{ fontSize: '48px', fontWeight: 800, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '16px' }}>
+                      <div style={{ fontSize: '48px', fontWeight: 800, fontFamily: 'var(--font-display)', color: 'var(--gold)', marginBottom: '16px' }}>
                         🏆
                       </div>
-                      <div style={{ fontSize: '20px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
-                        Results will appear here after prizes are distributed.
+                      <div style={{ fontSize: '24px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '16px' }}>
+                        Results are in!
+                      </div>
+                      <div style={{ fontSize: '16px', color: 'var(--text2)', fontFamily: 'var(--font-body)', marginBottom: '24px' }}>
+                        Winners have been announced and ELO prizes distributed.
+                      </div>
+                      {displayUserSubmission ? (
+                        <div style={{ 
+                          padding: '20px', 
+                          borderRadius: '12px', 
+                          background: 'var(--surface)', 
+                          border: "1px solid var(--border)",
+                          textAlign: 'left',
+                          marginBottom: '24px'
+                        }}>
+                          <div style={{ fontSize: '14px', color: 'var(--text2)', fontFamily: 'var(--font-body)', marginBottom: '8px' }}>
+                            Your final result:
+                          </div>
+                          <div style={{ fontSize: '32px', fontWeight: 700, fontFamily: 'var(--font-display)', color: getRankColor(displayUserSubmission.final_rank || 0), marginBottom: '8px' }}>
+                            #{displayUserSubmission.final_rank || '—'}
+                          </div>
+                          <div style={{ fontSize: '16px', fontWeight: 600, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '8px' }}>
+                            {displayUserSubmission.final_rank ? `Place #${displayUserSubmission.final_rank}` : 'Did not place'}
+                          </div>
+                          <div style={{ fontSize: '20px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--green)' }}>
+                            {displayUserSubmission.elo_awarded ? `+${displayUserSubmission.elo_awarded} ELO` : 'No ELO earned'}
+                          </div>
+                        </div>
+                      ) : (
+                        <div style={{ fontSize: '16px', color: 'var(--text2)', fontFamily: 'var(--font-body)' }}>
+                          You did not participate in this duel.
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    // Show loading message while prizes are being calculated
+                    <>
+                      <div style={{ fontSize: '48px', fontWeight: 800, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '16px' }}>
+                        ⏳
+                      </div>
+                      <div style={{ fontSize: '24px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '16px' }}>
+                        Results are being calculated...
+                      </div>
+                      <div style={{ fontSize: '16px', color: 'var(--text2)', fontFamily: 'var(--font-body)' }}>
+                        Winners will be announced soon!
                       </div>
                     </>
                   )}
@@ -784,8 +823,11 @@ export default function WeeklyDuelClient({
                   <div style={{ fontSize: '48px', fontWeight: 800, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '16px' }}>
                     🔄
                   </div>
-                  <div style={{ fontSize: '24px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
-                    Next duel coming soon
+                  <div style={{ fontSize: '24px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '16px' }}>
+                    Next duel starts Monday at 12:00 AM EST
+                  </div>
+                  <div style={{ fontSize: '16px', color: 'var(--text2)', fontFamily: 'var(--font-body)' }}>
+                    Check back soon for the next weekly duel!
                   </div>
                 </div>
               )}
@@ -803,8 +845,11 @@ export default function WeeklyDuelClient({
               <div style={{ fontSize: '48px', fontWeight: 800, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '16px' }}>
                 🔄
               </div>
-              <div style={{ fontSize: '24px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
-                Next duel coming soon
+              <div style={{ fontSize: '24px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '16px' }}>
+                Next duel starts Monday at 12:00 AM EST
+              </div>
+              <div style={{ fontSize: '16px', color: 'var(--text2)', fontFamily: 'var(--font-body)' }}>
+                Check back soon for the next weekly duel!
               </div>
             </div>
           )}

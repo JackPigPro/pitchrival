@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { createClient } from '@/utils/supabase/client'
 
 interface Duel {
@@ -8,10 +8,9 @@ interface Duel {
   prompt: string
   start_date: string
   end_date: string
-  voting_start?: string
-  voting_end?: string
-  status: string
+  status: 'queued' | 'active' | 'voting' | 'completed'
   prize_distributed: boolean
+  submission_count: number
 }
 
 interface DuelSubmission {
@@ -27,63 +26,54 @@ interface DuelSubmission {
   username: string
 }
 
+interface CalendarWeek {
+  weekNumber: number
+  monday: Date
+  sunday: Date
+  duel: Duel | null
+  isCurrentWeek: boolean
+  isPastWeek: boolean
+}
+
 export default function AdminDuelManager() {
   const supabase = createClient()
-  const [prompt, setPrompt] = useState('')
   const [duels, setDuels] = useState<Duel[]>([])
-  const [selectedDuel, setSelectedDuel] = useState<Duel | null>(null)
+  const [selectedWeek, setSelectedWeek] = useState<CalendarWeek | null>(null)
   const [duelSubmissions, setDuelSubmissions] = useState<DuelSubmission[]>([])
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState('')
-  const [editingDuel, setEditingDuel] = useState<Duel | null>(null)
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
-  const realtimeSubscription = useRef<any>(null)
+  const [error, setError] = useState('')
+  const [editingPrompt, setEditingPrompt] = useState('')
+  const [isCreatingNew, setIsCreatingNew] = useState(false)
+  
+  // Calendar navigation
+  const [currentMonth, setCurrentMonth] = useState(new Date())
 
-  const createDuel = async () => {
-    if (!prompt.trim()) {
-      alert('Please enter a prompt')
-      return
-    }
-
-    setLoading(true)
-    setSuccess('')
-
+  const fetchDuels = async () => {
     try {
       const { data: { session } } = await supabase.auth.getSession()
 
-      const response = await fetch('/api/create-weekly-duel', {
-        method: 'POST',
+      const response = await fetch('/api/admin/get-duels', {
         headers: {
-          'Content-Type': 'application/json',
           'Authorization': `Bearer ${session?.access_token}`
-        },
-        body: JSON.stringify({
-          prompt: prompt.trim()
-        })
+        }
       })
-
       const result = await response.json()
-
+      
       if (result.success) {
-        setPrompt('')
-        setSuccess('Weekly duel created successfully! It will start on the next Sunday at 12:00 PM EST.')
-        fetchDuels()
+        setDuels(result.duels || [])
       } else {
-        setSuccess(result.error || 'Failed to create duel')
+        console.error('Failed to fetch duels:', result.error)
+        setError(result.error || 'Failed to fetch duels')
       }
     } catch (error) {
-      setSuccess('Error creating duel')
-      console.error('Create duel error:', error)
-    } finally {
-      setLoading(false)
+      console.error('Fetch duels error:', error)
+      setError('Error fetching duels')
     }
   }
 
-  const fetchDuelDetails = async (duelId: string) => {
+  const fetchDuelSubmissions = async (duelId: string) => {
     try {
-      const { data: { session } } = await supabase.auth.getSession()
-
-      // First fetch submissions from duel_submissions
       const { data: submissions, error: submissionsError } = await supabase
         .from('duel_submissions')
         .select('id, user_id, content, vote_score, vote_count, final_rank, elo_awarded, created_at')
@@ -95,7 +85,7 @@ export default function AdminDuelManager() {
         return
       }
 
-      // Then fetch usernames from profiles for all user_ids
+      // Fetch usernames
       const userIds = (submissions || []).map(sub => sub.user_id)
       let profilesMap: { [key: string]: string } = {}
       
@@ -108,7 +98,6 @@ export default function AdminDuelManager() {
         if (profilesError) {
           console.error('Error fetching profiles:', profilesError)
         } else {
-          // Create a map of user_id to username
           profilesMap = (profiles || []).reduce((acc, profile) => {
             acc[profile.id] = profile.username || 'Unknown'
             return acc
@@ -116,7 +105,6 @@ export default function AdminDuelManager() {
         }
       }
 
-      // Merge submissions with usernames
       const transformedSubmissions: DuelSubmission[] = (submissions || []).map(sub => ({
         id: sub.id,
         duel_id: duelId,
@@ -136,55 +124,93 @@ export default function AdminDuelManager() {
     }
   }
 
-  const updateDuel = async () => {
-    if (!editingDuel) return
+  const createOrUpdateDuel = async () => {
+    if (!editingPrompt.trim() || !selectedWeek) {
+      setError('Please enter a prompt')
+      return
+    }
 
     setLoading(true)
     setSuccess('')
+    setError('')
 
     try {
       const { data: { session } } = await supabase.auth.getSession()
 
-      const response = await fetch('/admin/api/update-duel', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session?.access_token}`
-        },
-        body: JSON.stringify({
-          id: editingDuel.id,
-          prompt: editingDuel.prompt,
-          start_date: editingDuel.start_date,
-          end_date: editingDuel.end_date,
-          status: editingDuel.status
+      if (isCreatingNew || !selectedWeek.duel) {
+        // Create new duel
+        const response = await fetch('/api/create-weekly-duel', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session?.access_token}`
+          },
+          body: JSON.stringify({
+            prompt: editingPrompt.trim(),
+            start_date: selectedWeek.monday.toISOString(),
+            end_date: selectedWeek.sunday.toISOString()
+          })
         })
-      })
 
-      const result = await response.json()
+        const result = await response.json()
 
-      if (result.success) {
-        setSuccess('Duel updated successfully!')
-        setEditingDuel(null)
-        fetchDuels()
+        if (result.success) {
+          setSuccess('Weekly duel created successfully!')
+          setEditingPrompt('')
+          setIsCreatingNew(false)
+          fetchDuels()
+          // Update selected week with new duel
+          setSelectedWeek(prev => prev ? { ...prev, duel: { ...result.duel, submission_count: 0 } } : null)
+        } else {
+          setError(result.error || 'Failed to create duel')
+        }
       } else {
-        setSuccess(result.error || 'Failed to update duel')
+        // Update existing duel
+        const response = await fetch('/api/admin/update-duel', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session?.access_token}`
+          },
+          body: JSON.stringify({
+            id: selectedWeek.duel.id,
+            prompt: editingPrompt.trim()
+          })
+        })
+
+        const result = await response.json()
+
+        if (result.success) {
+          setSuccess('Duel updated successfully!')
+          setIsCreatingNew(false)
+          fetchDuels()
+          // Update selected week duel
+          setSelectedWeek(prev => prev ? { ...prev, duel: result.duel } : null)
+        } else {
+          setError(result.error || 'Failed to update duel')
+        }
       }
     } catch (error) {
-      setSuccess('Error updating duel')
-      console.error('Update duel error:', error)
+      setError('Error saving duel')
+      console.error('Save duel error:', error)
     } finally {
       setLoading(false)
     }
   }
 
   const deleteDuel = async (duelId: string) => {
+    if (!confirm('Are you sure you want to delete this duel and all associated submissions? This action cannot be undone.')) {
+      return
+    }
+
     setLoading(true)
     setSuccess('')
+    setError('')
 
     try {
       const { data: { session } } = await supabase.auth.getSession()
 
-      const response = await fetch('/admin/api/delete-duel', {
+      const response = await fetch('/api/admin/delete-duel', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -197,95 +223,123 @@ export default function AdminDuelManager() {
 
       if (result.success) {
         setSuccess('Duel deleted successfully!')
-        setShowDeleteConfirm(false)
-        setSelectedDuel(null)
+        setSelectedWeek(null)
+        setDuelSubmissions([])
         fetchDuels()
       } else {
-        setSuccess(result.error || 'Failed to delete duel')
+        setError(result.error || 'Failed to delete duel')
       }
     } catch (error) {
-      setSuccess('Error deleting duel')
+      setError('Error deleting duel')
       console.error('Delete duel error:', error)
     } finally {
       setLoading(false)
     }
   }
 
-  const fetchDuels = async () => {
+  const forceFinalize = async () => {
+    if (!confirm('Are you sure you want to force finalize the current voting duel? This will distribute prizes immediately.')) {
+      return
+    }
+
+    setLoading(true)
+    setSuccess('')
+    setError('')
+
     try {
       const { data: { session } } = await supabase.auth.getSession()
 
-      const response = await fetch('/admin/api/get-duels', {
+      const response = await fetch('/api/admin/force-finalize', {
+        method: 'POST',
         headers: {
+          'Content-Type': 'application/json',
           'Authorization': `Bearer ${session?.access_token}`
         }
       })
+
       const result = await response.json()
-      
+
       if (result.success) {
-        setDuels(result.duels || [])
+        setSuccess('Prizes distributed successfully!')
+        fetchDuels()
+        if (selectedWeek?.duel) {
+          fetchDuelSubmissions(selectedWeek.duel.id)
+        }
       } else {
-        console.error('Failed to fetch duels:', result.error)
+        setError(result.error || 'Failed to finalize duel')
       }
     } catch (error) {
-      console.error('Fetch duels error:', error)
+      setError('Error finalizing duel')
+      console.error('Finalize duel error:', error)
+    } finally {
+      setLoading(false)
     }
   }
 
-  // Fetch duels on component mount
-  useEffect(() => {
-    fetchDuels()
-  }, [])
-
-  // Fetch duel details when duel is selected
-  useEffect(() => {
-    if (selectedDuel) {
-      fetchDuelDetails(selectedDuel.id)
+  // Generate calendar weeks
+  const generateCalendarWeeks = (): CalendarWeek[] => {
+    const weeks: CalendarWeek[] = []
+    const year = currentMonth.getFullYear()
+    const month = currentMonth.getMonth()
+    
+    // Find the first Monday of the month
+    const firstDay = new Date(year, month, 1)
+    const firstMonday = new Date(firstDay)
+    const dayOfWeek = firstDay.getDay()
+    const daysUntilMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1
+    firstMonday.setDate(firstDay.getDate() + daysUntilMonday)
+    
+    // Generate weeks for the month
+    let currentWeekStart = new Date(firstMonday)
+    
+    for (let weekNum = 0; weekNum < 6; weekNum++) {
+      const weekStart = new Date(currentWeekStart)
+      const weekEnd = new Date(currentWeekStart)
+      weekEnd.setDate(weekStart.getDate() + 6)
       
-      // Set up real-time subscription for voting phase
-      if (selectedDuel.status === 'voting') {
-        
-        // Clean up existing subscription
-        if (realtimeSubscription.current) {
-          realtimeSubscription.current.unsubscribe()
-        }
-        
-        // Subscribe to duel_submissions changes for this duel
-        realtimeSubscription.current = supabase
-          .channel(`duel-submissions-${selectedDuel.id}`)
-          .on(
-            'postgres_changes',
-            {
-              event: 'UPDATE',
-              schema: 'public',
-              table: 'duel_submissions',
-              filter: `duel_id=eq.${selectedDuel.id}`
-            },
-            (payload: any) => {
-              // Refresh submissions when vote_score or vote_count changes
-              if (payload.new.vote_score !== payload.old.vote_score || 
-                  payload.new.vote_count !== payload.old.vote_count) {
-                fetchDuelDetails(selectedDuel.id)
-              }
-            }
-          )
-          .subscribe()
+      // Check if this week is in the current month
+      if (weekStart.getMonth() !== month && weekEnd.getMonth() !== month) {
+        break
       }
+      
+      // Find duel for this week
+      const weekDuel = duels.find(duel => {
+        const duelStart = new Date(duel.start_date)
+        const duelEnd = new Date(duel.end_date)
+        return duelStart <= weekEnd && duelEnd >= weekStart
+      })
+      
+      const now = new Date()
+      const isCurrentWeek = weekStart <= now && weekEnd >= now
+      const isPastWeek = weekEnd < now
+      
+      weeks.push({
+        weekNumber: weekNum + 1,
+        monday: weekStart,
+        sunday: weekEnd,
+        duel: weekDuel || null,
+        isCurrentWeek,
+        isPastWeek
+      })
+      
+      // Move to next week
+      currentWeekStart.setDate(currentWeekStart.getDate() + 7)
     }
     
-    // Cleanup subscription when duel changes or component unmounts
-    return () => {
-      if (realtimeSubscription.current) {
-        realtimeSubscription.current.unsubscribe()
-        realtimeSubscription.current = null
-      }
-    }
-  }, [selectedDuel])
+    return weeks
+  }
+
+  const formatDate = (date: Date) => {
+    return date.toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric',
+      year: 'numeric'
+    })
+  }
 
   const formatDateTime = (dateString: string) => {
     const date = new Date(dateString)
     return date.toLocaleString('en-US', { 
-      weekday: 'long',
       month: 'short', 
       day: 'numeric',
       hour: 'numeric', 
@@ -297,10 +351,11 @@ export default function AdminDuelManager() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'active': return 'var(--green)'
-      case 'voting': return 'var(--blue)'
-      case 'completed': return 'var(--gold)'
-      default: return 'var(--text2)'
+      case 'active': return '#10b981' // green
+      case 'voting': return '#3b82f6' // blue
+      case 'completed': return '#6b7280' // dark
+      case 'queued': return '#9ca3af' // grey
+      default: return '#9ca3af'
     }
   }
 
@@ -309,14 +364,42 @@ export default function AdminDuelManager() {
       case 'active': return 'Active'
       case 'voting': return 'Voting'
       case 'completed': return 'Completed'
+      case 'queued': return 'Queued'
       default: return status
     }
   }
 
+  // Handle week selection
+  const handleWeekSelect = (week: CalendarWeek) => {
+    setSelectedWeek(week)
+    setEditingPrompt('')
+    setIsCreatingNew(false)
+    
+    if (week.duel) {
+      setEditingPrompt(week.duel.prompt)
+      fetchDuelSubmissions(week.duel.id)
+    } else {
+      setDuelSubmissions([])
+    }
+  }
+
+  // Navigate months
+  const navigateMonth = (direction: 'prev' | 'next') => {
+    const newMonth = new Date(currentMonth)
+    newMonth.setMonth(currentMonth.getMonth() + (direction === 'next' ? 1 : -1))
+    setCurrentMonth(newMonth)
+  }
+
+  useEffect(() => {
+    fetchDuels()
+  }, [])
+
+  const calendarWeeks = generateCalendarWeeks()
+
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px' }}>
+    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px', minHeight: '100vh' }}>
       
-      {/* Create New Duel */}
+      {/* Left Side - Calendar */}
       <div style={{ 
         background: 'var(--card)', 
         borderRadius: '16px', 
@@ -324,394 +407,389 @@ export default function AdminDuelManager() {
         border: '1px solid var(--border)',
         boxShadow: 'var(--shadow)'
       }}>
-        <h2 style={{ fontSize: '20px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--text)', margin: '0 0 20px 0' }}>
-          Create New Weekly Duel
-        </h2>
-        
-        <div style={{ marginBottom: '16px' }}>
-          <label style={{ fontSize: '14px', fontWeight: '600', fontFamily: 'var(--font-display)', color: 'var(--text)', display: 'block', marginBottom: '4px' }}>
-            Weekly Prompt
-          </label>
-          <textarea
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
-            placeholder="Enter the weekly prompt..."
-            style={{
-              width: '100%',
-              height: '120px',
-              padding: '12px',
-              borderRadius: '8px',
-              border: '1px solid var(--border)',
-              background: 'var(--surface)',
-              fontSize: '16px',
-              fontFamily: 'var(--font-body)',
-              color: 'var(--text)',
-              resize: 'vertical',
-              marginBottom: '16px'
-            }}
-          />
-        </div>
-
-        <button
-          onClick={createDuel}
-          disabled={loading}
-          className="btn-cta-primary"
-          style={{ width: '100%' }}
-        >
-          {loading ? 'Publishing...' : 'Publish'}
-        </button>
-
-        {success && (
-          <div style={{
-            marginTop: '16px',
-            padding: '12px',
-            borderRadius: '8px',
-            background: success.includes('successfully') ? 'var(--green-tint)' : 'var(--red-tint)',
-            border: success.includes('successfully') ? '1px solid var(--green)' : '1px solid var(--red)',
-            fontSize: '14px',
-            fontWeight: '600',
-            fontFamily: 'var(--font-display)',
-            color: success.includes('successfully') ? 'var(--green)' : 'var(--red)'
-          }}>
-            {success}
-          </div>
-        )}
-      </div>
-
-      {/* Manage Existing Duels */}
-      <div style={{ 
-        background: 'var(--card)', 
-        borderRadius: '16px', 
-        padding: '32px',
-        border: '1px solid var(--border)',
-        boxShadow: 'var(--shadow)'
-      }}>
-        <h2 style={{ fontSize: '20px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--text)', margin: '0 0 20px 0' }}>
-          Manage Existing Duels
-        </h2>
-        
-        {duels.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '40px', fontSize: '16px', color: 'var(--text2)', fontFamily: 'var(--font-body)' }}>
-            No duels found. Create your first weekly duel above.
-          </div>
-        ) : (
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ 
-              width: '100%', 
-              borderCollapse: 'collapse',
-              fontSize: '14px',
-              fontFamily: 'var(--font-body)'
-            }}>
-              <thead>
-                <tr>
-                  <th style={{ padding: '12px', textAlign: 'left', borderBottom: '1px solid var(--border)', fontWeight: '600', fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
-                    Prompt
-                  </th>
-                  <th style={{ padding: '12px', textAlign: 'left', borderBottom: '1px solid var(--border)', fontWeight: '600', fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
-                    Start Date
-                  </th>
-                  <th style={{ padding: '12px', textAlign: 'left', borderBottom: '1px solid var(--border)', fontWeight: '600', fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
-                    End Date
-                  </th>
-                  <th style={{ padding: '12px', textAlign: 'left', borderBottom: '1px solid var(--border)', fontWeight: '600', fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
-                    Status
-                  </th>
-                  <th style={{ padding: '12px', textAlign: 'left', borderBottom: '1px solid var(--border)', fontWeight: '600', fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
-                    Submissions
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {duels.map((duel) => (
-                  <tr 
-                    key={duel.id} 
-                    style={{ 
-                      borderBottom: '1px solid var(--border)',
-                      cursor: 'pointer',
-                      background: selectedDuel?.id === duel.id ? 'var(--purple-tint)' : 'transparent'
-                    }}
-                    onClick={() => setSelectedDuel(duel)}
-                  >
-                    <td style={{ padding: '12px', verticalAlign: 'top' }}>
-                      <div style={{ fontSize: '14px', fontWeight: '600', fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '4px' }}>
-                        {duel.prompt.substring(0, 50)}{duel.prompt.length > 50 ? '...' : ''}
-                      </div>
-                    </td>
-                    <td style={{ padding: '12px', verticalAlign: 'top' }}>
-                      <div style={{ fontSize: '12px', fontWeight: '600', fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
-                        {formatDateTime(duel.start_date)}
-                      </div>
-                    </td>
-                    <td style={{ padding: '12px', verticalAlign: 'top' }}>
-                      <div style={{ fontSize: '12px', fontWeight: '600', fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
-                        {formatDateTime(duel.end_date)}
-                      </div>
-                    </td>
-                    <td style={{ padding: '12px', verticalAlign: 'top' }}>
-                      <div style={{ 
-                        fontSize: '14px', 
-                        fontWeight: '600', 
-                        fontFamily: 'var(--font-display)', 
-                        color: 'white',
-                        marginBottom: '4px',
-                        padding: '4px 12px',
-                        borderRadius: '6px',
-                        background: getStatusColor(duel.status),
-                        display: 'inline-block'
-                      }}>
-                        {getStatusText(duel.status)}
-                      </div>
-                    </td>
-                    <td style={{ padding: '12px', verticalAlign: 'top' }}>
-                      <div style={{ fontSize: '14px', fontWeight: '600', fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
-                        {duelSubmissions.filter(s => s.duel_id === duel.id).length}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-
-      {/* Duel Detail View */}
-      {selectedDuel && (
-        <div style={{ 
-          background: 'var(--card)', 
-          borderRadius: '0', 
-          padding: '40px 24px',
-          border: 'none',
-          boxShadow: 'none',
-          marginTop: '32px',
-          width: 'calc(100% + 48px)',
-          marginLeft: '-24px',
-          marginRight: '-24px',
-          position: 'relative',
-          left: '-24px',
-          right: '-24px'
-        }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
-            <h2 style={{ fontSize: '24px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--text)', margin: 0 }}>
-              Duel Details: {selectedDuel.prompt.substring(0, 100)}{selectedDuel.prompt.length > 100 ? '...' : ''}
-            </h2>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+          <h2 style={{ fontSize: '20px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--text)', margin: 0 }}>
+            Duel Calendar
+          </h2>
+          <div style={{ display: 'flex', gap: '8px' }}>
             <button
-              onClick={() => setSelectedDuel(null)}
+              onClick={() => navigateMonth('prev')}
               className="btn-cta-ghost"
-              style={{ fontSize: '14px', padding: '8px 16px' }}
+              style={{ padding: '8px 12px', fontSize: '14px' }}
             >
-              Close
+              ←
+            </button>
+            <span style={{ 
+              padding: '8px 16px', 
+              fontSize: '14px', 
+              fontWeight: 600, 
+              fontFamily: 'var(--font-display)',
+              color: 'var(--text)',
+              display: 'flex',
+              alignItems: 'center'
+            }}>
+              {currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+            </span>
+            <button
+              onClick={() => navigateMonth('next')}
+              className="btn-cta-ghost"
+              style={{ padding: '8px 12px', fontSize: '14px' }}
+            >
+              →
             </button>
           </div>
-
-          {/* View Mode - Show all information by default */}
-            <div>
-              {/* Duel Information Grid */}
-              <div style={{ 
-                display: 'grid', 
-                gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', 
-                gap: '24px', 
-                marginBottom: '32px',
-                padding: '24px',
+        </div>
+        
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          {calendarWeeks.map((week) => (
+            <div
+              key={`${week.monday.getTime()}-${week.sunday.getTime()}`}
+              onClick={() => handleWeekSelect(week)}
+              style={{
+                padding: '16px',
                 borderRadius: '12px',
-                background: 'var(--surface)',
-                border: '1px solid var(--border)'
-              }}>
+                border: `2px solid ${
+                  selectedWeek?.monday.getTime() === week.monday.getTime() 
+                    ? 'var(--purple)' 
+                    : week.isCurrentWeek 
+                    ? 'var(--green)' 
+                    : 'var(--border)'
+                }`,
+                background: week.isCurrentWeek ? 'var(--green-tint)' : 'var(--surface)',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
-                  <div style={{ fontSize: '12px', color: 'var(--text2)', fontFamily: 'var(--font-body)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Status</div>
-                  <div style={{ 
-                    fontSize: '16px', 
-                    fontWeight: '600', 
-                    fontFamily: 'var(--font-display)', 
-                    color: 'white',
-                    padding: '6px 16px',
-                    borderRadius: '6px',
-                    background: getStatusColor(selectedDuel.status),
-                    display: 'inline-block'
-                  }}>
-                    {getStatusText(selectedDuel.status)}
+                  <div style={{ fontSize: '14px', fontWeight: 600, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '4px' }}>
+                    Week {week.weekNumber}: {formatDate(week.monday)} - {formatDate(week.sunday)}
                   </div>
-                </div>
-                
-                <div>
-                  <div style={{ fontSize: '12px', color: 'var(--text2)', fontFamily: 'var(--font-body)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Start Date</div>
-                  <div style={{ fontSize: '16px', fontWeight: '600', fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
-                    {formatDateTime(selectedDuel.start_date)}
-                  </div>
-                </div>
-                
-                <div>
-                  <div style={{ fontSize: '12px', color: 'var(--text2)', fontFamily: 'var(--font-body)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>End Date</div>
-                  <div style={{ fontSize: '16px', fontWeight: '600', fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
-                    {formatDateTime(selectedDuel.end_date)}
-                  </div>
-                </div>
-                
-                <div>
-                  <div style={{ fontSize: '12px', color: 'var(--text2)', fontFamily: 'var(--font-body)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Voting Period</div>
-                  <div style={{ fontSize: '16px', fontWeight: '600', fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
-                    {formatDateTime(selectedDuel.end_date)} - 
-                    {formatDateTime(new Date(new Date(selectedDuel.end_date).getTime() + 24 * 60 * 60 * 1000).toISOString())}
-                  </div>
-                  <div style={{ fontSize: '12px', color: 'var(--text2)', fontFamily: 'var(--font-body)', marginTop: '4px' }}>
-                    Duration: 24 hours
-                  </div>
-                </div>
-                
-                <div>
-                  <div style={{ fontSize: '12px', color: 'var(--text2)', fontFamily: 'var(--font-body)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Submission Window</div>
-                  <div style={{ fontSize: '16px', fontWeight: '600', fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
-                    {formatDateTime(selectedDuel.start_date)} - 
-                    {formatDateTime(selectedDuel.end_date)}
-                  </div>
-                  <div style={{ fontSize: '12px', color: 'var(--text2)', fontFamily: 'var(--font-body)', marginTop: '4px' }}>
-                    ~6 days
-                  </div>
-                </div>
-                
-                <div>
-                  <div style={{ fontSize: '12px', color: 'var(--text2)', fontFamily: 'var(--font-body)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Time Zone</div>
-                  <div style={{ fontSize: '16px', fontWeight: '600', fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
-                    Eastern Time (EST)
-                  </div>
-                </div>
-                
-                <div>
-                  <div style={{ fontSize: '12px', color: 'var(--text2)', fontFamily: 'var(--font-body)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Prizes Distributed</div>
-                  <div style={{ fontSize: '16px', fontWeight: '600', fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
-                    {selectedDuel.prize_distributed ? 'Yes' : 'No'}
-                  </div>
-                </div>
-                
-                <div>
-                  <div style={{ fontSize: '12px', color: 'var(--text2)', fontFamily: 'var(--font-body)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total Submissions</div>
-                  <div style={{ fontSize: '16px', fontWeight: '600', fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
-                    {duelSubmissions.length}
-                  </div>
-                </div>
-              </div>
-
-              {/* Full Prompt */}
-              <div style={{ marginBottom: '32px' }}>
-                <h3 style={{ fontSize: '18px', fontWeight: 600, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '16px' }}>
-                  Full Prompt
-                </h3>
-                <div style={{ 
-                  padding: '20px', 
-                  borderRadius: '12px', 
-                  background: 'var(--surface)', 
-                  border: '1px solid var(--border)',
-                  fontSize: '16px',
-                  fontFamily: 'var(--font-body)',
-                  color: 'var(--text)',
-                  whiteSpace: 'pre-wrap',
-                  lineHeight: '1.6'
-                }}>
-                  {selectedDuel.prompt}
-                </div>
-              </div>
-
-              {/* Voting Leaderboard */}
-              {selectedDuel.status === 'voting' && duelSubmissions.length > 0 && (
-                <div style={{ marginBottom: '32px' }}>
-                  <h3 style={{ fontSize: '18px', fontWeight: 600, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '16px' }}>
-                    Live Voting Leaderboard
-                  </h3>
-                  <div style={{ background: 'var(--surface)', borderRadius: '12px', padding: '20px', border: '1px solid var(--border)' }}>
-                    {duelSubmissions.map((submission, index) => (
-                      <div key={submission.id} style={{ 
-                        display: 'flex', 
-                        justifyContent: 'space-between', 
-                        alignItems: 'center',
-                        padding: '16px 0',
-                        borderBottom: index < duelSubmissions.length - 1 ? '1px solid var(--border)' : 'none'
+                  {week.duel ? (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <div style={{ 
+                        fontSize: '12px', 
+                        color: 'var(--text2)', 
+                        fontFamily: 'var(--font-body)',
+                        flex: 1
                       }}>
-                        <div style={{ flex: 1, marginRight: '20px' }}>
-                          <div style={{ fontSize: '16px', fontWeight: 600, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '8px' }}>
-                            #{index + 1} {submission.username}
-                          </div>
-                          <div style={{ fontSize: '14px', color: 'var(--text2)', fontFamily: 'var(--font-body)', lineHeight: '1.4' }}>
-                            {submission.content.substring(0, 150)}{submission.content.length > 150 ? '...' : ''}
-                          </div>
-                        </div>
-                        <div style={{ textAlign: 'right', minWidth: '120px' }}>
-                          <div style={{ fontSize: '20px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--purple)' }}>
-                            {submission.vote_score}
-                          </div>
-                          <div style={{ fontSize: '12px', color: 'var(--text2)', fontFamily: 'var(--font-body)' }}>
-                            {submission.vote_count} votes
-                          </div>
-                        </div>
+                        {week.duel.prompt.substring(0, 50)}{week.duel.prompt.length > 50 ? '...' : ''}
                       </div>
-                    ))}
+                      <div style={{
+                        fontSize: '12px',
+                        fontWeight: 600,
+                        fontFamily: 'var(--font-display)',
+                        color: 'white',
+                        padding: '4px 8px',
+                        borderRadius: '4px',
+                        background: getStatusColor(week.duel.status)
+                      }}>
+                        {getStatusText(week.duel.status)}
+                      </div>
+                    </div>
+                  ) : (
+                    <div style={{ fontSize: '12px', color: 'var(--text2)', fontFamily: 'var(--font-body)' }}>
+                      No prompt published
+                    </div>
+                  )}
+                </div>
+                {week.duel && (
+                  <div style={{ fontSize: '12px', color: 'var(--text2)', fontFamily: 'var(--font-body)' }}>
+                    {week.duel.submission_count} submissions
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Right Side - Week Detail Panel */}
+      <div style={{ 
+        background: 'var(--card)', 
+        borderRadius: '16px', 
+        padding: '32px',
+        border: '1px solid var(--border)',
+        boxShadow: 'var(--shadow)'
+      }}>
+        {selectedWeek ? (
+          <div>
+            <h2 style={{ fontSize: '20px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--text)', margin: '0 0 24px 0' }}>
+              Week {selectedWeek.weekNumber} Details
+            </h2>
+            
+            <div style={{ marginBottom: '24px' }}>
+              <div style={{ fontSize: '14px', color: 'var(--text2)', fontFamily: 'var(--font-body)', marginBottom: '8px' }}>
+                {formatDate(selectedWeek.monday)} - {formatDate(selectedWeek.sunday)}
+              </div>
+              {selectedWeek.isCurrentWeek && (
+                <div style={{ 
+                  fontSize: '12px', 
+                  color: 'var(--green)', 
+                  fontFamily: 'var(--font-display)',
+                  fontWeight: 600,
+                  marginBottom: '16px'
+                }}>
+                  Current Week
+                </div>
+              )}
+            </div>
+
+            {/* Prompt Editor */}
+            <div style={{ marginBottom: '32px' }}>
+              <h3 style={{ fontSize: '16px', fontWeight: 600, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '16px' }}>
+                Weekly Prompt
+              </h3>
+              
+              {!selectedWeek.duel || isCreatingNew ? (
+                <div>
+                  <textarea
+                    value={editingPrompt}
+                    onChange={(e) => setEditingPrompt(e.target.value)}
+                    placeholder="Enter the weekly prompt..."
+                    style={{
+                      width: '100%',
+                      height: '120px',
+                      padding: '12px',
+                      borderRadius: '8px',
+                      border: '1px solid var(--border)',
+                      background: 'var(--surface)',
+                      fontSize: '16px',
+                      fontFamily: 'var(--font-body)',
+                      color: 'var(--text)',
+                      resize: 'vertical',
+                      marginBottom: '16px'
+                    }}
+                  />
+                  <div style={{ display: 'flex', gap: '12px' }}>
+                    <button
+                      onClick={createOrUpdateDuel}
+                      disabled={loading || !editingPrompt.trim()}
+                      className="btn-cta-primary"
+                      style={{ flex: 1 }}
+                    >
+                      {loading ? 'Publishing...' : 'Publish'}
+                    </button>
+                    {isCreatingNew && (
+                      <button
+                        onClick={() => {
+                          setIsCreatingNew(false)
+                          setEditingPrompt('')
+                        }}
+                        className="btn-cta-ghost"
+                      >
+                        Cancel
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div>
+                  {selectedWeek.duel.status === 'queued' ? (
+                    <div style={{ marginBottom: '16px' }}>
+                      <button
+                        onClick={() => setIsCreatingNew(true)}
+                        className="btn-cta-ghost"
+                        style={{ fontSize: '14px' }}
+                      >
+                        Edit Prompt
+                      </button>
+                    </div>
+                  ) : selectedWeek.duel.status === 'active' || selectedWeek.duel.status === 'voting' ? (
+                    <div style={{ 
+                      fontSize: '12px', 
+                      color: 'var(--green)', 
+                      fontFamily: 'var(--font-display)',
+                      fontWeight: 600,
+                      marginBottom: '16px'
+                    }}>
+                      Submissions open
+                    </div>
+                  ) : null}
+                  
+                  <div style={{ 
+                    padding: '16px', 
+                    borderRadius: '8px',
+                    background: 'var(--surface)',
+                    border: '1px solid var(--border)',
+                    fontSize: '16px',
+                    fontFamily: 'var(--font-body)',
+                    color: 'var(--text)',
+                    whiteSpace: 'pre-wrap',
+                    lineHeight: '1.5'
+                  }}>
+                    {selectedWeek.duel.prompt}
                   </div>
                 </div>
               )}
+            </div>
 
-              
-              {/* Action Buttons - Simplified */}
-              <div style={{ display: 'flex', gap: '16px', paddingTop: '24px', borderTop: '1px solid var(--border)' }}>
+            {/* Duel Status */}
+            {selectedWeek.duel && (
+              <div style={{ marginBottom: '32px' }}>
+                <h3 style={{ fontSize: '16px', fontWeight: 600, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '16px' }}>
+                  Duel Status
+                </h3>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
+                  <div>
+                    <div style={{ fontSize: '12px', color: 'var(--text2)', fontFamily: 'var(--font-body)', marginBottom: '4px' }}>Status</div>
+                    <div style={{
+                      fontSize: '14px',
+                      fontWeight: 600,
+                      fontFamily: 'var(--font-display)',
+                      color: 'white',
+                      padding: '6px 12px',
+                      borderRadius: '6px',
+                      background: getStatusColor(selectedWeek.duel.status),
+                      display: 'inline-block'
+                    }}>
+                      {getStatusText(selectedWeek.duel.status)}
+                    </div>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '12px', color: 'var(--text2)', fontFamily: 'var(--font-body)', marginBottom: '4px' }}>Submissions</div>
+                    <div style={{ fontSize: '16px', fontWeight: 600, fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
+                      {selectedWeek.duel.submission_count}
+                    </div>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '12px', color: 'var(--text2)', fontFamily: 'var(--font-body)', marginBottom: '4px' }}>Starts</div>
+                    <div style={{ fontSize: '14px', fontWeight: 600, fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
+                      {formatDateTime(selectedWeek.duel.start_date)}
+                    </div>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '12px', color: 'var(--text2)', fontFamily: 'var(--font-body)', marginBottom: '4px' }}>Ends</div>
+                    <div style={{ fontSize: '14px', fontWeight: 600, fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
+                      {formatDateTime(selectedWeek.duel.end_date)}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Submissions Leaderboard */}
+            {(selectedWeek.duel?.status === 'voting' || selectedWeek.duel?.status === 'completed') && duelSubmissions.length > 0 && (
+              <div style={{ marginBottom: '32px' }}>
+                <h3 style={{ fontSize: '16px', fontWeight: 600, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '16px' }}>
+                  {selectedWeek.duel.status === 'voting' ? 'Live' : 'Final'} Rankings
+                </h3>
+                <div style={{ background: 'var(--surface)', borderRadius: '12px', padding: '16px', border: '1px solid var(--border)' }}>
+                  {duelSubmissions.map((submission, index) => (
+                    <div key={submission.id} style={{ 
+                      display: 'flex', 
+                      justifyContent: 'space-between', 
+                      alignItems: 'center',
+                      padding: '12px 0',
+                      borderBottom: index < duelSubmissions.length - 1 ? '1px solid var(--border)' : 'none'
+                    }}>
+                      <div style={{ flex: 1, marginRight: '16px' }}>
+                        <div style={{ fontSize: '14px', fontWeight: 600, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '4px' }}>
+                          #{index + 1} {submission.username}
+                        </div>
+                        <div style={{ fontSize: '12px', color: 'var(--text2)', fontFamily: 'var(--font-body)', lineHeight: '1.4' }}>
+                          {submission.content.substring(0, 100)}{submission.content.length > 100 ? '...' : ''}
+                        </div>
+                      </div>
+                      <div style={{ textAlign: 'right', minWidth: '80px' }}>
+                        <div style={{ fontSize: '16px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--purple)' }}>
+                          {submission.vote_score}
+                        </div>
+                        <div style={{ fontSize: '11px', color: 'var(--text2)', fontFamily: 'var(--font-body)' }}>
+                          {submission.vote_count} votes
+                        </div>
+                        {submission.final_rank && submission.elo_awarded && (
+                          <div style={{ fontSize: '11px', color: 'var(--green)', fontFamily: 'var(--font-display)', fontWeight: 600 }}>
+                            +{submission.elo_awarded} ELO
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Actions */}
+            {selectedWeek.duel && (
+              <div style={{ display: 'flex', gap: '12px' }}>
                 <button
-                  onClick={() => setShowDeleteConfirm(true)}
+                  onClick={() => deleteDuel(selectedWeek.duel!.id)}
+                  disabled={loading}
                   className="btn-cta-danger"
-                  style={{ padding: '12px 24px' }}
+                  style={{ fontSize: '14px' }}
                 >
                   Delete Duel
                 </button>
               </div>
-            </div>
+            )}
 
-          {/* Delete Confirmation Modal */}
-          {showDeleteConfirm && (
-            <div style={{
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              background: 'rgba(0, 0, 0, 0.5)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              zIndex: 1000
-            }}>
+            {/* Messages */}
+            {success && (
               <div style={{
-                background: 'var(--card)',
-                borderRadius: '16px',
-                padding: '32px',
-                maxWidth: '400px',
-                width: '90%',
-                border: '1px solid var(--border)',
-                boxShadow: 'var(--shadow)'
+                marginTop: '16px',
+                padding: '12px',
+                borderRadius: '8px',
+                background: 'var(--green-tint)',
+                border: '1px solid var(--green)',
+                fontSize: '14px',
+                fontWeight: '600',
+                fontFamily: 'var(--font-display)',
+                color: 'var(--green)'
               }}>
-                <h3 style={{ fontSize: '18px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '16px' }}>
-                  Delete Duel?
-                </h3>
-                <p style={{ fontSize: '14px', fontFamily: 'var(--font-body)', color: 'var(--text2)', marginBottom: '24px' }}>
-                  This will permanently delete this duel and all associated submissions. This action cannot be undone.
-                </p>
-                <div style={{ display: 'flex', gap: '12px' }}>
-                  <button
-                    onClick={() => deleteDuel(selectedDuel.id)}
-                    disabled={loading}
-                    className="btn-cta-danger"
-                    style={{ flex: 1 }}
-                  >
-                    {loading ? 'Deleting...' : 'Delete'}
-                  </button>
-                  <button
-                    onClick={() => setShowDeleteConfirm(false)}
-                    className="btn-cta-ghost"
-                    style={{ flex: 1 }}
-                  >
-                    Cancel
-                  </button>
-                </div>
+                {success}
               </div>
+            )}
+            
+            {error && (
+              <div style={{
+                marginTop: '16px',
+                padding: '12px',
+                borderRadius: '8px',
+                background: 'var(--red-tint)',
+                border: '1px solid var(--red)',
+                fontSize: '14px',
+                fontWeight: '600',
+                fontFamily: 'var(--font-display)',
+                color: 'var(--red)'
+              }}>
+                {error}
+              </div>
+            )}
+          </div>
+        ) : (
+          <div style={{ textAlign: 'center', padding: '40px' }}>
+            <div style={{ fontSize: '16px', color: 'var(--text2)', fontFamily: 'var(--font-body)' }}>
+              Select a week from the calendar to view details
             </div>
-          )}
+          </div>
+        )}
+
+        {/* Emergency Force Finalize Button */}
+        <div style={{ marginTop: '32px', paddingTop: '32px', borderTop: '1px solid var(--border)' }}>
+          <button
+            onClick={forceFinalize}
+            disabled={loading}
+            className="btn-cta-danger"
+            style={{ 
+              fontSize: '12px', 
+              padding: '8px 16px',
+              opacity: 0.7
+            }}
+          >
+            Force Finalize Current Duel
+          </button>
+          <div style={{ 
+            fontSize: '11px', 
+            color: 'var(--text2)', 
+            fontFamily: 'var(--font-body)', 
+            marginTop: '4px',
+            fontStyle: 'italic'
+          }}>
+            Emergency use only - distributes prizes for current voting duel
+          </div>
         </div>
-      )}
+      </div>
     </div>
   )
 }

@@ -1,36 +1,36 @@
--- Function to create a weekly duel with automatic date calculation
-CREATE OR REPLACE FUNCTION create_weekly_duel(prompt_text TEXT)
+-- Function to create a weekly duel with specified dates
+CREATE OR REPLACE FUNCTION create_weekly_duel(prompt_text TEXT, start_date TIMESTAMP WITH TIME ZONE, end_date TIMESTAMP WITH TIME ZONE)
 RETURNS JSON
 LANGUAGE plpgsql
 SECURITY DEFINER
 AS $$
 DECLARE
-    next_sunday TIMESTAMP WITH TIME ZONE;
-    following_friday TIMESTAMP WITH TIME ZONE;
     new_duel_id UUID;
+    calculated_status TEXT;
 BEGIN
-    -- Calculate next Sunday at 12:00 PM EST
-    next_sunday := (
-        CASE 
-            WHEN EXTRACT(DOW FROM CURRENT_TIMESTAMP AT TIME ZONE 'America/New_York') = 0 THEN
-                -- Today is Sunday, add 7 days to get next Sunday
-                (CURRENT_TIMESTAMP AT TIME ZONE 'America/New_York')::DATE + INTERVAL '7 days' + TIME '12:00:00'
-            ELSE
-                -- Find next Sunday
-                (CURRENT_TIMESTAMP AT TIME ZONE 'America/New_York')::DATE + 
-                INTERVAL '((7 - EXTRACT(DOW FROM (CURRENT_TIMESTAMP AT TIME ZONE 'America/New_York'))) % 7) days' + 
-                TIME '12:00:00'
-        END
-    ) AT TIME ZONE 'America/New_York';
+    -- Determine status based on current time and provided dates
+    -- Convert current time to EST for comparison
+    DECLARE
+        current_time_est TIMESTAMP WITH TIME ZONE := CURRENT_TIMESTAMP AT TIME ZONE 'America/New_York';
+        start_date_est TIMESTAMP WITH TIME ZONE := start_date AT TIME ZONE 'America/New_York';
+        end_date_est TIMESTAMP WITH TIME ZONE := end_date AT TIME ZONE 'America/New_York';
+    BEGIN
+        -- If current time is before start date, status should be 'queued'
+        IF current_time_est < start_date_est THEN
+            calculated_status := 'queued';
+        -- If current time is between start_date and end_date, status should be 'active'
+        ELSIF current_time_est >= start_date_est AND current_time_est < end_date_est THEN
+            calculated_status := 'active';
+        -- If current time is after end_date but before end_date + 24 hours, status should be 'voting'
+        ELSIF current_time_est >= end_date_est AND current_time_est < (end_date_est + INTERVAL '24 hours') THEN
+            calculated_status := 'voting';
+        -- Otherwise, status should be 'queued' (future duel)
+        ELSE
+            calculated_status := 'queued';
+        END IF;
+    END;
     
-    -- Calculate following Friday at 11:59 PM EST
-    following_friday := next_sunday + INTERVAL '5 days' - INTERVAL '1 minute';
-    
-    -- Convert to UTC for storage
-    next_sunday := next_sunday AT TIME ZONE 'UTC';
-    following_friday := following_friday AT TIME ZONE 'UTC';
-    
-    -- Create the duel
+    -- Create the duel with exact dates provided
     INSERT INTO weekly_duel (
         prompt,
         start_date,
@@ -40,9 +40,9 @@ BEGIN
         created_at
     ) VALUES (
         prompt_text,
-        next_sunday,
-        following_friday,
-        'pending',
+        start_date,
+        end_date,
+        calculated_status,
         FALSE,
         NOW()
     ) RETURNING id INTO new_duel_id;
@@ -51,8 +51,9 @@ BEGIN
     RETURN jsonb_build_object(
         'success', true,
         'duel_id', new_duel_id,
-        'start_date_est', next_sunday AT TIME ZONE 'America/New_York',
-        'end_date_est', following_friday AT TIME ZONE 'America/New_York',
+        'start_date_est', start_date AT TIME ZONE 'America/New_York',
+        'end_date_est', end_date AT TIME ZONE 'America/New_York',
+        'status', calculated_status,
         'message', 'Weekly duel created successfully'
     );
     

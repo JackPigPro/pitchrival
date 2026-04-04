@@ -147,15 +147,22 @@ export default function WeeklyDuelPage() {
       let voteDeadline: Date | null = null
       
       if (currentDuel) {
-        // Use status column as source of truth
+        // Use status column as source of truth - matches new cron schedule
         if (currentDuel.status === 'active') {
+          // Active: Monday 12AM to Saturday 11:59PM EST
           state = 'active'
-          subDeadline = new Date(currentDuel.end_date)
+          subDeadline = new Date(currentDuel.end_date) // Saturday 11:59 PM EST
         } else if (currentDuel.status === 'voting') {
+          // Voting: Sunday 12AM to Sunday 11:59PM EST  
           state = 'voting'
-          voteDeadline = new Date(new Date(currentDuel.end_date).getTime() + 24 * 60 * 60 * 1000) // Add 24 hours
+          // Voting ends 24 hours after end_date (which is Saturday 11:59 PM EST)
+          voteDeadline = new Date(new Date(currentDuel.end_date).getTime() + 24 * 60 * 60 * 1000)
         } else if (currentDuel.status === 'completed') {
+          // Completed/Transitioning: Between Sunday 11:59PM and Monday 12AM
           state = 'results'
+        } else if (currentDuel.status === 'queued') {
+          // Queued/No active duel: Future duel not yet started
+          state = 'between'
         } else {
           // Fallback to 'between' for any other status
           state = 'between'
