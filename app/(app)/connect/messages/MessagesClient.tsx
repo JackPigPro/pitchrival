@@ -100,19 +100,19 @@ export default function MessagesClient() {
 
     const supabase = createClient()
     const channel = supabase
-      .channel('messages-realtime')
+      .channel(`messages-${user.id}`)
       .on('postgres_changes', {
         event: 'INSERT',
         schema: 'public',
-        table: 'messages',
-        filter: `receiver_id=eq.${user.id}` 
+        table: 'messages'
       }, (payload) => {
-        const newMessage = payload.new as Message
-        // Only add to chat if it's from the active conversation
-        if (newMessage.sender_id === activeConversation) {
+        const newMessage = payload.new as any
+        const isRelevant = 
+          (newMessage.sender_id === user.id && newMessage.receiver_id === activeConversation) ||
+          (newMessage.receiver_id === user.id && newMessage.sender_id === activeConversation)
+        if (isRelevant) {
           setMessages(prev => [...prev, newMessage])
         }
-        // Update conversations list with new last message
         fetchConversations()
       })
       .subscribe()
@@ -385,7 +385,7 @@ export default function MessagesClient() {
   }
 
   return (
-    <div style={{ display: 'flex', height: '100vh', background: 'var(--background)' }}>
+    <div style={{ display: 'flex', height: 'calc(100vh - 64px)', background: 'var(--background)' }}>
       {/* Left sidebar - Conversation list */}
       <div style={{ 
         width: '280px', 
