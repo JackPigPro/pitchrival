@@ -92,8 +92,10 @@ export default function MessagesClient() {
   }, [activeConversation])
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages])
+  if (messagesContainerRef.current) {
+    messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight
+  }
+}, [messages])
 
   useEffect(() => {
     if (!user || !activeConversation) return
