@@ -110,7 +110,7 @@ export default function MessagesClient() {
         const isRelevant = 
           (newMessage.sender_id === user.id && newMessage.receiver_id === activeConversation) ||
           (newMessage.receiver_id === user.id && newMessage.sender_id === activeConversation)
-        if (isRelevant) {
+        if (isRelevant && newMessage.sender_id !== user.id) {
           setMessages(prev => [...prev, newMessage])
         }
         fetchConversations()
