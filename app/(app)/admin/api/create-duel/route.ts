@@ -5,11 +5,11 @@ export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient()
     
-    const { prompt, start_date, end_date } = await request.json()
+    const { prompt_text, start_date, end_date } = await request.json()
     
-    if (!prompt || !start_date || !end_date) {
+    if (!prompt_text || !start_date || !end_date) {
       return NextResponse.json(
-        { error: 'Missing required fields' },
+        { error: 'Missing required fields: prompt_text, start_date, end_date' },
         { status: 400 }
       )
     }
@@ -48,50 +48,41 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Determine status based on start_date
-    const startDate = new Date(start_date)
-    const now = new Date()
-    const fiveMinutesFromNow = new Date(now.getTime() + 5 * 60 * 1000)
-    
-    let status = 'upcoming'
-    if (startDate <= fiveMinutesFromNow) {
-      status = 'active'
+    // Call the updated Supabase function with new parameters
+    console.log('Calling create_weekly_duel function with prompt_text:', prompt_text.trim(), 'start_date:', start_date, 'end_date:', end_date)
+    const { data, error } = await supabase.rpc('create_weekly_duel', {
+      prompt_text: prompt_text.trim(),
+      start_date: start_date,
+      end_date: end_date
+    })
+
+    console.log('Supabase response - data:', data)
+    console.log('Supabase response - error:', error)
+
+    if (error) {
+      console.error('Error creating weekly duel:', error)
+      return NextResponse.json({ success: false, error: 'Failed to create weekly duel', details: error }, { status: 500 })
     }
 
-    // Insert new weekly duel
-    const { data, error: insertError } = await supabase
-      .from('weekly_duel')
-      .insert({
-        prompt,
-        start_date,
-        end_date,
-        status,
-        prize_distributed: false
-      })
-      .select()
-      .single()
-
-    if (insertError || !data) {
-      return NextResponse.json(
-        { error: 'Failed to create duel' },
-        { status: 500 }
-      )
-    }
-
-    return NextResponse.json(
-      { 
-        success: true,
+    // The function returns a JSON object with success, duel_id, etc.
+    if (data && data.success) {
+      console.log('Duel created successfully with ID:', data.duel_id)
+      return NextResponse.json({ 
+        success: true, 
+        duel_id: data.duel_id,
         duel: {
-          id: data.id,
-          prompt: data.prompt,
-          start_date: data.start_date,
-          end_date: data.end_date,
+          id: data.duel_id,
+          prompt: prompt_text.trim(),
+          start_date: start_date,
+          end_date: end_date,
           status: data.status,
-          prize_distributed: data.prize_distributed
+          prize_distributed: false
         }
-      },
-      { status: 200 }
-    )
+      }, { status: 200 })
+    } else {
+      console.log('No success returned from create_weekly_duel function:', data)
+      return NextResponse.json({ success: false, error: data?.error || 'Failed to create duel' }, { status: 500 })
+    }
 
   } catch (error) {
     console.error('Create duel error:', error)

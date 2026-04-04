@@ -139,14 +139,14 @@ export default function AdminDuelManager() {
 
       if (isCreatingNew || !selectedWeek.duel) {
         // Create new duel
-        const response = await fetch('/api/create-weekly-duel', {
+        const response = await fetch('/admin/api/create-duel', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${session?.access_token}`
           },
           body: JSON.stringify({
-            prompt: editingPrompt.trim(),
+            prompt_text: editingPrompt.trim(),
             start_date: selectedWeek.monday.toISOString(),
             end_date: selectedWeek.sunday.toISOString()
           })
