@@ -9,7 +9,7 @@ export default async function AdminPage() {
   const { data: { user } } = await supabase.auth.getUser()
   
   if (!user) {
-    redirect('/login')
+    redirect('/')
   }
 
   // Get user profile to check if admin
@@ -23,7 +23,7 @@ export default async function AdminPage() {
   const ADMIN_USER_ID = '849836c7-b04e-44ba-88ac-aea98eca8776'
 
   if (!profile || profile.id !== ADMIN_USER_ID) {
-    redirect('/')
+    redirect('/dashboard')
   }
 
   return (
