@@ -20,7 +20,7 @@ export default async function AdminPage() {
     .single()
 
   // Hardcoded admin ID - your actual user ID
-  const ADMIN_USER_ID = '849836c7-b04e-44ba-88ac-aea98eca8776'
+  const ADMIN_USER_ID = 'a4dc1d84-fc05-4018-b3ce-7c60f3a4244c'
 
   if (!profile || profile.id !== ADMIN_USER_ID) {
     redirect('/dashboard')
