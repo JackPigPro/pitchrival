@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Check if user is admin
-    const ADMIN_USER_ID = '9caa7790-28ca-4b10-92fb-960cf95fd4fe'
+    const ADMIN_USER_ID = '849836c7-b04e-44ba-88ac-aea98eca8776'
     const { data: profile } = await supabase
       .from('profiles')
       .select('id')

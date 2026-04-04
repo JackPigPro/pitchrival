@@ -16,6 +16,7 @@ interface Duel {
 
 interface DuelSubmission {
   id: string
+  duel_id: string
   user_id: string
   content: string
   vote_score: number
@@ -29,8 +30,6 @@ interface DuelSubmission {
 export default function AdminDuelManager() {
   const supabase = createClient()
   const [prompt, setPrompt] = useState('')
-  const [startDate, setStartDate] = useState('')
-  const [endDate, setEndDate] = useState('')
   const [duels, setDuels] = useState<Duel[]>([])
   const [selectedDuel, setSelectedDuel] = useState<Duel | null>(null)
   const [duelSubmissions, setDuelSubmissions] = useState<DuelSubmission[]>([])
@@ -41,8 +40,8 @@ export default function AdminDuelManager() {
   const realtimeSubscription = useRef<any>(null)
 
   const createDuel = async () => {
-    if (!prompt.trim() || !startDate.trim() || !endDate.trim()) {
-      alert('Please fill in all fields')
+    if (!prompt.trim()) {
+      alert('Please enter a prompt')
       return
     }
 
@@ -52,16 +51,14 @@ export default function AdminDuelManager() {
     try {
       const { data: { session } } = await supabase.auth.getSession()
 
-      const response = await fetch('/admin/api/create-duel', {
+      const response = await fetch('/api/create-weekly-duel', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${session?.access_token}`
         },
         body: JSON.stringify({
-          prompt,
-          start_date: startDate,
-          end_date: endDate
+          prompt: prompt.trim()
         })
       })
 
@@ -69,10 +66,7 @@ export default function AdminDuelManager() {
 
       if (result.success) {
         setPrompt('')
-        setStartDate('')
-        setEndDate('')
-        setSuccess('Weekly duel created successfully!')
-        // Refresh duels list
+        setSuccess('Weekly duel created successfully! It will start on the next Sunday at 12:00 PM EST.')
         fetchDuels()
       } else {
         setSuccess(result.error || 'Failed to create duel')
@@ -125,6 +119,7 @@ export default function AdminDuelManager() {
       // Merge submissions with usernames
       const transformedSubmissions: DuelSubmission[] = (submissions || []).map(sub => ({
         id: sub.id,
+        duel_id: duelId,
         user_id: sub.user_id,
         content: sub.content,
         vote_score: sub.vote_score,
@@ -287,21 +282,17 @@ export default function AdminDuelManager() {
     }
   }, [selectedDuel])
 
-  const formatDate = (dateString: string) => {
+  const formatDateTime = (dateString: string) => {
     const date = new Date(dateString)
-    return date.toLocaleDateString('en-US', { 
+    return date.toLocaleString('en-US', { 
+      weekday: 'long',
       month: 'short', 
-      day: 'numeric'
-    })
-  }
-
-  const formatTime = (dateString: string) => {
-    const date = new Date(dateString)
-    return date.toLocaleTimeString('en-US', { 
+      day: 'numeric',
       hour: 'numeric', 
       minute: '2-digit',
+      timeZone: 'America/New_York',
       hour12: true
-    })
+    }) + ' EST'
   }
 
   const getStatusColor = (status: string) => {
@@ -338,73 +329,27 @@ export default function AdminDuelManager() {
         </h2>
         
         <div style={{ marginBottom: '16px' }}>
-          <div style={{ marginBottom: '8px' }}>
-            <label style={{ fontSize: '14px', fontWeight: '600', fontFamily: 'var(--font-display)', color: 'var(--text)', display: 'block', marginBottom: '4px' }}>
-              Weekly Prompt
-            </label>
-            <textarea
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              placeholder="Enter the weekly prompt..."
-              style={{
-                width: '100%',
-                height: '120px',
-                padding: '12px',
-                borderRadius: '8px',
-                border: '1px solid var(--border)',
-                background: 'var(--surface)',
-                fontSize: '16px',
-                fontFamily: 'var(--font-body)',
-                color: 'var(--text)',
-                resize: 'vertical',
-                marginBottom: '16px'
-              }}
-            />
-          </div>
-          
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-            <div>
-              <label style={{ fontSize: '14px', fontWeight: '600', fontFamily: 'var(--font-display)', color: 'var(--text)', display: 'block', marginBottom: '4px' }}>
-                Start Date (EST)
-              </label>
-              <input
-                type="datetime-local"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '12px',
-                  borderRadius: '8px',
-                  border: '1px solid var(--border)',
-                  background: 'var(--surface)',
-                  fontSize: '16px',
-                  fontFamily: 'var(--font-body)',
-                  color: 'var(--text)'
-                }}
-              />
-            </div>
-            
-            <div>
-              <label style={{ fontSize: '14px', fontWeight: '600', fontFamily: 'var(--font-display)', color: 'var(--text)', display: 'block', marginBottom: '4px' }}>
-                End Date (EST)
-              </label>
-              <input
-                type="datetime-local"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '12px',
-                  borderRadius: '8px',
-                  border: '1px solid var(--border)',
-                  background: 'var(--surface)',
-                  fontSize: '16px',
-                  fontFamily: 'var(--font-body)',
-                  color: 'var(--text)'
-                }}
-              />
-            </div>
-          </div>
+          <label style={{ fontSize: '14px', fontWeight: '600', fontFamily: 'var(--font-display)', color: 'var(--text)', display: 'block', marginBottom: '4px' }}>
+            Weekly Prompt
+          </label>
+          <textarea
+            value={prompt}
+            onChange={(e) => setPrompt(e.target.value)}
+            placeholder="Enter the weekly prompt..."
+            style={{
+              width: '100%',
+              height: '120px',
+              padding: '12px',
+              borderRadius: '8px',
+              border: '1px solid var(--border)',
+              background: 'var(--surface)',
+              fontSize: '16px',
+              fontFamily: 'var(--font-body)',
+              color: 'var(--text)',
+              resize: 'vertical',
+              marginBottom: '16px'
+            }}
+          />
         </div>
 
         <button
@@ -413,7 +358,7 @@ export default function AdminDuelManager() {
           className="btn-cta-primary"
           style={{ width: '100%' }}
         >
-          {loading ? 'Creating...' : 'Create Duel'}
+          {loading ? 'Publishing...' : 'Publish'}
         </button>
 
         {success && (
@@ -471,6 +416,9 @@ export default function AdminDuelManager() {
                   <th style={{ padding: '12px', textAlign: 'left', borderBottom: '1px solid var(--border)', fontWeight: '600', fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
                     Status
                   </th>
+                  <th style={{ padding: '12px', textAlign: 'left', borderBottom: '1px solid var(--border)', fontWeight: '600', fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
+                    Submissions
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -488,18 +436,15 @@ export default function AdminDuelManager() {
                       <div style={{ fontSize: '14px', fontWeight: '600', fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '4px' }}>
                         {duel.prompt.substring(0, 50)}{duel.prompt.length > 50 ? '...' : ''}
                       </div>
-                      <div style={{ fontSize: '12px', color: 'var(--text2)', fontFamily: 'var(--font-body)', marginTop: '8px' }}>
-                        {formatDate(duel.start_date)} - {formatDate(duel.end_date)}
+                    </td>
+                    <td style={{ padding: '12px', verticalAlign: 'top' }}>
+                      <div style={{ fontSize: '12px', fontWeight: '600', fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
+                        {formatDateTime(duel.start_date)}
                       </div>
                     </td>
                     <td style={{ padding: '12px', verticalAlign: 'top' }}>
-                      <div style={{ fontSize: '14px', fontWeight: '600', fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '4px' }}>
-                        {formatDate(duel.start_date)}
-                      </div>
-                    </td>
-                    <td style={{ padding: '12px', verticalAlign: 'top' }}>
-                      <div style={{ fontSize: '14px', fontWeight: '600', fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '4px' }}>
-                        {formatDate(duel.end_date)}
+                      <div style={{ fontSize: '12px', fontWeight: '600', fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
+                        {formatDateTime(duel.end_date)}
                       </div>
                     </td>
                     <td style={{ padding: '12px', verticalAlign: 'top' }}>
@@ -515,6 +460,11 @@ export default function AdminDuelManager() {
                         display: 'inline-block'
                       }}>
                         {getStatusText(duel.status)}
+                      </div>
+                    </td>
+                    <td style={{ padding: '12px', verticalAlign: 'top' }}>
+                      <div style={{ fontSize: '14px', fontWeight: '600', fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
+                        {duelSubmissions.filter(s => s.duel_id === duel.id).length}
                       </div>
                     </td>
                   </tr>
@@ -554,164 +504,7 @@ export default function AdminDuelManager() {
             </button>
           </div>
 
-          {editingDuel ? (
-            // Edit Mode
-            <div>
-              <div style={{ marginBottom: '20px' }}>
-                <label style={{ fontSize: '14px', fontWeight: '600', fontFamily: 'var(--font-display)', color: 'var(--text)', display: 'block', marginBottom: '8px' }}>
-                  Weekly Prompt
-                </label>
-                <textarea
-                  value={editingDuel.prompt}
-                  onChange={(e) => setEditingDuel({...editingDuel, prompt: e.target.value})}
-                  style={{
-                    width: '100%',
-                    height: '120px',
-                    padding: '16px',
-                    borderRadius: '8px',
-                    border: '1px solid var(--border)',
-                    background: 'var(--surface)',
-                    fontSize: '16px',
-                    fontFamily: 'var(--font-body)',
-                    color: 'var(--text)',
-                    resize: 'vertical',
-                    marginBottom: '20px'
-                  }}
-                />
-              </div>
-              
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
-                <div>
-                  <label style={{ fontSize: '14px', fontWeight: '600', fontFamily: 'var(--font-display)', color: 'var(--text)', display: 'block', marginBottom: '8px' }}>
-                    Start Date
-                  </label>
-                  <input
-                    type="datetime-local"
-                    value={editingDuel.start_date}
-                    onChange={(e) => setEditingDuel({...editingDuel, start_date: e.target.value})}
-                    style={{
-                      width: '100%',
-                      padding: '12px',
-                      borderRadius: '8px',
-                      border: '1px solid var(--border)',
-                      background: 'var(--surface)',
-                      fontSize: '16px',
-                      fontFamily: 'var(--font-body)',
-                      color: 'var(--text)'
-                    }}
-                  />
-                </div>
-                
-                <div>
-                  <label style={{ fontSize: '14px', fontWeight: '600', fontFamily: 'var(--font-display)', color: 'var(--text)', display: 'block', marginBottom: '8px' }}>
-                    End Date
-                  </label>
-                  <input
-                    type="datetime-local"
-                    value={editingDuel.end_date}
-                    onChange={(e) => setEditingDuel({...editingDuel, end_date: e.target.value})}
-                    style={{
-                      width: '100%',
-                      padding: '12px',
-                      borderRadius: '8px',
-                      border: '1px solid var(--border)',
-                      background: 'var(--surface)',
-                      fontSize: '16px',
-                      fontFamily: 'var(--font-body)',
-                      color: 'var(--text)'
-                    }}
-                  />
-                </div>
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
-                <div>
-                  <label style={{ fontSize: '14px', fontWeight: '600', fontFamily: 'var(--font-display)', color: 'var(--text)', display: 'block', marginBottom: '8px' }}>
-                    Voting Start
-                  </label>
-                  <input
-                    type="datetime-local"
-                    value={editingDuel.end_date}
-                    onChange={(e) => setEditingDuel({...editingDuel, voting_start: e.target.value})}
-                    style={{
-                      width: '100%',
-                      padding: '12px',
-                      borderRadius: '8px',
-                      border: '1px solid var(--border)',
-                      background: 'var(--surface)',
-                      fontSize: '16px',
-                      fontFamily: 'var(--font-body)',
-                      color: 'var(--text)'
-                    }}
-                  />
-                </div>
-                
-                <div>
-                  <label style={{ fontSize: '14px', fontWeight: '600', fontFamily: 'var(--font-display)', color: 'var(--text)', display: 'block', marginBottom: '8px' }}>
-                    Voting End
-                  </label>
-                  <input
-                    type="datetime-local"
-                    value={new Date(new Date(editingDuel.end_date).getTime() + 24 * 60 * 60 * 1000).toISOString().slice(0, 16)}
-                    onChange={(e) => setEditingDuel({...editingDuel, voting_end: e.target.value})}
-                    style={{
-                      width: '100%',
-                      padding: '12px',
-                      borderRadius: '8px',
-                      border: '1px solid var(--border)',
-                      background: 'var(--surface)',
-                      fontSize: '16px',
-                      fontFamily: 'var(--font-body)',
-                      color: 'var(--text)'
-                    }}
-                  />
-                </div>
-              </div>
-
-              <div style={{ marginBottom: '20px' }}>
-                <label style={{ fontSize: '14px', fontWeight: '600', fontFamily: 'var(--font-display)', color: 'var(--text)', display: 'block', marginBottom: '8px' }}>
-                  Status
-                </label>
-                <select
-                  value={editingDuel.status}
-                  onChange={(e) => setEditingDuel({...editingDuel, status: e.target.value})}
-                  style={{
-                    width: '100%',
-                    padding: '12px',
-                    borderRadius: '8px',
-                    border: '1px solid var(--border)',
-                    background: 'var(--surface)',
-                    fontSize: '16px',
-                    fontFamily: 'var(--font-body)',
-                    color: 'var(--text)'
-                  }}
-                >
-                  <option value="active">Active</option>
-                  <option value="voting">Voting</option>
-                  <option value="completed">Completed</option>
-                </select>
-              </div>
-
-              <div style={{ display: 'flex', gap: '12px' }}>
-                <button
-                  onClick={updateDuel}
-                  disabled={loading}
-                  className="btn-cta-primary"
-                  style={{ flex: 1 }}
-                >
-                  {loading ? 'Saving...' : 'Save Changes'}
-                </button>
-                <button
-                  onClick={() => setEditingDuel(null)}
-                  className="btn-cta-ghost"
-                  style={{ flex: 1 }}
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          ) : (
-            // View Mode - Show all information by default
+          {/* View Mode - Show all information by default */}
             <div>
               {/* Duel Information Grid */}
               <div style={{ 
@@ -743,22 +536,22 @@ export default function AdminDuelManager() {
                 <div>
                   <div style={{ fontSize: '12px', color: 'var(--text2)', fontFamily: 'var(--font-body)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Start Date</div>
                   <div style={{ fontSize: '16px', fontWeight: '600', fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
-                    {formatDate(selectedDuel.start_date)} at {formatTime(selectedDuel.start_date)}
+                    {formatDateTime(selectedDuel.start_date)}
                   </div>
                 </div>
                 
                 <div>
                   <div style={{ fontSize: '12px', color: 'var(--text2)', fontFamily: 'var(--font-body)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>End Date</div>
                   <div style={{ fontSize: '16px', fontWeight: '600', fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
-                    {formatDate(selectedDuel.end_date)} at {formatTime(selectedDuel.end_date)}
+                    {formatDateTime(selectedDuel.end_date)}
                   </div>
                 </div>
                 
                 <div>
                   <div style={{ fontSize: '12px', color: 'var(--text2)', fontFamily: 'var(--font-body)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Voting Period</div>
                   <div style={{ fontSize: '16px', fontWeight: '600', fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
-                    {formatDate(selectedDuel.end_date)} at {formatTime(selectedDuel.end_date)} - 
-                    {formatDate(new Date(new Date(selectedDuel.end_date).getTime() + 24 * 60 * 60 * 1000).toISOString())} at {formatTime(new Date(new Date(selectedDuel.end_date).getTime() + 24 * 60 * 60 * 1000).toISOString())}
+                    {formatDateTime(selectedDuel.end_date)} - 
+                    {formatDateTime(new Date(new Date(selectedDuel.end_date).getTime() + 24 * 60 * 60 * 1000).toISOString())}
                   </div>
                   <div style={{ fontSize: '12px', color: 'var(--text2)', fontFamily: 'var(--font-body)', marginTop: '4px' }}>
                     Duration: 24 hours
@@ -768,8 +561,8 @@ export default function AdminDuelManager() {
                 <div>
                   <div style={{ fontSize: '12px', color: 'var(--text2)', fontFamily: 'var(--font-body)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Submission Window</div>
                   <div style={{ fontSize: '16px', fontWeight: '600', fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
-                    {formatDate(selectedDuel.start_date)} at {formatTime(selectedDuel.start_date)} - 
-                    {formatDate(selectedDuel.end_date)} at {formatTime(selectedDuel.end_date)}
+                    {formatDateTime(selectedDuel.start_date)} - 
+                    {formatDateTime(selectedDuel.end_date)}
                   </div>
                   <div style={{ fontSize: '12px', color: 'var(--text2)', fontFamily: 'var(--font-body)', marginTop: '4px' }}>
                     ~6 days
@@ -856,15 +649,8 @@ export default function AdminDuelManager() {
               )}
 
               
-              {/* Action Buttons */}
+              {/* Action Buttons - Simplified */}
               <div style={{ display: 'flex', gap: '16px', paddingTop: '24px', borderTop: '1px solid var(--border)' }}>
-                <button
-                  onClick={() => setEditingDuel(selectedDuel)}
-                  className="btn-cta-ghost"
-                  style={{ padding: '12px 24px' }}
-                >
-                  Edit Duel
-                </button>
                 <button
                   onClick={() => setShowDeleteConfirm(true)}
                   className="btn-cta-danger"
@@ -874,7 +660,6 @@ export default function AdminDuelManager() {
                 </button>
               </div>
             </div>
-          )}
 
           {/* Delete Confirmation Modal */}
           {showDeleteConfirm && (

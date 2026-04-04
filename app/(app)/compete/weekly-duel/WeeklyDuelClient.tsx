@@ -67,7 +67,7 @@ export default function WeeklyDuelClient({
   const [hasSubmittedPreview, setHasSubmittedPreview] = useState(false)
 
   // Check if user is admin
-  const ADMIN_USER_ID = '9caa7790-28ca-4b10-92fb-960cf95fd4fe'
+  const ADMIN_USER_ID = '849836c7-b04e-44ba-88ac-aea98eca8776'
   const isAdmin = currentUserId === ADMIN_USER_ID
 
   // Get current state (admin override or real state)
