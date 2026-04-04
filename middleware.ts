@@ -24,9 +24,14 @@ export async function middleware(request: NextRequest) {
   // Server-side admin check - redirect non-admins immediately
   if (pathname.startsWith('/admin')) {
     const ADMIN_USER_ID = '849836c7-b04e-44ba-88ac-aea98eca8776'
-    if (!user || user.id !== ADMIN_USER_ID) {
+    if (!user) {
       const redirectUrl = request.nextUrl.clone()
       redirectUrl.pathname = '/'
+      return NextResponse.redirect(redirectUrl)
+    }
+    if (user.id !== ADMIN_USER_ID) {
+      const redirectUrl = request.nextUrl.clone()
+      redirectUrl.pathname = '/dashboard'
       return NextResponse.redirect(redirectUrl)
     }
   }
