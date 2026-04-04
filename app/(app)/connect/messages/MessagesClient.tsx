@@ -385,13 +385,15 @@ export default function MessagesClient() {
   }
 
   return (
-    <div style={{ display: 'flex', height: 'calc(100vh - 64px)', background: 'var(--background)' }}>
+    <div style={{ display: 'flex', height: 'calc(100vh - 68px)', background: 'var(--background)', overflow: 'hidden' }}>
       {/* Left sidebar - Conversation list */}
       <div style={{ 
         width: '280px', 
         borderRight: '1px solid var(--border)',
         display: 'flex',
-        flexDirection: 'column'
+        flexDirection: 'column',
+        height: '100%',
+        overflow: 'hidden'
       }}>
         <div style={{ 
           padding: '20px', 
@@ -408,7 +410,7 @@ export default function MessagesClient() {
           </h1>
         </div>
         
-        <div style={{ flex: 1, overflow: 'auto' }}>
+        <div style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden' }}>
           {conversations.length === 0 ? (
             <div style={{ 
               padding: '20px', 
@@ -520,7 +522,7 @@ export default function MessagesClient() {
       </div>
 
       {/* Right side - Active conversation */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
         {activeConversation ? (
           <>
             {/* Header */}
@@ -564,7 +566,8 @@ export default function MessagesClient() {
               onScroll={handleScroll}
               style={{
                 flex: 1,
-                overflow: 'auto',
+                overflowY: 'auto',
+                overflowX: 'hidden',
                 padding: '20px',
                 display: 'flex',
                 flexDirection: 'column',
@@ -648,7 +651,8 @@ export default function MessagesClient() {
             <div style={{
               padding: '20px',
               borderTop: '1px solid var(--border)',
-              background: 'var(--surface)'
+              background: 'var(--surface)',
+              flexShrink: 0
             }}>
               {error && (
                 <div style={{
