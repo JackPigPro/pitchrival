@@ -56,12 +56,12 @@ export async function POST(request: NextRequest) {
       end_date: end_date
     })
 
-    console.log('Supabase response - data:', data)
-    console.log('Supabase response - error:', error)
-
+    console.log('RPC data:', data)
+    console.log('RPC error:', JSON.stringify(error))
+    
     if (error) {
-      console.error('Error creating weekly duel:', error)
-      return NextResponse.json({ success: false, error: 'Failed to create weekly duel', details: error }, { status: 500 })
+      console.error('Supabase RPC error details:', error)
+      return NextResponse.json({ error: error.message, details: error }, { status: 500 })
     }
 
     // The function returns a JSON object with success, duel_id, etc.
