@@ -77,10 +77,6 @@ body[data-theme='dark'] {
   --green-mid: rgba(21,128,61,0.3);
   --blue-tint: rgba(37,99,235,0.2);
   --purple-tint: rgba(124,58,237,0.2);
-  background-image:
-    linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px);
-  background-size: 48px 48px;
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -88,12 +84,7 @@ body[data-theme='dark'] {
    ═══════════════════════════════════════════════════════════ */
 * { margin: 0; padding: 0; box-sizing: border-box; }
 html { scroll-behavior: smooth; }
-body { font-family: var(--font-body); background: var(--bg); color: var(--text); overflow-x: hidden;
-  background-image:
-    linear-gradient(rgba(21,128,61,.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(21,128,61,.04) 1px, transparent 1px);
-  background-size: 48px 48px;
-}
+body { font-family: var(--font-body); background: var(--bg); color: var(--text); overflow-x: hidden; }
 
 /* ═══════════════════════════════════════════════════════════
    NAV BAR
@@ -167,20 +158,17 @@ body[data-theme='dark'] .nav {
   position: relative; text-align: center; overflow: hidden;
 }
 .hero-bg {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
+  position: absolute; inset: 0; pointer-events: none; z-index: 0;
   background-image:
-    linear-gradient(rgba(21,128,61,.06) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(21,128,61,.06) 1px, transparent 1px);
+    linear-gradient(rgba(21,128,61,.065) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(21,128,61,.065) 1px, transparent 1px);
   background-size: 48px 48px;
-  mask-image: radial-gradient(ellipse 80% 60% at 50% 40%, black 30%, transparent 100%);
+  mask-image: radial-gradient(ellipse 85% 65% at 50% 42%, black 25%, transparent 100%);
 }
 body[data-theme='dark'] .hero-bg {
   background-image:
-    linear-gradient(rgba(255,255,255,.08) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,.08) 1px, transparent 1px);
+    linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px);
 }
 .hero::after {
   content: ''; position: absolute; top: 80px; left: 50%; transform: translateX(-50%);
@@ -199,10 +187,10 @@ body[data-theme='dark'] .hero-bg {
 }
 
 /* Hero section card positioning */
-.hdc-1 { top: 120px; left: 5%; animation: float1 4s ease-in-out infinite; }
-.hdc-2 { top: 180px; right: 5%; animation: float2 6s ease-in-out infinite; }
-.hdc-3 { bottom: 200px; left: 8%; animation: float3 5s ease-in-out infinite; }
-.hdc-4 { bottom: 40px; right: 5%; animation: float4 7s ease-in-out infinite; } /* Moved to bottom right to avoid overlap */
+.hdc-1 { top: 120px; left: 5%; }
+.hdc-2 { top: 180px; right: 5%; }
+.hdc-3 { bottom: 200px; left: 8%; }
+.hdc-4 { bottom: 40px; right: 5%; } /* Moved to bottom right to avoid overlap */
 .auth-deco-1 { top: 14%; left: 10%; animation: float1 4s ease-in-out infinite; }
 .auth-deco-2 { top: 18%; right: 10%; animation: float2 6s ease-in-out infinite; }
 .auth-deco-3 { bottom: 18%; left: 16%; animation: float3 5s ease-in-out infinite; }
@@ -571,6 +559,8 @@ button:hover, .nav-login:hover, .nav-signup:hover, .ft-cta:hover, .pc-cta:hover,
 }
 .testimonials-section::before {
   content: ''; position: absolute; inset: 0; pointer-events: none;
+  background-image: linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
+  background-size: 52px 52px;
 }
 .t-inner { max-width: 1100px; margin: 0 auto; position: relative; z-index: 1; }
 .t-header { margin-bottom: 48px; }
@@ -677,6 +667,8 @@ button:hover, .nav-login:hover, .nav-signup:hover, .ft-cta:hover, .pc-cta:hover,
 }
 .schools-section::before {
   content: ''; position: absolute; inset: 0; pointer-events: none;
+  background-image: linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
+  background-size: 52px 52px;
 }
 .schools-glow { position: absolute; top: 40%; left: 30%; transform: translate(-50%,-50%); width: 700px; height: 500px; background: radial-gradient(ellipse, rgba(37,99,235,.1) 0%, transparent 65%); pointer-events: none; }
 .schools-glow-2 { position: absolute; top: 60%; left: 70%; transform: translate(-50%,-50%); width: 500px; height: 400px; background: radial-gradient(ellipse, rgba(21,128,61,.08) 0%, transparent 65%); pointer-events: none; }
@@ -712,6 +704,8 @@ button:hover, .nav-login:hover, .nav-signup:hover, .ft-cta:hover, .pc-cta:hover,
 .site-footer { background: var(--dark); border-top: 1px solid rgba(255,255,255,.06); position: relative; overflow: hidden; }
 .site-footer::before {
   content: ''; position: absolute; inset: 0; pointer-events: none;
+  background-image: linear-gradient(rgba(255,255,255,.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.02) 1px, transparent 1px);
+  background-size: 52px 52px;
 }
 .sf-top { padding: 56px 64px 44px; display: grid; grid-template-columns: 1.6fr 1fr 1fr; gap: 52px; border-bottom: 1px solid rgba(255,255,255,.06); position: relative; z-index: 1; }
 .sf-brand { display: flex; flex-direction: column; gap: 14px; }
@@ -743,7 +737,7 @@ button:hover, .nav-login:hover, .nav-signup:hover, .ft-cta:hover, .pc-cta:hover,
    COMING SOON
    ═══════════════════════════════════════════════════════════ */
 .coming-soon-screen { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--dark2), var(--dark3)); position: relative; overflow: hidden; text-align: center; padding: 48px; }
-.coming-soon-screen::before { content: ''; position: absolute; inset: 0; pointer-events: none; }
+.coming-soon-screen::before { content: ''; position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px); background-size: 52px 52px; pointer-events: none; }
 .cs-logo { width: 56px; height: 56px; background: linear-gradient(135deg, #16a34a, #22c55e); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 900; color: #fff; margin: 0 auto 20px; box-shadow: 0 4px 24px rgba(21,128,61,.4); position: relative; z-index: 1; font-family: var(--font-display); }
 .cs-title { font-size: 52px; font-weight: 800; letter-spacing: -2.5px; color: #fff; margin-bottom: 14px; position: relative; z-index: 1; font-family: var(--font-display); }
 .cs-title em { font-style: normal; color: #22c55e; }
