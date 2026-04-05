@@ -77,24 +77,13 @@ export async function POST(request: NextRequest) {
       }, { status: 500 })
     }
 
-    // The function returns a JSON object with success, duel_id, etc.
-    if (data && data.success) {
-      console.log('Duel created successfully with ID:', data.duel_id)
+    if (data) {
       return NextResponse.json({ 
         success: true, 
-        duel_id: data.duel_id,
-        duel: {
-          id: data.duel_id,
-          prompt: prompt_text.trim(),
-          start_date: start_date,
-          end_date: end_date,
-          status: data.status,
-          prize_distributed: false
-        }
+        duel_id: data
       }, { status: 200 })
     } else {
-      console.log('No success returned from create_weekly_duel function:', data)
-      return NextResponse.json({ success: false, error: data?.error || 'Failed to create duel' }, { status: 500 })
+      return NextResponse.json({ success: false, error: 'Failed to create duel' }, { status: 500 })
     }
 
   } catch (error) {
