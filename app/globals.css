@@ -77,6 +77,9 @@ body[data-theme='dark'] {
   --green-mid: rgba(21,128,61,0.3);
   --blue-tint: rgba(37,99,235,0.2);
   --purple-tint: rgba(124,58,237,0.2);
+  background-image:
+    linear-gradient(rgba(255,255,255,.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.06) 1px, transparent 1px);
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -84,7 +87,12 @@ body[data-theme='dark'] {
    ═══════════════════════════════════════════════════════════ */
 * { margin: 0; padding: 0; box-sizing: border-box; }
 html { scroll-behavior: smooth; }
-body { font-family: var(--font-body); background: var(--bg); color: var(--text); overflow-x: hidden; }
+body { font-family: var(--font-body); background: var(--bg); color: var(--text); overflow-x: hidden;
+  background-image:
+    linear-gradient(rgba(0,0,0,.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,0,0,.06) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
 
 /* ═══════════════════════════════════════════════════════════
    NAV BAR
@@ -160,10 +168,10 @@ body[data-theme='dark'] .nav {
 .hero-bg {
   position: absolute; inset: 0; pointer-events: none; z-index: 0;
   background-image:
-    linear-gradient(rgba(0,0,0,.08) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0,0,0,.08) 1px, transparent 1px);
+    linear-gradient(rgba(0,0,0,.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,0,0,.12) 1px, transparent 1px);
   background-size: 48px 48px;
-  mask-image: radial-gradient(ellipse 85% 65% at 50% 42%, black 25%, transparent 100%);
+  mask-image: radial-gradient(ellipse 100% 80% at 50% 42%, black 40%, transparent 100%);
 }
 body[data-theme='dark'] .hero-bg {
   background-image:
