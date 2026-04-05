@@ -140,6 +140,13 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault()
     
+    // Always validate username regex before submitting
+    const usernameRegex = /^[a-zA-Z][a-zA-Z0-9_]{2,19}$/
+    if (!usernameRegex.test(editData.username.trim())) {
+      alert('Username must start with a letter and contain only letters, numbers, and underscores. No spaces or special characters.')
+      return
+    }
+    
     if (!currentProfile?.id) {
       alert('No profile ID found')
       return

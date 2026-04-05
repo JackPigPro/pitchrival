@@ -75,6 +75,13 @@ export default function OnboardingPage() {
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     
+    // Always validate username regex before submitting
+    const usernameRegex = /^[a-zA-Z][a-zA-Z0-9_]{2,19}$/
+    if (!usernameRegex.test(username.trim())) {
+      setError('Username must start with a letter and contain only letters, numbers, and underscores. No spaces or special characters.')
+      return
+    }
+    
     if (!isFormValid) return
 
     setLoading(true)
