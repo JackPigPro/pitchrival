@@ -32,7 +32,7 @@ export default function OnboardingPage() {
         message: 'Username must be 3-20 characters'
       },
       {
-        test: /^[a-zA-Z][a-zA-Z0-9_]*$/.test(username),
+        test: /^[a-zA-Z][a-zA-Z0-9_]{2,19}$/.test(username),
         message: 'Username must start with a letter and contain only letters, numbers, and underscores'
       }
     ]
@@ -88,7 +88,7 @@ export default function OnboardingPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          username: username.trim().toLowerCase()
+          username: username.trim()
         })
       })
 

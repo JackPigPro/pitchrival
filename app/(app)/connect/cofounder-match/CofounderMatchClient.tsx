@@ -202,7 +202,7 @@ export default function CofounderMatchClient({
         fontFamily: 'var(--font-display)',
         flexShrink: 0
       }}>
-        {(profile.display_name || profile.username || 'Unknown').charAt(0).toUpperCase()}
+        {(profile.display_name || profile.username || 'Unknown').charAt(0)}
       </div>
       
       <div style={{ flex: 1, minWidth: 0 }}>
@@ -354,7 +354,7 @@ export default function CofounderMatchClient({
         fontFamily: 'var(--font-display)',
         flexShrink: 0
       }}>
-        {(profile.display_name || profile.username || 'Unknown').charAt(0).toUpperCase()}
+        {(profile.display_name || profile.username || 'Unknown').charAt(0)}
       </div>
       
       <div style={{ flex: 1, minWidth: 0 }}>

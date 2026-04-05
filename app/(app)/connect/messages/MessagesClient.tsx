@@ -310,7 +310,7 @@ export default function MessagesClient() {
 
   const getInitials = (name?: string, username?: string) => {
     const displayName = name || username || 'Unknown'
-    return displayName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+    return displayName.split(' ').map(n => n[0]).join('').slice(0, 2)
   }
 
   const formatTimeAgo = (timestamp: string) => {

@@ -82,7 +82,7 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
         message: 'Username must be 3-20 characters'
       },
       {
-        test: /^[a-zA-Z][a-zA-Z0-9_]*$/.test(editData.username),
+        test: /^[a-zA-Z][a-zA-Z0-9_]{2,19}$/.test(editData.username),
         message: 'Username must start with a letter and contain only letters, numbers, and underscores'
       }
     ]
@@ -182,7 +182,7 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
       // Update local state
       setCurrentProfile(prev => ({
         ...prev,
-        username: editData.username.toLowerCase(),
+        username: editData.username,
         location: editData.location,
         bio: editData.bio,
         stage: editData.stage,
@@ -682,7 +682,7 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
                 position: 'relative',
                 zIndex: 1
               }}>
-                {currentProfile.username.charAt(0).toUpperCase()}
+                {currentProfile.username.charAt(0)}
               </div>
 
               {/* Profile Info */}

@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
       message: 'Username must be 3-20 characters'
     },
     {
-      test: /^[a-zA-Z][a-zA-Z0-9_]*$/.test(username),
+      test: /^[a-zA-Z][a-zA-Z0-9_]{2,19}$/.test(username),
       message: 'Username must start with a letter and contain only letters, numbers, and underscores'
     }
   ]
@@ -49,7 +49,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ 
       available: !data, // available if no data found
-      username: username.trim().toLowerCase()
+      username: username.trim()
     })
   } catch (error) {
     console.error('Unexpected error:', error)

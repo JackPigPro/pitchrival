@@ -26,7 +26,7 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: 'Username must be 3-20 characters' }, { status: 400 })
       }
       
-      if (!/^[a-zA-Z][a-zA-Z0-9_]*$/.test(username)) {
+      if (!/^[a-zA-Z][a-zA-Z0-9_]{2,19}$/.test(username)) {
         return NextResponse.json({ error: 'Username must start with a letter and contain only letters, numbers, and underscores' }, { status: 400 })
       }
     }
@@ -55,7 +55,7 @@ export async function POST(request: Request) {
     const { data, error } = await supabase
       .from('profiles')
       .update({
-        username: profileData.username.toLowerCase(),
+        username: profileData.username,
         location: profileData.location,
         bio: profileData.bio,
         stage: profileData.stage,

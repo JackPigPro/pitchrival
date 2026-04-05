@@ -22,12 +22,12 @@ export async function POST(request: NextRequest) {
     // Validate username format
     const validationRules = [
       {
-        test: username.length <= 15,
-        message: 'Username must be 15 characters or less'
+        test: username.length >= 3 && username.length <= 20,
+        message: 'Username must be 3-20 characters'
       },
       {
-        test: /^[a-zA-Z0-9]+$/.test(username),
-        message: 'Username can only contain letters and numbers'
+        test: /^[a-zA-Z][a-zA-Z0-9_]{2,19}$/.test(username),
+        message: 'Username must start with a letter and contain only letters, numbers, and underscores'
       }
     ]
 
@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
     const { data: existingUser } = await supabase
       .from('profiles')
       .select('username')
-      .eq('username', username.trim().toLowerCase())
+      .eq('username', username.trim())
       .single()
 
     if (existingUser) {
@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
       .from('profiles')
       .upsert({
         id: user.id,
-        username: username.trim().toLowerCase(),
+        username: username.trim(),
         onboarding_complete: true,
       })
 
@@ -86,7 +86,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ 
       success: true,
-      username: username.trim().toLowerCase()
+      username: username.trim()
     })
 
   } catch (error) {
