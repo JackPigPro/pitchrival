@@ -149,13 +149,13 @@ export default function AdminDuelManager() {
             prompt_text: editingPrompt.trim(),
             start_date: (() => {
               const monday = new Date(selectedWeek.monday)
-              monday.setHours(5, 0, 0, 0) // 12:00 AM EST = 05:00 UTC
+              monday.setUTCHours(5, 0, 0, 0) // midnight EST = 05:00 UTC (EST = UTC-5)
               return monday.toISOString().replace('T', ' ').replace('.000Z', '').replace('Z', '')
             })(),
             end_date: (() => {
               const saturday = new Date(selectedWeek.monday)
-              saturday.setDate(saturday.getDate() + 5) // Monday + 5 = Saturday
-              saturday.setHours(4, 59, 0, 0) // 11:59 PM EST = 04:59 UTC next day
+              saturday.setUTCDate(saturday.getUTCDate() + 5)
+              saturday.setUTCHours(4, 59, 0, 0) // 11:59 PM EST = 04:59 UTC next day
               return saturday.toISOString().replace('T', ' ').replace('.000Z', '').replace('Z', '')
             })()
           })
@@ -164,11 +164,18 @@ export default function AdminDuelManager() {
         const result = await response.json()
 
         if (result.success) {
-          setSuccess('Weekly duel created successfully!')
-          setEditingPrompt('')
-          setIsCreatingNew(false)
-          // Update selected week with new duel
-          setSelectedWeek(prev => prev ? { ...prev, duel: { ...result.duel, submission_count: 0 } } : null)
+          try {
+            setSuccess('Weekly duel created successfully!')
+            setEditingPrompt('')
+            setIsCreatingNew(false)
+            // Update selected week with new duel
+            if (selectedWeek && result.duel) {
+              setSelectedWeek(prev => prev ? { ...prev, duel: { ...result.duel, submission_count: 0 } } : null)
+            }
+          } catch (error) {
+            console.error('Error updating state after duel creation:', error)
+            setError('Duel created but there was an error updating the display')
+          }
         } else {
           setError(result.error || 'Failed to create duel')
         }
@@ -189,10 +196,17 @@ export default function AdminDuelManager() {
         const result = await response.json()
 
         if (result.success) {
-          setSuccess('Duel updated successfully!')
-          setIsCreatingNew(false)
-          // Update selected week duel
-          setSelectedWeek(prev => prev ? { ...prev, duel: result.duel } : null)
+          try {
+            setSuccess('Duel updated successfully!')
+            setIsCreatingNew(false)
+            // Update selected week duel
+            if (selectedWeek && result.duel) {
+              setSelectedWeek(prev => prev ? { ...prev, duel: result.duel } : null)
+            }
+          } catch (error) {
+            console.error('Error updating state after duel update:', error)
+            setError('Duel updated but there was an error updating the display')
+          }
         } else {
           setError(result.error || 'Failed to update duel')
         }
