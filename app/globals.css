@@ -187,10 +187,10 @@ body[data-theme='dark'] .hero-bg {
 }
 
 /* Hero section card positioning */
-.hdc-1 { top: 120px; left: 5%; }
-.hdc-2 { top: 180px; right: 5%; }
-.hdc-3 { bottom: 200px; left: 8%; }
-.hdc-4 { bottom: 40px; right: 5%; } /* Moved to bottom right to avoid overlap */
+.hdc-1 { top: 120px; left: 5%; animation: float1 4s ease-in-out infinite; }
+.hdc-2 { top: 180px; right: 5%; animation: float2 6s ease-in-out infinite; }
+.hdc-3 { bottom: 200px; left: 8%; animation: float3 5s ease-in-out infinite; }
+.hdc-4 { bottom: 40px; right: 5%; animation: float4 7s ease-in-out infinite; } /* Moved to bottom right to avoid overlap */
 .auth-deco-1 { top: 14%; left: 10%; animation: float1 4s ease-in-out infinite; }
 .auth-deco-2 { top: 18%; right: 10%; animation: float2 6s ease-in-out infinite; }
 .auth-deco-3 { bottom: 18%; left: 16%; animation: float3 5s ease-in-out infinite; }
