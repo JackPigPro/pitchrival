@@ -153,7 +153,7 @@ export default function WeeklyDuelPage() {
           // Voting: Sunday 12AM to Sunday 11:59PM EST  
           state = 'voting'
           // Voting ends 24 hours after end_date (which is Saturday 11:59 PM EST)
-          voteDeadline = new Date(new Date(currentDuel.end_date).getTime() + 24 * 60 * 60 * 1000)
+          voteDeadline = new Date(new Date(currentDuel.end_date + 'Z').getTime() + 24 * 60 * 60 * 1000)
         } else if (currentDuel.status === 'completed') {
           // Completed/Transitioning: Between Sunday 11:59PM and Monday 12AM
           state = 'results'
