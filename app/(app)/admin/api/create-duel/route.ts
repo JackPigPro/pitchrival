@@ -61,7 +61,20 @@ export async function POST(request: NextRequest) {
     console.log('RPC error:', JSON.stringify(error))
     
     if (error) {
-      return NextResponse.json({ error: error.message, details: error }, { status: 500 })
+      return NextResponse.json({ 
+        success: false, 
+        error: error.message || 'Failed to create duel',
+        code: error.code,
+        details: error.details,
+        hint: error.hint
+      }, { status: 500 })
+    }
+
+    if (!data) {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'No data returned from function'
+      }, { status: 500 })
     }
 
     // The function returns a JSON object with success, duel_id, etc.
