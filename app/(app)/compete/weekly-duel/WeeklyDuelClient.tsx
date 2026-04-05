@@ -73,6 +73,7 @@ export default function WeeklyDuelClient({
   // Get current state (admin override or real state)
   const displayState = isAdmin ? adminPreviewState : currentState
   const displayUserSubmission = isAdmin && hasSubmittedPreview ? { id: 'preview', content: 'Preview submission', vote_score: 0, vote_count: 0, created_at: new Date().toISOString() } as UserSubmission : userSubmission
+  console.log('displayUserSubmission:', displayUserSubmission, 'userSubmission:', userSubmission)
 
   // Countdown timers
   useEffect(() => {

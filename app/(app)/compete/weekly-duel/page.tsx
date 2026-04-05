@@ -83,6 +83,7 @@ export default function WeeklyDuelPage() {
           .eq('user_id', authUser.id)
           .maybeSingle()
 
+        console.log('Setting userSubmission to:', userSub)
         setUserSubmission(userSub)
 
         // Fetch all submissions for current duel
