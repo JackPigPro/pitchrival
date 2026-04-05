@@ -286,6 +286,7 @@ export default function WeeklyDuelPage() {
       currentState={currentState || 'between'}
       submissionDeadline={submissionDeadline}
       votingDeadline={votingDeadline}
+      parsedVotingDeadline={votingDeadline}
       currentUserId={user?.id || ''}
       onRefresh={() => setRefreshTrigger(prev => prev + 1)}
       onSubmissionSuccess={handleSubmissionSuccess}

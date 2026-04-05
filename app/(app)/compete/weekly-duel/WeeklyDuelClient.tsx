@@ -42,6 +42,9 @@ interface WeeklyDuelClientProps {
   submissionDeadline: Date | null
   votingDeadline: Date | null
   currentUserId: string
+
+  // Ensure votingDeadline is properly parsed as Date object
+  parsedVotingDeadline: Date | null
   onRefresh?: () => void
   onSubmissionSuccess?: (newSubmission: UserSubmission) => void
 }
@@ -54,6 +57,7 @@ export default function WeeklyDuelClient({
   currentState,
   submissionDeadline,
   votingDeadline,
+  parsedVotingDeadline,
   currentUserId,
   onRefresh,
   onSubmissionSuccess
@@ -119,11 +123,11 @@ export default function WeeklyDuelClient({
   }, [submissionDeadline])
 
   useEffect(() => {
-    if (!votingDeadline) return
+    if (!parsedVotingDeadline) return
 
     const timer = setInterval(() => {
       const now = new Date()
-      const timeLeft = votingDeadline.getTime() - now.getTime()
+      const timeLeft = parsedVotingDeadline.getTime() - now.getTime()
       
       if (timeLeft <= 0) {
         clearInterval(timer)
@@ -155,7 +159,7 @@ export default function WeeklyDuelClient({
     }, 1000)
 
     return () => clearInterval(timer)
-  }, [votingDeadline])
+  }, [parsedVotingDeadline])
 
   // Vote cooldown timer
   useEffect(() => {
@@ -923,7 +927,7 @@ export default function WeeklyDuelClient({
                   <div style={{ fontSize: '12px', color: 'var(--text2)', fontFamily: 'var(--font-body)', marginBottom: '4px' }}>Voting Period</div>
                   <div style={{ fontSize: '16px', fontWeight: 600, fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
                     {formatEST(currentDuel.end_date)} - 
-                    {formatEST(new Date(new Date(currentDuel.end_date).getTime() + 24 * 60 * 60 * 1000).toISOString().replace('Z', ''))}
+                    {formatEST(new Date(new Date(currentDuel.end_date.endsWith('Z') ? currentDuel.end_date : currentDuel.end_date + 'Z').getTime() + 24 * 60 * 60 * 1000).toISOString())}
                   </div>
                 </div>
 
