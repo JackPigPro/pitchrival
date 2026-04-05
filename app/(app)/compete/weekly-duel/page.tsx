@@ -65,7 +65,7 @@ export default function WeeklyDuelPage() {
           .from('weekly_duel')
           .select('*')
           .eq('status', 'completed')
-          .order('created_at', { ascending: false })
+          .order('start_date', { ascending: false })
           .limit(1)
           .maybeSingle()
         
@@ -81,7 +81,7 @@ export default function WeeklyDuelPage() {
           .select('*')
           .eq('duel_id', currentDuel.id)
           .eq('user_id', authUser.id)
-          .single()
+          .maybeSingle()
 
         setUserSubmission(userSub)
 
@@ -99,9 +99,9 @@ export default function WeeklyDuelPage() {
       // 1. First fetch completed duels
       const { data: completedDuels } = await supabase
         .from('weekly_duel')
-        .select('id, prompt, created_at, status, prize_distributed')
+        .select('id, prompt, start_date, status, prize_distributed')
         .eq('status', 'completed')
-        .order('created_at', { ascending: false })
+        .order('start_date', { ascending: false })
         .limit(10)
 
       if (completedDuels && completedDuels.length > 0) {
@@ -133,7 +133,7 @@ export default function WeeklyDuelPage() {
               user_id: {
                 username: username
               },
-              created_at: duel?.created_at || '',
+              created_at: duel?.start_date || '',
               username: username
             }
           })

@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
       .select('*')
       .eq('user_id', user.id)
       .eq('duel_id', duel_id)
-      .single()
+      .maybeSingle()
 
     if (existingSubmission) {
       return NextResponse.json(
