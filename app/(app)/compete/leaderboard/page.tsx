@@ -39,17 +39,27 @@ export default async function LeaderboardPage() {
     console.error('Error fetching profiles:', profilesError)
   }
 
+  // Fetch all daily streaks
+  const { data: dailyStreaks, error: streaksError } = await supabase
+    .from('daily_streaks')
+    .select('user_id, current_streak, longest_streak')
+
+  if (streaksError) {
+    console.error('Error fetching daily streaks:', streaksError)
+  }
 
   // Step 3: Manual JavaScript join - match by user_stats.user_id === profiles.id
   const transformedAllUsers = (userStats || []).map(stat => {
     const profile = (profiles || []).find(p => p.id === stat.user_id)
+    const dailyStreak = (dailyStreaks || []).find(s => s.user_id === stat.user_id)
     return {
       elo: stat.elo || 0,
       user_id: stat.user_id,
       rank_label: getRankLabel(stat.elo || 0),
       profiles: {
         username: profile?.username || 'Unknown'
-      }
+      },
+      current_streak: dailyStreak?.current_streak || 0
     }
   })
 

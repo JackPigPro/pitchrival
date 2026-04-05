@@ -86,6 +86,13 @@ async function ProfileContent({ username }: { username: string }) {
     .select('*', { count: 'exact', head: true })
     .eq('user_id', profile.id)
 
+  // Fetch daily streak data
+  const { data: dailyStreak, error: streakError } = await supabase
+    .from('daily_streaks')
+    .select('current_streak, longest_streak, last_submission_date')
+    .eq('user_id', profile.id)
+    .single()
+
   // Get current user to check if this is their own profile
   const { data: { user } } = await supabase.auth.getUser()
   const isOwnProfile = user?.id === profile.id
@@ -99,6 +106,7 @@ async function ProfileContent({ username }: { username: string }) {
       allTimeRank={allTimeRank}
       dailyRank={dailyRank}
       weeklyDuelsCount={weeklyDuelsCount || 0}
+      dailyStreak={dailyStreak || null}
     />
   )
 }

@@ -17,6 +17,13 @@ interface Notification {
 interface DashboardClientProps {
   initialProfile: { username: string, display_name: string | null, created_at: string } | null
   initialStats: { elo: number, rank: string } | null
+  todayBattle: any | null
+  userSubmission: any | null
+  userStreak: {
+    current_streak: number
+    longest_streak: number
+    last_submission_date: string | null
+  } | null
 }
 
 const getRankByElo = (elo?: number) => {
@@ -71,7 +78,7 @@ const getTimeAgo = (timestamp: string) => {
   return `${diffDays}d ago`
 }
 
-export default function DashboardClient({ initialProfile, initialStats }: DashboardClientProps) {
+export default function DashboardClient({ initialProfile, initialStats, todayBattle, userSubmission, userStreak }: DashboardClientProps) {
   const { user, authLoading } = useSupabase()
   const [profile, setProfile] = useState<any>(initialProfile)
   const [elo, setElo] = useState<any>(initialStats)
@@ -344,6 +351,106 @@ export default function DashboardClient({ initialProfile, initialStats }: Dashbo
                   <strong>Member Since:</strong> {profile?.created_at ? formatDate(profile.created_at) : 'Loading...'}
                 </div>
               </div>
+            </div>
+
+            {/* Daily Battle Card */}
+            <div style={{ 
+              background: 'var(--card)', 
+              borderRadius: '16px', 
+              padding: '32px',
+              border: '1px solid var(--border)',
+              boxShadow: 'var(--shadow)'
+            }}>
+              <h2 style={{ 
+                fontSize: '20px', 
+                fontWeight: 700, 
+                marginBottom: '24px',
+                fontFamily: 'var(--font-display)',
+                color: 'var(--text)',
+                letterSpacing: '-0.1px'
+              }}>
+                Daily Battle
+              </h2>
+              
+              {todayBattle ? (
+                <div>
+                  <div style={{ marginBottom: '16px' }}>
+                    <div style={{ 
+                      fontSize: '14px', 
+                      color: 'var(--text2)', 
+                      marginBottom: '8px',
+                      fontWeight: 600,
+                      fontFamily: 'var(--font-display)'
+                    }}>
+                      Today's Prompt
+                    </div>
+                    <div style={{ 
+                      fontSize: '16px', 
+                      color: 'var(--text)', 
+                      lineHeight: '1.4',
+                      fontFamily: 'var(--font-body)'
+                    }}>
+                      {todayBattle.prompt.length > 60 
+                        ? todayBattle.prompt.substring(0, 60) + '...'
+                        : todayBattle.prompt
+                      }
+                    </div>
+                  </div>
+                  
+                  <div style={{ 
+                    display: 'grid', 
+                    gridTemplateColumns: '1fr 1fr', 
+                    gap: '16px',
+                    marginBottom: '20px'
+                  }}>
+                    <div>
+                      <div style={{ fontSize: '14px', color: 'var(--text2)', marginBottom: '4px' }}>Current Streak 🔥</div>
+                      <div style={{ fontSize: '18px', fontWeight: 700, color: 'var(--text)', fontFamily: 'var(--font-display)' }}>
+                        {userStreak?.current_streak || 0} days
+                      </div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '14px', color: 'var(--text2)', marginBottom: '4px' }}>Status</div>
+                      <div style={{ fontSize: '14px', fontWeight: 600, color: userSubmission ? 'var(--green)' : 'var(--text2)', fontFamily: 'var(--font-display)' }}>
+                        {userSubmission ? 'Submitted ✓' : 'Not submitted'}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <Link
+                    href="/compete/daily-battle"
+                    style={{
+                      display: 'block',
+                      padding: '12px 20px',
+                      background: 'var(--green)',
+                      color: 'white',
+                      textDecoration: 'none',
+                      borderRadius: '8px',
+                      fontSize: '14px',
+                      fontWeight: 600,
+                      fontFamily: 'var(--font-display)',
+                      textAlign: 'center',
+                      transition: 'all 0.2s ease'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = '#22c55e'
+                      e.currentTarget.style.transform = 'translateY(-1px)'
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = 'var(--green)'
+                      e.currentTarget.style.transform = 'translateY(0)'
+                    }}
+                  >
+                    Battle Today →
+                  </Link>
+                </div>
+              ) : (
+                <div style={{ textAlign: 'center', padding: '40px 0' }}>
+                  <div style={{ fontSize: '16px', color: 'var(--text2)', fontFamily: 'var(--font-body)' }}>
+                    No battle today
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Quick Actions */}

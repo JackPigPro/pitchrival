@@ -1,0 +1,184 @@
+import { createServerClient } from '@supabase/ssr'
+import { cookies } from 'next/headers'
+import { redirect } from 'next/navigation'
+import DailyBattleClient from './DailyBattleClient'
+
+interface DailyBattle {
+  id: string
+  prompt: string
+  date: string
+  created_at: string
+}
+
+interface UserSubmission {
+  id: string
+  content: string
+  created_at: string
+}
+
+interface DailyStreak {
+  current_streak: number
+  longest_streak: number
+  last_submission_date: string | null
+}
+
+async function getTodayBattle(): Promise<DailyBattle | null> {
+  const cookieStore = await cookies()
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll()
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            cookieStore.set(name, value, options)
+          })
+        },
+      },
+    }
+  )
+  
+  const today = new Date().toISOString().split('T')[0]
+  
+  const { data, error } = await supabase
+    .from('daily_battle')
+    .select('*')
+    .eq('date', today)
+    .single()
+    
+  if (error || !data) return null
+  return data
+}
+
+async function getUserSubmission(battleId: string, userId: string): Promise<UserSubmission | null> {
+  const cookieStore = await cookies()
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll()
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            cookieStore.set(name, value, options)
+          })
+        },
+      },
+    }
+  )
+  
+  const { data, error } = await supabase
+    .from('daily_submissions')
+    .select('*')
+    .eq('battle_id', battleId)
+    .eq('user_id', userId)
+    .single()
+    
+  if (error || !data) return null
+  return data
+}
+
+async function getUserStreak(userId: string): Promise<DailyStreak | null> {
+  const cookieStore = await cookies()
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll()
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            cookieStore.set(name, value, options)
+          })
+        },
+      },
+    }
+  )
+  
+  const { data, error } = await supabase
+    .from('daily_streaks')
+    .select('*')
+    .eq('user_id', userId)
+    .single()
+    
+  if (error || !data) return null
+  return data
+}
+
+export default async function DailyBattlePage() {
+  const cookieStore = await cookies()
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll()
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            cookieStore.set(name, value, options)
+          })
+        },
+      },
+    }
+  )
+  
+  // Get authenticated user
+  const { data: { user } } = await supabase.auth.getUser()
+  
+  if (!user) {
+    redirect('/login')
+  }
+
+  // Get user profile to check onboarding
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('onboarding_complete')
+    .eq('id', user.id)
+    .single()
+
+  if (!profile?.onboarding_complete) {
+    redirect('/onboarding')
+  }
+
+  // Fetch today's battle
+  const battle = await getTodayBattle()
+  
+  if (!battle) {
+    return (
+      <div style={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center', 
+        minHeight: '400px',
+        fontSize: '18px',
+        color: 'var(--text-secondary)'
+      }}>
+        No daily battle today, check back tomorrow
+      </div>
+    )
+  }
+
+  // Fetch user's submission and streak
+  const [userSubmission, userStreak] = await Promise.all([
+    getUserSubmission(battle.id, user.id),
+    getUserStreak(user.id)
+  ])
+
+  return (
+    <DailyBattleClient 
+      battle={battle}
+      userSubmission={userSubmission}
+      userStreak={userStreak}
+      userId={user.id}
+    />
+  )
+}

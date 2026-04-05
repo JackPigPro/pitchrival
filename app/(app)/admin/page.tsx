@@ -1,6 +1,6 @@
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
-import AdminDuelManager from './duel-manager'
+import AdminTabs from './AdminTabs'
 
 export default async function AdminPage() {
   const supabase = await createClient()
@@ -41,11 +41,11 @@ export default async function AdminPage() {
             ⚔️ ADMIN
           </div>
           <h1 style={{ fontSize: '48px', fontWeight: 800, letterSpacing: '-2px', fontFamily: 'var(--font-display)', color: 'var(--text)', margin: 0 }}>
-            Weekly Duel Management
+            Admin Management
           </h1>
         </div>
 
-        <AdminDuelManager />
+        <AdminTabs />
       </div>
     </div>
   )

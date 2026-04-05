@@ -9,6 +9,7 @@ interface User {
   profiles: {
     username: string
   }
+  current_streak: number
 }
 
 interface EloHistory {
@@ -313,6 +314,16 @@ export default function LeaderboardClient({
                           fontWeight: '600'
                         }}>
                           (You)
+                        </span>
+                      )}
+                      {user.current_streak > 0 && (
+                        <span style={{
+                          marginLeft: '8px',
+                          fontSize: '14px',
+                          color: 'var(--text2)',
+                          fontWeight: '600'
+                        }}>
+                          🔥 {user.current_streak}
                         </span>
                       )}
                     </a>

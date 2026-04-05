@@ -31,6 +31,12 @@ interface Idea {
   created_at: string
 }
 
+interface DailyStreak {
+  current_streak: number
+  longest_streak: number
+  last_submission_date: string | null
+}
+
 interface ProfilePageProps {
   profile: Profile
   userStats?: UserStats
@@ -39,9 +45,10 @@ interface ProfilePageProps {
   allTimeRank?: number | null
   dailyRank?: number | null
   weeklyDuelsCount?: number
+  dailyStreak?: DailyStreak | null
 }
 
-export default function ProfilePage({ profile: initialProfile, userStats, ideas, isOwnProfile, allTimeRank, dailyRank, weeklyDuelsCount }: ProfilePageProps) {
+export default function ProfilePage({ profile: initialProfile, userStats, ideas, isOwnProfile, allTimeRank, dailyRank, weeklyDuelsCount, dailyStreak }: ProfilePageProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [currentProfile, setCurrentProfile] = useState(initialProfile)
   const [usernameStatus, setUsernameStatus] = useState<'checking' | 'available' | 'taken' | 'invalid' | null>(null)
@@ -1011,6 +1018,45 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
                   <div style={{ fontSize: '14px', color: 'var(--text2)', marginBottom: '4px' }}>Daily Rank</div>
                   <div style={{ fontSize: '20px', fontWeight: '700', color: 'var(--text)', fontFamily: 'var(--font-display)' }}>
                     #{dailyRank || 'N/A'}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Daily Streak Card */}
+            <div style={{ 
+              background: 'var(--card)', 
+              borderRadius: '16px', 
+              padding: '32px',
+              border: '1px solid var(--border)',
+              boxShadow: 'var(--shadow)',
+              width: '100%'
+            }}>
+              <h3 style={{ 
+                fontSize: '20px', 
+                fontWeight: '700', 
+                marginBottom: '20px', 
+                fontFamily: 'var(--font-display)',
+                color: 'var(--text)'
+              }}>
+                Daily Battle Streak
+              </h3>
+              
+              <div style={{ 
+                display: 'grid', 
+                gridTemplateColumns: '1fr 1fr', 
+                gap: '16px'
+              }}>
+                <div>
+                  <div style={{ fontSize: '14px', color: 'var(--text2)', marginBottom: '4px' }}>Current Streak 🔥</div>
+                  <div style={{ fontSize: '20px', fontWeight: '700', color: 'var(--text)', fontFamily: 'var(--font-display)' }}>
+                    {dailyStreak?.current_streak || 0} days
+                  </div>
+                </div>
+                <div>
+                  <div style={{ fontSize: '14px', color: 'var(--text2)', marginBottom: '4px' }}>Longest Streak</div>
+                  <div style={{ fontSize: '20px', fontWeight: '700', color: 'var(--text)', fontFamily: 'var(--font-display)' }}>
+                    {dailyStreak?.longest_streak || 0} days
                   </div>
                 </div>
               </div>
