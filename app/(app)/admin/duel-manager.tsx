@@ -306,9 +306,13 @@ export default function AdminDuelManager() {
     // Find the first Monday of the month
     const firstDay = new Date(year, month, 1)
     const firstMonday = new Date(firstDay)
-    const dayOfWeek = firstDay.getDay()
-    const daysUntilMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1
-    firstMonday.setDate(firstDay.getDate() + daysUntilMonday)
+    const dayOfWeek = firstDay.getDay() // 0=Sun, 1=Mon, 2=Tue...
+    if (dayOfWeek === 0) {
+      firstMonday.setDate(firstDay.getDate() + 1) // Sunday → next Monday
+    } else if (dayOfWeek !== 1) {
+      firstMonday.setDate(firstDay.getDate() + (8 - dayOfWeek)) // Any other day → next Monday
+    }
+    // If dayOfWeek === 1, already Monday, no change needed
     
     // Generate weeks for the month
     let currentWeekStart = new Date(firstMonday)
@@ -316,7 +320,7 @@ export default function AdminDuelManager() {
     for (let weekNum = 0; weekNum < 6; weekNum++) {
       const weekStart = new Date(currentWeekStart)
       const weekEnd = new Date(currentWeekStart)
-      weekEnd.setDate(weekStart.getDate() + 6)
+      weekEnd.setDate(weekStart.getDate() + 5) // Monday + 5 = Saturday
       
       // Check if this week is in the current month
       if (weekStart.getMonth() !== month && weekEnd.getMonth() !== month) {
