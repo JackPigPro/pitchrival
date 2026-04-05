@@ -397,6 +397,15 @@ export default function AdminDuelManager() {
     }
   }
 
+  const getRankColor = (rank: number) => {
+    if (rank === 1) return 'var(--gold)'
+    if (rank === 2) return 'var(--silver)'
+    if (rank === 3) return 'var(--bronze)'
+    if (rank <= 5) return 'var(--purple)'
+    if (rank <= 10) return 'var(--green)'
+    return 'var(--grey)'
+  }
+
   const getStatusText = (status: string) => {
     switch (status) {
       case 'active': return 'Active'
@@ -706,45 +715,103 @@ export default function AdminDuelManager() {
               </div>
             )}
 
-            {/* Submissions Leaderboard */}
-            {(selectedWeek.duel?.status === 'voting' || selectedWeek.duel?.status === 'completed') && duelSubmissions.length > 0 && (
+            {/* Submissions Table */}
+            {selectedWeek.duel && (
               <div style={{ marginBottom: '32px' }}>
                 <h3 style={{ fontSize: '16px', fontWeight: 600, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '16px' }}>
-                  {selectedWeek.duel.status === 'voting' ? 'Live' : 'Final'} Rankings
+                  Submissions
                 </h3>
-                <div style={{ background: 'var(--surface)', borderRadius: '12px', padding: '16px', border: '1px solid var(--border)' }}>
-                  {duelSubmissions.map((submission, index) => (
-                    <div key={submission.id} style={{ 
-                      display: 'flex', 
-                      justifyContent: 'space-between', 
-                      alignItems: 'center',
-                      padding: '12px 0',
-                      borderBottom: index < duelSubmissions.length - 1 ? '1px solid var(--border)' : 'none'
+                {duelSubmissions.length > 0 ? (
+                  <div style={{ 
+                    background: 'var(--surface)', 
+                    borderRadius: '12px', 
+                    padding: '16px', 
+                    border: '1px solid var(--border)',
+                    overflow: 'hidden'
+                  }}>
+                    <div style={{ 
+                      display: 'grid', 
+                      gridTemplateColumns: '120px 1fr 80px 80px 80px',
+                      gap: '16px',
+                      padding: '12px 16px',
+                      borderBottom: '1px solid var(--border)',
+                      fontSize: '12px',
+                      fontWeight: 600,
+                      fontFamily: 'var(--font-display)',
+                      color: 'var(--text2)',
+                      background: 'var(--card)'
                     }}>
-                      <div style={{ flex: 1, marginRight: '16px' }}>
-                        <div style={{ fontSize: '14px', fontWeight: 600, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '4px' }}>
-                          #{index + 1} {submission.username}
+                      <div>Username</div>
+                      <div>Full Submission Text</div>
+                      <div style={{ textAlign: 'center' }}>Vote Score</div>
+                      <div style={{ textAlign: 'center' }}>Vote Count</div>
+                      <div style={{ textAlign: 'center' }}>Final Rank</div>
+                    </div>
+                    {duelSubmissions.map((submission, index) => (
+                      <div key={submission.id} style={{ 
+                        display: 'grid', 
+                        gridTemplateColumns: '120px 1fr 80px 80px 80px',
+                        gap: '16px',
+                        padding: '12px 16px',
+                        borderBottom: index < duelSubmissions.length - 1 ? '1px solid var(--border)' : 'none',
+                        fontSize: '14px',
+                        fontFamily: 'var(--font-body)',
+                        color: 'var(--text)',
+                        alignItems: 'center'
+                      }}>
+                        <div style={{ 
+                          fontWeight: 600, 
+                          fontFamily: 'var(--font-display)',
+                          color: 'var(--blue)'
+                        }}>
+                          {submission.username}
                         </div>
-                        <div style={{ fontSize: '12px', color: 'var(--text2)', fontFamily: 'var(--font-body)', lineHeight: '1.4' }}>
-                          {submission.content.substring(0, 100)}{submission.content.length > 100 ? '...' : ''}
+                        <div style={{ 
+                          lineHeight: '1.4',
+                          wordBreak: 'break-word',
+                          whiteSpace: 'pre-wrap'
+                        }}>
+                          {submission.content}
                         </div>
-                      </div>
-                      <div style={{ textAlign: 'right', minWidth: '80px' }}>
-                        <div style={{ fontSize: '16px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--purple)' }}>
+                        <div style={{ 
+                          textAlign: 'center',
+                          fontWeight: 700,
+                          fontFamily: 'var(--font-display)',
+                          color: 'var(--purple)'
+                        }}>
                           {submission.vote_score}
                         </div>
-                        <div style={{ fontSize: '11px', color: 'var(--text2)', fontFamily: 'var(--font-body)' }}>
-                          {submission.vote_count} votes
+                        <div style={{ 
+                          textAlign: 'center',
+                          fontSize: '12px',
+                          color: 'var(--text2)'
+                        }}>
+                          {submission.vote_count}
                         </div>
-                        {submission.final_rank && submission.elo_awarded && (
-                          <div style={{ fontSize: '11px', color: 'var(--green)', fontFamily: 'var(--font-display)', fontWeight: 600 }}>
-                            +{submission.elo_awarded} ELO
-                          </div>
-                        )}
+                        <div style={{ 
+                          textAlign: 'center',
+                          fontWeight: 600,
+                          fontFamily: 'var(--font-display)',
+                          color: submission.final_rank ? getRankColor(submission.final_rank) : 'var(--text2)'
+                        }}>
+                          {submission.final_rank ? `#${submission.final_rank}` : '-'}
+                        </div>
                       </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div style={{ 
+                    padding: '32px', 
+                    borderRadius: '8px',
+                    background: 'var(--surface)',
+                    border: '1px solid var(--border)',
+                    textAlign: 'center'
+                  }}>
+                    <div style={{ fontSize: '16px', color: 'var(--text2)', fontFamily: 'var(--font-body)' }}>
+                      No submissions yet
                     </div>
-                  ))}
-                </div>
+                  </div>
+                )}
               </div>
             )}
 

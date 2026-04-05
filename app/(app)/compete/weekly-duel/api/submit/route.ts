@@ -127,3 +127,140 @@ export async function POST(request: NextRequest) {
     )
   }
 }
+
+export async function PUT(request: NextRequest) {
+  try {
+    const supabase = await createClient()
+    
+    const { content, duel_id } = await request.json()
+    
+    // UUID validation helper
+    const isValidUUID = (str: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str)
+
+    // Input validation
+    if (!content || typeof content !== 'string' || content.trim() === '') {
+      return NextResponse.json(
+        { error: 'Content is required and must be a non-empty string' },
+        { status: 400 }
+      )
+    }
+    
+    if (content.length < 10) {
+      return NextResponse.json(
+        { error: 'Content must be at least 10 characters' },
+        { status: 400 }
+      )
+    }
+    
+    if (content.length > 10000) {
+      return NextResponse.json(
+        { error: 'Content must be at most 10000 characters' },
+        { status: 400 }
+      )
+    }
+    
+    if (!duel_id || typeof duel_id !== 'string' || !isValidUUID(duel_id)) {
+      return NextResponse.json(
+        { error: 'duel_id is required and must be a valid UUID format' },
+        { status: 400 }
+      )
+    }
+
+    // Get user from auth header
+    const authHeader = request.headers.get('authorization')
+    if (!authHeader) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
+
+    const token = authHeader.replace('Bearer ', '')
+    const { data: { user }, error } = await supabase.auth.getUser(token)
+    
+    if (error || !user) {
+      return NextResponse.json(
+        { error: 'Invalid token' },
+        { status: 401 }
+      )
+    }
+
+    // Rate limiting for updates (more lenient than new submissions)
+    const allowed = rateLimit(user.id + '_duel_update', 10, 60000) // 10 updates per minute
+    if (!allowed) return NextResponse.json({ error: 'Too many requests, please slow down' }, { status: 429 })
+
+    // Check if user has an existing submission to this duel
+    const { data: existingSubmission } = await supabase
+      .from('duel_submissions')
+      .select('*')
+      .eq('user_id', user.id)
+      .eq('duel_id', duel_id)
+      .maybeSingle()
+
+    if (!existingSubmission) {
+      return NextResponse.json(
+        { error: 'No existing submission found for this duel' },
+        { status: 400 }
+      )
+    }
+
+    // Check if duel is still in active status (allow editing only during active phase)
+    const { data: duel } = await supabase
+      .from('weekly_duels')
+      .select('status')
+      .eq('id', duel_id)
+      .single()
+
+    if (!duel || duel.status !== 'active') {
+      return NextResponse.json(
+        { error: 'Can only edit submissions while duel is in active status' },
+        { status: 400 }
+      )
+    }
+
+    // Update existing submission
+    const { data: updatedSubmission, error: updateError } = await supabase
+      .from('duel_submissions')
+      .update({
+        content: content,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', existingSubmission.id)
+      .select()
+      .single()
+
+    if (updateError || !updatedSubmission) {
+      console.error('Submission update error:', {
+        error: updateError,
+        message: updateError?.message,
+        details: updateError?.details,
+        hint: updateError?.hint,
+        code: updateError?.code,
+        submission_id: existingSubmission.id
+      })
+      return NextResponse.json(
+        { error: 'Failed to update submission', details: updateError?.message },
+        { status: 500 }
+      )
+    }
+
+    return NextResponse.json(
+      { 
+        success: true,
+        submission: {
+          id: updatedSubmission.id,
+          content: updatedSubmission.content,
+          created_at: updatedSubmission.created_at
+        }
+      },
+      { status: 200 }
+    )
+
+  } catch (error) {
+    console.error('Update submission error:', error)
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    )
+  }
+}

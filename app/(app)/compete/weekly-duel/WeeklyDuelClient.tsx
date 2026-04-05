@@ -72,6 +72,9 @@ export default function WeeklyDuelClient({
   const [adminPreviewState, setAdminPreviewState] = useState<'active' | 'voting' | 'results'>(currentState === 'between' ? 'active' : currentState)
   const [hasSubmittedPreview, setHasSubmittedPreview] = useState(false)
   const [localUserSubmission, setLocalUserSubmission] = useState<UserSubmission | null>(userSubmission)
+  const [isEditing, setIsEditing] = useState(false)
+  const [editContent, setEditContent] = useState('')
+  const [editValidationError, setEditValidationError] = useState('')
 
   // Check if user is admin
   const ADMIN_USER_ID = 'a4dc1d84-fc05-4018-b3ce-7c60f3a4244c'
@@ -194,6 +197,15 @@ export default function WeeklyDuelClient({
     setLocalUserSubmission(userSubmission)
   }, [userSubmission])
 
+  // Handle voting state change while editing
+  useEffect(() => {
+    if (isEditing && displayState === 'voting') {
+      setIsEditing(false)
+      setEditContent('')
+      setEditValidationError('')
+    }
+  }, [displayState, isEditing])
+
   const handleSubmitSubmission = async () => {
     if (!submissionContent.trim()) {
       setValidationError('Please write something before submitting.')
@@ -248,6 +260,65 @@ export default function WeeklyDuelClient({
     } catch (error) {
       console.error('Submit error:', error)
       setValidationError('Network error. Please try again.')
+    }
+  }
+
+  const handleUpdateSubmission = async () => {
+    if (!editContent.trim()) {
+      setEditValidationError('Please write something before updating.')
+      return
+    }
+
+    if (editContent.trim() === localUserSubmission?.content.trim()) {
+      setIsEditing(false)
+      setEditContent('')
+      setEditValidationError('')
+      return
+    }
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+
+      if (!session?.access_token) {
+        setEditValidationError('Authentication required. Please log in.')
+        return
+      }
+
+      const response = await fetch('/compete/weekly-duel/api/submit', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`
+        },
+        body: JSON.stringify({
+          content: editContent,
+          duel_id: currentDuel?.id
+        })
+      })
+
+      const result = await response.json()
+      
+      if (result.success) {
+        setEditContent('')
+        setEditValidationError('')
+        setIsEditing(false)
+        // Update local state immediately
+        const updatedSubmission: UserSubmission = {
+          ...localUserSubmission!,
+          content: editContent
+        }
+        setLocalUserSubmission(updatedSubmission)
+        // Notify parent component to update allSubmissions
+        if (onSubmissionSuccess) {
+          onSubmissionSuccess(updatedSubmission)
+        }
+      } else {
+        console.error('Update failed:', result.error)
+        setEditValidationError(result.error || 'Failed to update. Please try again.')
+      }
+    } catch (error) {
+      console.error('Update error:', error)
+      setEditValidationError('Network error. Please try again.')
     }
   }
 
@@ -553,47 +624,134 @@ export default function WeeklyDuelClient({
             ) : (
               // Active State - Already Submitted
               <div style={{ textAlign: 'center' }}>
-                <div style={{ 
-                  width: '80px', 
-                  height: '80px', 
-                  borderRadius: '50%', 
-                  background: 'var(--green-tint)', 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  justifyContent: 'center',
-                  margin: '0 auto 24px auto'
-                }}>
-                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--green)" strokeWidth="2">
-                    <path d="M20 6L9 17l-5-5"/>
-                  </svg>
-                </div>
-                <h2 style={{ fontSize: '24px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '16px' }}>
-                  Entry Submitted!
-                </h2>
-                <p style={{ fontSize: '16px', fontFamily: 'var(--font-body)', color: 'var(--text2)', marginBottom: '24px', lineHeight: '1.5' }}>
-                  Your submission has been received. Voting will begin once the submission period ends.
-                </p>
-                <div style={{ 
-                  padding: '16px', 
-                  borderRadius: '12px', 
-                  background: 'var(--surface)', 
-                  border: "1px solid var(--border)",
-                  textAlign: 'left',
-                  marginBottom: '24px'
-                }}>
-                  <div style={{ fontSize: '14px', color: 'var(--text2)', fontFamily: 'var(--font-body)', marginBottom: '8px' }}>
-                    Your submission:
+                {isEditing ? (
+                  // Edit Mode
+                  <div>
+                    <h2 style={{ fontSize: '24px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '16px' }}>
+                      Edit Your Entry
+                    </h2>
+                    <p style={{ fontSize: '16px', fontFamily: 'var(--font-body)', color: 'var(--text2)', marginBottom: '24px', lineHeight: '1.5' }}>
+                      Update your submission before the voting period begins.
+                    </p>
+                    
+                    <textarea
+                      value={editContent}
+                      onChange={(e) => {
+                        setEditContent(e.target.value)
+                        setEditValidationError('')
+                      }}
+                      placeholder="Type your updated submission here..."
+                      style={{
+                        width: '100%',
+                        height: '200px',
+                        padding: '16px',
+                        borderRadius: '12px',
+                        border: "1px solid var(--border)",
+                        background: 'var(--surface)',
+                        fontSize: '16px',
+                        fontFamily: 'var(--font-body)',
+                        color: 'var(--text)',
+                        resize: 'vertical',
+                        marginBottom: editValidationError ? '8px' : '16px'
+                      }}
+                    />
+                    
+                    {editValidationError && (
+                      <div style={{ 
+                        color: 'var(--red)', 
+                        fontSize: '14px', 
+                        fontFamily: 'var(--font-body)', 
+                        marginBottom: '16px',
+                        padding: '8px 12px',
+                        borderRadius: '6px',
+                        background: 'rgba(239, 68, 68, 0.1)',
+                        border: '1px solid rgba(239, 68, 68, 0.2)'
+                      }}>
+                        {editValidationError}
+                      </div>
+                    )}
+                    
+                    <div style={{ display: 'flex', gap: '12px' }}>
+                      <button
+                        onClick={handleUpdateSubmission}
+                        disabled={!editContent.trim()}
+                        className="btn-cta-primary"
+                        style={{ flex: 1, padding: '16px', fontSize: '16px' }}
+                      >
+                        Update Submission
+                      </button>
+                      <button
+                        onClick={() => {
+                          setIsEditing(false)
+                          setEditContent('')
+                          setEditValidationError('')
+                        }}
+                        className="btn-cta-ghost"
+                        style={{ padding: '16px 24px', fontSize: '16px' }}
+                      >
+                        Cancel
+                      </button>
+                    </div>
                   </div>
-                  <div style={{ 
-                    fontSize: '16px', 
-                    fontFamily: 'var(--font-body)', 
-                    color: 'var(--text)',
-                    whiteSpace: 'pre-wrap',
-                    lineHeight: '1.5'
-                  }}>
-                    {userSubmission?.content || displayUserSubmission.content}
+                ) : (
+                  // Confirmation View
+                  <div>
+                    <div style={{ 
+                      width: '80px', 
+                      height: '80px', 
+                      borderRadius: '50%', 
+                      background: 'var(--green-tint)', 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      justifyContent: 'center',
+                      margin: '0 auto 24px auto'
+                    }}>
+                      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--green)" strokeWidth="2">
+                        <path d="M20 6L9 17l-5-5"/>
+                      </svg>
+                    </div>
+                    <h2 style={{ fontSize: '24px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '16px' }}>
+                      Entry Submitted!
+                    </h2>
+                    <p style={{ fontSize: '16px', fontFamily: 'var(--font-body)', color: 'var(--text2)', marginBottom: '24px', lineHeight: '1.5' }}>
+                      Your submission has been received. Voting will begin once the submission period ends.
+                    </p>
+                    <div style={{ 
+                      padding: '16px', 
+                      borderRadius: '12px', 
+                      background: 'var(--surface)', 
+                      border: "1px solid var(--border)",
+                      textAlign: 'left',
+                      marginBottom: '24px'
+                    }}>
+                      <div style={{ fontSize: '14px', color: 'var(--text2)', fontFamily: 'var(--font-body)', marginBottom: '8px' }}>
+                        Your submission:
+                      </div>
+                      <div style={{ 
+                        fontSize: '16px', 
+                        fontFamily: 'var(--font-body)', 
+                        color: 'var(--text)',
+                        whiteSpace: 'pre-wrap',
+                        lineHeight: '1.5'
+                      }}>
+                        {userSubmission?.content || displayUserSubmission.content}
+                      </div>
+                    </div>
+                    {currentDuel?.status === 'active' && (
+                      <button
+                        onClick={() => {
+                          setIsEditing(true)
+                          setEditContent(userSubmission?.content || displayUserSubmission.content)
+                          setEditValidationError('')
+                        }}
+                        className="btn-cta-ghost"
+                        style={{ padding: '12px 24px', fontSize: '14px' }}
+                      >
+                        Edit Submission
+                      </button>
+                    )}
                   </div>
-                </div>
+                )}
               </div>
             )}
             
@@ -661,6 +819,25 @@ export default function WeeklyDuelClient({
               {/* Voting State */}
               {displayState === 'voting' && (
                 <div>
+                  {/* Show message if user was editing when voting started */}
+                  {isEditing && (
+                    <div style={{
+                      marginBottom: '24px',
+                      padding: '16px',
+                      borderRadius: '8px',
+                      background: 'var(--yellow-tint)',
+                      border: '1px solid var(--yellow)',
+                      textAlign: 'center'
+                    }}>
+                      <div style={{ fontSize: '16px', fontWeight: 600, fontFamily: 'var(--font-display)', color: 'var(--yellow)', marginBottom: '4px' }}>
+                        Voting has started!
+                      </div>
+                      <div style={{ fontSize: '14px', color: 'var(--text2)', fontFamily: 'var(--font-body)' }}>
+                        Your original submission was kept and is now part of the voting pool.
+                      </div>
+                    </div>
+                  )}
+                  
                   {/* Voting countdown timer */}
                   {votingDeadline && (
                     <div style={{ marginBottom: '24px' }}>
