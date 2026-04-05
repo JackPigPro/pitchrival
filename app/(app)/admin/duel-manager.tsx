@@ -154,17 +154,22 @@ export default function AdminDuelManager() {
           body: JSON.stringify({
             prompt_text: editingPrompt.trim(),
             start_date: (() => {
-              const monday = new Date(selectedWeek.monday)
-              const offset = getESTOffset(monday)
-              monday.setUTCHours(offset, 0, 0, 0)
-              return monday.toISOString().replace('T', ' ').replace('.000Z', '').replace('Z', '')
+              const monday = new Date(Date.UTC(
+                selectedWeek.monday.getFullYear(),
+                selectedWeek.monday.getMonth(),
+                selectedWeek.monday.getDate(),
+                4, 0, 0, 0  // midnight EDT = 04:00 UTC
+              ))
+              return monday.toISOString().replace('T', ' ').slice(0, 19)
             })(),
             end_date: (() => {
-              const saturday = new Date(selectedWeek.monday)
-              saturday.setUTCDate(saturday.getUTCDate() + 5)
-              const offset = getESTOffset(saturday)
-              saturday.setUTCHours(offset - 1, 59, 0, 0)
-              return saturday.toISOString().replace('T', ' ').replace('.000Z', '').replace('Z', '')
+              const saturday = new Date(Date.UTC(
+                selectedWeek.monday.getFullYear(),
+                selectedWeek.monday.getMonth(),
+                selectedWeek.monday.getDate() + 5,
+                3, 59, 0, 0  // 11:59 PM EDT = 03:59 UTC next day
+              ))
+              return saturday.toISOString().replace('T', ' ').slice(0, 19)
             })()
           })
         })
@@ -176,10 +181,9 @@ export default function AdminDuelManager() {
             setSuccess('Weekly duel created successfully!')
             setEditingPrompt('')
             setIsCreatingNew(false)
-            // Update selected week with new duel
+            // Update selected week with new duel to show details
             if (selectedWeek && result.duel) {
               setSelectedWeek(prev => prev ? { ...prev, duel: { ...result.duel, submission_count: 0 } } : null)
-              // Fetch submissions for the new duel
               fetchDuelSubmissions(result.duel.id)
             }
           } catch (error) {
