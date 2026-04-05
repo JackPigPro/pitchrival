@@ -44,6 +44,8 @@ interface ProfilePageProps {
 export default function ProfilePage({ profile: initialProfile, userStats, ideas, isOwnProfile, allTimeRank, dailyRank, weeklyDuelsCount }: ProfilePageProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [currentProfile, setCurrentProfile] = useState(initialProfile)
+  const [usernameStatus, setUsernameStatus] = useState<'checking' | 'available' | 'taken' | 'invalid' | null>(null)
+  const [usernameError, setUsernameError] = useState<string | null>(null)
   const [editData, setEditData] = useState({
     username: initialProfile.username || '',
     location: initialProfile.location || '',
@@ -57,6 +59,66 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
   })
 
   const supabase = createClient()
+
+  // Check username availability in real-time
+  useEffect(() => {
+    if (!isEditing || !editData.username.trim()) {
+      setUsernameStatus(null)
+      setUsernameError(null)
+      return
+    }
+
+    // Skip validation if username hasn't changed
+    if (editData.username.trim() === currentProfile.username) {
+      setUsernameStatus(null)
+      setUsernameError(null)
+      return
+    }
+
+    // Validate username rules
+    const validationRules = [
+      {
+        test: editData.username.length >= 3 && editData.username.length <= 20,
+        message: 'Username must be 3-20 characters'
+      },
+      {
+        test: /^[a-zA-Z][a-zA-Z0-9_]*$/.test(editData.username),
+        message: 'Username must start with a letter and contain only letters, numbers, and underscores'
+      }
+    ]
+
+    const failedRule = validationRules.find(rule => !rule.test)
+    if (failedRule) {
+      setUsernameStatus('invalid')
+      setUsernameError(failedRule.message)
+      return
+    }
+
+    setUsernameError(null)
+
+    const checkUsername = async () => {
+      setUsernameStatus('checking')
+      
+      try {
+        const response = await fetch(`/api/check-username?username=${encodeURIComponent(editData.username.trim().toLowerCase())}`)
+        const result = await response.json()
+
+        if (!response.ok) {
+          setUsernameStatus('invalid')
+          setUsernameError(result.error || 'Failed to check username availability')
+          return
+        }
+
+        setUsernameStatus(result.available ? 'available' : 'taken')
+      } catch (err) {
+        setUsernameStatus('invalid')
+        setUsernameError('Failed to check username availability')
+      }
+    }
+
+    const timeoutId = setTimeout(checkUsername, 300)
+    return () => clearTimeout(timeoutId)
+  }, [editData.username, isEditing, currentProfile.username])
 
   useEffect(() => {
     // Reset edit data when entering edit mode
@@ -81,6 +143,14 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
     if (!currentProfile?.id) {
       alert('No profile ID found')
       return
+    }
+
+    // Validate username if it changed
+    if (editData.username.trim() !== currentProfile.username) {
+      if (usernameStatus !== 'available') {
+        alert('Please choose a valid and available username')
+        return
+      }
     }
     
     try {
@@ -290,21 +360,56 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
                 <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', fontSize: '14px', color: 'var(--text)' }}>
                   Username
                 </label>
-                <input
-                  type="text"
-                  value={editData.username}
-                  onChange={(e) => setEditData(prev => ({ ...prev, username: e.target.value }))}
-                  required
-                  style={{
-                    width: '100%',
-                    padding: '12px',
-                    borderRadius: '8px',
-                    border: '1px solid var(--border2)',
-                    background: 'var(--card2)',
-                    fontSize: '14px',
-                    color: 'var(--text)'
-                  }}
-                />
+                <div style={{ position: 'relative' }}>
+                  <input
+                    type="text"
+                    value={editData.username}
+                    onChange={(e) => setEditData(prev => ({ ...prev, username: e.target.value.replace(/[^a-zA-Z0-9_]/g, '') }))}
+                    required
+                    maxLength={20}
+                    style={{
+                      width: '100%',
+                      padding: '12px',
+                      paddingRight: '40px',
+                      borderRadius: '8px',
+                      border: '1px solid var(--border2)',
+                      background: 'var(--card2)',
+                      fontSize: '14px',
+                      color: 'var(--text)'
+                    }}
+                  />
+                  {usernameStatus && (
+                    <div
+                      style={{
+                        position: 'absolute',
+                        right: '12px',
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        fontSize: '16px',
+                      }}
+                    >
+                      {usernameStatus === 'checking' && '⏳'}
+                      {usernameStatus === 'available' && '✅'}
+                      {usernameStatus === 'taken' && '❌'}
+                      {usernameStatus === 'invalid' && '❌'}
+                    </div>
+                  )}
+                </div>
+                {usernameStatus === 'taken' && (
+                  <p style={{ color: '#fca5a5', marginTop: '4px', marginBottom: 0, fontSize: '12px' }}>
+                    Username taken
+                  </p>
+                )}
+                {usernameStatus === 'available' && (
+                  <p style={{ color: '#86efac', marginTop: '4px', marginBottom: 0, fontSize: '12px' }}>
+                    Username available
+                  </p>
+                )}
+                {usernameStatus === 'invalid' && usernameError && (
+                  <p style={{ color: '#fca5a5', marginTop: '4px', marginBottom: 0, fontSize: '12px' }}>
+                    {usernameError}
+                  </p>
+                )}
               </div>
 
               <div>

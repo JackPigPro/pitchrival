@@ -28,12 +28,12 @@ export default function OnboardingPage() {
     // Validate username rules
     const validationRules = [
       {
-        test: username.length <= 15,
-        message: 'Username must be 15 characters or less'
+        test: username.length >= 3 && username.length <= 20,
+        message: 'Username must be 3-20 characters'
       },
       {
-        test: /^[a-zA-Z0-9]+$/.test(username),
-        message: 'Username can only contain letters and numbers'
+        test: /^[a-zA-Z][a-zA-Z0-9_]*$/.test(username),
+        message: 'Username must start with a letter and contain only letters, numbers, and underscores'
       }
     ]
 
@@ -185,11 +185,11 @@ export default function OnboardingPage() {
                 onChange={(event) => {
                   const value = event.target.value
                   setDisplayUsername(value)
-                  setUsername(value.replace(/[^a-zA-Z0-9]/g, '')) // Keep only alphanumeric for comparison
+                  setUsername(value.replace(/[^a-zA-Z0-9_]/g, '')) // Keep only letters, numbers, and underscores for comparison
                 }}
                 required
                 placeholder="Choose a username"
-                maxLength={15}
+                maxLength={20}
                 style={{
                   width: '100%',
                   padding: '12px',

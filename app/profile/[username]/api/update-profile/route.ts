@@ -22,12 +22,12 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: 'Username must be a non-empty string' }, { status: 400 })
       }
       
-      if (username.length > 30) {
-        return NextResponse.json({ error: 'Username must be at most 30 characters' }, { status: 400 })
+      if (username.length < 3 || username.length > 20) {
+        return NextResponse.json({ error: 'Username must be 3-20 characters' }, { status: 400 })
       }
       
-      if (!/^[a-zA-Z0-9_]+$/.test(username)) {
-        return NextResponse.json({ error: 'Username can only contain alphanumeric characters and underscores' }, { status: 400 })
+      if (!/^[a-zA-Z][a-zA-Z0-9_]*$/.test(username)) {
+        return NextResponse.json({ error: 'Username must start with a letter and contain only letters, numbers, and underscores' }, { status: 400 })
       }
     }
     
