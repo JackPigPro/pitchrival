@@ -65,6 +65,7 @@ export default function WeeklyDuelClient({
   const [eloChange, setEloChange] = useState<number | null>(null)
   const [adminPreviewState, setAdminPreviewState] = useState<'active' | 'voting' | 'results'>(currentState === 'between' ? 'active' : currentState)
   const [hasSubmittedPreview, setHasSubmittedPreview] = useState(false)
+  const [localUserSubmission, setLocalUserSubmission] = useState<UserSubmission | null>(userSubmission)
 
   // Check if user is admin
   const ADMIN_USER_ID = 'a4dc1d84-fc05-4018-b3ce-7c60f3a4244c'
@@ -72,7 +73,7 @@ export default function WeeklyDuelClient({
 
   // Get current state (admin override or real state)
   const displayState = isAdmin ? adminPreviewState : currentState
-  const displayUserSubmission = isAdmin && hasSubmittedPreview ? { id: 'preview', content: 'Preview submission', vote_score: 0, vote_count: 0, created_at: new Date().toISOString() } as UserSubmission : userSubmission
+  const displayUserSubmission = isAdmin && hasSubmittedPreview ? { id: 'preview', content: 'Preview submission', vote_score: 0, vote_count: 0, created_at: new Date().toISOString() } as UserSubmission : localUserSubmission
   console.log('displayUserSubmission:', displayUserSubmission, 'userSubmission:', userSubmission)
 
   // Countdown timers
@@ -182,6 +183,11 @@ export default function WeeklyDuelClient({
     }
   }, [eloChange])
 
+  // Sync localUserSubmission with prop changes
+  useEffect(() => {
+    setLocalUserSubmission(userSubmission)
+  }, [userSubmission])
+
   const handleSubmitSubmission = async () => {
     if (!submissionContent.trim()) {
       setValidationError('Please write something before submitting.')
@@ -215,8 +221,16 @@ export default function WeeklyDuelClient({
       if (result.success) {
         setSubmissionContent('')
         setValidationError('')
-        // Refresh page to show submission
-        window.location.reload()
+        // Update local state immediately
+        const newSubmission: UserSubmission = {
+          id: result.submission.id,
+          content: submissionContent,
+          vote_score: 0,
+          vote_count: 0,
+          created_at: result.submission.created_at,
+          user_id: currentUserId
+        }
+        setLocalUserSubmission(newSubmission)
       } else {
         console.error('Submit failed:', result.error)
         setValidationError(result.error || 'Failed to submit. Please try again.')
@@ -310,6 +324,18 @@ export default function WeeklyDuelClient({
     
     setCurrentPair({ a: sub1, b: sub2 })
     return { a: sub1, b: sub2 }
+  }
+
+  const formatEST = (dateStr: string) => {
+    const date = new Date(dateStr.endsWith('Z') ? dateStr : dateStr + 'Z')
+    return date.toLocaleString('en-US', {
+      timeZone: 'America/New_York',
+      month: 'short',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
+    })
   }
 
   const formatDate = (dateString: string) => {
@@ -876,22 +902,22 @@ export default function WeeklyDuelClient({
                 <div>
                   <div style={{ fontSize: '12px', color: 'var(--text2)', fontFamily: 'var(--font-body)', marginBottom: '4px' }}>Starts</div>
                   <div style={{ fontSize: '16px', fontWeight: 600, fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
-                    {formatDate(currentDuel.start_date)} at {formatTime(currentDuel.start_date)}
+                    {formatEST(currentDuel.start_date)}
                   </div>
                 </div>
                 
                 <div>
                   <div style={{ fontSize: '12px', color: 'var(--text2)', fontFamily: 'var(--font-body)', marginBottom: '4px' }}>Ends</div>
                   <div style={{ fontSize: '16px', fontWeight: 600, fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
-                    {formatDate(currentDuel.end_date)} at {formatTime(currentDuel.end_date)}
+                    {formatEST(currentDuel.end_date)}
                   </div>
                 </div>
 
                 <div>
                   <div style={{ fontSize: '12px', color: 'var(--text2)', fontFamily: 'var(--font-body)', marginBottom: '4px' }}>Voting Period</div>
                   <div style={{ fontSize: '16px', fontWeight: 600, fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
-                    {formatDate(currentDuel.end_date)} at {formatTime(currentDuel.end_date)} - 
-                    {formatDate(new Date(new Date(currentDuel.end_date).getTime() + 24 * 60 * 60 * 1000).toISOString())} at {formatTime(new Date(new Date(currentDuel.end_date).getTime() + 24 * 60 * 60 * 1000).toISOString())}
+                    {formatEST(currentDuel.end_date)} - 
+                    {formatEST(new Date(new Date(currentDuel.end_date).getTime() + 24 * 60 * 60 * 1000).toISOString())}
                   </div>
                 </div>
 

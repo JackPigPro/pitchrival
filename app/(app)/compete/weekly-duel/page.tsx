@@ -182,7 +182,7 @@ export default function WeeklyDuelPage() {
 
     } catch (error) {
       console.error('Error fetching data:', error)
-      // Remove setLoading(false) - no blocking loading
+      setIsLoading(false)
     }
   }
 
