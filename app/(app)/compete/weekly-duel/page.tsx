@@ -277,6 +277,11 @@ export default function WeeklyDuelPage() {
     elo_awarded: undefined
   }
 
+  const handleSubmissionSuccess = (newSubmission: any) => {
+    // Add the new submission to allSubmissions to update counter immediately
+    setAllSubmissions(prev => [...prev, newSubmission])
+  }
+
   return (
     <WeeklyDuelClient 
       currentDuel={currentDuel || skeletonDuel}
@@ -288,6 +293,7 @@ export default function WeeklyDuelPage() {
       votingDeadline={votingDeadline}
       currentUserId={user?.id || ''}
       onRefresh={() => setRefreshTrigger(prev => prev + 1)}
+      onSubmissionSuccess={handleSubmissionSuccess}
     />
   )
 }

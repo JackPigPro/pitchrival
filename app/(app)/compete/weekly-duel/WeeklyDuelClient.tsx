@@ -43,6 +43,7 @@ interface WeeklyDuelClientProps {
   votingDeadline: Date | null
   currentUserId: string
   onRefresh?: () => void
+  onSubmissionSuccess?: (newSubmission: UserSubmission) => void
 }
 
 export default function WeeklyDuelClient({
@@ -54,7 +55,8 @@ export default function WeeklyDuelClient({
   submissionDeadline,
   votingDeadline,
   currentUserId,
-  onRefresh
+  onRefresh,
+  onSubmissionSuccess
 }: WeeklyDuelClientProps) {
   const supabase = createClient()
   const [submissionContent, setSubmissionContent] = useState('')
@@ -231,6 +233,10 @@ export default function WeeklyDuelClient({
           user_id: currentUserId
         }
         setLocalUserSubmission(newSubmission)
+        // Notify parent component to update allSubmissions
+        if (onSubmissionSuccess) {
+          onSubmissionSuccess(newSubmission)
+        }
       } else {
         console.error('Submit failed:', result.error)
         setValidationError(result.error || 'Failed to submit. Please try again.')
@@ -917,7 +923,7 @@ export default function WeeklyDuelClient({
                   <div style={{ fontSize: '12px', color: 'var(--text2)', fontFamily: 'var(--font-body)', marginBottom: '4px' }}>Voting Period</div>
                   <div style={{ fontSize: '16px', fontWeight: 600, fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
                     {formatEST(currentDuel.end_date)} - 
-                    {formatEST(new Date(new Date(currentDuel.end_date).getTime() + 24 * 60 * 60 * 1000).toISOString())}
+                    {formatEST(new Date(new Date(currentDuel.end_date).getTime() + 24 * 60 * 60 * 1000).toISOString().replace('Z', ''))}
                   </div>
                 </div>
 
