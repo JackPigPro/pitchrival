@@ -26,6 +26,7 @@ export default function WeeklyDuelPage() {
   const [currentState, setCurrentState] = useState<'active' | 'voting' | 'results' | 'between'>('between')
   const [submissionDeadline, setSubmissionDeadline] = useState<Date | null>(null)
   const [votingDeadline, setVotingDeadline] = useState<Date | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
   // Remove blocking loading state - render page shell immediately
   // const [loading, setLoading] = useState(true)
   const [refreshTrigger, setRefreshTrigger] = useState(0)
@@ -177,6 +178,8 @@ export default function WeeklyDuelPage() {
       setVotingDeadline(voteDeadline)
       
 
+      setIsLoading(false)
+
     } catch (error) {
       console.error('Error fetching data:', error)
       // Remove setLoading(false) - no blocking loading
@@ -236,6 +239,22 @@ export default function WeeklyDuelPage() {
   //     </div>
   //   )
   // }
+
+  if (isLoading) {
+    return (
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '100vh',
+        fontSize: '18px',
+        color: 'var(--text)',
+        fontFamily: 'var(--font-body)'
+      }}>
+        Loading...
+      </div>
+    )
+  }
 
   // Provide skeleton data for immediate rendering
   const skeletonDuel = {
