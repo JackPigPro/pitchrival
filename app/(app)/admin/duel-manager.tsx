@@ -147,8 +147,8 @@ export default function AdminDuelManager() {
           },
           body: JSON.stringify({
             prompt_text: editingPrompt.trim(),
-            start_date: selectedWeek.monday.toISOString(),
-            end_date: selectedWeek.sunday.toISOString()
+            start_date: selectedWeek.monday.toISOString().replace('T', ' ').replace('.000Z', ''),
+            end_date: selectedWeek.sunday.toISOString().replace('T', ' ').replace('.000Z', '')
           })
         })
 
