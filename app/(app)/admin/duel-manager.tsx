@@ -124,6 +124,12 @@ export default function AdminDuelManager() {
     }
   }
 
+  // Get the UTC offset for America/New_York at the given date
+  const getESTOffset = (date: Date) => {
+    const nyDate = new Date(date.toLocaleString('en-US', { timeZone: 'America/New_York' }))
+    return Math.round((date.getTime() - nyDate.getTime()) / (60 * 60 * 1000))
+  }
+
   const createOrUpdateDuel = async () => {
     if (!editingPrompt.trim() || !selectedWeek) {
       setError('Please enter a prompt')
@@ -149,13 +155,15 @@ export default function AdminDuelManager() {
             prompt_text: editingPrompt.trim(),
             start_date: (() => {
               const monday = new Date(selectedWeek.monday)
-              monday.setUTCHours(5, 0, 0, 0) // midnight EST = 05:00 UTC (EST = UTC-5)
+              const offset = getESTOffset(monday)
+              monday.setUTCHours(offset, 0, 0, 0)
               return monday.toISOString().replace('T', ' ').replace('.000Z', '').replace('Z', '')
             })(),
             end_date: (() => {
               const saturday = new Date(selectedWeek.monday)
               saturday.setUTCDate(saturday.getUTCDate() + 5)
-              saturday.setUTCHours(4, 59, 0, 0) // 11:59 PM EST = 04:59 UTC next day
+              const offset = getESTOffset(saturday)
+              saturday.setUTCHours(offset - 1, 59, 0, 0)
               return saturday.toISOString().replace('T', ' ').replace('.000Z', '').replace('Z', '')
             })()
           })
@@ -171,6 +179,8 @@ export default function AdminDuelManager() {
             // Update selected week with new duel
             if (selectedWeek && result.duel) {
               setSelectedWeek(prev => prev ? { ...prev, duel: { ...result.duel, submission_count: 0 } } : null)
+              // Fetch submissions for the new duel
+              fetchDuelSubmissions(result.duel.id)
             }
           } catch (error) {
             console.error('Error updating state after duel creation:', error)
