@@ -166,7 +166,7 @@ export default function AdminDuelManager() {
               const saturday = new Date(Date.UTC(
                 selectedWeek.monday.getFullYear(),
                 selectedWeek.monday.getMonth(),
-                selectedWeek.monday.getDate() + 5,
+                selectedWeek.monday.getDate() + 6, // +6 days from Monday = Sunday in UTC, which is Saturday 11:59 PM EDT
                 3, 59, 0, 0  // 11:59 PM EDT = 03:59 UTC next day
               ))
               return saturday.toISOString().replace('T', ' ').slice(0, 19)
@@ -177,18 +177,15 @@ export default function AdminDuelManager() {
         const result = await response.json()
 
         if (result.success) {
-          try {
-            setSuccess('Weekly duel created successfully!')
-            setEditingPrompt('')
-            setIsCreatingNew(false)
-            // Update selected week with new duel to show details
-            if (selectedWeek && result.duel) {
-              setSelectedWeek(prev => prev ? { ...prev, duel: { ...result.duel, submission_count: 0 } } : null)
-              fetchDuelSubmissions(result.duel.id)
-            }
-          } catch (error) {
-            console.error('Error updating state after duel creation:', error)
-            setError('Duel created but there was an error updating the display')
+          setSuccess('Weekly duel created successfully!')
+          setEditingPrompt('')
+          setIsCreatingNew(false)
+          // Fetch the newly created duel to update the panel
+          await fetchDuels() // refetch all duels to update calendar
+          // Find the new duel in the updated list and select it
+          const newDuel = duels.find(d => d.id === result.duel_id)
+          if (newDuel && selectedWeek) {
+            setSelectedWeek(prev => prev ? { ...prev, duel: newDuel } : null)
           }
         } else {
           setError(result.error || 'Failed to create duel')
