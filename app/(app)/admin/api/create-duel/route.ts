@@ -56,11 +56,11 @@ export async function POST(request: NextRequest) {
       end_date: end_date
     })
 
+    console.log('RPC call params:', { prompt_text: prompt_text.trim(), start_date, end_date })
     console.log('RPC data:', data)
     console.log('RPC error:', JSON.stringify(error))
     
     if (error) {
-      console.error('Supabase RPC error details:', error)
       return NextResponse.json({ error: error.message, details: error }, { status: 500 })
     }
 
