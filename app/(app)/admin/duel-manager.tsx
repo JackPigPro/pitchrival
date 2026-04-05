@@ -62,13 +62,16 @@ export default function AdminDuelManager() {
       
       if (result.success) {
         setDuels(result.duels || [])
+        return result.duels || []
       } else {
         console.error('Failed to fetch duels:', result.error)
         setError(result.error || 'Failed to fetch duels')
+        return []
       }
     } catch (error) {
       console.error('Fetch duels error:', error)
       setError('Error fetching duels')
+      return []
     }
   }
 
@@ -180,10 +183,8 @@ export default function AdminDuelManager() {
           setSuccess('Weekly duel created successfully!')
           setEditingPrompt('')
           setIsCreatingNew(false)
-          // Fetch the newly created duel to update the panel
-          await fetchDuels() // refetch all duels to update calendar
-          // Find the new duel in the updated list and select it
-          const newDuel = duels.find(d => d.id === result.duel_id)
+          const updatedDuels = await fetchDuels()
+          const newDuel = updatedDuels?.find((d: any) => d.id === result.duel_id)
           if (newDuel && selectedWeek) {
             setSelectedWeek(prev => prev ? { ...prev, duel: newDuel } : null)
           }
