@@ -98,45 +98,51 @@ export default function WeeklyDuelPage() {
       }
 
       // Fetch past winners with separate queries
-      // 1. First fetch completed duels
+      // 1. Fetch completed duels
       const { data: completedDuels } = await supabase
         .from('weekly_duel')
-        .select('id, prompt, start_date, status, prize_distributed')
+        .select('*')
         .eq('status', 'completed')
+        .eq('prize_distributed', true)
         .order('start_date', { ascending: false })
         .limit(10)
 
       if (completedDuels && completedDuels.length > 0) {
-        // 2. Fetch duel_winners for those duel ids
-        const duelIds = completedDuels.map(duel => duel.id)
+        const duelIds = completedDuels.map(d => d.id)
+
+        // 2. Fetch top 3 winners for these duels - no profile join
         const { data: winners } = await supabase
           .from('duel_winners')
-          .select('rank, elo_awarded, user_id, duel_id')
+          .select('user_id, duel_id, rank, elo_awarded')
           .in('duel_id', duelIds)
+          .lte('rank', 3)
+          .order('rank', { ascending: true })
 
-        // 3. Fetch usernames from profiles
         if (winners && winners.length > 0) {
-          const userIds = winners.map(w => w.user_id)
+          // 3. Fetch profiles separately
+          const userIds = [...new Set(winners.map(w => w.user_id))]
           const { data: profiles } = await supabase
             .from('profiles')
-            .select('id, username')
+            .select('id, username, display_name')
             .in('id', userIds)
 
-          // 4. Merge data in JavaScript
-          const profileMap = new Map(profiles?.map(p => [p.id, p.username]) || [])
-          const transformedWinners: Winner[] = winners.map(winner => {
-            const duel = completedDuels.find(d => d.id === winner.duel_id)
-            const username = profileMap.get(winner.user_id) || 'Unknown'
+          // 4. Merge in JavaScript
+          const profileMap = new Map(profiles?.map(p => [p.id, p]) || [])
+          const transformedWinners = winners.map(w => {
+            const duel = completedDuels.find(d => d.id === w.duel_id)
+            const profile = profileMap.get(w.user_id)
             return {
-              id: winner.duel_id,
+              id: w.user_id,
+              username: profile?.username || 'Unknown',
+              rank: w.rank,
+              elo_awarded: w.elo_awarded,
+              duel_id: w.duel_id,
+              display_name: profile?.display_name || 'Unknown',
               prompt: duel?.prompt || '',
-              rank: winner.rank,
-              elo_awarded: winner.elo_awarded,
               user_id: {
-                username: username
+                username: profile?.username || 'Unknown'
               },
-              created_at: duel?.start_date || '',
-              username: username
+              created_at: duel?.start_date || ''
             }
           })
           setPastWinners(transformedWinners)
