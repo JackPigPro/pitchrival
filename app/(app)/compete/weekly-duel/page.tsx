@@ -261,7 +261,7 @@ export default function WeeklyDuelPage() {
   return (
     <WeeklyDuelClient 
       currentDuel={currentDuel || skeletonDuel}
-      userSubmission={userSubmission || skeletonSubmission}
+      userSubmission={userSubmission}
       allSubmissions={allSubmissions || []}
       pastWinners={pastWinners || []}
       currentState={currentState || 'between'}
