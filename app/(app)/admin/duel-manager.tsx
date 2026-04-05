@@ -147,8 +147,17 @@ export default function AdminDuelManager() {
           },
           body: JSON.stringify({
             prompt_text: editingPrompt.trim(),
-            start_date: selectedWeek.monday.toISOString().replace('T', ' ').replace('.000Z', ''),
-            end_date: selectedWeek.sunday.toISOString().replace('T', ' ').replace('.000Z', '')
+            start_date: (() => {
+              const monday = new Date(selectedWeek.monday)
+              monday.setHours(5, 0, 0, 0) // 12:00 AM EST = 05:00 UTC
+              return monday.toISOString().replace('T', ' ').replace('.000Z', '').replace('Z', '')
+            })(),
+            end_date: (() => {
+              const saturday = new Date(selectedWeek.monday)
+              saturday.setDate(saturday.getDate() + 5) // Monday + 5 = Saturday
+              saturday.setHours(4, 59, 0, 0) // 11:59 PM EST = 04:59 UTC next day
+              return saturday.toISOString().replace('T', ' ').replace('.000Z', '').replace('Z', '')
+            })()
           })
         })
 
@@ -158,7 +167,6 @@ export default function AdminDuelManager() {
           setSuccess('Weekly duel created successfully!')
           setEditingPrompt('')
           setIsCreatingNew(false)
-          fetchDuels()
           // Update selected week with new duel
           setSelectedWeek(prev => prev ? { ...prev, duel: { ...result.duel, submission_count: 0 } } : null)
         } else {
@@ -183,7 +191,6 @@ export default function AdminDuelManager() {
         if (result.success) {
           setSuccess('Duel updated successfully!')
           setIsCreatingNew(false)
-          fetchDuels()
           // Update selected week duel
           setSelectedWeek(prev => prev ? { ...prev, duel: result.duel } : null)
         } else {
