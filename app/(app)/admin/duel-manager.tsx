@@ -337,14 +337,15 @@ export default function AdminDuelManager() {
     })
   }
 
-  const formatDateTime = (dateString: string) => {
-    const date = new Date(dateString)
+  const formatDateTime = (dateStr: string) => {
+    const date = new Date(dateStr.endsWith('Z') ? dateStr : dateStr + 'Z')
     return date.toLocaleString('en-US', { 
-      month: 'short', 
-      day: 'numeric',
-      hour: 'numeric', 
-      minute: '2-digit',
       timeZone: 'America/New_York',
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
       hour12: true
     }) + ' EST'
   }
@@ -640,10 +641,10 @@ export default function AdminDuelManager() {
                       color: 'white',
                       padding: '6px 12px',
                       borderRadius: '6px',
-                      background: getStatusColor(selectedWeek.duel.status),
+                      background: getStatusColor(selectedWeek.duel.status || 'queued'),
                       display: 'inline-block'
                     }}>
-                      {getStatusText(selectedWeek.duel.status)}
+                      {getStatusText(selectedWeek.duel.status || 'queued')}
                     </div>
                   </div>
                   <div>
