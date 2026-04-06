@@ -41,22 +41,30 @@ export async function POST(request: Request) {
       )
     }
 
-    // Check if user already liked this submission
-    const { data: existingLike } = await supabase
+    // Check if user already liked this submission and get submission owner in one query
+    const { data: existingData, error: checkError } = await supabase
       .from('daily_likes')
-      .select('*')
+      .select('user_id, daily_submissions!inner(user_id)')
       .eq('submission_id', submissionId)
       .eq('user_id', user.id)
-      .single()
+      .maybeSingle()
 
-    if (existingLike) {
+    if (checkError) {
+      console.error('Like check error:', checkError)
+      return NextResponse.json(
+        { error: 'Failed to check like status' },
+        { status: 500 }
+      )
+    }
+
+    if (existingData) {
       return NextResponse.json(
         { error: 'You have already liked this submission' },
         { status: 400 }
       )
     }
 
-    // Check if user is trying to like their own submission
+    // Get submission owner to check self-like
     const { data: submission } = await supabase
       .from('daily_submissions')
       .select('user_id')

@@ -107,9 +107,47 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Grant +10 ELO immediately for weekly duel submission
+    try {
+      console.log('Granting +10 ELO for weekly duel submission to user:', user.id)
+      
+      // Update user_stats.elo
+      const { data: updatedStats, error: eloUpdateError } = await supabase
+        .from('user_stats')
+        .update({ elo: supabase.rpc('increment', { amount: 10 }) })
+        .eq('user_id', user.id)
+        .select('elo')
+        .single()
+
+      if (eloUpdateError) {
+        console.error('ELO update error:', eloUpdateError)
+        // Don't fail the submission, just log the error
+      } else {
+        // Log to elo_history
+        const { error: historyError } = await supabase
+          .from('elo_history')
+          .insert({
+            user_id: user.id,
+            change: 10,
+            reason: 'weekly_duel_entry',
+            created_at: new Date().toISOString()
+          })
+
+        if (historyError) {
+          console.error('ELO history logging error:', historyError)
+        }
+
+        console.log('Successfully granted +10 ELO for weekly duel submission')
+      }
+    } catch (eloError) {
+      console.error('Unexpected error during ELO grant:', eloError)
+      // Don't fail the submission for ELO issues
+    }
+
     return NextResponse.json(
       { 
         success: true,
+        eloGained: 10,
         submission: {
           id: submission.id,
           content: submission.content,
@@ -205,15 +243,45 @@ export async function PUT(request: NextRequest) {
     }
 
     // Check if duel is still in active status (allow editing only during active phase)
-    const { data: duel } = await supabase
+    console.log('Checking duel status for duel_id:', duel_id)
+    
+    const { data: duel, error: duelError } = await supabase
       .from('weekly_duels')
-      .select('status')
+      .select('id, status, prompt, start_date, end_date')
       .eq('id', duel_id)
       .single()
 
-    if (!duel || duel.status !== 'active') {
+    console.log('Duel query result:', { duel, duelError })
+
+    if (duelError) {
+      console.error('Duel status check error:', {
+        error: duelError,
+        message: duelError?.message,
+        details: duelError?.details,
+        hint: duelError?.hint,
+        code: duelError?.code,
+        duel_id: duel_id
+      })
       return NextResponse.json(
-        { error: 'Can only edit submissions while duel is in active status' },
+        { error: 'Failed to verify duel status', details: duelError?.message },
+        { status: 500 }
+      )
+    }
+
+    if (!duel) {
+      console.error('Duel not found with ID:', duel_id)
+      return NextResponse.json(
+        { error: 'Duel not found' },
+        { status: 404 }
+      )
+    }
+
+    console.log('Duel found:', { id: duel.id, status: duel.status })
+
+    if (duel.status !== 'active') {
+      console.log('Duel edit blocked - status not active:', duel.status)
+      return NextResponse.json(
+        { error: `Can only edit submissions while duel is in active status. Current status: ${duel.status}` },
         { status: 400 }
       )
     }

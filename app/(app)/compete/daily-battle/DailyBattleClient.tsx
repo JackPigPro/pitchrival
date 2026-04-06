@@ -140,6 +140,14 @@ export default function DailyBattleClient({ battle, userSubmission, userStreak, 
   }
 
   const handleLike = async (submissionId: string, currentlyLiked: boolean) => {
+    // Optimistic update - update UI immediately
+    const originalSubmissions = [...submissions]
+    setSubmissions(prev => prev.map(sub => 
+      sub.id === submissionId 
+        ? { ...sub, likes: currentlyLiked ? sub.likes - 1 : sub.likes + 1, user_liked: !currentlyLiked }
+        : sub
+    ))
+
     try {
       const response = await fetch('/compete/daily-battle/api/likes', {
         method: currentlyLiked ? 'DELETE' : 'POST',
@@ -147,16 +155,17 @@ export default function DailyBattleClient({ battle, userSubmission, userStreak, 
         body: JSON.stringify({ submissionId })
       })
 
-      if (!response.ok) throw new Error('Failed to update like')
+      if (!response.ok) {
+        // Revert optimistic update if API call fails
+        setSubmissions(originalSubmissions)
+        throw new Error('Failed to update like')
+      }
 
-      // Update local state
-      setSubmissions(prev => prev.map(sub => 
-        sub.id === submissionId 
-          ? { ...sub, likes: currentlyLiked ? sub.likes - 1 : sub.likes + 1, user_liked: !currentlyLiked }
-          : sub
-      ))
+      // API succeeded - optimistic update remains
     } catch (error) {
       console.error('Error updating like:', error)
+      // Revert optimistic update on network error
+      setSubmissions(originalSubmissions)
     }
   }
 
@@ -278,7 +287,7 @@ export default function DailyBattleClient({ battle, userSubmission, userStreak, 
               border: '2px solid var(--green)'
             }}>
               <div style={{ marginBottom: '12px' }}>
-                <Link href={`/profile/${userId}`} style={{ textDecoration: 'none', color: 'var(--text-primary)' }}>
+                <Link href={`/profile/${username || userId}`} style={{ textDecoration: 'none', color: 'var(--text-primary)' }}>
                   <span style={{ fontWeight: 'bold', color: 'var(--green)' }}>Your Submission</span>
                 </Link>
               </div>

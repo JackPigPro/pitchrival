@@ -21,22 +21,38 @@ export default function LoginForm({ mode }: { mode: 'login' | 'signup' }) {
     setError(null)
     setSuccess(null)
 
-    const { error: otpError } = await supabase.auth.signInWithOtp({
-      email,
-      options: {
-        shouldCreateUser: true,
-      },
-    })
+    try {
+      console.log('Attempting OTP sign in for email:', email)
+      
+      const { error: otpError, data } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          shouldCreateUser: true,
+        },
+      })
 
-    setLoading(false)
+      console.log('OTP response:', { error: otpError, data })
 
-    if (otpError) {
-      setError(otpError.message)
-      return
+      if (otpError) {
+        console.error('OTP Error details:', {
+          message: otpError.message,
+          status: otpError.status,
+          code: otpError.code,
+          name: otpError.name,
+          stack: otpError.stack
+        })
+        setError(otpError.message)
+        return
+      }
+
+      setStep('code')
+      setSuccess('We sent a 6-digit code to your email.')
+    } catch (unexpectedError) {
+      console.error('Unexpected error during OTP sign in:', unexpectedError)
+      setError('An unexpected error occurred. Please try again.')
+    } finally {
+      setLoading(false)
     }
-
-    setStep('code')
-    setSuccess('We sent a 6-digit code to your email.')
   }
 
   const onVerifyCode = async (event: FormEvent<HTMLFormElement>) => {

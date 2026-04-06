@@ -27,7 +27,7 @@
    DESIGN TOKENS
    ═══════════════════════════════════════════════════════════ */
 :root {
-  --bg:           #f7f7f6;
+  --bg:           #eeeeec;
   --surface:      #f1f1ef;
   --card:         #ffffff;
   --card2:        #fafafa;
@@ -160,8 +160,8 @@ body[data-theme='dark'] .nav {
 .hero-bg {
   position: absolute; inset: 0; pointer-events: none; z-index: 0;
   background-image:
-    linear-gradient(rgba(21,128,61,.065) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(21,128,61,.065) 1px, transparent 1px);
+    linear-gradient(rgba(21,128,61,.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(21,128,61,.08) 1px, transparent 1px);
   background-size: 48px 48px;
   mask-image: radial-gradient(ellipse 85% 65% at 50% 42%, black 25%, transparent 100%);
 }

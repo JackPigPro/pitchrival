@@ -75,6 +75,8 @@ export default function WeeklyDuelClient({
   const [isEditing, setIsEditing] = useState(false)
   const [editContent, setEditContent] = useState('')
   const [editValidationError, setEditValidationError] = useState('')
+  const [showEloToast, setShowEloToast] = useState(false)
+  const [eloToastMessage, setEloToastMessage] = useState('')
 
   // Check if user is admin
   const ADMIN_USER_ID = 'a4dc1d84-fc05-4018-b3ce-7c60f3a4244c'
@@ -239,6 +241,14 @@ export default function WeeklyDuelClient({
       if (result.success) {
         setSubmissionContent('')
         setValidationError('')
+        
+        // Show ELO popup if ELO was gained
+        if (result.eloGained) {
+          setEloToastMessage(`+${result.eloGained} ELO`)
+          setShowEloToast(true)
+          setTimeout(() => setShowEloToast(false), 3000)
+        }
+        
         // Update local state immediately
         const newSubmission: UserSubmission = {
           id: result.submission.id,
@@ -1370,6 +1380,24 @@ export default function WeeklyDuelClient({
           transition: 'all 0.3s ease'
         }}>
           {eloChange > 0 ? '+' : ''}{eloChange} ELO
+        </div>
+      )}
+
+      {/* Weekly Duel Submission ELO Toast */}
+      {showEloToast && (
+        <div style={{
+          position: 'fixed',
+          top: '80px',
+          right: '32px',
+          background: 'var(--green)',
+          color: 'white',
+          padding: '12px 24px',
+          borderRadius: '8px',
+          fontWeight: 'bold',
+          zIndex: 1000,
+          animation: 'slideIn 0.3s ease'
+        }}>
+          {eloToastMessage}
         </div>
       )}
     </div>
