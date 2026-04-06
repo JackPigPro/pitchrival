@@ -258,7 +258,11 @@ export default function DashboardClient({ initialProfile, initialStats, todayBat
             color: 'var(--text2)', 
             marginTop: '8px' 
           }}>
-            Welcome back, {display_name || username || 'User'}!
+            Welcome back, {display_name || username || 'User'}! {userStreak?.current_streak && userStreak.current_streak > 0 ? (
+              <span>You're on a {userStreak.current_streak} day streak 🔥</span>
+            ) : (
+              <span>Start your streak today 🔥</span>
+            )}
           </div>
         </div>
 

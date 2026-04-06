@@ -28,12 +28,11 @@ export default function DailyBattleManager() {
   })
 
   useEffect(() => {
-    // Set default date to tomorrow
-    const tomorrow = new Date()
-    tomorrow.setDate(tomorrow.getDate() + 1)
+    // Set default date to today
+    const today = new Date()
     setFormData(prev => ({
       ...prev,
-      date: tomorrow.toISOString().split('T')[0]
+      date: today.toISOString().split('T')[0]
     }))
     
     fetchBattles()
@@ -186,6 +185,7 @@ export default function DailyBattleManager() {
               <input
                 type="date"
                 value={formData.date}
+                min={new Date().toISOString().split('T')[0]}
                 onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
                 style={{
                   width: '100%',

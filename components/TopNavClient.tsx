@@ -207,6 +207,9 @@ export default function TopNavClient({
             <Link href={isLoggedIn ? "/compete/weekly-duel" : "/login?mode=signup"} className="topnav-dropdown-link" style={dropdownLinkStyle} onClick={handleNavPageClick}>
               Weekly Duel
             </Link>
+            <Link href={isLoggedIn ? "/compete/daily-battle" : "/login?mode=signup"} className="topnav-dropdown-link" style={dropdownLinkStyle} onClick={handleNavPageClick}>
+              Daily Battle
+            </Link>
             <Link href="/compete/leaderboard" scroll className="topnav-dropdown-link" style={dropdownLinkStyle} onClick={handleNavPageClick}>
               Leaderboard
             </Link>
