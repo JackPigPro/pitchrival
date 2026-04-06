@@ -310,40 +310,94 @@ export default function DailyBattleClient({ battle, userSubmission, userStreak, 
                 (() => {
                   const otherSubmissions = submissions.filter(s => s.user_id !== user?.id)
                   return otherSubmissions.length > 0 ? (
-                    <div style={{ maxHeight: '600px', overflowY: 'auto' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
                       {otherSubmissions.map(submission => (
                         <div key={submission.id} style={{
-                          background: 'var(--background)',
-                          padding: '20px',
+                          background: 'var(--card)',
+                          border: '1px solid var(--border)',
                           borderRadius: '12px',
-                          marginBottom: '12px'
+                          padding: '20px',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s',
+                          position: 'relative'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.borderColor = 'var(--green)'
+                          e.currentTarget.style.transform = 'translateY(-2px)'
+                          e.currentTarget.style.boxShadow = 'var(--shadow)'
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.borderColor = 'var(--border)'
+                          e.currentTarget.style.transform = 'translateY(0)'
+                          e.currentTarget.style.boxShadow = 'none'
                         }}>
+                          {/* Author */}
                           <div style={{ marginBottom: '12px' }}>
-                            <Link href={`/profile/${submission.username}`} style={{ textDecoration: 'none' }}>
-                              <span style={{ fontWeight: 'bold', color: 'var(--text-primary)' }}>
-                                {submission.display_name || submission.username}
-                              </span>
+                            <Link 
+                              href={`/profile/${submission.username}`} 
+                              style={{
+                                fontSize: '13px',
+                                color: 'var(--blue)',
+                                textDecoration: 'none',
+                                fontWeight: 500
+                              }}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.textDecoration = 'underline'
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.textDecoration = 'none'
+                              }}
+                            >
+                              @{submission.username}
                             </Link>
                           </div>
-                          <p style={{ fontSize: '16px', lineHeight: '1.4', marginBottom: '12px' }}>
+
+                          {/* Content */}
+                          <p style={{
+                            fontSize: '14px',
+                            color: 'var(--text2)',
+                            marginBottom: '16px',
+                            lineHeight: 1.5
+                          }}>
                             {submission.content}
                           </p>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+
+                          {/* Stats and Like Button */}
+                          <div style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'flex-end'
+                          }}>
+                            <div style={{
+                              display: 'flex',
+                              gap: '16px',
+                              fontSize: '13px',
+                              color: 'var(--text3)'
+                            }}>
+                              <div>{new Date(submission.created_at).toLocaleDateString()}</div>
+                            </div>
+                            
                             <button
                               onClick={() => handleLike(submission.id, submission.user_liked)}
                               disabled={submission.user_id === user?.id}
                               style={{
-                                background: submission.user_id === user?.id ? 'var(--border)' : (submission.user_liked ? 'var(--green)' : 'var(--border)'),
-                                color: 'white',
-                                border: 'none',
+                                background: submission.user_id === user?.id ? 'var(--border)' : (submission.user_liked ? 'var(--green)' : 'var(--card2)'),
+                                color: submission.user_id === user?.id ? 'var(--text3)' : (submission.user_liked ? 'white' : 'var(--text)'),
+                                border: '1px solid var(--border)',
                                 padding: '6px 12px',
                                 borderRadius: '6px',
-                                fontSize: '14px',
+                                fontSize: '12px',
+                                fontWeight: 500,
                                 cursor: submission.user_id === user?.id ? 'not-allowed' : 'pointer',
+                                fontFamily: 'var(--font-body)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '4px',
                                 opacity: submission.user_id === user?.id ? 0.6 : 1
                               }}
                             >
-                              {submission.user_id === user?.id ? '♡' : (submission.user_liked ? '♥' : '♡')} {submission.likes}
+                              <span>{submission.user_id === user?.id ? '👍' : (submission.user_liked ? '👍' : '👍')}</span>
+                              <span>{submission.likes}</span>
                             </button>
                           </div>
                         </div>
