@@ -308,11 +308,10 @@ export default function DailyBattleClient({ battle, userSubmission, userStreak, 
                 </div>
               ) : localUserSubmission ? (
                 (() => {
-                  console.log('userId prop:', userId, 'user?.id:', user?.id, 'submission user_ids:', submissions.map(s => s.user_id))
-                  const otherSubmissions = submissions.filter(s => s.user_id !== userId)
-                  return otherSubmissions.length > 0 ? (
+                  const filteredSubmissions = submissions.filter(s => s.user_id !== userId)
+                  return filteredSubmissions.length > 0 ? (
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
-                      {otherSubmissions.map(submission => (
+                      {filteredSubmissions.map(submission => (
                         <div key={submission.id} style={{
                           background: 'var(--card)',
                           border: '1px solid var(--border)',
