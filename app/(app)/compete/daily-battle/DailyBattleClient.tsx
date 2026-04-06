@@ -42,7 +42,7 @@ interface DailyBattleClientProps {
 }
 
 export default function DailyBattleClient({ battle, userSubmission, userStreak, userId }: DailyBattleClientProps) {
-  const { isAuthenticated, authLoading } = useUser()
+  const { user, username, isAuthenticated, authLoading } = useUser()
   const [submission, setSubmission] = useState('')
   const [submissions, setSubmissions] = useState<Submission[]>([])
   const [loading, setLoading] = useState(false)
@@ -172,16 +172,10 @@ export default function DailyBattleClient({ battle, userSubmission, userStreak, 
     return 5
   }
 
-  if (authLoading) {
-    return null
-  }
+  if (authLoading) return <div />
 
   if (!isAuthenticated) {
-    return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
-        <div>Please log in to participate in daily battles</div>
-      </div>
-    )
+    return <div>Please log in to participate</div>
   }
 
   return (
@@ -314,11 +308,11 @@ export default function DailyBattleClient({ battle, userSubmission, userStreak, 
                   Loading submissions...
                 </div>
               ) : localUserSubmission ? (
-                submissions.filter(s => s.id !== localUserSubmission.id).length > 0 ? (
-                  <div style={{ maxHeight: '600px', overflowY: 'auto' }}>
-                    {submissions
-                      .filter(s => s.id !== localUserSubmission.id)
-                      .map(submission => (
+                (() => {
+                  const otherSubmissions = submissions.filter(s => s.username !== username)
+                  return otherSubmissions.length > 0 ? (
+                    <div style={{ maxHeight: '600px', overflowY: 'auto' }}>
+                      {otherSubmissions.map(submission => (
                         <div key={submission.id} style={{
                           background: 'var(--background)',
                           padding: '20px',
@@ -353,12 +347,13 @@ export default function DailyBattleClient({ battle, userSubmission, userStreak, 
                           </div>
                         </div>
                       ))}
-                  </div>
-                ) : (
-                  <div style={{ textAlign: 'center', padding: '32px', color: 'var(--text-secondary)' }}>
-                    No other submissions yet — you're the first! 🎉
-                  </div>
-                )
+                    </div>
+                  ) : (
+                    <div style={{ textAlign: 'center', padding: '32px', color: 'var(--text-secondary)' }}>
+                      No other submissions yet — you're the first! 🎉
+                    </div>
+                  )
+                })()
               ) : (
                 <div style={{ textAlign: 'center', padding: '32px', color: 'var(--text-secondary)' }}>
                   Submit your answer to see others' responses!
