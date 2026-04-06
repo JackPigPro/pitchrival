@@ -27,10 +27,10 @@ export default function LearnSection({ onComingSoon }: LearnSectionProps) {
 
   return (
     <div id="learn" className="feature-section fs-learn">
-      <div className="coming-soon-header-badge">Coming Soon 📚</div>
       <div className="fs-label p">📚 Learn</div>
       {/* Text side */}
       <div className="feature-text">
+        <div className="coming-soon-header-badge">Coming Soon</div>
         <div className="ft-label p">📚 Learn</div>
         <h2 className="ft-h2">
           Learn how to<br />actually build.
@@ -102,9 +102,9 @@ export default function LearnSection({ onComingSoon }: LearnSectionProps) {
           </div>
 
           {/* Continue button */}
-          <button className="lp-continue" onClick={onComingSoon}>
+          <Link href="/signup" className="lp-continue" style={{ textDecoration: 'none' }}>
             ▶ Continue Lesson 3 &nbsp;·&nbsp; 22 min left
-          </button>
+          </Link>
         </div>
       </div>
     </div>

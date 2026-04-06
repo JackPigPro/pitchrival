@@ -62,7 +62,6 @@ export default function ConnectSection({ onComingSoon }: ConnectSectionProps) {
               ))}
             </div>
             <button className="cb-new-btn">+ Post Idea</button>
-            <div className="try-switching-hint">Try switching →</div>
           </div>
 
           {activeTab === '💡 Idea Feed' && (
