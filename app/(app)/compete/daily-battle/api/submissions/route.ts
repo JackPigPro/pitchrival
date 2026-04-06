@@ -110,7 +110,8 @@ export async function GET(request: Request) {
         display_name: profile?.display_name || profile?.username || 'Unknown',
         created_at: submission.created_at,
         likes: likeCounts[submission.id] || 0,
-        user_liked: userLikes[submission.id] || false
+        user_liked: userLikes[submission.id] || false,
+        user_id: submission.user_id
       }
     })
 
