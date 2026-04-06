@@ -56,6 +56,20 @@ export async function POST(request: Request) {
       )
     }
 
+    // Check if user is trying to like their own submission
+    const { data: submission } = await supabase
+      .from('daily_submissions')
+      .select('user_id')
+      .eq('id', submissionId)
+      .single()
+
+    if (submission?.user_id === user.id) {
+      return NextResponse.json(
+        { error: 'You cannot like your own submission' },
+        { status: 400 }
+      )
+    }
+
     // Create like
     const { data: like, error: likeError } = await supabase
       .from('daily_likes')

@@ -32,6 +32,7 @@ interface Submission {
   created_at: string
   likes: number
   user_liked: boolean
+  user_id: string
 }
 
 interface DailyBattleClientProps {
@@ -307,7 +308,7 @@ export default function DailyBattleClient({ battle, userSubmission, userStreak, 
                 </div>
               ) : localUserSubmission ? (
                 (() => {
-                  const otherSubmissions = submissions.filter(s => s.username !== username)
+                  const otherSubmissions = submissions.filter(s => s.user_id !== user?.id)
                   return otherSubmissions.length > 0 ? (
                     <div style={{ maxHeight: '600px', overflowY: 'auto' }}>
                       {otherSubmissions.map(submission => (
@@ -330,17 +331,19 @@ export default function DailyBattleClient({ battle, userSubmission, userStreak, 
                           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                             <button
                               onClick={() => handleLike(submission.id, submission.user_liked)}
+                              disabled={submission.user_id === user?.id}
                               style={{
-                                background: submission.user_liked ? 'var(--green)' : 'var(--border)',
+                                background: submission.user_id === user?.id ? 'var(--border)' : (submission.user_liked ? 'var(--green)' : 'var(--border)'),
                                 color: 'white',
                                 border: 'none',
                                 padding: '6px 12px',
                                 borderRadius: '6px',
                                 fontSize: '14px',
-                                cursor: 'pointer'
+                                cursor: submission.user_id === user?.id ? 'not-allowed' : 'pointer',
+                                opacity: submission.user_id === user?.id ? 0.6 : 1
                               }}
                             >
-                              {submission.user_liked ? '♥' : '♡'} {submission.likes}
+                              {submission.user_id === user?.id ? '♡' : (submission.user_liked ? '♥' : '♡')} {submission.likes}
                             </button>
                           </div>
                         </div>
