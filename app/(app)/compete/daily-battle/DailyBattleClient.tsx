@@ -60,7 +60,7 @@ export default function DailyBattleClient({ battle, userSubmission, userStreak, 
   const fetchSubmissions = async () => {
     try {
       setLoading(true)
-      const response = await fetch(`/api/daily-battle/submissions?battleId=${battle?.id || ''}`)
+      const response = await fetch(`/compete/daily-battle/api/submissions?battleId=${battle?.id || ''}`)
       if (!response.ok) throw new Error('Failed to fetch submissions')
       const data = await response.json()
       setSubmissions(data)
@@ -76,7 +76,7 @@ export default function DailyBattleClient({ battle, userSubmission, userStreak, 
 
     try {
       setSubmitting(true)
-      const response = await fetch('/api/daily-battle/submit', {
+      const response = await fetch('/compete/daily-battle/api/submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -85,9 +85,16 @@ export default function DailyBattleClient({ battle, userSubmission, userStreak, 
         })
       })
 
-      if (!response.ok) throw new Error('Failed to submit')
+      if (!response.ok) {
+        console.error('Response not OK:', response.status, response.statusText)
+        throw new Error('Failed to submit')
+      }
 
+      const contentType = response.headers.get('content-type')
+      console.log('Response content-type:', contentType)
+      
       const data = await response.json()
+      console.log('Response data:', data)
       setToastMessage(`+${data.eloGained} ELO`)
       setShowToast(true)
       
@@ -107,7 +114,7 @@ export default function DailyBattleClient({ battle, userSubmission, userStreak, 
 
   const handleLike = async (submissionId: string, currentlyLiked: boolean) => {
     try {
-      const response = await fetch('/api/daily-battle/likes', {
+      const response = await fetch('/compete/daily-battle/api/likes', {
         method: currentlyLiked ? 'DELETE' : 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ submissionId })
