@@ -83,20 +83,29 @@ export async function POST(request: Request) {
     }
 
     // Update daily streak and get ELO gained
-    const { data: streakResult, error: streakError } = await supabase
-      .rpc('update_daily_streak', { user_id: user.id })
+    const { data: eloGained, error: streakError } = await supabase.rpc('update_daily_streak', {
+      p_user_id: user.id
+    })
+    
+    console.log('ELO gained:', eloGained, 'Error:', streakError)
 
     if (streakError) {
       console.error('Streak update error:', streakError)
       // Don't fail the submission if streak update fails
     }
 
-    const eloGained = streakResult || 0
+    // Query daily_streaks table to verify the row was created/updated
+    const { data: streak } = await supabase
+      .from('daily_streaks')
+      .select('current_streak, longest_streak')
+      .eq('user_id', user.id)
+      .single()
 
     return NextResponse.json({
       success: true,
       submission,
-      eloGained
+      eloGained,
+      streak
     })
 
   } catch (error) {

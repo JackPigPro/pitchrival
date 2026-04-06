@@ -49,13 +49,22 @@ export default function DailyBattleClient({ battle, userSubmission, userStreak, 
   const [submitting, setSubmitting] = useState(false)
   const [showToast, setShowToast] = useState(false)
   const [toastMessage, setToastMessage] = useState('')
+  const [localUserSubmission, setLocalUserSubmission] = useState<UserSubmission | null>(userSubmission)
+  const [localUserStreak, setLocalUserStreak] = useState<DailyStreak | null>(userStreak)
   const supabase = createClient()
 
   useEffect(() => {
     if (userSubmission) {
+      setLocalUserSubmission(userSubmission)
       fetchSubmissions()
     }
   }, [userSubmission])
+
+  useEffect(() => {
+    if (userStreak) {
+      setLocalUserStreak(userStreak)
+    }
+  }, [userStreak])
 
   const fetchSubmissions = async () => {
     try {
@@ -95,8 +104,25 @@ export default function DailyBattleClient({ battle, userSubmission, userStreak, 
       
       const data = await response.json()
       console.log('Response data:', data)
-      setToastMessage(`+${data.eloGained} ELO`)
+      setToastMessage(`+${data.eloGained || 0} ELO`)
       setShowToast(true)
+      
+      // Update local state immediately
+      if (data.streak) {
+        setLocalUserStreak({
+          current_streak: data.streak.current_streak,
+          longest_streak: data.streak.longest_streak,
+          last_submission_date: new Date().toISOString()
+        })
+      }
+      
+      // Set local user submission
+      const newSubmission: UserSubmission = {
+        id: data.submissionId || Date.now().toString(),
+        content: submission.trim(),
+        created_at: new Date().toISOString()
+      }
+      setLocalUserSubmission(newSubmission)
       
       // Clear submission and refresh
       setSubmission('')
@@ -147,11 +173,7 @@ export default function DailyBattleClient({ battle, userSubmission, userStreak, 
   }
 
   if (authLoading) {
-    return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
-        <div>Loading...</div>
-      </div>
-    )
+    return null
   }
 
   if (!isAuthenticated) {
@@ -200,7 +222,7 @@ export default function DailyBattleClient({ battle, userSubmission, userStreak, 
         </div>
 
         {/* Not Submitted State */}
-        {!userSubmission ? (
+        {!localUserSubmission ? (
           <div style={{
             background: 'var(--surface)',
             padding: '32px',
@@ -268,61 +290,81 @@ export default function DailyBattleClient({ battle, userSubmission, userStreak, 
                 </Link>
               </div>
               <p style={{ fontSize: '16px', lineHeight: '1.4', marginBottom: '12px' }}>
-                {userSubmission.content}
+                {localUserSubmission.content}
               </p>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <span style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>
-                  {submissions.find(s => s.id === userSubmission.id)?.likes || 0} likes
+                  {submissions.find(s => s.id === localUserSubmission.id)?.likes || 0} likes
                 </span>
               </div>
             </div>
 
-            {/* Other Submissions */}
-            {loading ? (
-              <div style={{ textAlign: 'center', padding: '32px' }}>
-                Loading submissions...
-              </div>
-            ) : (
-              <div style={{ maxHeight: '600px', overflowY: 'auto' }}>
-                {submissions
-                  .filter(s => s.id !== userSubmission.id)
-                  .map(submission => (
-                    <div key={submission.id} style={{
-                      background: 'var(--surface)',
-                      padding: '20px',
-                      borderRadius: '12px',
-                      marginBottom: '12px'
-                    }}>
-                      <div style={{ marginBottom: '12px' }}>
-                        <Link href={`/profile/${submission.username}`} style={{ textDecoration: 'none' }}>
-                          <span style={{ fontWeight: 'bold', color: 'var(--text-primary)' }}>
-                            {submission.display_name || submission.username}
-                          </span>
-                        </Link>
-                      </div>
-                      <p style={{ fontSize: '16px', lineHeight: '1.4', marginBottom: '12px' }}>
-                        {submission.content}
-                      </p>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <button
-                          onClick={() => handleLike(submission.id, submission.user_liked)}
-                          style={{
-                            background: submission.user_liked ? 'var(--green)' : 'var(--border)',
-                            color: 'white',
-                            border: 'none',
-                            padding: '6px 12px',
-                            borderRadius: '6px',
-                            fontSize: '14px',
-                            cursor: 'pointer'
-                          }}
-                        >
-                          {submission.user_liked ? '♥' : '♡'} {submission.likes}
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-              </div>
-            )}
+            {/* Other Submissions Section */}
+            <div style={{
+              background: 'var(--surface)',
+              padding: '24px',
+              borderRadius: '12px',
+              marginBottom: '16px'
+            }}>
+              <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '16px' }}>
+                Other Submissions
+              </h3>
+              {loading ? (
+                <div style={{ textAlign: 'center', padding: '32px' }}>
+                  Loading submissions...
+                </div>
+              ) : localUserSubmission ? (
+                submissions.filter(s => s.id !== localUserSubmission.id).length > 0 ? (
+                  <div style={{ maxHeight: '600px', overflowY: 'auto' }}>
+                    {submissions
+                      .filter(s => s.id !== localUserSubmission.id)
+                      .map(submission => (
+                        <div key={submission.id} style={{
+                          background: 'var(--background)',
+                          padding: '20px',
+                          borderRadius: '12px',
+                          marginBottom: '12px'
+                        }}>
+                          <div style={{ marginBottom: '12px' }}>
+                            <Link href={`/profile/${submission.username}`} style={{ textDecoration: 'none' }}>
+                              <span style={{ fontWeight: 'bold', color: 'var(--text-primary)' }}>
+                                {submission.display_name || submission.username}
+                              </span>
+                            </Link>
+                          </div>
+                          <p style={{ fontSize: '16px', lineHeight: '1.4', marginBottom: '12px' }}>
+                            {submission.content}
+                          </p>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <button
+                              onClick={() => handleLike(submission.id, submission.user_liked)}
+                              style={{
+                                background: submission.user_liked ? 'var(--green)' : 'var(--border)',
+                                color: 'white',
+                                border: 'none',
+                                padding: '6px 12px',
+                                borderRadius: '6px',
+                                fontSize: '14px',
+                                cursor: 'pointer'
+                              }}
+                            >
+                              {submission.user_liked ? '♥' : '♡'} {submission.likes}
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                ) : (
+                  <div style={{ textAlign: 'center', padding: '32px', color: 'var(--text-secondary)' }}>
+                    No other submissions yet — you're the first! 🎉
+                  </div>
+                )
+              ) : (
+                <div style={{ textAlign: 'center', padding: '32px', color: 'var(--text-secondary)' }}>
+                  Submit your answer to see others' responses!
+                </div>
+              )}
+            </div>
           </div>
         )}
       </div>
@@ -340,10 +382,10 @@ export default function DailyBattleClient({ battle, userSubmission, userStreak, 
           
           <div style={{ marginBottom: '16px' }}>
             <div style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '4px' }}>
-              {userStreak?.current_streak || 0} days
+              {localUserStreak?.current_streak || 0} days
             </div>
             <div style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>
-              Longest: {userStreak?.longest_streak || 0} days
+              Longest: {localUserStreak?.longest_streak || 0} days
             </div>
           </div>
 
@@ -369,7 +411,7 @@ export default function DailyBattleClient({ battle, userSubmission, userStreak, 
                 <span style={{ fontWeight: 'bold', color: 'var(--green)' }}>+5 ELO</span>
               </div>
             </div>
-            {userStreak && userStreak.current_streak > 0 && (
+            {localUserStreak && localUserStreak.current_streak > 0 && (
               <div style={{
                 marginTop: '12px',
                 padding: '8px',
@@ -379,7 +421,7 @@ export default function DailyBattleClient({ battle, userSubmission, userStreak, 
                 textAlign: 'center'
               }}>
                 Next submission: <span style={{ fontWeight: 'bold', color: 'var(--green)' }}>
-                  +{getStreakELO(userStreak.current_streak + 1)} ELO
+                  +{getStreakELO(localUserStreak.current_streak + 1)} ELO
                 </span>
               </div>
             )}
