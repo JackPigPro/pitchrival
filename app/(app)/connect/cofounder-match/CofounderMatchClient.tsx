@@ -608,112 +608,7 @@ export default function CofounderMatchClient({
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
             {activeTab === 'discover' ? (
               <>
-                {/* Incoming Requests */}
-                <div style={{ 
-                  background: 'var(--card)', 
-                  borderRadius: '16px', 
-                  padding: '32px',
-                  border: '1px solid var(--border)',
-                  boxShadow: 'var(--shadow)'
-                }}>
-                  <h2 style={{ 
-                    fontSize: '20px', 
-                    fontWeight: 700, 
-                    fontFamily: 'var(--font-display)', 
-                    color: 'var(--text)', 
-                    marginBottom: '24px',
-                    letterSpacing: '-0.1px'
-                  }}>
-                    Incoming Requests
-                  </h2>
-                  
-                  {incomingRequests.length === 0 ? (
-                    <div style={{
-                      textAlign: 'center',
-                      padding: '40px 20px',
-                      color: 'var(--text2)',
-                      fontSize: '16px',
-                      fontFamily: 'var(--font-body)'
-                    }}>
-                      <div style={{ fontSize: '48px', fontWeight: 800, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '16px' }}>
-                        📥
-                      </div>
-                      <div style={{ fontSize: '20px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '8px' }}>
-                        No incoming requests
-                      </div>
-                    </div>
-                  ) : (
-                    <div style={{ 
-                      display: 'grid',
-                      gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-                      gap: '16px'
-                    }}>
-                      {incomingRequests.map(({ request, profile }) => (
-                        <ProfileCard 
-                          key={request.id} 
-                          profile={profile} 
-                          showAcceptDecline={true} 
-                          request={request}
-                        />
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* Outgoing Requests */}
-                <div style={{ 
-                  background: 'var(--card)', 
-                  borderRadius: '16px', 
-                  padding: '32px',
-                  border: '1px solid var(--border)',
-                  boxShadow: 'var(--shadow)'
-                }}>
-                  <h2 style={{ 
-                    fontSize: '20px', 
-                    fontWeight: 700, 
-                    fontFamily: 'var(--font-display)', 
-                    color: 'var(--text)', 
-                    marginBottom: '24px',
-                    letterSpacing: '-0.1px'
-                  }}>
-                    Outgoing Requests
-                  </h2>
-                  
-                  {outgoingRequests.length === 0 ? (
-                    <div style={{
-                      textAlign: 'center',
-                      padding: '40px 20px',
-                      color: 'var(--text2)',
-                      fontSize: '16px',
-                      fontFamily: 'var(--font-body)'
-                    }}>
-                      <div style={{ fontSize: '48px', fontWeight: 800, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '16px' }}>
-                        📤
-                      </div>
-                      <div style={{ fontSize: '20px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '8px' }}>
-                        No outgoing requests
-                      </div>
-                    </div>
-                  ) : (
-                    <div style={{ 
-                      display: 'grid',
-                      gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-                      gap: '16px'
-                    }}>
-                      {outgoingRequests.map(({ request, profile }) => (
-                        <ProfileCard 
-                          key={request.id} 
-                          profile={profile} 
-                          showConnectButton={false}
-                          showCancelButton={true} 
-                          request={request}
-                        />
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* Discover Founders */}
+                {/* Discover Founders - Full Width Top Row */}
                 <div style={{ 
                   background: 'var(--card)', 
                   borderRadius: '16px', 
@@ -741,7 +636,7 @@ export default function CofounderMatchClient({
                       fontFamily: 'var(--font-body)'
                     }}>
                       <div style={{ fontSize: '48px', fontWeight: 800, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '16px' }}>
-                        🔍
+                        �
                       </div>
                       <div style={{ fontSize: '20px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '8px' }}>
                         No founders to discover yet
@@ -758,6 +653,114 @@ export default function CofounderMatchClient({
                       ))}
                     </div>
                   )}
+                </div>
+
+                {/* Bottom Row - Two Columns */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+                  {/* Outgoing Requests - Left */}
+                  <div style={{ 
+                    background: 'var(--card)', 
+                    borderRadius: '16px', 
+                    padding: '32px',
+                    border: '1px solid var(--border)',
+                    boxShadow: 'var(--shadow)'
+                  }}>
+                    <h2 style={{ 
+                      fontSize: '20px', 
+                      fontWeight: 700, 
+                      fontFamily: 'var(--font-display)', 
+                      color: 'var(--text)', 
+                      marginBottom: '24px',
+                      letterSpacing: '-0.1px'
+                    }}>
+                      Outgoing Requests
+                    </h2>
+                    
+                    {outgoingRequests.length === 0 ? (
+                      <div style={{
+                        textAlign: 'center',
+                        padding: '40px 20px',
+                        color: 'var(--text2)',
+                        fontSize: '16px',
+                        fontFamily: 'var(--font-body)'
+                      }}>
+                        <div style={{ fontSize: '48px', fontWeight: 800, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '16px' }}>
+                          📤
+                        </div>
+                        <div style={{ fontSize: '20px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '8px' }}>
+                          No outgoing requests
+                        </div>
+                      </div>
+                    ) : (
+                      <div style={{ 
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+                        gap: '16px'
+                      }}>
+                        {outgoingRequests.map(({ request, profile }) => (
+                          <ProfileCard 
+                            key={request.id} 
+                            profile={profile} 
+                            showConnectButton={false}
+                            showCancelButton={true} 
+                            request={request}
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Incoming Requests - Right */}
+                  <div style={{ 
+                    background: 'var(--card)', 
+                    borderRadius: '16px', 
+                    padding: '32px',
+                    border: '1px solid var(--border)',
+                    boxShadow: 'var(--shadow)'
+                  }}>
+                    <h2 style={{ 
+                      fontSize: '20px', 
+                      fontWeight: 700, 
+                      fontFamily: 'var(--font-display)', 
+                      color: 'var(--text)', 
+                      marginBottom: '24px',
+                      letterSpacing: '-0.1px'
+                    }}>
+                      Incoming Requests
+                    </h2>
+                    
+                    {incomingRequests.length === 0 ? (
+                      <div style={{
+                        textAlign: 'center',
+                        padding: '40px 20px',
+                        color: 'var(--text2)',
+                        fontSize: '16px',
+                        fontFamily: 'var(--font-body)'
+                      }}>
+                        <div style={{ fontSize: '48px', fontWeight: 800, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '16px' }}>
+                          �
+                        </div>
+                        <div style={{ fontSize: '20px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '8px' }}>
+                          No incoming requests
+                        </div>
+                      </div>
+                    ) : (
+                      <div style={{ 
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+                        gap: '16px'
+                      }}>
+                        {incomingRequests.map(({ request, profile }) => (
+                          <ProfileCard 
+                            key={request.id} 
+                            profile={profile} 
+                            showAcceptDecline={true} 
+                            request={request}
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </>
             ) : (
