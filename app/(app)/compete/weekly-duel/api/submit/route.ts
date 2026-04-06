@@ -290,8 +290,7 @@ export async function PUT(request: NextRequest) {
     const { data: updatedSubmission, error: updateError } = await supabase
       .from('duel_submissions')
       .update({
-        content: content,
-        updated_at: new Date().toISOString()
+        content: content
       })
       .eq('id', existingSubmission.id)
       .select()
