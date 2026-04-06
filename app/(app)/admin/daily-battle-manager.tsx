@@ -22,8 +22,11 @@ export default function DailyBattleManager() {
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState('')
   const [error, setError] = useState('')
+  // Get today's date string for min attribute
+  const todayDateStr = new Date().toISOString().split('T')[0]
+
   const [formData, setFormData] = useState<BattleFormData>({
-    date: '',
+    date: todayDateStr,
     prompt: ''
   })
 
@@ -94,9 +97,8 @@ export default function DailyBattleManager() {
         setSuccess('Daily battle published successfully!')
         setFormData({
           date: (() => {
-            const tomorrow = new Date()
-            tomorrow.setDate(tomorrow.getDate() + 1)
-            return tomorrow.toISOString().split('T')[0]
+            const today = new Date()
+            return today.toISOString().split('T')[0]
           })(),
           prompt: ''
         })
@@ -185,7 +187,7 @@ export default function DailyBattleManager() {
               <input
                 type="date"
                 value={formData.date}
-                min={new Date().toISOString().split('T')[0]}
+                min={todayDateStr}
                 onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
                 style={{
                   width: '100%',
