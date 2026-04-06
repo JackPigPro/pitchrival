@@ -42,7 +42,7 @@ interface DailyBattleClientProps {
 }
 
 export default function DailyBattleClient({ battle, userSubmission, userStreak, userId }: DailyBattleClientProps) {
-  const { user, username, isAuthenticated, authLoading } = useUser()
+  const { user, username, authLoading } = useUser()
   const [submission, setSubmission] = useState('')
   const [submissions, setSubmissions] = useState<Submission[]>([])
   const [loading, setLoading] = useState(false)
@@ -174,9 +174,7 @@ export default function DailyBattleClient({ battle, userSubmission, userStreak, 
 
   if (authLoading) return <div />
 
-  if (!isAuthenticated) {
-    return <div>Please log in to participate</div>
-  }
+  if (!user) return <div>Please log in to participate</div>
 
   return (
     <div style={{ display: 'flex', gap: '32px', maxWidth: '1200px', margin: '0 auto' }}>
