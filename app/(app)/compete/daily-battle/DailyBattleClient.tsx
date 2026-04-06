@@ -35,7 +35,7 @@ interface Submission {
 }
 
 interface DailyBattleClientProps {
-  battle: DailyBattle
+  battle: DailyBattle | null
   userSubmission: UserSubmission | null
   userStreak: DailyStreak | null
   userId: string
@@ -60,7 +60,7 @@ export default function DailyBattleClient({ battle, userSubmission, userStreak, 
   const fetchSubmissions = async () => {
     try {
       setLoading(true)
-      const response = await fetch(`/api/daily-battle/submissions?battleId=${battle.id}`)
+      const response = await fetch(`/api/daily-battle/submissions?battleId=${battle?.id || ''}`)
       if (!response.ok) throw new Error('Failed to fetch submissions')
       const data = await response.json()
       setSubmissions(data)
@@ -80,7 +80,7 @@ export default function DailyBattleClient({ battle, userSubmission, userStreak, 
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          battleId: battle.id,
+          battleId: battle?.id || '',
           content: submission.trim()
         })
       })
@@ -188,7 +188,7 @@ export default function DailyBattleClient({ battle, userSubmission, userStreak, 
             Today's Prompt
           </h2>
           <p style={{ fontSize: '24px', lineHeight: '1.4', color: 'var(--text-primary)' }}>
-            {battle.prompt}
+            {battle?.prompt || 'No prompt yet today — be creative! 🎨'}
           </p>
         </div>
 

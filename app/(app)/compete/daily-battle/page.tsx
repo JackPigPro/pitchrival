@@ -41,7 +41,7 @@ async function getTodayBattle(): Promise<DailyBattle | null> {
     }
   )
   
-  const today = new Date().toISOString().split('T')[0]
+  const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' })
   
   const { data, error } = await supabase
     .from('daily_battle')
@@ -152,24 +152,9 @@ export default async function DailyBattlePage() {
   // Fetch today's battle
   const battle = await getTodayBattle()
   
-  if (!battle) {
-    return (
-      <div style={{ 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'center', 
-        minHeight: '400px',
-        fontSize: '18px',
-        color: 'var(--text-secondary)'
-      }}>
-        No daily battle today, check back tomorrow
-      </div>
-    )
-  }
-
   // Fetch user's submission and streak
   const [userSubmission, userStreak] = await Promise.all([
-    getUserSubmission(battle.id, user.id),
+    getUserSubmission(battle?.id || '', user.id),
     getUserStreak(user.id)
   ])
 
