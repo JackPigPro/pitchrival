@@ -248,21 +248,56 @@ export default function DashboardClient({ initialProfile, initialStats, todayBat
       <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
         {/* Header */}
         <div style={{ marginBottom: '32px' }}>
-          <h1 style={{ fontSize: '48px', fontWeight: 800, letterSpacing: '-2px', fontFamily: 'var(--font-display)', color: 'var(--text)', margin: 0 }}>
-            Dashboard
-          </h1>
-          <div style={{ 
-            fontSize: '18px', 
-            fontWeight: '400', 
-            fontFamily: 'var(--font-body)', 
-            color: 'var(--text2)', 
-            marginTop: '8px' 
-          }}>
-            Welcome back, {display_name || username || 'User'}! {userStreak?.current_streak && userStreak.current_streak > 0 ? (
-              <span>You're on a {userStreak.current_streak} day streak 🔥</span>
-            ) : (
-              <span>Start your streak today 🔥</span>
-            )}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div>
+              <h1 style={{ fontSize: '48px', fontWeight: 800, letterSpacing: '-2px', fontFamily: 'var(--font-display)', color: 'var(--text)', margin: 0 }}>
+                Dashboard
+              </h1>
+              <div style={{ 
+                fontSize: '18px', 
+                fontWeight: '400', 
+                fontFamily: 'var(--font-body)', 
+                color: 'var(--text2)', 
+                marginTop: '8px' 
+              }}>
+                Welcome back, {display_name || username || 'User'}!
+              </div>
+            </div>
+            <div style={{ textAlign: 'right' }}>
+              {userStreak?.current_streak && userStreak.current_streak > 0 ? (
+                <>
+                  <div style={{ 
+                    fontSize: '48px', 
+                    fontWeight: 800, 
+                    letterSpacing: '-2px', 
+                    fontFamily: 'var(--font-display)', 
+                    color: 'var(--text)', 
+                    margin: 0 
+                  }}>
+                    🔥 {userStreak.current_streak}
+                  </div>
+                  <div style={{ 
+                    fontSize: '14px', 
+                    fontWeight: '400', 
+                    fontFamily: 'var(--font-body)', 
+                    color: 'var(--text2)', 
+                    marginTop: '4px' 
+                  }}>
+                    Continue your streak in Daily Battle!
+                  </div>
+                </>
+              ) : (
+                <div style={{ 
+                  fontSize: '18px', 
+                  fontWeight: '400', 
+                  fontFamily: 'var(--font-body)', 
+                  color: 'var(--text2)',
+                  marginTop: '16px' 
+                }}>
+                  Start your streak today in Daily Battle! 🔥
+                </div>
+              )}
+            </div>
           </div>
         </div>
 

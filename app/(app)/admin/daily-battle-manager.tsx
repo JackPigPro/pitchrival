@@ -116,7 +116,7 @@ export default function DailyBattleManager() {
     const days = []
     const today = new Date()
     
-    for (let i = 1; i <= 7; i++) {
+    for (let i = 0; i < 7; i++) {
       const date = new Date(today)
       date.setDate(today.getDate() + i)
       const dateStr = date.toISOString().split('T')[0]
@@ -283,7 +283,7 @@ export default function DailyBattleManager() {
           boxShadow: 'var(--shadow)'
         }}>
           <h2 style={{ fontSize: '20px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--text)', margin: '0 0 24px 0' }}>
-            Next 7 Days
+            Upcoming
           </h2>
           
           <div style={{ 
