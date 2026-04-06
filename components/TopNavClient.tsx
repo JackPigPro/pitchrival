@@ -396,14 +396,7 @@ export default function TopNavClient({
                 color: 'var(--text2)',
                 fontSize: '18px',
                 transition: 'all 0.2s ease',
-                marginRight: '4px'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.outline = '2px solid var(--green)'
-                e.currentTarget.style.outlineOffset = '2px'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.outline = 'none'
+                marginRight: '2px'
               }}
               title="Messages"
             >
