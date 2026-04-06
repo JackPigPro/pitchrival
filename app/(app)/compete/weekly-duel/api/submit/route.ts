@@ -246,7 +246,7 @@ export async function PUT(request: NextRequest) {
     console.log('Checking duel status for duel_id:', duel_id)
     
     const { data: duel, error: duelError } = await supabase
-      .from('weekly_duels')
+      .from('weekly_duel')
       .select('id, status, prompt, start_date, end_date')
       .eq('id', duel_id)
       .single()

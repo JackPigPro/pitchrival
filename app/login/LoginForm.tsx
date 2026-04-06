@@ -139,9 +139,7 @@ export default function LoginForm({ mode }: { mode: 'login' | 'signup' }) {
         {mode === 'signup' ? 'Create Your Account' : 'Welcome Back'}
       </h1>
       <p style={{ color: 'var(--text2)', marginTop: '10px', marginBottom: '18px' }}>
-        {step === 'email'
-          ? 'Enter your email to continue.'
-          : `Enter the 6-digit code sent to ${email}.`}
+        Sign in with your Google account to continue.
       </p>
 
       <button
@@ -174,108 +172,15 @@ export default function LoginForm({ mode }: { mode: 'login' | 'signup' }) {
         {googleLoading ? 'Connecting to Google...' : 'Continue with Google'}
       </button>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
-        <div style={{ height: '1px', flex: 1, background: 'var(--border)' }} />
-        <span style={{ fontSize: '11px', color: 'var(--text3)', letterSpacing: '1px', textTransform: 'uppercase' }}>or</span>
-        <div style={{ height: '1px', flex: 1, background: 'var(--border)' }} />
+      <div style={{ 
+        textAlign: 'center', 
+        fontSize: '12px', 
+        color: 'var(--text3)', 
+        marginTop: '8px',
+        fontStyle: 'italic'
+      }}>
+        More sign in options coming soon.
       </div>
-
-      {step === 'email' ? (
-        <>
-          <label style={{ display: 'block', marginBottom: '7px', color: 'var(--text)', fontWeight: 600, fontSize: '14px' }}>Email</label>
-          <input
-            type="email"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            required
-            placeholder="you@example.com"
-            style={{
-              width: '100%',
-              marginBottom: '14px',
-              padding: '12px',
-              borderRadius: '10px',
-              border: '1px solid var(--border2)',
-              background: 'var(--card)',
-              color: 'var(--text)',
-              outline: 'none',
-            }}
-          />
-        </>
-      ) : (
-        <>
-          <label style={{ display: 'block', marginBottom: '7px', color: 'var(--text)', fontWeight: 600, fontSize: '14px' }}>6-digit code</label>
-          <input
-            type="text"
-            value={code}
-            onChange={(event) => setCode(event.target.value.replace(/\D/g, '').slice(0, 6))}
-            required
-            inputMode="numeric"
-            autoComplete="one-time-code"
-            pattern="[0-9]{6}"
-            placeholder="123456"
-            style={{
-              width: '100%',
-              marginBottom: '14px',
-              padding: '12px',
-              borderRadius: '10px',
-              border: '1px solid var(--border2)',
-              background: 'var(--card)',
-              color: 'var(--text)',
-              outline: 'none',
-              letterSpacing: '6px',
-              fontWeight: 700,
-              textAlign: 'center',
-            }}
-          />
-        </>
-      )}
-
-      {error && <p style={{ color: '#fca5a5', marginTop: 0, marginBottom: '10px', fontSize: '14px' }}>{error}</p>}
-      {success && <p style={{ color: '#86efac', marginTop: 0, marginBottom: '10px', fontSize: '14px' }}>{success}</p>}
-
-      <button
-        type="submit"
-        disabled={loading || googleLoading}
-        style={{
-          width: '100%',
-          padding: '12px',
-          border: 'none',
-          borderRadius: '10px',
-          background: 'linear-gradient(135deg, #16a34a, #22c55e)',
-          color: '#fff',
-          fontWeight: 700,
-          cursor: 'pointer',
-          fontFamily: 'var(--font-display)',
-          boxShadow: '0 8px 20px rgba(21,128,61,.28)',
-        }}
-      >
-        {loading ? 'Please wait...' : step === 'email' ? 'Continue' : 'Verify code'}
-      </button>
-      {step === 'code' && (
-        <button
-          type="button"
-          disabled={loading || googleLoading}
-          onClick={() => {
-            setStep('email')
-            setCode('')
-            setSuccess(null)
-            setError(null)
-          }}
-          style={{
-            width: '100%',
-            marginTop: '10px',
-            padding: '10px',
-            borderRadius: '10px',
-            border: '1px solid var(--border2)',
-            background: 'transparent',
-            color: 'var(--text2)',
-            fontWeight: 600,
-            cursor: 'pointer',
-          }}
-        >
-          Use a different email
-        </button>
-      )}
     </form>
   )
 }
