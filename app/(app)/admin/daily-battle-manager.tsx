@@ -16,6 +16,11 @@ interface BattleFormData {
   prompt: string
 }
 
+const getToday = () => {
+  return new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' })
+  // Returns YYYY-MM-DD format in EST/EDT
+}
+
 export default function DailyBattleManager() {
   const supabase = createClient()
   const [battles, setBattles] = useState<DailyBattle[]>([])
@@ -23,7 +28,7 @@ export default function DailyBattleManager() {
   const [success, setSuccess] = useState('')
   const [error, setError] = useState('')
   // Get today's date string for min attribute
-  const todayDateStr = new Date().toISOString().split('T')[0]
+  const todayDateStr = getToday()
 
   const [formData, setFormData] = useState<BattleFormData>({
     date: todayDateStr,
@@ -32,10 +37,9 @@ export default function DailyBattleManager() {
 
   useEffect(() => {
     // Set default date to today
-    const today = new Date()
     setFormData(prev => ({
       ...prev,
-      date: today.toISOString().split('T')[0]
+      date: getToday()
     }))
     
     fetchBattles()
@@ -96,10 +100,7 @@ export default function DailyBattleManager() {
       if (result.success) {
         setSuccess('Daily battle published successfully!')
         setFormData({
-          date: (() => {
-            const today = new Date()
-            return today.toISOString().split('T')[0]
-          })(),
+          date: getToday(),
           prompt: ''
         })
         fetchBattles()
@@ -116,12 +117,12 @@ export default function DailyBattleManager() {
 
   const getNext7Days = () => {
     const days = []
-    const today = new Date()
+    const today = getToday()
     
     for (let i = 0; i < 7; i++) {
-      const date = new Date(today)
-      date.setDate(today.getDate() + i)
-      const dateStr = date.toISOString().split('T')[0]
+      const date = new Date(today + 'T00:00:00')
+      date.setDate(date.getDate() + i)
+      const dateStr = date.toLocaleDateString('en-CA', { timeZone: 'America/New_York' })
       const battle = battles.find(b => b.date === dateStr)
       
       days.push({
@@ -135,7 +136,7 @@ export default function DailyBattleManager() {
   }
 
   const getPastBattles = () => {
-    const today = new Date().toISOString().split('T')[0]
+    const today = getToday()
     return battles
       .filter(b => b.date < today)
       .slice(0, 30) // Show last 30 past battles
