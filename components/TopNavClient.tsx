@@ -34,6 +34,11 @@ export default function TopNavClient({
     gap: '6px',
   }
 
+  const menuItemHoverStyle: React.CSSProperties = {
+    background: 'var(--surface)',
+    color: 'var(--text)',
+  }
+
   const dropdownStyle: React.CSSProperties = {
     position: 'absolute',
     top: '100%',
@@ -60,6 +65,12 @@ export default function TopNavClient({
     fontWeight: 700,
     fontFamily: 'var(--font-display)',
     fontSize: '14px',
+    transition: 'all 0.2s ease',
+  }
+
+  const dropdownLinkHoverStyle: React.CSSProperties = {
+    background: 'var(--surface)',
+    color: 'var(--text)',
   }
 
   const isLoggedIn = Boolean(user) && !forceLoggedOut
@@ -132,7 +143,14 @@ export default function TopNavClient({
           onMouseLeave={() => setOpen(null)}
         >
           {isLoggedIn ? (
-            <span className="topnav-link" style={{ ...menuItemStyle, cursor: 'default' }}>
+            <span 
+              className="topnav-link" 
+              style={{ 
+                ...menuItemStyle, 
+                cursor: 'default',
+                ...(open === 'connect' ? menuItemHoverStyle : {})
+              }}
+            >
               Connect <span style={{ fontSize: '12px', opacity: 0.7 }}>▾</span>
             </span>
           ) : (
@@ -143,7 +161,12 @@ export default function TopNavClient({
                 e.preventDefault()
                 scrollToLandingSection('connect', 'center')
               }}
-              style={menuItemStyle}
+              style={{
+                ...menuItemStyle,
+                ...(hoveredItem === 'connect' ? menuItemHoverStyle : {})
+              }}
+              onMouseEnter={() => setHoveredItem('connect')}
+              onMouseLeave={() => setHoveredItem(null)}
             >
               Connect <span style={{ fontSize: '12px', opacity: 0.7 }}>▾</span>
             </a>
@@ -159,13 +182,43 @@ export default function TopNavClient({
               pointerEvents: open === 'connect' ? 'auto' : 'none',
             }}
           >
-            <Link href={isLoggedIn ? "/connect/cofounder-match" : "/login?mode=signup"} className="topnav-dropdown-link" style={dropdownLinkStyle} onClick={handleNavPageClick}>
+            <Link 
+              href={isLoggedIn ? "/connect/cofounder-match" : "/login?mode=signup"} 
+              className="topnav-dropdown-link" 
+              style={{
+                ...dropdownLinkStyle, 
+                ...(hoveredItem === 'cofounder-match' ? dropdownLinkHoverStyle : {})
+              }} 
+              onClick={handleNavPageClick}
+              onMouseEnter={() => setHoveredItem('cofounder-match')}
+              onMouseLeave={() => setHoveredItem(null)}
+            >
               Co-founder Match
             </Link>
-            <Link href={isLoggedIn ? "/connect/messages" : "/login?mode=signup"} className="topnav-dropdown-link" style={dropdownLinkStyle} onClick={handleNavPageClick}>
+            <Link 
+              href={isLoggedIn ? "/connect/messages" : "/login?mode=signup"} 
+              className="topnav-dropdown-link" 
+              style={{
+                ...dropdownLinkStyle, 
+                ...(hoveredItem === 'messages' ? dropdownLinkHoverStyle : {})
+              }} 
+              onClick={handleNavPageClick}
+              onMouseEnter={() => setHoveredItem('messages')}
+              onMouseLeave={() => setHoveredItem(null)}
+            >
               Messages
             </Link>
-            <Link href={isLoggedIn ? "/connect/ideas" : "/login?mode=signup"} className="topnav-dropdown-link" style={dropdownLinkStyle} onClick={handleNavPageClick}>
+            <Link 
+              href={isLoggedIn ? "/connect/ideas" : "/login?mode=signup"} 
+              className="topnav-dropdown-link" 
+              style={{
+                ...dropdownLinkStyle, 
+                ...(hoveredItem === 'ideas' ? dropdownLinkHoverStyle : {})
+              }} 
+              onClick={handleNavPageClick}
+              onMouseEnter={() => setHoveredItem('ideas')}
+              onMouseLeave={() => setHoveredItem(null)}
+            >
               Ideas
             </Link>
           </div>
@@ -177,7 +230,14 @@ export default function TopNavClient({
           onMouseLeave={() => setOpen(null)}
         >
           {isLoggedIn ? (
-            <span className="topnav-link" style={{ ...menuItemStyle, cursor: 'default' }}>
+            <span 
+              className="topnav-link" 
+              style={{ 
+                ...menuItemStyle, 
+                cursor: 'default',
+                ...(open === 'compete' ? menuItemHoverStyle : {})
+              }}
+            >
               Compete <span style={{ fontSize: '12px', opacity: 0.7 }}>▾</span>
             </span>
           ) : (
@@ -188,7 +248,12 @@ export default function TopNavClient({
                 e.preventDefault()
                 scrollToLandingSection('compete', 'center')
               }}
-              style={menuItemStyle}
+              style={{
+                ...menuItemStyle,
+                ...(hoveredItem === 'compete' ? menuItemHoverStyle : {})
+              }}
+              onMouseEnter={() => setHoveredItem('compete')}
+              onMouseLeave={() => setHoveredItem(null)}
             >
               Compete <span style={{ fontSize: '12px', opacity: 0.7 }}>▾</span>
             </a>
@@ -204,13 +269,44 @@ export default function TopNavClient({
               pointerEvents: open === 'compete' ? 'auto' : 'none',
             }}
           >
-            <Link href={isLoggedIn ? "/compete/daily-battle" : "/login?mode=signup"} className="topnav-dropdown-link" style={dropdownLinkStyle} onClick={handleNavPageClick}>
+            <Link 
+              href={isLoggedIn ? "/compete/daily-battle" : "/login?mode=signup"} 
+              className="topnav-dropdown-link" 
+              style={{
+                ...dropdownLinkStyle, 
+                ...(hoveredItem === 'daily-battle' ? dropdownLinkHoverStyle : {})
+              }} 
+              onClick={handleNavPageClick}
+              onMouseEnter={() => setHoveredItem('daily-battle')}
+              onMouseLeave={() => setHoveredItem(null)}
+            >
               Daily Battle
             </Link>
-            <Link href={isLoggedIn ? "/compete/weekly-duel" : "/login?mode=signup"} className="topnav-dropdown-link" style={dropdownLinkStyle} onClick={handleNavPageClick}>
+            <Link 
+              href={isLoggedIn ? "/compete/weekly-duel" : "/login?mode=signup"} 
+              className="topnav-dropdown-link" 
+              style={{
+                ...dropdownLinkStyle, 
+                ...(hoveredItem === 'weekly-duel' ? dropdownLinkHoverStyle : {})
+              }} 
+              onClick={handleNavPageClick}
+              onMouseEnter={() => setHoveredItem('weekly-duel')}
+              onMouseLeave={() => setHoveredItem(null)}
+            >
               Weekly Duel
             </Link>
-            <Link href="/compete/leaderboard" scroll className="topnav-dropdown-link" style={dropdownLinkStyle} onClick={handleNavPageClick}>
+            <Link 
+              href="/compete/leaderboard" 
+              scroll 
+              className="topnav-dropdown-link" 
+              style={{
+                ...dropdownLinkStyle, 
+                ...(hoveredItem === 'leaderboard' ? dropdownLinkHoverStyle : {})
+              }} 
+              onClick={handleNavPageClick}
+              onMouseEnter={() => setHoveredItem('leaderboard')}
+              onMouseLeave={() => setHoveredItem(null)}
+            >
               Leaderboard
             </Link>
           </div>
@@ -218,7 +314,16 @@ export default function TopNavClient({
 
         <>
           {isLoggedIn ? (
-            <Link href="/learn" className="topnav-link" style={menuItemStyle}>
+            <Link 
+              href="/learn" 
+              className="topnav-link" 
+              style={{
+                ...menuItemStyle,
+                ...(hoveredItem === 'learn' ? menuItemHoverStyle : {})
+              }}
+              onMouseEnter={() => setHoveredItem('learn')}
+              onMouseLeave={() => setHoveredItem(null)}
+            >
               Learn
             </Link>
           ) : (
@@ -229,13 +334,27 @@ export default function TopNavClient({
                 e.preventDefault()
                 scrollToLandingSection('learn', 'center')
               }}
-              style={menuItemStyle}
+              style={{
+                ...menuItemStyle,
+                ...(hoveredItem === 'learn' ? menuItemHoverStyle : {})
+              }}
+              onMouseEnter={() => setHoveredItem('learn')}
+              onMouseLeave={() => setHoveredItem(null)}
             >
               Learn
             </a>
           )}
           {isLoggedIn ? (
-            <Link href="/schools" className="topnav-link" style={menuItemStyle}>
+            <Link 
+              href="/schools" 
+              className="topnav-link" 
+              style={{
+                ...menuItemStyle,
+                ...(hoveredItem === 'schools' ? menuItemHoverStyle : {})
+              }}
+              onMouseEnter={() => setHoveredItem('schools')}
+              onMouseLeave={() => setHoveredItem(null)}
+            >
               Schools
             </Link>
           ) : (
@@ -246,7 +365,12 @@ export default function TopNavClient({
                 e.preventDefault()
                 scrollToLandingSection('schools', 'top')
               }}
-              style={menuItemStyle}
+              style={{
+                ...menuItemStyle,
+                ...(hoveredItem === 'schools' ? menuItemHoverStyle : {})
+              }}
+              onMouseEnter={() => setHoveredItem('schools')}
+              onMouseLeave={() => setHoveredItem(null)}
             >
               Schools
             </a>
@@ -257,6 +381,33 @@ export default function TopNavClient({
       <div className="nav-right" style={{ position: 'relative' }}>
         {user ? (
           <>
+            <Link
+              href="/connect/messages"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '40px',
+                height: '40px',
+                borderRadius: '8px',
+                textDecoration: 'none',
+                color: 'var(--text2)',
+                fontSize: '18px',
+                transition: 'all 0.2s ease',
+                marginRight: '8px'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'var(--surface)'
+                e.currentTarget.style.color = 'var(--text)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'transparent'
+                e.currentTarget.style.color = 'var(--text2)'
+              }}
+              title="Messages"
+            >
+              💬
+            </Link>
             <NotificationsBell />
             <span style={{ fontSize: '13px', color: 'var(--text2)', fontWeight: 700 }}>
               {user.name ?? user.email ?? 'Account'}

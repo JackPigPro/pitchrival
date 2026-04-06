@@ -97,32 +97,32 @@ export default function IdeasFeed({
 
   return (
     <div>
-      {/* Tab row */}
+      {/* Tab row - Distinct tabs */}
       <div style={{
         marginBottom: '16px',
       }}>
         <div style={{
           display: 'flex',
-          gap: '4px',
-          padding: '4px',
-          background: 'var(--card2)',
+          background: 'var(--surface)',
           border: '1px solid var(--border)',
-          borderRadius: '8px',
+          borderRadius: '12px',
+          padding: '4px',
           width: 'fit-content',
         }}>
           <button
             onClick={() => onTabChange('public')}
             style={{
-              padding: '10px 20px',
+              padding: '12px 24px',
               background: activeTab === 'public' ? 'var(--green)' : 'transparent',
               color: activeTab === 'public' ? 'white' : 'var(--text)',
               border: 'none',
-              borderRadius: '6px',
+              borderRadius: '8px',
               fontSize: '14px',
-              fontWeight: 600,
+              fontWeight: 700,
               cursor: 'pointer',
-              fontFamily: 'var(--font-body)',
+              fontFamily: 'var(--font-display)',
               transition: 'all 0.2s',
+              letterSpacing: '-0.1px'
             }}
           >
             Public
@@ -130,16 +130,17 @@ export default function IdeasFeed({
           <button
             onClick={() => onTabChange('my')}
             style={{
-              padding: '10px 20px',
+              padding: '12px 24px',
               background: activeTab === 'my' ? 'var(--green)' : 'transparent',
               color: activeTab === 'my' ? 'white' : 'var(--text)',
               border: 'none',
-              borderRadius: '6px',
+              borderRadius: '8px',
               fontSize: '14px',
-              fontWeight: 600,
+              fontWeight: 700,
               cursor: 'pointer',
-              fontFamily: 'var(--font-body)',
+              fontFamily: 'var(--font-display)',
               transition: 'all 0.2s',
+              letterSpacing: '-0.1px'
             }}
           >
             My Ideas
@@ -147,31 +148,37 @@ export default function IdeasFeed({
         </div>
       </div>
 
-      {/* Filter row */}
+      {/* Filter row - Pill buttons */}
       <div style={{
         marginBottom: '24px',
       }}>
         <div style={{
           display: 'flex',
           gap: '8px',
-          padding: '12px 16px',
-          background: 'var(--card)',
-          border: '1px solid var(--border)',
-          borderRadius: '8px',
-          width: 'fit-content',
+          alignItems: 'center',
         }}>
+          <span style={{
+            fontSize: '13px',
+            color: 'var(--text2)',
+            fontWeight: 600,
+            fontFamily: 'var(--font-display)',
+            marginRight: '8px'
+          }}>
+            Sort by:
+          </span>
           <button
             onClick={() => handleSortChange('latest')}
             style={{
-              padding: '8px 16px',
-              background: currentSort === 'latest' ? 'var(--green)' : 'var(--card2)',
+              padding: '6px 14px',
+              background: currentSort === 'latest' ? 'var(--green)' : 'var(--card)',
               color: currentSort === 'latest' ? 'white' : 'var(--text)',
-              border: '1px solid var(--border)',
-              borderRadius: '6px',
-              fontSize: '14px',
-              fontWeight: 500,
+              border: currentSort === 'latest' ? '1px solid var(--green)' : '1px solid var(--border)',
+              borderRadius: '20px',
+              fontSize: '12px',
+              fontWeight: 600,
               cursor: 'pointer',
-              fontFamily: 'var(--font-body)',
+              fontFamily: 'var(--font-display)',
+              transition: 'all 0.2s',
             }}
           >
             Latest
@@ -179,15 +186,16 @@ export default function IdeasFeed({
           <button
             onClick={() => handleSortChange('most_liked')}
             style={{
-              padding: '8px 16px',
-              background: currentSort === 'most_liked' ? 'var(--green)' : 'var(--card2)',
+              padding: '6px 14px',
+              background: currentSort === 'most_liked' ? 'var(--green)' : 'var(--card)',
               color: currentSort === 'most_liked' ? 'white' : 'var(--text)',
-              border: '1px solid var(--border)',
-              borderRadius: '6px',
-              fontSize: '14px',
-              fontWeight: 500,
+              border: currentSort === 'most_liked' ? '1px solid var(--green)' : '1px solid var(--border)',
+              borderRadius: '20px',
+              fontSize: '12px',
+              fontWeight: 600,
               cursor: 'pointer',
-              fontFamily: 'var(--font-body)',
+              fontFamily: 'var(--font-display)',
+              transition: 'all 0.2s',
             }}
           >
             Most Liked

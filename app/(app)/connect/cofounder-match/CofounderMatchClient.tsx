@@ -43,6 +43,7 @@ export default function CofounderMatchClient({
 }: CofounderMatchClientProps) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [activeTab, setActiveTab] = useState<'discover' | 'mycofounders'>('discover')
   const supabase = createClient()
 
   const handleToggleListing = async () => {
@@ -523,70 +524,291 @@ export default function CofounderMatchClient({
           </div>
         </div>
 
-        {/* 4 Sections */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '0' }}>
-          {/* Discover Founders */}
-          <Section title="Discover Founders" emptyMessage="No founders to discover yet">
-            <div style={{ 
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-              gap: '16px'
+        {/* Two Column Layout */}
+        <div style={{ display: 'grid', gridTemplateColumns: '300px 1fr', gap: '32px' }}>
+          {/* Left Column - Tab Switcher */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div style={{
+              background: 'var(--card)',
+              border: '1px solid var(--border)',
+              borderRadius: '12px',
+              padding: '8px',
+              boxShadow: 'var(--shadow)'
             }}>
-              {discoverFounders.map((profile) => (
-                <ProfileCard key={profile.id} profile={profile} showConnectButton={true} />
-              ))}
+              <button
+                onClick={() => setActiveTab('discover')}
+                style={{
+                  width: '100%',
+                  padding: '12px 16px',
+                  border: 'none',
+                  borderRadius: '8px',
+                  background: activeTab === 'discover' ? 'var(--green)' : 'transparent',
+                  color: activeTab === 'discover' ? 'white' : 'var(--text)',
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  fontFamily: 'var(--font-display)',
+                  transition: 'all 0.2s ease',
+                  textAlign: 'left',
+                  marginBottom: '8px'
+                }}
+              >
+                Discover Founders
+              </button>
+              <button
+                onClick={() => setActiveTab('mycofounders')}
+                style={{
+                  width: '100%',
+                  padding: '12px 16px',
+                  border: 'none',
+                  borderRadius: '8px',
+                  background: activeTab === 'mycofounders' ? 'var(--green)' : 'transparent',
+                  color: activeTab === 'mycofounders' ? 'white' : 'var(--text)',
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  fontFamily: 'var(--font-display)',
+                  transition: 'all 0.2s ease',
+                  textAlign: 'left'
+                }}
+              >
+                My Cofounders
+              </button>
             </div>
-          </Section>
 
-          {/* Outgoing Requests */}
-          <Section title="Outgoing Requests" emptyMessage="No outgoing requests">
-            <div style={{ 
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-              gap: '16px'
+            {/* Stats */}
+            <div style={{
+              background: 'var(--card)',
+              border: '1px solid var(--border)',
+              borderRadius: '12px',
+              padding: '20px',
+              boxShadow: 'var(--shadow)'
             }}>
-              {outgoingRequests.map(({ request, profile }) => (
-                <ProfileCard 
-                  key={request.id} 
-                  profile={profile} 
-                  showConnectButton={false}
-                  showCancelButton={true} 
-                  request={request}
-                />
-              ))}
+              <div style={{ fontSize: '14px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '16px' }}>
+                Your Stats
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: '13px', color: 'var(--text2)' }}>Connected</span>
+                  <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--green)' }}>{myCofounders.length}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: '13px', color: 'var(--text2)' }}>Incoming Requests</span>
+                  <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--blue)' }}>{incomingRequests.length}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: '13px', color: 'var(--text2)' }}>Outgoing Requests</span>
+                  <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--orange)' }}>{outgoingRequests.length}</span>
+                </div>
+              </div>
             </div>
-          </Section>
+          </div>
 
-          {/* Incoming Requests */}
-          <Section title="Incoming Requests" emptyMessage="No incoming requests">
-            <div style={{ 
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-              gap: '16px'
-            }}>
-              {incomingRequests.map(({ request, profile }) => (
-                <ProfileCard 
-                  key={request.id} 
-                  profile={profile} 
-                  showAcceptDecline={true} 
-                  request={request}
-                />
-              ))}
-            </div>
-          </Section>
+          {/* Right Column - Content */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            {activeTab === 'discover' ? (
+              <>
+                {/* Incoming Requests */}
+                <div style={{ 
+                  background: 'var(--card)', 
+                  borderRadius: '16px', 
+                  padding: '32px',
+                  border: '1px solid var(--border)',
+                  boxShadow: 'var(--shadow)'
+                }}>
+                  <h2 style={{ 
+                    fontSize: '20px', 
+                    fontWeight: 700, 
+                    fontFamily: 'var(--font-display)', 
+                    color: 'var(--text)', 
+                    marginBottom: '24px',
+                    letterSpacing: '-0.1px'
+                  }}>
+                    Incoming Requests
+                  </h2>
+                  
+                  {incomingRequests.length === 0 ? (
+                    <div style={{
+                      textAlign: 'center',
+                      padding: '40px 20px',
+                      color: 'var(--text2)',
+                      fontSize: '16px',
+                      fontFamily: 'var(--font-body)'
+                    }}>
+                      <div style={{ fontSize: '48px', fontWeight: 800, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '16px' }}>
+                        📥
+                      </div>
+                      <div style={{ fontSize: '20px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '8px' }}>
+                        No incoming requests
+                      </div>
+                    </div>
+                  ) : (
+                    <div style={{ 
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+                      gap: '16px'
+                    }}>
+                      {incomingRequests.map(({ request, profile }) => (
+                        <ProfileCard 
+                          key={request.id} 
+                          profile={profile} 
+                          showAcceptDecline={true} 
+                          request={request}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
 
-          {/* My Cofounders */}
-          <Section title="My Cofounders" emptyMessage="No cofounders yet">
-            <div style={{ 
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-              gap: '16px'
-            }}>
-              {myCofounders.map((profile) => (
-                <CofounderCard key={profile.id} profile={profile} />
-              ))}
-            </div>
-          </Section>
+                {/* Outgoing Requests */}
+                <div style={{ 
+                  background: 'var(--card)', 
+                  borderRadius: '16px', 
+                  padding: '32px',
+                  border: '1px solid var(--border)',
+                  boxShadow: 'var(--shadow)'
+                }}>
+                  <h2 style={{ 
+                    fontSize: '20px', 
+                    fontWeight: 700, 
+                    fontFamily: 'var(--font-display)', 
+                    color: 'var(--text)', 
+                    marginBottom: '24px',
+                    letterSpacing: '-0.1px'
+                  }}>
+                    Outgoing Requests
+                  </h2>
+                  
+                  {outgoingRequests.length === 0 ? (
+                    <div style={{
+                      textAlign: 'center',
+                      padding: '40px 20px',
+                      color: 'var(--text2)',
+                      fontSize: '16px',
+                      fontFamily: 'var(--font-body)'
+                    }}>
+                      <div style={{ fontSize: '48px', fontWeight: 800, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '16px' }}>
+                        📤
+                      </div>
+                      <div style={{ fontSize: '20px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '8px' }}>
+                        No outgoing requests
+                      </div>
+                    </div>
+                  ) : (
+                    <div style={{ 
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+                      gap: '16px'
+                    }}>
+                      {outgoingRequests.map(({ request, profile }) => (
+                        <ProfileCard 
+                          key={request.id} 
+                          profile={profile} 
+                          showConnectButton={false}
+                          showCancelButton={true} 
+                          request={request}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Discover Founders */}
+                <div style={{ 
+                  background: 'var(--card)', 
+                  borderRadius: '16px', 
+                  padding: '32px',
+                  border: '1px solid var(--border)',
+                  boxShadow: 'var(--shadow)'
+                }}>
+                  <h2 style={{ 
+                    fontSize: '20px', 
+                    fontWeight: 700, 
+                    fontFamily: 'var(--font-display)', 
+                    color: 'var(--text)', 
+                    marginBottom: '24px',
+                    letterSpacing: '-0.1px'
+                  }}>
+                    Discover Founders
+                  </h2>
+                  
+                  {discoverFounders.length === 0 ? (
+                    <div style={{
+                      textAlign: 'center',
+                      padding: '40px 20px',
+                      color: 'var(--text2)',
+                      fontSize: '16px',
+                      fontFamily: 'var(--font-body)'
+                    }}>
+                      <div style={{ fontSize: '48px', fontWeight: 800, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '16px' }}>
+                        🔍
+                      </div>
+                      <div style={{ fontSize: '20px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '8px' }}>
+                        No founders to discover yet
+                      </div>
+                    </div>
+                  ) : (
+                    <div style={{ 
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+                      gap: '16px'
+                    }}>
+                      {discoverFounders.map((profile) => (
+                        <ProfileCard key={profile.id} profile={profile} showConnectButton={true} />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </>
+            ) : (
+              /* My Cofounders */
+              <div style={{ 
+                background: 'var(--card)', 
+                borderRadius: '16px', 
+                padding: '32px',
+                border: '1px solid var(--border)',
+                boxShadow: 'var(--shadow)'
+              }}>
+                <h2 style={{ 
+                  fontSize: '20px', 
+                  fontWeight: 700, 
+                  fontFamily: 'var(--font-display)', 
+                  color: 'var(--text)', 
+                  marginBottom: '24px',
+                  letterSpacing: '-0.1px'
+                }}>
+                  My Cofounders
+                </h2>
+                
+                {myCofounders.length === 0 ? (
+                  <div style={{
+                    textAlign: 'center',
+                    padding: '40px 20px',
+                    color: 'var(--text2)',
+                    fontSize: '16px',
+                    fontFamily: 'var(--font-body)'
+                  }}>
+                    <div style={{ fontSize: '48px', fontWeight: 800, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '16px' }}>
+                      🤝
+                    </div>
+                    <div style={{ fontSize: '20px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '8px' }}>
+                      No cofounders yet
+                    </div>
+                  </div>
+                ) : (
+                  <div style={{ 
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+                    gap: '16px'
+                  }}>
+                    {myCofounders.map((profile) => (
+                      <CofounderCard key={profile.id} profile={profile} />
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

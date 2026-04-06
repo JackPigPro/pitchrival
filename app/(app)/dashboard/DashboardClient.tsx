@@ -289,230 +289,289 @@ export default function DashboardClient({ initialProfile, initialStats, todayBat
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px' }}>
-          {/* Left Column */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-            {/* Player Stats Card */}
-            <div style={{ 
-              background: 'var(--card)', 
-              borderRadius: '16px', 
-              padding: '32px',
-              border: '1px solid var(--border)',
-              boxShadow: 'var(--shadow)'
+          {/* Top Left - Player Stats */}
+          <div style={{ 
+            background: 'var(--card)', 
+            borderRadius: '16px', 
+            padding: '32px',
+            border: '1px solid var(--border)',
+            boxShadow: 'var(--shadow)'
+          }}>
+            <h2 style={{ 
+              fontSize: '20px', 
+              fontWeight: 700, 
+              marginBottom: '24px',
+              fontFamily: 'var(--font-display)',
+              color: 'var(--text)',
+              letterSpacing: '-0.1px'
             }}>
-              <h2 style={{ 
-                fontSize: '20px', 
-                fontWeight: 700, 
-                marginBottom: '24px',
-                fontFamily: 'var(--font-display)',
-                color: 'var(--text)',
-                letterSpacing: '-0.1px'
-              }}>
-                Player Stats
-              </h2>
+              Player Stats
+            </h2>
+            
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ 
+                  fontSize: '48px', 
+                  fontWeight: 800, 
+                  color: 'var(--green)', 
+                  fontFamily: 'var(--font-display)',
+                  marginBottom: '8px',
+                  letterSpacing: '-1px'
+                }}>
+                  {userElo}
+                </div>
+                <div style={{ 
+                  fontSize: '13px', 
+                  color: 'var(--text2)',
+                  fontWeight: 600,
+                  fontFamily: 'var(--font-display)',
+                  letterSpacing: '2px',
+                  textTransform: 'uppercase'
+                }}>
+                  ELO Rating
+                </div>
+              </div>
               
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
-                <div style={{ textAlign: 'center' }}>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ 
+                  fontSize: '24px', 
+                  fontWeight: 800, 
+                  color: rankColor,
+                  fontFamily: 'var(--font-display)',
+                  marginBottom: '8px',
+                  letterSpacing: '-0.5px'
+                }}>
+                  {userRank}
+                </div>
+                <div style={{ 
+                  fontSize: '13px', 
+                  color: 'var(--text2)',
+                  fontWeight: 600,
+                  fontFamily: 'var(--font-display)',
+                  letterSpacing: '2px',
+                  textTransform: 'uppercase'
+                }}>
+                  Current Rank
+                </div>
+              </div>
+            </div>
+            
+            <div style={{ 
+              height: '1px', 
+              background: 'var(--border)', 
+              margin: '24px 0' 
+            }} />
+            
+            <div style={{ fontSize: '14px', color: 'var(--text2)', fontFamily: 'var(--font-body)' }}>
+              <div style={{ marginBottom: '8px' }}>
+                <strong>Username:</strong> @{username}
+              </div>
+              {display_name && (
+                <div style={{ marginBottom: '8px' }}>
+                  <strong>Display Name:</strong> {display_name}
+                </div>
+              )}
+              <div>
+                <strong>Member Since:</strong> {profile?.created_at ? formatDate(profile.created_at) : 'Loading...'}
+              </div>
+            </div>
+          </div>
+
+          {/* Top Right - Recent Activity */}
+          <div style={{ 
+            background: 'var(--card)', 
+            borderRadius: '16px', 
+            padding: '32px',
+            border: '1px solid var(--border)',
+            boxShadow: 'var(--shadow)'
+          }}>
+            <h2 style={{ 
+              fontSize: '20px', 
+              fontWeight: 700, 
+              marginBottom: '24px',
+              fontFamily: 'var(--font-display)',
+              color: 'var(--text)',
+              letterSpacing: '-0.1px'
+            }}>
+              Recent Activity
+            </h2>
+            
+            {notificationsLoading ? (
+              <div style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--text2)' }}>
+                <div style={{ fontSize: '24px', marginBottom: '16px' }}>⏳</div>
+                <p>Loading activity...</p>
+              </div>
+            ) : notifications.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--text2)' }}>
+                <div style={{ fontSize: '48px', marginBottom: '16px' }}>🎯</div>
+                <p>No recent activity</p>
+                <p style={{ fontSize: '14px', marginTop: '8px' }}>Start sharing ideas and competing to see your activity here!</p>
+              </div>
+            ) : (
+              <div style={{ 
+                display: 'flex', 
+                flexDirection: 'column', 
+                gap: '12px',
+                maxHeight: '400px',
+                overflowY: 'auto',
+                paddingRight: '8px'
+              }}>
+                {notifications.map((notification) => (
+                  <div
+                    key={notification.id}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'flex-start',
+                      gap: '12px',
+                      padding: '16px',
+                      borderRadius: '12px',
+                      background: notification.read ? 'var(--surface)' : 'var(--green-tint)',
+                      border: notification.read ? '1px solid var(--border)' : '1px solid var(--green)',
+                      transition: 'all 0.2s ease'
+                    }}
+                  >
+                    <span style={{ fontSize: '20px' }}>{getNotificationIcon(notification.type)}</span>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ 
+                        fontWeight: '700', 
+                        fontFamily: 'var(--font-display)', 
+                        fontSize: '14px', 
+                        marginBottom: '4px',
+                        color: 'var(--text)',
+                        letterSpacing: '-0.1px'
+                      }}>
+                        {notification.title}
+                      </div>
+                      <div style={{ 
+                        color: 'var(--text2)', 
+                        fontSize: '13px', 
+                        lineHeight: '1.4',
+                        fontFamily: 'var(--font-body)'
+                      }}>
+                        {notification.body}
+                      </div>
+                      <div style={{ 
+                        color: 'var(--text2)', 
+                        fontSize: '11px', 
+                        marginTop: '8px',
+                        fontFamily: 'var(--font-display)',
+                        fontWeight: 600,
+                        letterSpacing: '0.5px'
+                      }}>
+                        {getTimeAgo(notification.created_at)}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                
+                {/* Infinite scroll trigger */}
+                {hasMoreActivity && (
+                  <div 
+                    style={{ textAlign: 'center', padding: '20px' }}
+                    onClick={loadMoreActivity}
+                  >
+                    {loadingMoreActivity ? (
+                      <div style={{ color: 'var(--text2)' }}>Loading more activity...</div>
+                    ) : (
+                      <button
+                        style={{
+                          padding: '8px 16px',
+                          background: 'var(--surface)',
+                          border: '1px solid var(--border)',
+                          borderRadius: '8px',
+                          color: 'var(--text2)',
+                          fontSize: '14px',
+                          cursor: 'pointer',
+                          fontFamily: 'var(--font-display)'
+                        }}
+                      >
+                        Load More
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Bottom Left - Daily Battle */}
+          <div style={{ 
+            background: 'var(--card)', 
+            borderRadius: '16px', 
+            padding: '32px',
+            border: '1px solid var(--border)',
+            boxShadow: 'var(--shadow)'
+          }}>
+            <h2 style={{ 
+              fontSize: '20px', 
+              fontWeight: 700, 
+              marginBottom: '24px',
+              fontFamily: 'var(--font-display)',
+              color: 'var(--text)',
+              letterSpacing: '-0.1px'
+            }}>
+              Daily Battle
+            </h2>
+            
+            {todayBattle ? (
+              <div>
+                <div style={{ marginBottom: '16px' }}>
                   <div style={{ 
-                    fontSize: '48px', 
-                    fontWeight: 800, 
-                    color: 'var(--green)', 
-                    fontFamily: 'var(--font-display)',
+                    fontSize: '14px', 
+                    color: 'var(--text2)', 
                     marginBottom: '8px',
-                    letterSpacing: '-1px'
+                    fontWeight: 600,
+                    fontFamily: 'var(--font-display)'
                   }}>
-                    {userElo}
+                    Today's Prompt
                   </div>
                   <div style={{ 
-                    fontSize: '13px', 
-                    color: 'var(--text2)',
-                    fontWeight: 600,
-                    fontFamily: 'var(--font-display)',
-                    letterSpacing: '2px',
-                    textTransform: 'uppercase'
+                    fontSize: '16px', 
+                    color: 'var(--text)', 
+                    lineHeight: '1.4',
+                    fontFamily: 'var(--font-body)'
                   }}>
-                    ELO Rating
+                    {todayBattle.prompt.length > 60 
+                      ? todayBattle.prompt.substring(0, 60) + '...'
+                      : todayBattle.prompt
+                    }
                   </div>
                 </div>
                 
-                <div style={{ textAlign: 'center' }}>
-                  <div style={{ 
-                    fontSize: '24px', 
-                    fontWeight: 800, 
-                    color: rankColor,
-                    fontFamily: 'var(--font-display)',
-                    marginBottom: '8px',
-                    letterSpacing: '-0.5px'
-                  }}>
-                    {userRank}
-                  </div>
-                  <div style={{ 
-                    fontSize: '13px', 
-                    color: 'var(--text2)',
-                    fontWeight: 600,
-                    fontFamily: 'var(--font-display)',
-                    letterSpacing: '2px',
-                    textTransform: 'uppercase'
-                  }}>
-                    Current Rank
-                  </div>
-                </div>
-              </div>
-              
-              <div style={{ 
-                height: '1px', 
-                background: 'var(--border)', 
-                margin: '24px 0' 
-              }} />
-              
-              <div style={{ fontSize: '14px', color: 'var(--text2)', fontFamily: 'var(--font-body)' }}>
-                <div style={{ marginBottom: '8px' }}>
-                  <strong>Username:</strong> @{username}
-                </div>
-                {display_name && (
-                  <div style={{ marginBottom: '8px' }}>
-                    <strong>Display Name:</strong> {display_name}
-                  </div>
-                )}
-                <div>
-                  <strong>Member Since:</strong> {profile?.created_at ? formatDate(profile.created_at) : 'Loading...'}
-                </div>
-              </div>
-            </div>
-
-            {/* Daily Battle Card */}
-            <div style={{ 
-              background: 'var(--card)', 
-              borderRadius: '16px', 
-              padding: '32px',
-              border: '1px solid var(--border)',
-              boxShadow: 'var(--shadow)'
-            }}>
-              <h2 style={{ 
-                fontSize: '20px', 
-                fontWeight: 700, 
-                marginBottom: '24px',
-                fontFamily: 'var(--font-display)',
-                color: 'var(--text)',
-                letterSpacing: '-0.1px'
-              }}>
-                Daily Battle
-              </h2>
-              
-              {todayBattle ? (
-                <div>
-                  <div style={{ marginBottom: '16px' }}>
-                    <div style={{ 
-                      fontSize: '14px', 
-                      color: 'var(--text2)', 
-                      marginBottom: '8px',
-                      fontWeight: 600,
-                      fontFamily: 'var(--font-display)'
-                    }}>
-                      Today's Prompt
-                    </div>
-                    <div style={{ 
-                      fontSize: '16px', 
-                      color: 'var(--text)', 
-                      lineHeight: '1.4',
-                      fontFamily: 'var(--font-body)'
-                    }}>
-                      {todayBattle.prompt.length > 60 
-                        ? todayBattle.prompt.substring(0, 60) + '...'
-                        : todayBattle.prompt
-                      }
+                <div style={{ 
+                  display: 'grid', 
+                  gridTemplateColumns: '1fr 1fr', 
+                  gap: '16px',
+                  marginBottom: '20px'
+                }}>
+                  <div>
+                    <div style={{ fontSize: '14px', color: 'var(--text2)', marginBottom: '4px' }}>Current Streak 🔥</div>
+                    <div style={{ fontSize: '18px', fontWeight: 700, color: 'var(--text)', fontFamily: 'var(--font-display)' }}>
+                      {userStreak?.current_streak || 0} days
                     </div>
                   </div>
-                  
-                  <div style={{ 
-                    display: 'grid', 
-                    gridTemplateColumns: '1fr 1fr', 
-                    gap: '16px',
-                    marginBottom: '20px'
-                  }}>
-                    <div>
-                      <div style={{ fontSize: '14px', color: 'var(--text2)', marginBottom: '4px' }}>Current Streak 🔥</div>
-                      <div style={{ fontSize: '18px', fontWeight: 700, color: 'var(--text)', fontFamily: 'var(--font-display)' }}>
-                        {userStreak?.current_streak || 0} days
-                      </div>
-                    </div>
-                    <div>
-                      <div style={{ fontSize: '14px', color: 'var(--text2)', marginBottom: '4px' }}>Status</div>
-                      <div style={{ fontSize: '14px', fontWeight: 600, color: userSubmission ? 'var(--green)' : 'var(--text2)', fontFamily: 'var(--font-display)' }}>
-                        {userSubmission ? 'Submitted ✓' : 'Not submitted'}
-                      </div>
+                  <div>
+                    <div style={{ fontSize: '14px', color: 'var(--text2)', marginBottom: '4px' }}>Status</div>
+                    <div style={{ fontSize: '14px', fontWeight: 600, color: userSubmission ? 'var(--green)' : 'var(--text2)', fontFamily: 'var(--font-display)' }}>
+                      {userSubmission ? 'Submitted ✓' : 'Not submitted'}
                     </div>
                   </div>
-                  
-                  <Link
-                    href="/compete/daily-battle"
-                    style={{
-                      display: 'block',
-                      padding: '12px 20px',
-                      background: 'var(--green)',
-                      color: 'white',
-                      textDecoration: 'none',
-                      borderRadius: '8px',
-                      fontSize: '14px',
-                      fontWeight: 600,
-                      fontFamily: 'var(--font-display)',
-                      textAlign: 'center',
-                      transition: 'all 0.2s ease'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background = '#22c55e'
-                      e.currentTarget.style.transform = 'translateY(-1px)'
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = 'var(--green)'
-                      e.currentTarget.style.transform = 'translateY(0)'
-                    }}
-                  >
-                    Battle Today →
-                  </Link>
                 </div>
-              ) : (
-                <div style={{ textAlign: 'center', padding: '40px 0' }}>
-                  <div style={{ fontSize: '16px', color: 'var(--text2)', fontFamily: 'var(--font-body)' }}>
-                    No battle today
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Quick Actions */}
-            <div style={{ 
-              background: 'var(--card)', 
-              borderRadius: '16px', 
-              padding: '32px',
-              border: '1px solid var(--border)',
-              boxShadow: 'var(--shadow)'
-            }}>
-              <h2 style={{ 
-                fontSize: '20px', 
-                fontWeight: 700, 
-                marginBottom: '24px',
-                fontFamily: 'var(--font-display)',
-                color: 'var(--text)',
-                letterSpacing: '-0.1px'
-              }}>
-                Quick Actions
-              </h2>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                
                 <Link
-                  href="/connect/ideas"
+                  href="/compete/daily-battle"
                   style={{
                     display: 'block',
-                    padding: '16px 20px',
+                    padding: '12px 20px',
                     background: 'var(--green)',
                     color: 'white',
                     textDecoration: 'none',
-                    borderRadius: '12px',
-                    fontSize: '15px',
+                    borderRadius: '8px',
+                    fontSize: '14px',
                     fontWeight: 600,
                     fontFamily: 'var(--font-display)',
                     textAlign: 'center',
-                    transition: 'all 0.2s ease',
-                    letterSpacing: '-0.1px'
+                    transition: 'all 0.2s ease'
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.background = '#22c55e'
@@ -523,210 +582,145 @@ export default function DashboardClient({ initialProfile, initialStats, todayBat
                     e.currentTarget.style.transform = 'translateY(0)'
                   }}
                 >
-                  📝 Share an Idea
-                </Link>
-                <Link
-                  href="/compete/weekly-duel"
-                  style={{
-                    display: 'block',
-                    padding: '16px 20px',
-                    background: 'var(--blue)',
-                    color: 'white',
-                    textDecoration: 'none',
-                    borderRadius: '12px',
-                    fontSize: '15px',
-                    fontWeight: 600,
-                    fontFamily: 'var(--font-display)',
-                    textAlign: 'center',
-                    transition: 'all 0.2s ease',
-                    letterSpacing: '-0.1px'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = '#3b82f6'
-                    e.currentTarget.style.transform = 'translateY(-1px)'
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = 'var(--blue)'
-                    e.currentTarget.style.transform = 'translateY(0)'
-                  }}
-                >
-                  ⚔️ Weekly Duel
-                </Link>
-                <Link
-                  href="/connect/cofounder-match"
-                  style={{
-                    display: 'block',
-                    padding: '16px 20px',
-                    background: 'var(--purple)',
-                    color: 'white',
-                    textDecoration: 'none',
-                    borderRadius: '12px',
-                    fontSize: '15px',
-                    fontWeight: 600,
-                    fontFamily: 'var(--font-display)',
-                    textAlign: 'center',
-                    transition: 'all 0.2s ease',
-                    letterSpacing: '-0.1px'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = '#a855f7'
-                    e.currentTarget.style.transform = 'translateY(-1px)'
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = 'var(--purple)'
-                    e.currentTarget.style.transform = 'translateY(0)'
-                  }}
-                >
-                  🤝 Find Co-founders
-                </Link>
-                <Link
-                  href="/connect/messages"
-                  style={{
-                    display: 'block',
-                    padding: '16px 20px',
-                    background: 'var(--orange)',
-                    color: 'white',
-                    textDecoration: 'none',
-                    borderRadius: '12px',
-                    fontSize: '15px',
-                    fontWeight: 600,
-                    fontFamily: 'var(--font-display)',
-                    textAlign: 'center',
-                    transition: 'all 0.2s ease',
-                    letterSpacing: '-0.1px'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = '#f97316'
-                    e.currentTarget.style.transform = 'translateY(-1px)'
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = 'var(--orange)'
-                    e.currentTarget.style.transform = 'translateY(0)'
-                  }}
-                >
-                  💬 Messages
+                  Battle Today →
                 </Link>
               </div>
-            </div>
+            ) : (
+              <div style={{ textAlign: 'center', padding: '40px 0' }}>
+                <div style={{ fontSize: '16px', color: 'var(--text2)', fontFamily: 'var(--font-body)' }}>
+                  No battle today
+                </div>
+              </div>
+            )}
           </div>
 
-          {/* Right Column */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-            {/* Recent Activity */}
-            <div style={{ 
-              background: 'var(--card)', 
-              borderRadius: '16px', 
-              padding: '32px',
-              border: '1px solid var(--border)',
-              boxShadow: 'var(--shadow)'
+          {/* Bottom Right - Quick Actions */}
+          <div style={{ 
+            background: 'var(--card)', 
+            borderRadius: '16px', 
+            padding: '32px',
+            border: '1px solid var(--border)',
+            boxShadow: 'var(--shadow)'
+          }}>
+            <h2 style={{ 
+              fontSize: '20px', 
+              fontWeight: 700, 
+              marginBottom: '24px',
+              fontFamily: 'var(--font-display)',
+              color: 'var(--text)',
+              letterSpacing: '-0.1px'
             }}>
-              <h2 style={{ 
-                fontSize: '20px', 
-                fontWeight: 700, 
-                marginBottom: '24px',
-                fontFamily: 'var(--font-display)',
-                color: 'var(--text)',
-                letterSpacing: '-0.1px'
-              }}>
-                Recent Activity
-              </h2>
-              
-              {notificationsLoading ? (
-                <div style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--text2)' }}>
-                  <div style={{ fontSize: '24px', marginBottom: '16px' }}>⏳</div>
-                  <p>Loading activity...</p>
-                </div>
-              ) : notifications.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--text2)' }}>
-                  <div style={{ fontSize: '48px', marginBottom: '16px' }}>🎯</div>
-                  <p>No recent activity</p>
-                  <p style={{ fontSize: '14px', marginTop: '8px' }}>Start sharing ideas and competing to see your activity here!</p>
-                </div>
-              ) : (
-                <div style={{ 
-                  display: 'flex', 
-                  flexDirection: 'column', 
-                  gap: '12px',
-                  maxHeight: '400px',
-                  overflowY: 'auto',
-                  paddingRight: '8px'
-                }}>
-                  {notifications.map((notification) => (
-                    <div
-                      key={notification.id}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'flex-start',
-                        gap: '12px',
-                        padding: '16px',
-                        borderRadius: '12px',
-                        background: notification.read ? 'var(--surface)' : 'var(--green-tint)',
-                        border: notification.read ? '1px solid var(--border)' : '1px solid var(--green)',
-                        transition: 'all 0.2s ease'
-                      }}
-                    >
-                      <span style={{ fontSize: '20px' }}>{getNotificationIcon(notification.type)}</span>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ 
-                          fontWeight: '700', 
-                          fontFamily: 'var(--font-display)', 
-                          fontSize: '14px', 
-                          marginBottom: '4px',
-                          color: 'var(--text)',
-                          letterSpacing: '-0.1px'
-                        }}>
-                          {notification.title}
-                        </div>
-                        <div style={{ 
-                          color: 'var(--text2)', 
-                          fontSize: '13px', 
-                          lineHeight: '1.4',
-                          fontFamily: 'var(--font-body)'
-                        }}>
-                          {notification.body}
-                        </div>
-                        <div style={{ 
-                          color: 'var(--text2)', 
-                          fontSize: '11px', 
-                          marginTop: '8px',
-                          fontFamily: 'var(--font-display)',
-                          fontWeight: 600,
-                          letterSpacing: '0.5px'
-                        }}>
-                          {getTimeAgo(notification.created_at)}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                  
-                  {/* Infinite scroll trigger */}
-                  {hasMoreActivity && (
-                    <div 
-                      style={{ textAlign: 'center', padding: '20px' }}
-                      onClick={loadMoreActivity}
-                    >
-                      {loadingMoreActivity ? (
-                        <div style={{ color: 'var(--text2)' }}>Loading more activity...</div>
-                      ) : (
-                        <button
-                          style={{
-                            padding: '8px 16px',
-                            background: 'var(--surface)',
-                            border: '1px solid var(--border)',
-                            borderRadius: '8px',
-                            color: 'var(--text2)',
-                            fontSize: '14px',
-                            cursor: 'pointer',
-                            fontFamily: 'var(--font-display)'
-                          }}
-                        >
-                          Load More
-                        </button>
-                      )}
-                    </div>
-                  )}
-                </div>
-              )}
+              Quick Actions
+            </h2>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <Link
+                href="/connect/ideas"
+                style={{
+                  display: 'block',
+                  padding: '16px 20px',
+                  background: 'var(--green)',
+                  color: 'white',
+                  textDecoration: 'none',
+                  borderRadius: '12px',
+                  fontSize: '15px',
+                  fontWeight: 600,
+                  fontFamily: 'var(--font-display)',
+                  textAlign: 'center',
+                  transition: 'all 0.2s ease',
+                  letterSpacing: '-0.1px'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = '#22c55e'
+                  e.currentTarget.style.transform = 'translateY(-1px)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'var(--green)'
+                  e.currentTarget.style.transform = 'translateY(0)'
+                }}
+              >
+                📝 Share an Idea
+              </Link>
+              <Link
+                href="/compete/weekly-duel"
+                style={{
+                  display: 'block',
+                  padding: '16px 20px',
+                  background: 'var(--blue)',
+                  color: 'white',
+                  textDecoration: 'none',
+                  borderRadius: '12px',
+                  fontSize: '15px',
+                  fontWeight: 600,
+                  fontFamily: 'var(--font-display)',
+                  textAlign: 'center',
+                  transition: 'all 0.2s ease',
+                  letterSpacing: '-0.1px'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = '#3b82f6'
+                  e.currentTarget.style.transform = 'translateY(-1px)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'var(--blue)'
+                  e.currentTarget.style.transform = 'translateY(0)'
+                }}
+              >
+                ⚔️ Weekly Duel
+              </Link>
+              <Link
+                href="/connect/cofounder-match"
+                style={{
+                  display: 'block',
+                  padding: '16px 20px',
+                  background: 'var(--purple)',
+                  color: 'white',
+                  textDecoration: 'none',
+                  borderRadius: '12px',
+                  fontSize: '15px',
+                  fontWeight: 600,
+                  fontFamily: 'var(--font-display)',
+                  textAlign: 'center',
+                  transition: 'all 0.2s ease',
+                  letterSpacing: '-0.1px'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = '#a855f7'
+                  e.currentTarget.style.transform = 'translateY(-1px)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'var(--purple)'
+                  e.currentTarget.style.transform = 'translateY(0)'
+                }}
+              >
+                🤝 Find Co-founders
+              </Link>
+              <Link
+                href="/connect/messages"
+                style={{
+                  display: 'block',
+                  padding: '16px 20px',
+                  background: 'var(--orange)',
+                  color: 'white',
+                  textDecoration: 'none',
+                  borderRadius: '12px',
+                  fontSize: '15px',
+                  fontWeight: 600,
+                  fontFamily: 'var(--font-display)',
+                  textAlign: 'center',
+                  transition: 'all 0.2s ease',
+                  letterSpacing: '-0.1px'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = '#f97316'
+                  e.currentTarget.style.transform = 'translateY(-1px)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'var(--orange)'
+                  e.currentTarget.style.transform = 'translateY(0)'
+                }}
+              >
+                💬 Messages
+              </Link>
             </div>
           </div>
         </div>

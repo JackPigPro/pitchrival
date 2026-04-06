@@ -184,15 +184,16 @@ export default function LeaderboardClient({
                     padding: '12px 20px',
                     border: 'none',
                     borderRadius: '8px',
-                    background: activeTab === tab ? 'var(--card)' : 'transparent',
-                    color: activeTab === tab ? 'var(--text)' : 'var(--text2)',
+                    background: activeTab === tab ? 'var(--green)' : 'transparent',
+                    color: activeTab === tab ? 'white' : 'var(--text)',
                     fontSize: '14px',
-                    fontWeight: '700',
+                    fontWeight: 700,
                     fontFamily: 'var(--font-display)',
                     cursor: 'pointer',
                     transition: 'all 0.2s ease',
                     textTransform: 'capitalize',
-                    letterSpacing: '-0.1px'
+                    letterSpacing: '-0.1px',
+                    boxShadow: activeTab === tab ? '0 2px 4px rgba(34, 197, 94, 0.2)' : 'none'
                   }}
                 >
                   {tab === 'alltime' ? 'All Time' : tab}
