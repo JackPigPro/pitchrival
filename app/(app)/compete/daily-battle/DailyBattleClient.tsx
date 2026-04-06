@@ -311,7 +311,10 @@ export default function DailyBattleClient({ battle, userSubmission, userStreak, 
                   const filteredSubmissions = submissions.filter(s => s.user_id !== userId)
                   return filteredSubmissions.length > 0 ? (
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
-                      {filteredSubmissions.map(submission => (
+                      {submissions.filter(s => {
+                    console.log('Filtering submission:', s.user_id, 'vs userId:', userId, 'match:', s.user_id === userId)
+                    return s.user_id !== userId
+                  }).map(submission => (
                         <div key={submission.id} style={{
                           background: 'var(--card)',
                           border: '1px solid var(--border)',
