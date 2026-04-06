@@ -47,6 +47,7 @@ export default function ConnectSection({ onComingSoon }: ConnectSectionProps) {
       {/* Interactive visual side */}
       <div className="feature-visual v-b">
         <div className="connect-board">
+          <div className="demo-badge">Demo</div>
           {/* Tab bar */}
           <div className="cb-header">
             <div className="cb-tabs">
@@ -61,6 +62,7 @@ export default function ConnectSection({ onComingSoon }: ConnectSectionProps) {
               ))}
             </div>
             <button className="cb-new-btn">+ Post Idea</button>
+            <div className="try-switching-hint">Try switching →</div>
           </div>
 
           {activeTab === '💡 Idea Feed' && (
@@ -83,8 +85,8 @@ export default function ConnectSection({ onComingSoon }: ConnectSectionProps) {
                 </div>
               </div>
               <div className="idea-post" style={{ borderLeft: '3px solid var(--blue)' }}>
-                <div className="ip-name">Trending in Forum</div>
-                <div className="ip-text">How should first-time founders validate demand in under 72 hours?</div>
+                <div className="ip-name">How should first-time founders validate demand in under 72 hours?</div>
+                <div className="ip-text">Share your strategies and get feedback from the community</div>
               </div>
             </>
           )}

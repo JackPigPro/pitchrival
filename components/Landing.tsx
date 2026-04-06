@@ -110,12 +110,11 @@ export default function Landing({ onComingSoon, onScrollTo, stats }: LandingProp
             <span style={{ color: 'var(--green)' }}>start building.</span>
           </h3>
           <p style={{ color: 'var(--text2)', marginBottom: '28px', fontSize: '18px', lineHeight: 1.65 }}>
-            Share your idea, get real feedback, and join weekly founder challenges.
-            Learn how to actually start a company in one focused MVP platform.
+            Compete in Daily Duels, climb the weekly tournaments, and prove you can build. Join thousands of founders turning ideas into reality.
           </p>
           <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center' }}>
             <Link
-              href="/login?mode=signup"
+              href="/signup"
               className="btn-cta-primary"
               style={{
                 textDecoration: 'none',
@@ -124,10 +123,10 @@ export default function Landing({ onComingSoon, onScrollTo, stats }: LandingProp
                 justifyContent: 'center',
               }}
             >
-              ⚡ Get Started Free
+              ⚡ Start Building Free
             </Link>
             <Link
-              href="/login?mode=login"
+              href="/login"
               className="btn-cta-ghost"
               style={{
                 textDecoration: 'none',

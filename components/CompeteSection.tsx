@@ -31,23 +31,22 @@ export default function CompeteSection({ onComingSoon }: CompeteSectionProps) {
       {/* Text side */}
       <div className="feature-text">
         <div className="ft-label g">⚔️ Compete</div>
-        <h2 className="ft-h2">Weekly Founder Competitions.<br />Build your rank.</h2>
+        <h2 className="ft-h2">Daily Duels &amp; Weekly Competitions.<br />Build your rank.</h2>
         <p className="ft-desc">
-          Phase 1 starts with weekly founder competitions. One prompt, one submission window,
-          community judging, and leaderboard movement.
+          Daily head-to-head battles and weekly tournaments. Climb the ELO ladder with 8 rank tiers from Trainee to Unicorn.
         </p>
         <div className="ft-bullets">
           <div className="ft-b">
             <div className="ft-b-dot g"></div>
-            <span>Weekly prompt format for Phase 1 launch</span>
+            <span>Daily Duels — quick head-to-head competitions to sharpen your skills</span>
+          </div>
+          <div className="ft-b">
+            <div className="ft-b-dot g"></div>
+            <span>Weekly Tournaments — themed challenges with community voting</span>
           </div>
           <div className="ft-b">
             <div className="ft-b-dot g"></div>
             <span>ELO rating system with 8 rank tiers from Trainee to Unicorn</span>
-          </div>
-          <div className="ft-b">
-            <div className="ft-b-dot g"></div>
-            <span>Weekly tournament, rewards, and live leaderboard</span>
           </div>
           <div className="ft-b">
             <div className="ft-b-dot g"></div>
@@ -62,10 +61,10 @@ export default function CompeteSection({ onComingSoon }: CompeteSectionProps) {
         <div className="match-arena">
           {/* Match header with live timer */}
           <div className="ma-header">
-            <div className="ma-mode">⚔️ Logo Design</div>
+            <div className="ma-mode">⚡ Daily Duel</div>
             <div className="ma-timer-wrap">
               <div style={{ textAlign: 'right' }}>
-                <div className="ma-timer">{timeDisplay}</div>
+                <div className="ma-timer">2:45</div>
                 <div className="ma-timer-label">remaining</div>
               </div>
             </div>
@@ -73,9 +72,9 @@ export default function CompeteSection({ onComingSoon }: CompeteSectionProps) {
 
           {/* Prompt */}
           <div className="ma-prompt-card">
-            <div className="ma-prompt-label">This Week&apos;s Prompt</div>
+            <div className="ma-prompt-label">Today&apos;s Duel Prompt</div>
             <div className="ma-prompt-text">
-              &ldquo;A luxury camping brand targeting college students who want to go off-grid.&rdquo;
+              &ldquo;Design a landing page for an AI-powered study assistant.&rdquo;
             </div>
           </div>
 
@@ -83,44 +82,44 @@ export default function CompeteSection({ onComingSoon }: CompeteSectionProps) {
             <div className="ma-player-top">
               <div className="ma-av you">J</div>
               <div>
-                <div className="ma-pname">your weekly submission</div>
-                <div className="ma-pelo">Draft open · closes Sunday</div>
+                <div className="ma-pname">your duel submission</div>
+                <div className="ma-pelo">Draft open · closes in 3 hours</div>
               </div>
             </div>
             <div className="ma-canvas">Write and submit your entry</div>
           </div>
 
           {/* Submit button */}
-          <button className="ma-submit">Submit Weekly Entry →</button>
+          <button className="ma-submit">Submit Duel Entry →</button>
 
           {/* Mini leaderboard */}
           <div className="ma-lb">
             <div className="ma-lb-header">
-              <div className="ma-lb-title">Weekly Leaderboard</div>
+              <div className="ma-lb-title">Daily Duel Leaderboard</div>
               <div className="ma-lb-live">
-                <div className="live-dot"></div>&nbsp;342 live
+                <div className="live-dot"></div>&nbsp;128 live
               </div>
             </div>
             <div className="ma-lb-row">
               <div className="ma-lb-rank">🥇</div>
-              <div className="ma-lb-av">D</div>
-              <div className="ma-lb-name">DesignWolf</div>
-              <div className="ma-lb-elo">1,891</div>
-              <div className="ma-lb-delta">↑3</div>
+              <div className="ma-lb-av">A</div>
+              <div className="ma-lb-name">AlexChen</div>
+              <div className="ma-lb-elo">2,145</div>
+              <div className="ma-lb-delta">↑12</div>
             </div>
             <div className="ma-lb-row">
               <div className="ma-lb-rank">🥈</div>
-              <div className="ma-lb-av">N</div>
-              <div className="ma-lb-name">NeonBrush</div>
-              <div className="ma-lb-elo">1,756</div>
-              <div className="ma-lb-delta">↑1</div>
+              <div className="ma-lb-av">S</div>
+              <div className="ma-lb-name">SarahK</div>
+              <div className="ma-lb-elo">1,987</div>
+              <div className="ma-lb-delta">↑8</div>
             </div>
             <div className="ma-lb-row you">
-              <div className="ma-lb-rank" style={{ color: 'var(--green)', fontSize: '10px' }}>#47</div>
+              <div className="ma-lb-rank" style={{ color: 'var(--green)', fontSize: '10px' }}>#34</div>
               <div className="ma-lb-av" style={{ background: 'var(--green-mid)' }}>J</div>
               <div className="ma-lb-name" style={{ color: 'var(--green)', fontWeight: 700 }}>you</div>
-              <div className="ma-lb-elo">1,240</div>
-              <div className="ma-lb-delta">↑4</div>
+              <div className="ma-lb-elo">1,456</div>
+              <div className="ma-lb-delta">↑5</div>
             </div>
           </div>
         </div>

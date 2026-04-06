@@ -27,6 +27,7 @@ export default function LearnSection({ onComingSoon }: LearnSectionProps) {
 
   return (
     <div id="learn" className="feature-section fs-learn">
+      <div className="coming-soon-header-badge">Coming Soon 📚</div>
       <div className="fs-label p">📚 Learn</div>
       {/* Text side */}
       <div className="feature-text">
@@ -40,7 +41,7 @@ export default function LearnSection({ onComingSoon }: LearnSectionProps) {
         <div className="ft-bullets">
           <div className="ft-b">
             <div className="ft-b-dot p"></div>
-            <span>6 free courses covering marketing, fundraising, validation, and more</span>
+            <span>Free startup courses covering marketing, fundraising, validation, and more</span>
           </div>
           <div className="ft-b">
             <div className="ft-b-dot p"></div>
@@ -80,7 +81,7 @@ export default function LearnSection({ onComingSoon }: LearnSectionProps) {
           <div className="lp-lessons-card">
             <div className="lp-lessons-header">
               <div className="lp-lessons-title">Lessons</div>
-              <div className="lp-lessons-count">9 total · 6 free</div>
+              <div className="lp-lessons-count">9 total · Free</div>
             </div>
             {LESSONS.map((lesson) => (
               <div

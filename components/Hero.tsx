@@ -156,9 +156,9 @@ export default function Hero({ onScrollTo, stats: serverStats }: HeroProps) {
               <span className="pc-icon">⚔️</span>
               <span className="pc-label compete">Compete</span>
             </div>
-            <div className="pc-title">Weekly Founder Competitions</div>
+            <div className="pc-title">Daily Duels &amp; Weekly Competitions</div>
             <p className="pc-desc">
-              One prompt. One week. Community votes pick the winner. Build your rank and prove your thinking.
+              Daily head-to-head battles and weekly tournaments. Compete, climb the ELO ladder, and prove your thinking.
             </p>
             <button
               className="pc-cta compete"
@@ -206,9 +206,9 @@ export default function Hero({ onScrollTo, stats: serverStats }: HeroProps) {
               <span className="pc-label learn">Learn</span>
             </div>
             <div className="pc-title">Free Startup Courses</div>
+            <div className="coming-soon-badge">Coming Soon</div>
             <p className="pc-desc">
-              Structured startup courses built for first-time founders. Coming soon.
-              <span className="inline-coming-soon">Coming soon</span>
+              Structured startup courses built for first-time founders.
             </p>
             <button
               className="pc-cta learn"

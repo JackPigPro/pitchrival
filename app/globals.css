@@ -124,6 +124,10 @@ body[data-theme='dark'] .nav {
   letter-spacing: -.1px;
 }
 .nav-link:hover { background: var(--surface); color: var(--text); }
+.nav-link:focus {
+  outline: 2px solid var(--green);
+  outline-offset: 2px;
+}
 .nav-right { display: flex; align-items: center; gap: 12px; margin-left: auto; }
 .nav-login {
   background: none; border: 1.5px solid var(--border2); color: var(--text);
@@ -286,13 +290,17 @@ button:hover, .nav-login:hover, .nav-signup:hover, .ft-cta:hover, .pc-cta:hover,
 .pillar-header-item.learn { color: var(--purple); }
 .pillar-header-arrow { width: 56px; height: 1px; background: var(--border2); position: relative; margin: 0 12px; flex-shrink: 0; }
 .pillar-header-arrow::after { content: '→'; position: absolute; right: -7px; top: 50%; transform: translateY(-50%); font-size: 12px; color: var(--border2); line-height: 1; }
-.pillar-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; border: 1px solid var(--border); border-radius: 16px; overflow: hidden; box-shadow: var(--shadow); }
-.pc { background: var(--card); padding: 24px 22px 0; text-align: left; cursor: pointer; position: relative; display: flex; flex-direction: column; transition: background .15s; }
+.pillar-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; border: 1px solid var(--border); border-radius: 16px; overflow: hidden; box-shadow: var(--shadow); max-width: 1200px; margin: 0 auto; }
+.pc { background: var(--card); padding: 32px 28px 0; text-align: left; cursor: pointer; position: relative; display: flex; flex-direction: column; transition: background .15s; min-height: 320px; }
 .pc + .pc { border-left: 1px solid var(--border); }
 .pc:hover { background: var(--card2); }
 .pc.connect { border-top: 3px solid var(--blue); }
 .pc.compete { border-top: 3px solid var(--green); }
 .pc.learn { border-top: 3px solid var(--purple); }
+.coming-soon-badge { position: absolute; top: 12px; right: 12px; background: var(--purple); color: white; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.try-switching-hint { position: absolute; top: 50%; right: 12px; transform: translateY(-50%); font-size: 11px; color: var(--text3); font-weight: 500; background: var(--card2); padding: 4px 8px; border-radius: 4px; pointer-events: none; }
+.demo-badge { position: absolute; top: 12px; right: 12px; background: var(--green); color: white; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; z-index: 10; }
+.coming-soon-header-badge { background: var(--purple); color: white; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; display: inline-block; margin-bottom: 16px; }
 .pc-top { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
 .pc-icon { font-size: 18px; }
 .pc-label { font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; font-family: var(--font-display); }
