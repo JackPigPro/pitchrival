@@ -276,8 +276,46 @@ export default function NotificationsBell() {
 
         <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
           {loading ? (
-            <div style={{ padding: '20px', textAlign: 'center', color: 'var(--text2)' }}>
-              Loading...
+            <div style={{ padding: '20px' }}>
+              {[1, 2, 3].map((i) => (
+                <div key={i} style={{
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: '12px',
+                  padding: '12px',
+                  borderRadius: '8px',
+                  borderBottom: '1px solid var(--border)',
+                  marginBottom: i < 3 ? '0' : '0'
+                }}>
+                  <div style={{
+                    width: '16px',
+                    height: '16px',
+                    borderRadius: '50%',
+                    background: 'var(--border)'
+                  }} />
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{
+                      height: '14px',
+                      background: 'var(--border)',
+                      borderRadius: '4px',
+                      marginBottom: '4px',
+                      width: '60%'
+                    }} />
+                    <div style={{
+                      height: '12px',
+                      background: 'var(--border)',
+                      borderRadius: '4px',
+                      width: '80%'
+                    }} />
+                  </div>
+                  <div style={{
+                    height: '11px',
+                    background: 'var(--border)',
+                    borderRadius: '4px',
+                    width: '40px'
+                  }} />
+                </div>
+              ))}
             </div>
           ) : Array.isArray(notifications) && notifications.length === 0 ? (
             <div style={{ padding: '20px', textAlign: 'center', color: 'var(--text2)' }}>

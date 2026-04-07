@@ -579,7 +579,16 @@ export default function WeeklyDuelClient({
               // Submission Form
               <div>
                 <h2 style={{ fontSize: '24px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '16px' }}>
-                  Prompt: {currentDuel?.prompt || 'Loading...'}
+                  Prompt: {currentDuel?.prompt || (
+                    <span style={{
+                      display: 'inline-block',
+                      height: '24px',
+                      background: 'var(--border)',
+                      borderRadius: '4px',
+                      width: '200px',
+                      verticalAlign: 'middle'
+                    }} />
+                  )}
                 </h2>
                 <p style={{ fontSize: '16px', fontFamily: 'var(--font-body)', color: 'var(--text2)', marginBottom: '24px', lineHeight: '1.5' }}>
                   Share your best response to this week's prompt. Be creative and original!

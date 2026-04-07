@@ -372,7 +372,16 @@ export default function DashboardClient({ initialProfile, initialStats, todayBat
                 </div>
               )}
               <div>
-                <strong>Member Since:</strong> {profile?.created_at ? formatDate(profile.created_at) : 'Loading...'}
+                <strong>Member Since:</strong> {profile?.created_at ? formatDate(profile.created_at) : (
+                  <span style={{
+                    display: 'inline-block',
+                    height: '14px',
+                    background: 'var(--border)',
+                    borderRadius: '4px',
+                    width: '80px',
+                    verticalAlign: 'middle'
+                  }} />
+                )}
               </div>
             </div>
           </div>
