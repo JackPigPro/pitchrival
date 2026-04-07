@@ -86,6 +86,27 @@ async function ProfileContent({ username }: { username: string }) {
     .select('*', { count: 'exact', head: true })
     .eq('user_id', profile.id)
 
+  // Check if user has entered the current weekly duel
+  let hasEnteredCurrentDuel = false
+  const { data: currentActiveDuel } = await supabase
+    .from('weekly_duel')
+    .select('id')
+    .in('status', ['active', 'voting'])
+    .order('start_date', { ascending: false })
+    .limit(1)
+    .single()
+
+  if (currentActiveDuel) {
+    const { data: currentDuelSubmission } = await supabase
+      .from('duel_submissions')
+      .select('id')
+      .eq('user_id', profile.id)
+      .eq('duel_id', currentActiveDuel.id)
+      .maybeSingle()
+    
+    hasEnteredCurrentDuel = !!currentDuelSubmission
+  }
+
   // Fetch daily streak data
   const { data: dailyStreak, error: streakError } = await supabase
     .from('daily_streaks')
@@ -106,6 +127,7 @@ async function ProfileContent({ username }: { username: string }) {
       allTimeRank={allTimeRank}
       dailyRank={dailyRank}
       weeklyDuelsCount={weeklyDuelsCount || 0}
+      hasEnteredCurrentDuel={hasEnteredCurrentDuel}
       dailyStreak={dailyStreak || null}
     />
   )

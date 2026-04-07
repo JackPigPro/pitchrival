@@ -336,28 +336,197 @@ export default function MessagesClient() {
 
   if (authLoading) {
     return (
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        height: '100vh',
-        background: 'var(--background)'
-      }}>
-        <div style={{ textAlign: 'center' }}>
+      <div style={{ display: 'flex', height: 'calc(100vh - 68px)', background: 'var(--background)', overflow: 'hidden' }}>
+        {/* Left sidebar - Conversation list skeleton */}
+        <div style={{ 
+          width: '280px', 
+          borderRight: '1px solid var(--border)',
+          display: 'flex',
+          flexDirection: 'column',
+          height: '100%',
+          overflow: 'hidden'
+        }}>
+          <div style={{ 
+            padding: '20px', 
+            borderBottom: '1px solid var(--border)',
+            background: 'var(--surface)'
+          }}>
+            <div style={{
+              width: '80px',
+              height: '24px',
+              background: 'var(--border)',
+              borderRadius: '4px',
+              animation: 'pulse 2s infinite'
+            }} />
+          </div>
+          
+          <div style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', padding: '16px 20px' }}>
+            {/* Skeleton conversation items */}
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div key={i} style={{ marginBottom: '16px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div style={{
+                    width: '40px',
+                    height: '40px',
+                    borderRadius: '50%',
+                    background: 'var(--border)',
+                    animation: 'pulse 2s infinite',
+                    flexShrink: 0
+                  }} />
+                  
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ 
+                      display: 'flex', 
+                      justifyContent: 'space-between', 
+                      alignItems: 'center',
+                      marginBottom: '8px'
+                    }}>
+                      <div style={{
+                        width: '120px',
+                        height: '16px',
+                        background: 'var(--border)',
+                        borderRadius: '4px',
+                        animation: 'pulse 2s infinite'
+                      }} />
+                      <div style={{ 
+                        width: '40px',
+                        height: '12px',
+                        background: 'var(--border)',
+                        borderRadius: '4px',
+                        animation: 'pulse 2s infinite',
+                        flexShrink: 0
+                      }} />
+                    </div>
+                    
+                    <div style={{
+                      width: '160px',
+                      height: '14px',
+                      background: 'var(--border)',
+                      borderRadius: '4px',
+                      animation: 'pulse 2s infinite'
+                    }} />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Right side - Message panel skeleton */}
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
+          {/* Header skeleton */}
           <div style={{
-            width: '40px',
-            height: '40px',
-            border: '3px solid var(--border)',
-            borderTop: '3px solid var(--green)',
-            borderRadius: '50%',
-            animation: 'spin 1s linear infinite',
-            margin: '0 auto 20px'
-          }} />
-          <p style={{ color: 'var(--text2)', fontSize: '16px' }}>Loading...</p>
+            padding: '20px',
+            borderBottom: '1px solid var(--border)',
+            background: 'var(--surface)'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div style={{
+                width: '36px',
+                height: '36px',
+                borderRadius: '50%',
+                background: 'var(--border)',
+                animation: 'pulse 2s infinite'
+              }} />
+              <div>
+                <div style={{
+                  width: '140px',
+                  height: '18px',
+                  background: 'var(--border)',
+                  borderRadius: '4px',
+                  animation: 'pulse 2s infinite',
+                  marginBottom: '6px'
+                }} />
+                <div style={{
+                  width: '80px',
+                  height: '14px',
+                  background: 'var(--border)',
+                  borderRadius: '4px',
+                  animation: 'pulse 2s infinite'
+                }} />
+              </div>
+            </div>
+          </div>
+
+          {/* Messages area skeleton */}
+          <div style={{
+            flex: 1,
+            overflowY: 'auto',
+            overflowX: 'hidden',
+            padding: '20px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '16px'
+          }}>
+            {/* Skeleton message bubbles */}
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div key={i} style={{
+                display: 'flex',
+                justifyContent: i % 2 === 0 ? 'flex-start' : 'flex-end',
+                maxWidth: '70%'
+              }}>
+                <div style={{
+                  padding: '12px 16px',
+                  borderRadius: i % 2 === 0 ? '12px 12px 12px 2px' : '12px 12px 2px 12px',
+                  background: 'var(--border)',
+                  animation: 'pulse 2s infinite'
+                }}>
+                  <div style={{
+                    width: i % 2 === 0 ? '180px' : '120px',
+                    height: '16px',
+                    background: 'var(--surface)',
+                    borderRadius: '4px',
+                    animation: 'pulse 2s infinite',
+                    marginBottom: '6px'
+                  }} />
+                  <div style={{
+                    width: i % 2 === 0 ? '60px' : '40px',
+                    height: '12px',
+                    background: 'var(--surface)',
+                    borderRadius: '4px',
+                    animation: 'pulse 2s infinite'
+                  }} />
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Input area skeleton */}
+          <div style={{
+            padding: '20px',
+            borderTop: '1px solid var(--border)',
+            background: 'var(--surface)',
+            flexShrink: 0
+          }}>
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <div style={{
+                flex: 1,
+                height: '44px',
+                background: 'var(--border)',
+                borderRadius: '8px',
+                animation: 'pulse 2s infinite'
+              }} />
+              <div style={{
+                width: '80px',
+                height: '44px',
+                background: 'var(--border)',
+                borderRadius: '8px',
+                animation: 'pulse 2s infinite'
+              }} />
+            </div>
+          </div>
         </div>
       </div>
     )
   }
+
+  // Add pulse animation styles
+  const pulseStyle = `
+    @keyframes pulse {
+      0%, 100% { opacity: 0.6; }
+      50% { opacity: 1; }
+    }
+  `
 
   if (!user) {
     return (
@@ -387,7 +556,14 @@ export default function MessagesClient() {
   }
 
   return (
-    <div style={{ display: 'flex', height: 'calc(100vh - 68px)', background: 'var(--background)', overflow: 'hidden' }}>
+    <>
+      <style jsx>{`
+        @keyframes pulse {
+          0%, 100% { opacity: 0.6; }
+          50% { opacity: 1; }
+        }
+      `}</style>
+      <div style={{ display: 'flex', height: 'calc(100vh - 68px)', background: 'var(--background)', overflow: 'hidden' }}>
       {/* Left sidebar - Conversation list */}
       <div style={{ 
         width: '280px', 
@@ -733,5 +909,6 @@ export default function MessagesClient() {
         )}
       </div>
     </div>
+    </>
   )
 }

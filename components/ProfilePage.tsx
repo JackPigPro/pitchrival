@@ -46,10 +46,11 @@ interface ProfilePageProps {
   allTimeRank?: number | null
   dailyRank?: number | null
   weeklyDuelsCount?: number
+  hasEnteredCurrentDuel?: boolean
   dailyStreak?: DailyStreak | null
 }
 
-export default function ProfilePage({ profile: initialProfile, userStats, ideas, isOwnProfile, allTimeRank, dailyRank, weeklyDuelsCount, dailyStreak }: ProfilePageProps) {
+export default function ProfilePage({ profile: initialProfile, userStats, ideas, isOwnProfile, allTimeRank, dailyRank, weeklyDuelsCount, hasEnteredCurrentDuel, dailyStreak }: ProfilePageProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [currentProfile, setCurrentProfile] = useState(initialProfile)
   const [usernameStatus, setUsernameStatus] = useState<'checking' | 'available' | 'taken' | 'invalid' | null>(null)
@@ -1043,7 +1044,7 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
                   {weeklyDuelsCount || 0}
                 </div>
                 
-                {userStats?.weekly_duel_entered && userStats.weekly_duel_entered > 0 ? (
+                {hasEnteredCurrentDuel ? (
                   <div style={{
                     display: 'inline-block',
                     padding: '8px 16px',
