@@ -11,19 +11,19 @@ export default async function TopNav({ forceLoggedOut }: { forceLoggedOut?: bool
   
   if (user && !forceLoggedOut) {
     // Try to get username and onboarding status from profile
-    const { data: profile } = await supabase
+    const { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select('username, onboarding_complete')
       .eq('id', user.id)
       .single()
     
     // Only use username from profile if onboarding is complete
-    // If onboarding is not complete, show logged out navbar
+    // If onboarding is not complete or profile doesn't exist, show logged out navbar
     if (profile?.onboarding_complete && profile.username) {
       name = profile.username
       showLoggedOutNav = false
     } else {
-      // User exists but hasn't completed onboarding - show logged out navbar
+      // User exists but hasn't completed onboarding or profile doesn't exist - show logged out navbar
       showLoggedOutNav = true
     }
   }
