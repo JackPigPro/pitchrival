@@ -40,6 +40,7 @@ export default function WeeklyDuelPage() {
       const { data: { user: authUser } } = await supabase.auth.getUser()
       
       if (!authUser) {
+        setIsLoading(false)
         router.push('/login')
         return
       }

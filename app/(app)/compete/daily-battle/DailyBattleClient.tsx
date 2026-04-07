@@ -179,18 +179,118 @@ export default function DailyBattleClient({ battle, userSubmission, userStreak, 
     return 5
   }
 
-  if (authLoading) return <div />
+  if (authLoading) {
+    return (
+      <div style={{ 
+        minHeight: '100vh',
+        background: 'var(--bg)',
+        backgroundImage: 'linear-gradient(rgba(21,128,61,.065) 1px, transparent 1px), linear-gradient(90deg, rgba(21,128,61,.065) 1px, transparent 1px)',
+        backgroundSize: '48px 48px',
+        padding: '0 0 48px 0'
+      }}>
+        {/* Header skeleton */}
+        <div style={{ 
+          padding: '32px 24px 24px 24px'
+        }}>
+          <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+            <div style={{
+              width: '200px',
+              height: '48px',
+              background: 'var(--border)',
+              borderRadius: '8px',
+              animation: 'pulse 2s infinite'
+            }} />
+          </div>
+        </div>
+        
+        {/* Content skeleton */}
+        <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 24px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: '24px' }}>
+            {/* Main content skeleton */}
+            <div style={{
+              background: 'var(--surface)',
+              borderRadius: '16px',
+              padding: '32px',
+              border: '1px solid var(--border)'
+            }}>
+              <div style={{
+                width: '80%',
+                height: '32px',
+                background: 'var(--border)',
+                borderRadius: '8px',
+                animation: 'pulse 2s infinite',
+                marginBottom: '24px'
+              }} />
+              <div style={{
+                width: '100%',
+                height: '200px',
+                background: 'var(--border)',
+                borderRadius: '12px',
+                animation: 'pulse 2s infinite',
+                marginBottom: '24px'
+              }} />
+              <div style={{
+                width: '120px',
+                height: '48px',
+                background: 'var(--border)',
+                borderRadius: '8px',
+                animation: 'pulse 2s infinite'
+              }} />
+            </div>
+            
+            {/* Side panel skeleton */}
+            <div style={{
+              background: 'var(--surface)',
+              borderRadius: '12px',
+              padding: '24px'
+            }}>
+              <div style={{
+                width: '120px',
+                height: '24px',
+                background: 'var(--border)',
+                borderRadius: '6px',
+                animation: 'pulse 2s infinite',
+                marginBottom: '20px'
+              }} />
+              <div style={{
+                width: '80px',
+                height: '32px',
+                background: 'var(--border)',
+                borderRadius: '6px',
+                animation: 'pulse 2s infinite',
+                marginBottom: '16px'
+              }} />
+              <div style={{
+                width: '100px',
+                height: '16px',
+                background: 'var(--border)',
+                borderRadius: '4px',
+                animation: 'pulse 2s infinite'
+              }} />
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   if (!user) return <div>Please log in to participate</div>
 
   return (
-    <div style={{ 
-      minHeight: '100vh',
-      background: 'var(--bg)',
-      backgroundImage: 'linear-gradient(rgba(21,128,61,.065) 1px, transparent 1px), linear-gradient(90deg, rgba(21,128,61,.065) 1px, transparent 1px)',
-      backgroundSize: '48px 48px',
-      padding: '0 0 48px 0'
-    }}>
+    <>
+      <style jsx>{`
+        @keyframes pulse {
+          0%, 100% { opacity: 0.6; }
+          50% { opacity: 1; }
+        }
+      `}</style>
+      <div style={{ 
+        minHeight: '100vh',
+        background: 'var(--bg)',
+        backgroundImage: 'linear-gradient(rgba(21,128,61,.065) 1px, transparent 1px), linear-gradient(90deg, rgba(21,128,61,.065) 1px, transparent 1px)',
+        backgroundSize: '48px 48px',
+        padding: '0 0 48px 0'
+      }}>
       {/* Header */}
       <div style={{ 
         padding: '32px 24px 24px 24px'
@@ -491,6 +591,7 @@ export default function DailyBattleClient({ battle, userSubmission, userStreak, 
         </div>
       </div>
       </div>
+      </div>
 
       <style jsx>{`
         @keyframes slideIn {
@@ -504,6 +605,6 @@ export default function DailyBattleClient({ battle, userSubmission, userStreak, 
           }
         }
       `}</style>
-    </div>
+    </>
   )
 }
