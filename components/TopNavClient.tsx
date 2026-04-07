@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import NotificationsBell from '@/components/NotificationsBell'
 import { signOut } from '@/app/actions/auth'
+import { useTheme } from '@/components/ThemeProvider'
 
 export default function TopNavClient({
   user,
@@ -19,6 +20,7 @@ export default function TopNavClient({
   const supabase = createClient()
   const [open, setOpen] = useState<'connect' | 'compete' | 'settings' | null>(null)
   const [hoveredItem, setHoveredItem] = useState<string | null>(null)
+  const { theme, toggleTheme } = useTheme()
 
   const menuItemStyle: React.CSSProperties = {
     textDecoration: 'none',
@@ -471,6 +473,23 @@ export default function TopNavClient({
           </>
         ) : (
           <>
+            <button
+              onClick={toggleTheme}
+              className="nav-login"
+              style={{ 
+                textDecoration: 'none', 
+                display: 'inline-flex', 
+                alignItems: 'center',
+                padding: '7px 14px',
+                marginRight: '8px',
+                background: 'transparent',
+                border: '1px solid var(--border)',
+                fontSize: '16px'
+              }}
+              title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+            >
+              {theme === 'light' ? '🌙' : '☀️'}
+            </button>
             <Link
               href="/login?mode=login"
               className="nav-login"
