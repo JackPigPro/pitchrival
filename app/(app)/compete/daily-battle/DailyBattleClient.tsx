@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useUser } from '@/hooks/useUser'
 import { createClient } from '@/utils/supabase/client'
 import Link from 'next/link'
+import EloPopup from '@/components/EloPopup'
 
 interface DailyBattle {
   id: string
@@ -48,8 +49,8 @@ export default function DailyBattleClient({ battle, userSubmission, userStreak, 
   const [submissions, setSubmissions] = useState<Submission[]>([])
   const [loading, setLoading] = useState(false)
   const [submitting, setSubmitting] = useState(false)
-  const [showToast, setShowToast] = useState(false)
-  const [toastMessage, setToastMessage] = useState('')
+  const [showEloPopup, setShowEloPopup] = useState(false)
+  const [eloPopupMessage, setEloPopupMessage] = useState('')
   const [localUserSubmission, setLocalUserSubmission] = useState<UserSubmission | null>(userSubmission)
   const [localUserStreak, setLocalUserStreak] = useState<DailyStreak | null>(userStreak)
   const supabase = createClient()
@@ -105,8 +106,8 @@ export default function DailyBattleClient({ battle, userSubmission, userStreak, 
       
       const data = await response.json()
       console.log('Response data:', data)
-      setToastMessage(`+${data.eloGained || 0} ELO`)
-      setShowToast(true)
+      setEloPopupMessage(`+${data.eloGained || 0} ELO`)
+      setShowEloPopup(true)
       
       // Update local state immediately
       if (data.streak) {
@@ -127,11 +128,7 @@ export default function DailyBattleClient({ battle, userSubmission, userStreak, 
       
       // Clear submission and refresh
       setSubmission('')
-      setTimeout(() => {
-        fetchSubmissions()
-      }, 1000)
-
-      setTimeout(() => setShowToast(false), 3000)
+      setTimeout(() => fetchSubmissions(), 1000)
     } catch (error) {
       console.error('Error submitting:', error)
     } finally {
@@ -187,26 +184,29 @@ export default function DailyBattleClient({ battle, userSubmission, userStreak, 
   if (!user) return <div>Please log in to participate</div>
 
   return (
-    <div style={{ display: 'flex', gap: '32px', maxWidth: '1200px', margin: '0 auto' }}>
-      {/* Main Content */}
-      <div style={{ flex: 1 }}>
-        {/* Toast */}
-        {showToast && (
-          <div style={{
-            position: 'fixed',
-            top: '80px',
-            right: '32px',
-            background: 'var(--green)',
-            color: 'white',
-            padding: '12px 24px',
-            borderRadius: '8px',
-            fontWeight: 'bold',
-            zIndex: 1000,
-            animation: 'slideIn 0.3s ease'
-          }}>
-            {toastMessage}
-          </div>
-        )}
+    <div style={{ 
+      minHeight: '100vh',
+      background: 'var(--bg)',
+      backgroundImage: 'linear-gradient(rgba(21,128,61,.065) 1px, transparent 1px), linear-gradient(90deg, rgba(21,128,61,.065) 1px, transparent 1px)',
+      backgroundSize: '48px 48px',
+      padding: '0 0 48px 0'
+    }}>
+      {/* Header */}
+      <div style={{ 
+        padding: '32px 24px 24px 24px'
+      }}>
+        <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+          <h1 style={{ fontSize: '48px', fontWeight: 800, letterSpacing: '-2px', fontFamily: 'var(--font-display)', color: 'var(--text)', margin: 0 }}>
+            Daily Battle
+          </h1>
+        </div>
+      </div>
+
+      <div style={{ display: 'flex', gap: '32px', maxWidth: '1400px', margin: '0 auto', padding: '0 24px' }}>
+        {/* Main Content */}
+        <div style={{ flex: 1 }}>
+        {/* ELO Popup */}
+        <EloPopup message={eloPopupMessage} show={showEloPopup} />
 
         {/* Today's Prompt */}
         <div style={{
@@ -431,8 +431,8 @@ export default function DailyBattleClient({ battle, userSubmission, userStreak, 
         )}
       </div>
 
-      {/* Right Side Panel - Streak Info */}
-      <div style={{ width: '320px' }}>
+        {/* Right Side Panel - Streak Info */}
+        <div style={{ width: '320px' }}>
         <div style={{
           background: 'var(--surface)',
           padding: '24px',
@@ -489,6 +489,7 @@ export default function DailyBattleClient({ battle, userSubmission, userStreak, 
             )}
           </div>
         </div>
+      </div>
       </div>
 
       <style jsx>{`

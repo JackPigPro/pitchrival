@@ -60,6 +60,20 @@ const getRankColor = (rank: string) => {
   }
 }
 
+const getRankFaintColor = (rank: string) => {
+  switch (rank) {
+    case 'Trainee': return 'rgba(156, 163, 175, 0.1)' // faint grey
+    case 'Builder': return 'rgba(37, 99, 235, 0.1)' // faint blue
+    case 'Creator': return 'rgba(22, 163, 74, 0.1)' // faint green
+    case 'Founder': return 'rgba(202, 138, 4, 0.1)' // faint gold
+    case 'Visionary': return 'rgba(124, 58, 237, 0.1)' // faint purple
+    case 'Icon': return 'rgba(234, 88, 12, 0.1)' // faint orange
+    case 'Titan': return 'rgba(220, 38, 38, 0.1)' // faint red
+    case 'Unicorn': return 'linear-gradient(135deg, rgba(124, 58, 237, 0.1), rgba(236, 72, 153, 0.1), rgba(16, 185, 129, 0.1))' // faint rainbow gradient
+    default: return 'rgba(156, 163, 175, 0.1)'
+  }
+}
+
 const getRankGradient = (rank: string) => {
   // For text gradients, we need to handle this differently
   if (rank === 'Unicorn') {
@@ -352,8 +366,9 @@ export default function LeaderboardClient({
                       fontFamily: 'var(--font-display)',
                       padding: '4px 12px',
                       borderRadius: '6px',
-                      background: rankColor,
-                      color: '#fff',
+                      background: getRankFaintColor(userRank),
+                      color: rankColor,
+                      border: `1px solid ${rankColor}20`,
                       letterSpacing: '0.5px',
                       textTransform: 'uppercase',
                       textAlign: 'center'
@@ -479,8 +494,8 @@ export default function LeaderboardClient({
                         justifyContent: 'space-between',
                         padding: '12px 16px',
                         borderRadius: '8px',
-                        background: isCurrentTier ? tierColor : 'var(--surface)',
-                        border: isCurrentTier ? 'none' : '1px solid var(--border)',
+                        background: isCurrentTier ? tierColor : getRankFaintColor(tier.name),
+                        border: isCurrentTier ? 'none' : `1px solid ${tierColor}20`,
                         transition: 'all 0.2s ease'
                       }}
                     >

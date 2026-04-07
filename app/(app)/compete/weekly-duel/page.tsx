@@ -241,12 +241,16 @@ export default function WeeklyDuelPage() {
         display: 'flex', 
         justifyContent: 'center', 
         alignItems: 'center', 
-        height: '100vh',
-        fontSize: '18px',
-        color: 'var(--text)',
-        fontFamily: 'var(--font-body)'
+        height: '100vh'
       }}>
-        Loading...
+        <div style={{ 
+          width: '48px', 
+          height: '48px', 
+          border: '3px solid var(--border)', 
+          borderTop: '3px solid var(--green)', 
+          borderRadius: '50%', 
+          animation: 'spin 1s linear infinite' 
+        }} />
       </div>
     )
   }

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/utils/supabase/client'
+import EloPopup from '@/components/EloPopup'
 
 interface WeeklyDuel {
   id: string
@@ -75,8 +76,8 @@ export default function WeeklyDuelClient({
   const [isEditing, setIsEditing] = useState(false)
   const [editContent, setEditContent] = useState('')
   const [editValidationError, setEditValidationError] = useState('')
-  const [showEloToast, setShowEloToast] = useState(false)
-  const [eloToastMessage, setEloToastMessage] = useState('')
+  const [showEloPopup, setShowEloPopup] = useState(false)
+  const [eloPopupMessage, setEloPopupMessage] = useState('')
 
   // Check if user is admin
   const ADMIN_USER_ID = 'a4dc1d84-fc05-4018-b3ce-7c60f3a4244c'
@@ -244,9 +245,8 @@ export default function WeeklyDuelClient({
         
         // Show ELO popup if ELO was gained
         if (result.eloGained) {
-          setEloToastMessage(`+${result.eloGained} ELO`)
-          setShowEloToast(true)
-          setTimeout(() => setShowEloToast(false), 3000)
+          setEloPopupMessage(`+${result.eloGained} ELO`)
+          setShowEloPopup(true)
         }
         
         // Update local state immediately
@@ -1113,8 +1113,7 @@ export default function WeeklyDuelClient({
                 <div>
                   <div style={{ fontSize: '12px', color: 'var(--text2)', fontFamily: 'var(--font-body)', marginBottom: '4px' }}>Voting Period</div>
                   <div style={{ fontSize: '16px', fontWeight: 600, fontFamily: 'var(--font-display)', color: 'var(--text)' }}>
-                    {formatEST(currentDuel.end_date)} - 
-                    {formatEST(new Date(new Date(currentDuel.end_date.endsWith('Z') ? currentDuel.end_date : currentDuel.end_date + 'Z').getTime() + 24 * 60 * 60 * 1000).toISOString())}
+                    {formatEST(currentDuel.end_date)} - {formatEST(new Date(new Date(currentDuel.end_date.endsWith('Z') ? currentDuel.end_date : currentDuel.end_date + 'Z').getTime() + 24 * 60 * 60 * 1000).toISOString())}
                   </div>
                 </div>
 
@@ -1361,30 +1360,11 @@ export default function WeeklyDuelClient({
         </div>
       </div>
 
-      {/* ELO Change Toast */}
-      {eloChange !== null && (
-        <div style={{
-          position: 'fixed',
-          top: '20px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          background: 'var(--green)',
-          color: 'white',
-          padding: '12px 16px',
-          borderRadius: '8px',
-          fontSize: '14px',
-          fontWeight: 600,
-          fontFamily: 'var(--font-display)',
-          boxShadow: 'var(--shadow)',
-          zIndex: 1000,
-          transition: 'all 0.3s ease'
-        }}>
-          {eloChange > 0 ? '+' : ''}{eloChange} ELO
-        </div>
-      )}
+      {/* ELO Popup */}
+      <EloPopup message={eloPopupMessage} show={showEloPopup} />
 
-      {/* Weekly Duel Submission ELO Toast */}
-      {showEloToast && (
+      {/* ELO Change Toast (for voting) */}
+      {eloChange !== null && (
         <div style={{
           position: 'fixed',
           top: '80px',
@@ -1394,10 +1374,25 @@ export default function WeeklyDuelClient({
           padding: '12px 24px',
           borderRadius: '8px',
           fontWeight: 'bold',
+          fontSize: '16px',
+          fontFamily: 'var(--font-display)',
           zIndex: 1000,
-          animation: 'slideIn 0.3s ease'
+          animation: 'slideIn 0.3s ease',
+          boxShadow: '0 4px 12px rgba(34, 197, 94, 0.3)'
         }}>
-          {eloToastMessage}
+          +{eloChange} ELO
+          <style jsx>{`
+            @keyframes slideIn {
+              from {
+                transform: translateX(100%);
+                opacity: 0;
+              }
+              to {
+                transform: translateX(0);
+                opacity: 1;
+              }
+            }
+          `}</style>
         </div>
       )}
     </div>
