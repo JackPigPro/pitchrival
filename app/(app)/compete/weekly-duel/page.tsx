@@ -238,19 +238,229 @@ export default function WeeklyDuelPage() {
   if (isLoading) {
     return (
       <div style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        height: '100vh'
+        minHeight: '100vh',
+        background: 'var(--bg)',
+        backgroundImage: 'linear-gradient(rgba(21,128,61,.065) 1px, transparent 1px), linear-gradient(90deg, rgba(21,128,61,.065) 1px, transparent 1px)',
+        backgroundSize: '48px 48px',
+        padding: '0 0 48px 0'
       }}>
+        {/* Header */}
         <div style={{ 
-          width: '48px', 
-          height: '48px', 
-          border: '3px solid var(--border)', 
-          borderTop: '3px solid var(--green)', 
-          borderRadius: '50%', 
-          animation: 'spin 1s linear infinite' 
-        }} />
+          padding: '32px 24px 24px 24px'
+        }}>
+          <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+            <div style={{ 
+              width: '200px', 
+              height: '48px', 
+              background: 'var(--surface)', 
+              borderRadius: '8px',
+              animation: 'pulse 2s ease-in-out infinite'
+            }} />
+          </div>
+        </div>
+
+        {/* Main Content Grid */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 400px', gap: '24px', maxWidth: '1400px', margin: '0 auto', padding: '0 24px' }}>
+          
+          {/* Left Side Skeleton */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            {/* Main Card Skeleton */}
+            <div style={{ 
+              background: 'var(--card)', 
+              borderRadius: '16px', 
+              padding: '32px',
+              border: "1px solid var(--border)",
+              boxShadow: 'var(--shadow)'
+            }}>
+              {/* Prompt Skeleton */}
+              <div style={{ marginBottom: '24px' }}>
+                <div style={{ 
+                  width: '150px', 
+                  height: '24px', 
+                  background: 'var(--surface)', 
+                  borderRadius: '6px',
+                  marginBottom: '16px',
+                  animation: 'pulse 2s ease-in-out infinite'
+                }} />
+                <div style={{ 
+                  width: '100%', 
+                  height: '16px', 
+                  background: 'var(--surface)', 
+                  borderRadius: '4px',
+                  marginBottom: '8px',
+                  animation: 'pulse 2s ease-in-out infinite'
+                }} />
+                <div style={{ 
+                  width: '80%', 
+                  height: '16px', 
+                  background: 'var(--surface)', 
+                  borderRadius: '4px',
+                  animation: 'pulse 2s ease-in-out infinite'
+                }} />
+              </div>
+
+              {/* Textarea Skeleton */}
+              <div style={{ 
+                width: '100%', 
+                height: '200px', 
+                background: 'var(--surface)', 
+                borderRadius: '12px',
+                marginBottom: '16px',
+                animation: 'pulse 2s ease-in-out infinite'
+              }} />
+
+              {/* Button Skeleton */}
+              <div style={{ 
+                width: '100%', 
+                height: '52px', 
+                background: 'var(--surface)', 
+                borderRadius: '8px',
+                animation: 'pulse 2s ease-in-out infinite'
+              }} />
+            </div>
+
+            {/* Countdown Skeleton */}
+            <div style={{ 
+              background: 'var(--card)', 
+              borderRadius: '16px', 
+              padding: '24px',
+              border: "1px solid var(--border)",
+              boxShadow: 'var(--shadow)',
+              textAlign: 'center'
+            }}>
+              <div style={{ 
+                width: '120px', 
+                height: '14px', 
+                background: 'var(--surface)', 
+                borderRadius: '4px',
+                margin: '0 auto 8px',
+                animation: 'pulse 2s ease-in-out infinite'
+              }} />
+              <div style={{ 
+                width: '200px', 
+                height: '20px', 
+                background: 'var(--surface)', 
+                borderRadius: '6px',
+                margin: '0 auto',
+                animation: 'pulse 2s ease-in-out infinite'
+              }} />
+            </div>
+          </div>
+
+          {/* Right Side Skeleton */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            {/* Duel Details Skeleton */}
+            <div style={{ 
+              background: 'var(--card)', 
+              borderRadius: '16px', 
+              padding: '24px',
+              border: "1px solid var(--border)",
+              boxShadow: 'var(--shadow)'
+            }}>
+              <div style={{ 
+                width: '120px', 
+                height: '18px', 
+                background: 'var(--surface)', 
+                borderRadius: '6px',
+                marginBottom: '16px',
+                animation: 'pulse 2s ease-in-out infinite'
+              }} />
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {[1, 2, 3].map((i) => (
+                  <div key={i}>
+                    <div style={{ 
+                      width: '40px', 
+                      height: '12px', 
+                      background: 'var(--surface)', 
+                      borderRadius: '4px',
+                      marginBottom: '4px',
+                      animation: 'pulse 2s ease-in-out infinite'
+                    }} />
+                    <div style={{ 
+                      width: '140px', 
+                      height: '16px', 
+                      background: 'var(--surface)', 
+                      borderRadius: '4px',
+                      animation: 'pulse 2s ease-in-out infinite'
+                    }} />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Prize Breakdown Skeleton */}
+            <div style={{ 
+              background: 'var(--card)', 
+              borderRadius: '16px', 
+              padding: '24px',
+              border: "1px solid var(--border)",
+              boxShadow: 'var(--shadow)'
+            }}>
+              <div style={{ 
+                width: '140px', 
+                height: '18px', 
+                background: 'var(--surface)', 
+                borderRadius: '6px',
+                marginBottom: '16px',
+                animation: 'pulse 2s ease-in-out infinite'
+              }} />
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div style={{ 
+                      width: '20px', 
+                      height: '16px', 
+                      background: 'var(--surface)', 
+                      borderRadius: '4px',
+                      animation: 'pulse 2s ease-in-out infinite'
+                    }} />
+                    <div style={{ 
+                      width: '120px', 
+                      height: '16px', 
+                      background: 'var(--surface)', 
+                      borderRadius: '4px',
+                      animation: 'pulse 2s ease-in-out infinite'
+                    }} />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Recent Winners Skeleton */}
+            <div style={{ 
+              background: 'var(--card)', 
+              borderRadius: '16px', 
+              padding: '24px',
+              border: "1px solid var(--border)",
+              boxShadow: 'var(--shadow)'
+            }}>
+              <div style={{ 
+                width: '130px', 
+                height: '18px', 
+                background: 'var(--surface)', 
+                borderRadius: '6px',
+                marginBottom: '16px',
+                animation: 'pulse 2s ease-in-out infinite'
+              }} />
+              
+              <div style={{ 
+                height: '140px', 
+                background: 'var(--surface)', 
+                borderRadius: '8px',
+                animation: 'pulse 2s ease-in-out infinite'
+              }} />
+            </div>
+          </div>
+        </div>
+
+        <style jsx>{`
+          @keyframes pulse {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 0.7; }
+          }
+        `}</style>
       </div>
     )
   }

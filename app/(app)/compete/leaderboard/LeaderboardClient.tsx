@@ -49,12 +49,12 @@ const getRankByElo = (elo?: number) => {
 const getRankColor = (rank: string) => {
   switch (rank) {
     case 'Trainee': return '#9ca3af' // grey
-    case 'Builder': return '#2563eb' // blue
-    case 'Creator': return '#16a34a' // green
-    case 'Founder': return '#ca8a04' // gold
-    case 'Visionary': return '#7c3aed' // purple
-    case 'Icon': return '#ea580c' // orange
-    case 'Titan': return '#dc2626' // red
+    case 'Builder': return '#3b82f6' // blue
+    case 'Creator': return '#22c55e' // green
+    case 'Founder': return '#eab308' // gold
+    case 'Visionary': return '#a855f7' // purple
+    case 'Icon': return '#f97316' // orange
+    case 'Titan': return '#ef4444' // red
     case 'Unicorn': return 'linear-gradient(135deg, #7c3aed, #ec4899, #10b981)' // rainbow gradient
     default: return '#9ca3af'
   }
@@ -62,15 +62,15 @@ const getRankColor = (rank: string) => {
 
 const getRankFaintColor = (rank: string) => {
   switch (rank) {
-    case 'Trainee': return 'rgba(156, 163, 175, 0.1)' // faint grey
-    case 'Builder': return 'rgba(37, 99, 235, 0.1)' // faint blue
-    case 'Creator': return 'rgba(22, 163, 74, 0.1)' // faint green
-    case 'Founder': return 'rgba(202, 138, 4, 0.1)' // faint gold
-    case 'Visionary': return 'rgba(124, 58, 237, 0.1)' // faint purple
-    case 'Icon': return 'rgba(234, 88, 12, 0.1)' // faint orange
-    case 'Titan': return 'rgba(220, 38, 38, 0.1)' // faint red
-    case 'Unicorn': return 'linear-gradient(135deg, rgba(124, 58, 237, 0.1), rgba(236, 72, 153, 0.1), rgba(16, 185, 129, 0.1))' // faint rainbow gradient
-    default: return 'rgba(156, 163, 175, 0.1)'
+    case 'Trainee': return 'rgba(156, 163, 175, 0.25)' // faint grey
+    case 'Builder': return 'rgba(59, 130, 246, 0.25)' // faint blue
+    case 'Creator': return 'rgba(34, 197, 94, 0.25)' // faint green
+    case 'Founder': return 'rgba(234, 179, 8, 0.25)' // faint gold
+    case 'Visionary': return 'rgba(168, 85, 247, 0.25)' // faint purple
+    case 'Icon': return 'rgba(249, 115, 22, 0.25)' // faint orange
+    case 'Titan': return 'rgba(239, 68, 68, 0.25)' // faint red
+    case 'Unicorn': return 'linear-gradient(135deg, rgba(168, 85, 247, 0.25), rgba(236, 72, 153, 0.25), rgba(16, 185, 129, 0.25))' // faint rainbow gradient
+    default: return 'rgba(156, 163, 175, 0.25)'
   }
 }
 
@@ -494,7 +494,7 @@ export default function LeaderboardClient({
                         justifyContent: 'space-between',
                         padding: '12px 16px',
                         borderRadius: '8px',
-                        background: isCurrentTier ? tierColor : getRankFaintColor(tier.name),
+                        background: getRankFaintColor(tier.name),
                         border: isCurrentTier ? 'none' : `1px solid ${tierColor}20`,
                         transition: 'all 0.2s ease'
                       }}
