@@ -35,33 +35,28 @@ export default async function LoginPage({
           }}
         />
         <div className="auth-deco auth-deco-1 hero-deco-card">
-          <div className="hdc-badge b">Connect</div>
-          <div className="hdc-text">Co-founder match score</div>
+          <div className="hdc-badge b">🔥 Daily Battle</div>
+          <div className="hdc-text">streak — 7 days</div>
         </div>
         <div className="auth-deco auth-deco-2 hero-deco-card">
-          <div className="hdc-badge g">Compete</div>
-          <div className="hdc-val g">+18 ELO</div>
-          <div className="hdc-text">Won last weekly duel</div>
+          <div className="hdc-badge g">⚔️ Weekly Duel</div>
+          <div className="hdc-text">submissions open</div>
         </div>
         <div className="auth-deco auth-deco-3 hero-deco-card">
-          <div className="hdc-badge p">Learn</div>
-          <div className="hdc-val p">Lesson 3</div>
-          <div className="hdc-text">35% complete</div>
+          <div className="hdc-badge p">📈 ELO Rating</div>
+          <div className="hdc-text">Builder rank</div>
         </div>
         <div className="auth-deco auth-deco-4 hero-deco-card">
-          <div className="hdc-badge o">Build</div>
-          <div className="hdc-val o">12</div>
-          <div className="hdc-text">Projects shipped</div>
+          <div className="hdc-badge o">🤝 Co-founder Match</div>
+          <div className="hdc-text">3 new requests</div>
         </div>
         <div className="auth-deco auth-deco-5 hero-deco-card">
-          <div className="hdc-badge b">Network</div>
-          <div className="hdc-val b">248</div>
-          <div className="hdc-text">Connections made</div>
+          <div className="hdc-badge b">🏆 Leaderboard</div>
+          <div className="hdc-text">Top 10 builder</div>
         </div>
         <div className="auth-deco auth-deco-6 hero-deco-card">
-          <div className="hdc-badge g">Grow</div>
-          <div className="hdc-val g">Level 7</div>
-          <div className="hdc-text">Skill progression</div>
+          <div className="hdc-badge g">💬 Messages</div>
+          <div className="hdc-text">5 new notifications</div>
         </div>
         <div style={{ position: 'relative', zIndex: 2 }}>
           <LoginForm mode={mode} />

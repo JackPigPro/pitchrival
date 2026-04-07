@@ -756,8 +756,39 @@ export default function MessagesClient() {
               }}
             >
               {loading ? (
-                <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text2)' }}>
-                  Loading messages...
+                <div style={{ padding: '20px' }}>
+                  {/* Skeleton message bubbles */}
+                  {[1, 2, 3, 4, 5].map((i) => (
+                    <div key={i} style={{
+                      display: 'flex',
+                      justifyContent: i % 2 === 0 ? 'flex-start' : 'flex-end',
+                      maxWidth: '70%',
+                      marginBottom: '16px'
+                    }}>
+                      <div style={{
+                        padding: '12px 16px',
+                        borderRadius: i % 2 === 0 ? '12px 12px 12px 2px' : '12px 12px 2px 12px',
+                        background: 'var(--border)',
+                        animation: 'pulse 2s infinite'
+                      }}>
+                        <div style={{
+                          width: i % 2 === 0 ? '180px' : '120px',
+                          height: '16px',
+                          background: 'var(--surface)',
+                          borderRadius: '4px',
+                          animation: 'pulse 2s infinite',
+                          marginBottom: '6px'
+                        }} />
+                        <div style={{
+                          width: i % 2 === 0 ? '60px' : '40px',
+                          height: '12px',
+                          background: 'var(--surface)',
+                          borderRadius: '4px',
+                          animation: 'pulse 2s infinite'
+                        }} />
+                      </div>
+                    </div>
+                  ))}
                 </div>
               ) : messages.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text2)' }}>
@@ -786,7 +817,39 @@ export default function MessagesClient() {
                       color: 'var(--text2)',
                       fontSize: '14px'
                     }}>
-                      Loading older messages...
+                      {/* Skeleton for loading more messages */}
+                      {[1, 2].map((i) => (
+                        <div key={i} style={{
+                          display: 'flex',
+                          justifyContent: 'flex-start',
+                          maxWidth: '70%',
+                          marginBottom: '12px',
+                          opacity: 0.6
+                        }}>
+                          <div style={{
+                            padding: '12px 16px',
+                            borderRadius: '12px 12px 12px 2px',
+                            background: 'var(--border)',
+                            animation: 'pulse 2s infinite'
+                          }}>
+                            <div style={{
+                              width: '150px',
+                              height: '16px',
+                              background: 'var(--surface)',
+                              borderRadius: '4px',
+                              animation: 'pulse 2s infinite',
+                              marginBottom: '6px'
+                            }} />
+                            <div style={{
+                              width: '50px',
+                              height: '12px',
+                              background: 'var(--surface)',
+                              borderRadius: '4px',
+                              animation: 'pulse 2s infinite'
+                            }} />
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   )}
                   

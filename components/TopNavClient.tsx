@@ -273,6 +273,7 @@ export default function TopNavClient({
           >
             <Link 
               href={isLoggedIn ? "/compete/daily-battle" : "/login?mode=signup"} 
+              prefetch={true}
               className="topnav-dropdown-link" 
               style={{
                 ...dropdownLinkStyle, 
