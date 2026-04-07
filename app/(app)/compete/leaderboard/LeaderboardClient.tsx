@@ -286,7 +286,7 @@ export default function LeaderboardClient({
                       alignItems: 'center',
                       padding: '16px 20px',
                       borderRadius: '12px',
-                      background: isCurrentUser ? 'var(--green-tint)' : 'transparent',
+                      background: isCurrentUser ? getRankFaintColor(userRank) : getRankFaintColor(userRank),
                       border: isCurrentUser ? '1px solid var(--green)' : '1px solid var(--border)',
                       transition: 'all 0.2s ease'
                     }}
@@ -503,7 +503,7 @@ export default function LeaderboardClient({
                         fontSize: isCurrentTier ? '15px' : '14px',
                         fontWeight: isCurrentTier ? '800' : '700',
                         fontFamily: 'var(--font-display)',
-                        color: isCurrentTier ? '#fff' : tierColor,
+                        color: isCurrentTier ? '#fff' : (tier.name === 'Builder' ? '#1e40af' : tierColor),
                         letterSpacing: '-0.1px'
                       }}>
                         {tier.name}
@@ -515,7 +515,7 @@ export default function LeaderboardClient({
                         color: isCurrentTier ? '#fff' : 'var(--text2)',
                         letterSpacing: '0.5px'
                       }}>
-                        {tier.min === 0 ? `0-${tier.max}` : `${tier.min}-${tier.max}`}
+                        {tier.min === 0 ? `0-${tier.max}` : tier.max === Infinity ? `${tier.min}+` : `${tier.min}-${tier.max}`}
                       </div>
                     </div>
                   )
