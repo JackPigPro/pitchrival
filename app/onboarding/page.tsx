@@ -105,13 +105,14 @@ export default function OnboardingPage() {
 
       const result = await response.json()
 
-      setLoading(false)
+      // Don't reset loading state on success since we're about to redirect
+      // This prevents the button from flashing back to "Continue" before redirect
       
       // Small delay to ensure UI updates before redirect
       setTimeout(() => {
         router.push('/dashboard')
         router.refresh()
-      }, 100)
+      }, 1000)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred')
       setLoading(false)
