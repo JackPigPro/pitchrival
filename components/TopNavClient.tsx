@@ -126,6 +126,7 @@ export default function TopNavClient({
       <Link
         className="nav-brand"
         href={user ? "/dashboard" : "/"}
+        prefetch={user ? true : false}
         onClick={(e) => {
           if (isOnLanding) {
             e.preventDefault()
@@ -186,6 +187,7 @@ export default function TopNavClient({
           >
             <Link 
               href={isLoggedIn ? "/connect/cofounder-match" : "/login?mode=signup"} 
+              prefetch={isLoggedIn ? true : false}
               className="topnav-dropdown-link" 
               style={{
                 ...dropdownLinkStyle, 
@@ -199,6 +201,7 @@ export default function TopNavClient({
             </Link>
             <Link 
               href={isLoggedIn ? "/connect/messages" : "/login?mode=signup"} 
+              prefetch={isLoggedIn ? true : false}
               className="topnav-dropdown-link" 
               style={{
                 ...dropdownLinkStyle, 
@@ -212,6 +215,7 @@ export default function TopNavClient({
             </Link>
             <Link 
               href={isLoggedIn ? "/connect/ideas" : "/login?mode=signup"} 
+              prefetch={isLoggedIn ? true : false}
               className="topnav-dropdown-link" 
               style={{
                 ...dropdownLinkStyle, 
@@ -287,6 +291,7 @@ export default function TopNavClient({
             </Link>
             <Link 
               href={isLoggedIn ? "/compete/weekly-duel" : "/login?mode=signup"} 
+              prefetch={isLoggedIn ? true : false}
               className="topnav-dropdown-link" 
               style={{
                 ...dropdownLinkStyle, 
@@ -300,6 +305,7 @@ export default function TopNavClient({
             </Link>
             <Link 
               href="/compete/leaderboard" 
+              prefetch={true}
               scroll 
               className="topnav-dropdown-link" 
               style={{
@@ -319,6 +325,7 @@ export default function TopNavClient({
           {isLoggedIn ? (
             <Link 
               href="/learn" 
+              prefetch={true}
               className="topnav-link" 
               style={{
                 ...menuItemStyle,
@@ -350,6 +357,7 @@ export default function TopNavClient({
           {isLoggedIn ? (
             <Link 
               href="/schools" 
+              prefetch={true}
               className="topnav-link" 
               style={{
                 ...menuItemStyle,
@@ -386,6 +394,7 @@ export default function TopNavClient({
           <>
             <Link
               href="/connect/messages"
+              prefetch={true}
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -409,6 +418,7 @@ export default function TopNavClient({
             </span>
             <Link
               href={user.username ? `/profile/${user.username}` : "/profile"}
+              prefetch={true}
               className="nav-login"
               style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}
             >
@@ -436,7 +446,7 @@ export default function TopNavClient({
                   pointerEvents: open === 'settings' ? 'auto' : 'none',
                 }}
               >
-                <Link href="/settings" className="topnav-dropdown-link" style={{...dropdownLinkStyle, ...(hoveredItem === 'settings' ? dropdownLinkHoverStyle : {})}} onClick={handleNavPageClick} onMouseEnter={() => setHoveredItem('settings')} onMouseLeave={() => setHoveredItem(null)}>
+                <Link href="/settings" prefetch={true} className="topnav-dropdown-link" style={{...dropdownLinkStyle, ...(hoveredItem === 'settings' ? dropdownLinkHoverStyle : {})}} onClick={handleNavPageClick} onMouseEnter={() => setHoveredItem('settings')} onMouseLeave={() => setHoveredItem(null)}>
                   All Settings
                 </Link>
                 <form action={signOut}>
