@@ -19,24 +19,25 @@ export default async function LeaderboardPage() {
   // Check if user is authenticated (optional now)
   const { data: { user } } = await supabase.auth.getUser()
 
-  // Step 1: Fetch all rows from user_stats
-  const { data: userStats, error: statsError } = await supabase
+  // Step 1: Fetch all rows from user_stats with profiles for tiebreaker
+  const { data: userStatsWithProfiles, error: statsError } = await supabase
     .from('user_stats')
-    .select('user_id, elo, rank, weekly_duel_entered')
+    .select(`
+      user_id, 
+      elo, 
+      rank, 
+      weekly_duel_entered,
+      profiles!inner (
+        id,
+        username,
+        created_at
+      )
+    `)
     .order('elo', { ascending: false })
+    .order('profiles!inner(created_at)', { ascending: true })
 
   if (statsError) {
     console.error('Error fetching user stats:', statsError)
-  }
-
-
-  // Step 2: Fetch all rows from profiles
-  const { data: profiles, error: profilesError } = await supabase
-    .from('profiles')
-    .select('id, username')
-
-  if (profilesError) {
-    console.error('Error fetching profiles:', profilesError)
   }
 
   // Fetch all daily streaks
@@ -48,21 +49,19 @@ export default async function LeaderboardPage() {
     console.error('Error fetching daily streaks:', streaksError)
   }
 
-  // Step 3: Manual JavaScript join - match by user_stats.user_id === profiles.id
-  const transformedAllUsers = (userStats || []).map(stat => {
-    const profile = (profiles || []).find(p => p.id === stat.user_id)
+  // Step 3: Transform the joined data - no manual join needed
+  const transformedAllUsers = (userStatsWithProfiles || []).map(stat => {
     const dailyStreak = (dailyStreaks || []).find(s => s.user_id === stat.user_id)
     return {
       elo: stat.elo || 0,
       user_id: stat.user_id,
       rank_label: getRankLabel(stat.elo || 0),
       profiles: {
-        username: profile?.username || 'Unknown'
+        username: stat.profiles[0]?.username || 'Unknown'
       },
       current_streak: dailyStreak?.current_streak || 0
     }
   })
-
 
   // Fetch daily leaderboard (last 24 hours)
   const { data: dailyHistory, error: dailyError } = await supabase

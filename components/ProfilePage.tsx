@@ -244,76 +244,59 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
   const getCountryFlag = (countryName?: string) => {
     if (!countryName) return ''
     
-    const countryFlags: { [key: string]: string } = {
-      'United States': '🇺🇸',
-      'USA': '🇺🇸',
-      'United Kingdom': '🇬🇧',
-      'UK': '🇬🇧',
-      'Canada': '🇨🇦',
-      'Australia': '🇦🇺',
-      'Germany': '🇩🇪',
-      'France': '🇫🇷',
-      'Italy': '🇮🇹',
-      'Spain': '🇪🇸',
-      'Netherlands': '🇳🇱',
-      'Sweden': '🇸🇪',
-      'Norway': '🇳🇴',
-      'Denmark': '🇩🇰',
-      'Finland': '🇫🇮',
-      'Belgium': '🇧🇪',
-      'Austria': '🇦🇹',
-      'Switzerland': '🇨🇭',
-      'Poland': '🇵🇱',
-      'Ireland': '🇮🇪',
-      'Portugal': '🇵🇹',
-      'Greece': '🇬🇷',
-      'Czech Republic': '🇨🇿',
-      'Hungary': '🇭🇺',
-      'Romania': '🇷🇴',
-      'Bulgaria': '🇧🇬',
-      'Croatia': '🇭🇷',
-      'Slovakia': '🇸🇰',
-      'Slovenia': '🇸🇮',
-      'Estonia': '🇪🇪',
-      'Latvia': '🇱🇻',
-      'Lithuania': '🇱🇹',
-      'Luxembourg': '🇱🇺',
-      'Malta': '🇲🇹',
-      'Cyprus': '🇨🇾',
-      'Japan': '🇯🇵',
-      'China': '🇨🇳',
-      'South Korea': '🇰🇷',
-      'India': '🇮🇳',
-      'Singapore': '🇸🇬',
-      'Hong Kong': '🇭🇰',
-      'Taiwan': '🇹🇼',
-      'Thailand': '🇹🇭',
-      'Malaysia': '🇲🇾',
-      'Indonesia': '🇮🇩',
-      'Philippines': '🇵🇭',
-      'Vietnam': '🇻🇳',
-      'Brazil': '🇧🇷',
-      'Argentina': '🇦🇷',
-      'Chile': '🇨🇱',
-      'Colombia': '🇨🇴',
-      'Peru': '🇵🇪',
-      'Mexico': '🇲🇽',
-      'South Africa': '🇿🇦',
-      'Egypt': '🇪🇬',
-      'Nigeria': '🇳🇬',
-      'Kenya': '🇰🇪',
-      'Morocco': '🇲🇦',
-      'Ghana': '🇬🇭',
-      'Israel': '🇮🇱',
-      'UAE': '🇦🇪',
-      'Saudi Arabia': '🇸🇦',
-      'Turkey': '🇹🇷',
-      'Russia': '🇷🇺',
-      'Ukraine': '🇺🇦',
-      'New Zealand': '🇳🇿'
+    // Country code to flag emoji conversion
+    const countryCodeToFlag: { [key: string]: string } = {
+      'AF': '🇦🇫', 'AL': '�🇱', 'DZ': '🇩🇿', 'AD': '🇦🇩', 'AO': '🇦🇴', 'AG': '🇦🇬', 'AR': '🇦🇷', 'AM': '🇦🇲', 'AU': '🇦�🇺', 'AT': '�🇹',
+      'AZ': '🇦🇿', 'BS': '�🇸', 'BH': '🇧🇭', 'BD': '🇧🇩', 'BB': '🇧🇧', 'BY': '🇧🇾', 'BE': '🇧🇪', 'BZ': '🇧🇿', 'BJ': '🇧�', 'BT': '🇧🇹',
+      'BO': '🇧🇴', 'BA': '🇧🇦', 'BW': '🇧🇼', 'BR': '🇧🇷', 'BN': '🇧🇳', 'BG': '🇧🇬', 'BF': '🇧🇫', 'BI': '🇧🇮', 'CV': '🇨🇻', 'KH': '🇰🇭',
+      'CM': '🇨🇲', 'CA': '🇨🇦', 'CF': '🇨🇫', 'TD': '🇹🇩', 'CL': '🇨🇱', 'CN': '🇨🇳', 'CO': '🇨🇴', 'KM': '🇰🇲', 'CG': '🇨🇬', 'CR': '🇨🇷',
+      'HR': '🇭🇷', 'CU': '�🇺', 'CY': '🇨🇾', 'CZ': '🇨🇿', 'DK': '🇩🇰', 'DJ': '🇩🇯', 'DM': '🇩🇲', 'DO': '🇩🇴', 'EC': '🇪🇨', 'EG': '🇪🇬',
+      'SV': '🇸🇻', 'GQ': '🇬🇶', 'ER': '�🇷', 'EE': '🇪🇪', 'SZ': '🇸🇿', 'ET': '🇪🇹', 'FJ': '🇫🇯', 'FI': '��🇮', 'FR': '🇫🇷', 'GA': '�🇦',
+      'GM': '�🇲', 'GE': '🇬�🇪', 'DE': '�🇪', 'GH': '🇬🇭', 'GR': '🇬🇷', 'GD': '🇬🇩', 'GT': '🇬🇹', 'GN': '��🇳', 'GW': '�🇼', 'GY': '🇬🇾',
+      'HT': '🇭🇹', 'HN': '🇭🇳', 'HU': '🇭🇺', 'IS': '��🇸', 'IN': '�🇳', 'ID': '🇮🇩', 'IR': '🇮🇷', 'IQ': '🇮🇶', 'IE': '🇮�🇪', 'IL': '🇮🇱',
+      'IT': '��', 'JM': '🇯🇲', 'JP': '🇯🇵', 'JO': '🇯�🇴', 'KZ': '🇰🇿', 'KE': '🇰🇪', 'KI': '🇰🇮', 'KP': '��', 'KR': '�🇰🇷', 'KW': '🇰🇼',
+      'KG': '��', 'LA': '🇱🇦', 'LV': '🇱🇻', 'LB': '🇱🇧', 'LS': '🇱�', 'LR': '🇱🇷', 'LY': '🇱🇾', 'LI': '🇱🇮', 'LT': '�🇹', 'LU': '🇱🇺',
+      'MG': '🇲🇬', 'MW': '🇲🇼', 'MY': '🇲🇾', 'MV': '🇲🇻', 'ML': '🇲🇱', 'MT': '🇲🇹', 'MH': '�🇭', 'MR': '🇲🇷', 'MU': '🇲🇺', 'MX': '🇲🇽',
+      'FM': '��', 'MD': '🇲🇩', 'MC': '🇲🇨', 'MN': '🇲🇳', 'ME': '�🇪', 'MA': '🇲🇦', 'MZ': '🇲🇿', 'MM': '🇲🇲', 'NA': '🇳🇦', 'NR': '🇳🇷',
+      'NP': '🇳🇵', 'NL': '🇳�', 'NZ': '🇳🇿', 'NI': '🇳🇮', 'NE': '🇳🇪', 'NG': '��🇬', 'MK': '�🇰', 'NO': '🇳🇴', 'OM': '🇴🇲', 'PK': '🇵🇰',
+      'PW': '🇵🇼', 'PA': '��', 'PG': '🇵🇬', 'PY': '🇵🇾', 'PE': '🇵🇪', 'PH': '��', 'PL': '🇵🇱', 'PT': '🇵🇹', 'QA': '🇶🇦', 'RO': '🇷🇴',
+      'RU': '��', 'RW': '🇷🇼', 'KN': '🇰🇳', 'LC': '🇱🇨', 'VC': '🇻🇨', 'WS': '🇼🇸', 'SM': '🇸🇲', 'ST': '🇸🇹', 'SA': '🇸🇦', 'SN': '��',
+      'RS': '🇷🇸', 'SC': '🇸🇨', 'SL': '🇸🇱', 'SG': '🇸🇬', 'SK': '🇸🇰', 'SI': '🇸🇮', 'SB': '🇸🇧', 'SO': '🇸🇴', 'ZA': '🇿🇦', 'SS': '🇸�',
+      'ES': '🇪�', 'LK': '🇱🇰', 'SD': '🇸🇩', 'SR': '🇸🇷', 'SE': '��', 'CH': '🇨🇭', 'SY': '🇸🇾', 'TW': '🇹🇼', 'TJ': '��', 'TZ': '�🇹🇿',
+      'TH': '🇹🇭', 'TL': '��🇱', 'TG': '🇹🇬', 'TO': '🇹�', 'TT': '🇹🇹', 'TN': '🇹🇳', 'TR': '🇹🇷', 'TM': '🇹🇲', 'TV': '🇹🇻', 'UG': '🇺🇬',
+      'UA': '🇺🇦', 'AE': '🇦🇪', 'GB': '🇬🇧', 'US': '🇺🇸', 'UY': '�🇾', 'UZ': '🇺🇿', 'VU': '🇻🇺', 'VA': '🇻🇦', 'VE': '🇻🇪', 'VN': '��',
+      'YE': '��', 'ZM': '🇿🇲', 'ZW': '🇿🇼'
     }
     
-    return countryFlags[countryName] || '🌍'
+    // Country name to country code mapping
+    const countryNameToCode: { [key: string]: string } = {
+      'Afghanistan': 'AF', 'Albania': 'AL', 'Algeria': 'DZ', 'Andorra': 'AD', 'Angola': 'AO', 'Antigua and Barbuda': 'AG', 'Argentina': 'AR', 'Armenia': 'AM', 'Australia': 'AU', 'Austria': 'AT',
+      'Azerbaijan': 'AZ', 'Bahamas': 'BS', 'Bahrain': 'BH', 'Bangladesh': 'BD', 'Barbados': 'BB', 'Belarus': 'BY', 'Belgium': 'BE', 'Belize': 'BZ', 'Benin': 'BJ', 'Bhutan': 'BT',
+      'Bolivia': 'BO', 'Bosnia and Herzegovina': 'BA', 'Botswana': 'BW', 'Brazil': 'BR', 'Brunei': 'BN', 'Bulgaria': 'BG', 'Burkina Faso': 'BF', 'Burundi': 'BI', 'Cabo Verde': 'CV', 'Cambodia': 'KH',
+      'Cameroon': 'CM', 'Canada': 'CA', 'Central African Republic': 'CF', 'Chad': 'TD', 'Chile': 'CL', 'China': 'CN', 'Colombia': 'CO', 'Comoros': 'KM', 'Congo': 'CG', 'Costa Rica': 'CR',
+      'Croatia': 'HR', 'Cuba': 'CU', 'Cyprus': 'CY', 'Czech Republic': 'CZ', 'Denmark': 'DK', 'Djibouti': 'DJ', 'Dominica': 'DM', 'Dominican Republic': 'DO', 'Ecuador': 'EC', 'Egypt': 'EG',
+      'El Salvador': 'SV', 'Equatorial Guinea': 'GQ', 'Eritrea': 'ER', 'Estonia': 'EE', 'Eswatini': 'SZ', 'Ethiopia': 'ET', 'Fiji': 'FJ', 'Finland': 'FI', 'France': 'FR', 'Gabon': 'GA',
+      'Gambia': 'GM', 'Georgia': 'GE', 'Germany': 'DE', 'Ghana': 'GH', 'Greece': 'GR', 'Grenada': 'GD', 'Guatemala': 'GT', 'Guinea': 'GN', 'Guinea-Bissau': 'GW', 'Guyana': 'GY',
+      'Haiti': 'HT', 'Honduras': 'HN', 'Hungary': 'HU', 'Iceland': 'IS', 'India': 'IN', 'Indonesia': 'ID', 'Iran': 'IR', 'Iraq': 'IQ', 'Ireland': 'IE', 'Israel': 'IL',
+      'Italy': 'IT', 'Jamaica': 'JM', 'Japan': 'JP', 'Jordan': 'JO', 'Kazakhstan': 'KZ', 'Kenya': 'KE', 'Kiribati': 'KI', 'North Korea': 'KP', 'South Korea': 'KR', 'Kuwait': 'KW',
+      'Kyrgyzstan': 'KG', 'Laos': 'LA', 'Latvia': 'LV', 'Lebanon': 'LB', 'Lesotho': 'LS', 'Liberia': 'LR', 'Libya': 'LY', 'Liechtenstein': 'LI', 'Lithuania': 'LT', 'Luxembourg': 'LU',
+      'Madagascar': 'MG', 'Malawi': 'MW', 'Malaysia': 'MY', 'Maldives': 'MV', 'Mali': 'ML', 'Malta': 'MT', 'Marshall Islands': 'MH', 'Mauritania': 'MR', 'Mauritius': 'MU', 'Mexico': 'MX',
+      'Micronesia': 'FM', 'Moldova': 'MD', 'Monaco': 'MC', 'Mongolia': 'MN', 'Montenegro': 'ME', 'Morocco': 'MA', 'Mozambique': 'MZ', 'Myanmar': 'MM', 'Namibia': 'NA', 'Nauru': 'NR',
+      'Nepal': 'NP', 'Netherlands': 'NL', 'New Zealand': 'NZ', 'Nicaragua': 'NI', 'Niger': 'NE', 'Nigeria': 'NG', 'North Macedonia': 'MK', 'Norway': 'NO', 'Oman': 'OM', 'Pakistan': 'PK',
+      'Palau': 'PW', 'Panama': 'PA', 'Papua New Guinea': 'PG', 'Paraguay': 'PY', 'Peru': 'PE', 'Philippines': 'PH', 'Poland': 'PL', 'Portugal': 'PT', 'Qatar': 'QA', 'Romania': 'RO',
+      'Russia': 'RU', 'Rwanda': 'RW', 'Saint Kitts and Nevis': 'KN', 'Saint Lucia': 'LC', 'Saint Vincent': 'VC', 'Samoa': 'WS', 'San Marino': 'SM', 'Sao Tome and Principe': 'ST', 'Saudi Arabia': 'SA', 'Senegal': 'SN',
+      'Serbia': 'RS', 'Seychelles': 'SC', 'Sierra Leone': 'SL', 'Singapore': 'SG', 'Slovakia': 'SK', 'Slovenia': 'SI', 'Solomon Islands': 'SB', 'Somalia': 'SO', 'South Africa': 'ZA', 'South Sudan': 'SS',
+      'Spain': 'ES', 'Sri Lanka': 'LK', 'Sudan': 'SD', 'Suriname': 'SR', 'Sweden': 'SE', 'Switzerland': 'CH', 'Syria': 'SY', 'Taiwan': 'TW', 'Tajikistan': 'TJ', 'Tanzania': 'TZ',
+      'Thailand': 'TH', 'Timor-Leste': 'TL', 'Togo': 'TG', 'Tonga': 'TO', 'Trinidad and Tobago': 'TT', 'Tunisia': 'TN', 'Turkey': 'TR', 'Turkmenistan': 'TM', 'Tuvalu': 'TV', 'Uganda': 'UG',
+      'Ukraine': 'UA', 'United Arab Emirates': 'AE', 'United Kingdom': 'GB', 'United States': 'US', 'Uruguay': 'UY', 'Uzbekistan': 'UZ', 'Vanuatu': 'VU', 'Vatican City': 'VA', 'Venezuela': 'VE', 'Vietnam': 'VN',
+      'Yemen': 'YE', 'Zambia': 'ZM', 'Zimbabwe': 'ZW',
+      // Common abbreviations
+      'USA': 'US', 'UK': 'GB', 'UAE': 'AE', 'USSR': 'RU'
+    }
+    
+    // Try to get country code from name, fallback to direct lookup
+    const countryCode = countryNameToCode[countryName] || countryName
+    return countryCodeToFlag[countryCode] || '🌍'
   }
 
   const getRankByElo = (elo?: number) => {
@@ -343,9 +326,9 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
     }
   }
 
-  const stageOptions = ['Idea Stage', 'Building MVP', 'Already Launched']
-  const skillOptions = ['Design', 'Code', 'Marketing', 'Sales', 'Finance']
-  const statusTagOptions = ['Looking for Co-founder', 'Open to be a Co-founder', 'Message me for ideas', 'Open to feedback']
+  const stageOptions = ['Just an Idea', 'Building MVP', 'Launched', 'Growing', 'Scaling']
+  const skillOptions = ['Design', 'Marketing', 'Finance', 'Engineering', 'Sales', 'Product', 'Operations', 'Legal', 'Data', 'AI/ML', 'Web Dev', 'Mobile Dev', 'Blockchain', 'Content', 'Video', 'Photography', 'Music', 'Writing', 'Research', 'Consulting']
+  const statusTagOptions = ['Open to Co-founder', 'Open to Invest', 'Building in Public', 'Looking for Mentorship']
 
   // Edit Mode View
   if (isEditing) {
@@ -1229,8 +1212,12 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
                   padding: '40px 0',
                   color: 'var(--text2)'
                 }}>
-                  <div style={{ fontSize: '16px', marginBottom: '8px' }}>No ideas yet</div>
-                  <div style={{ fontSize: '14px' }}>Start sharing your brilliant ideas!</div>
+                  <div style={{ fontSize: '16px', marginBottom: '8px' }}>
+                    {isOwnProfile ? 'No ideas yet' : 'No public ideas yet'}
+                  </div>
+                  <div style={{ fontSize: '14px' }}>
+                    {isOwnProfile ? 'Start sharing your brilliant ideas!' : ''}
+                  </div>
                 </div>
               )}
             </div>
