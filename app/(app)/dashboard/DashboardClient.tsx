@@ -122,16 +122,28 @@ export default function DashboardClient({ initialProfile, initialStats, todayBat
         return // Already dismissed in localStorage, don't show
       }
 
-      // Try to check database field first
-      const { data: profileData, error } = await supabase
-        .from('profiles')
-        .select('profile_completion_nudge_shown, created_at')
-        .eq('id', user.id)
-        .single()
+      // Try to check database field first, but handle the case where it doesn't exist
+      let profileData: any = null
+      let fieldExists = false
 
-      if (error) {
-        // If the field doesn't exist, fall back to just checking account age
-        if (error.message.includes('column') || error.message.includes('field')) {
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('profile_completion_nudge_shown, created_at')
+          .eq('id', user.id)
+          .single()
+        
+        if (!error) {
+          profileData = data
+          fieldExists = true
+        }
+      } catch (err) {
+        // Field doesn't exist, will fall back to created_at only
+      }
+
+      if (!fieldExists) {
+        // Fall back to just checking account age
+        try {
           const { data: fallbackData } = await supabase
             .from('profiles')
             .select('created_at')
@@ -146,8 +158,8 @@ export default function DashboardClient({ initialProfile, initialStats, todayBat
               setShowProfileCompletionPopup(true)
             }
           }
-        } else {
-          console.log('Profile completion nudge check failed:', error.message)
+        } catch (fallbackError) {
+          console.log('Could not fetch profile data for nudge check')
         }
         return
       }
@@ -215,9 +227,27 @@ export default function DashboardClient({ initialProfile, initialStats, todayBat
         
         setHasMoreActivity(data.pagination?.hasMore || false)
         setActivityPage(page)
+      } else if (response.status === 500 || response.status === 401) {
+        // Handle server errors gracefully - just set empty notifications
+        console.log('Activity feed temporarily unavailable')
+        if (reset) {
+          setNotifications([])
+        }
+        setHasMoreActivity(false)
+      } else {
+        console.error('Unexpected response status:', response.status)
+        if (reset) {
+          setNotifications([])
+        }
+        setHasMoreActivity(false)
       }
     } catch (error) {
       console.error('Failed to fetch activity:', error)
+      // Set empty state on error to prevent infinite loading
+      if (reset) {
+        setNotifications([])
+      }
+      setHasMoreActivity(false)
     } finally {
       setNotificationsLoading(false)
       setLoadingMoreActivity(false)
