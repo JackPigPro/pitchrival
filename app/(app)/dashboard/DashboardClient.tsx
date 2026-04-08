@@ -116,20 +116,44 @@ export default function DashboardClient({ initialProfile, initialStats, todayBat
       
       if (!user) return
 
-      // Fetch user's profile to check if nudge has been shown
+      // First check if we've already dismissed this popup in localStorage
+      const localStorageKey = `profile_completion_nudge_dismissed_${user.id}`
+      if (localStorage.getItem(localStorageKey)) {
+        return // Already dismissed in localStorage, don't show
+      }
+
+      // Try to check database field first
       const { data: profileData, error } = await supabase
         .from('profiles')
-        .select('created_at')
+        .select('profile_completion_nudge_shown, created_at')
         .eq('id', user.id)
         .single()
 
       if (error) {
-        // If the field doesn't exist or other error, don't show popup
-        console.log('Profile completion nudge check failed:', error.message)
+        // If the field doesn't exist, fall back to just checking account age
+        if (error.message.includes('column') || error.message.includes('field')) {
+          const { data: fallbackData } = await supabase
+            .from('profiles')
+            .select('created_at')
+            .eq('id', user.id)
+            .single()
+
+          if (fallbackData) {
+            const createdAt = new Date(fallbackData.created_at)
+            const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+            
+            if (createdAt > sevenDaysAgo) {
+              setShowProfileCompletionPopup(true)
+            }
+          }
+        } else {
+          console.log('Profile completion nudge check failed:', error.message)
+        }
         return
       }
 
-      if (profileData) {
+      // If we have the database field, check it
+      if (profileData && !profileData.profile_completion_nudge_shown) {
         // Check if user is relatively new (created within last 7 days)
         const createdAt = new Date(profileData.created_at)
         const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
@@ -152,7 +176,11 @@ export default function DashboardClient({ initialProfile, initialStats, todayBat
       const { data: { user } } = await supabase.auth.getUser()
       
       if (user) {
-        // Try to update the nudge field, but don't fail if it doesn't exist
+        // Always store in localStorage as backup
+        const localStorageKey = `profile_completion_nudge_dismissed_${user.id}`
+        localStorage.setItem(localStorageKey, 'true')
+        
+        // Try to update the nudge field in database
         const { error } = await supabase
           .from('profiles')
           .update({ profile_completion_nudge_shown: true })
