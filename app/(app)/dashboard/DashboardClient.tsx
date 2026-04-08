@@ -117,13 +117,19 @@ export default function DashboardClient({ initialProfile, initialStats, todayBat
       if (!user) return
 
       // Fetch user's profile to check if nudge has been shown
-      const { data: profileData } = await supabase
+      const { data: profileData, error } = await supabase
         .from('profiles')
-        .select('profile_completion_nudge_shown, created_at')
+        .select('created_at')
         .eq('id', user.id)
         .single()
 
-      if (profileData && !profileData.profile_completion_nudge_shown) {
+      if (error) {
+        // If the field doesn't exist or other error, don't show popup
+        console.log('Profile completion nudge check failed:', error.message)
+        return
+      }
+
+      if (profileData) {
         // Check if user is relatively new (created within last 7 days)
         const createdAt = new Date(profileData.created_at)
         const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
@@ -137,7 +143,7 @@ export default function DashboardClient({ initialProfile, initialStats, todayBat
     }
   }
 
-  // Handle popup dismissal and update database
+  // Handle popup dismissal and update database (only if field exists)
   const handleProfileCompletionPopupDismiss = async () => {
     setShowProfileCompletionPopup(false)
     
@@ -146,10 +152,15 @@ export default function DashboardClient({ initialProfile, initialStats, todayBat
       const { data: { user } } = await supabase.auth.getUser()
       
       if (user) {
-        await supabase
+        // Try to update the nudge field, but don't fail if it doesn't exist
+        const { error } = await supabase
           .from('profiles')
           .update({ profile_completion_nudge_shown: true })
           .eq('id', user.id)
+        
+        if (error) {
+          console.log('Could not update profile completion nudge flag (field may not exist yet):', error.message)
+        }
       }
     } catch (error) {
       console.error('Error updating profile completion nudge flag:', error)

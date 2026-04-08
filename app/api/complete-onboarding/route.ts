@@ -58,7 +58,6 @@ export async function POST(request: NextRequest) {
         id: user.id,
         username: username.trim(),
         onboarding_complete: true,
-        profile_completion_nudge_shown: false,
       })
 
     if (profileError) {
