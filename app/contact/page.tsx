@@ -53,26 +53,6 @@ export default function ContactPage() {
             </div>
           </div>
 
-          <div className="content-section mt-12">
-            <div className="story-card">
-              <h2 className="section-title">Get in Touch</h2>
-              <div className="story-content">
-                <p className="story-paragraph">
-                  Building PitchRival is a journey, and we're always excited to connect with our community. Whether you're a high school founder with a big idea, a teacher looking to bring entrepreneurial education to your classroom, or someone who just wants to chat about startups — we're here for it.
-                </p>
-                <p className="story-paragraph">
-                  Your feedback helps us build a better platform. Every bug report, feature suggestion, and success story makes PitchRival stronger for everyone.
-                </p>
-                <div className="mission-statement">
-                  <p className="mission-text">
-                    Together, we're building the next generation of founders.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-
           <div className="legal-footer">
             <p>PitchRival • Raleigh, North Carolina</p>
           </div>
