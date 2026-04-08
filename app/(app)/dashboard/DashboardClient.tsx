@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useSupabase } from '@/components/SupabaseProvider'
 import { createClient } from '@/utils/supabase/client'
+import ProfileCompletionPopup from '@/components/ProfileCompletionPopup'
 
 interface Notification {
   id: string
@@ -87,6 +88,7 @@ export default function DashboardClient({ initialProfile, initialStats, todayBat
   const [activityPage, setActivityPage] = useState(1)
   const [hasMoreActivity, setHasMoreActivity] = useState(true)
   const [loadingMoreActivity, setLoadingMoreActivity] = useState(false)
+  const [showProfileCompletionPopup, setShowProfileCompletionPopup] = useState(false)
 
   const userElo = elo?.elo || 0
   const userRank = getRankByElo(userElo)
@@ -100,10 +102,59 @@ export default function DashboardClient({ initialProfile, initialStats, todayBat
   useEffect(() => {
     if (isAuthenticated) {
       fetchActivity(1, true)
+      checkProfileCompletionNudge()
     } else if (!authLoading) {
       setNotificationsLoading(false)
     }
   }, [isAuthenticated, authLoading])
+
+  // Check if profile completion nudge should be shown
+  const checkProfileCompletionNudge = async () => {
+    try {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      
+      if (!user) return
+
+      // Fetch user's profile to check if nudge has been shown
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('profile_completion_nudge_shown, created_at')
+        .eq('id', user.id)
+        .single()
+
+      if (profileData && !profileData.profile_completion_nudge_shown) {
+        // Check if user is relatively new (created within last 7 days)
+        const createdAt = new Date(profileData.created_at)
+        const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+        
+        if (createdAt > sevenDaysAgo) {
+          setShowProfileCompletionPopup(true)
+        }
+      }
+    } catch (error) {
+      console.error('Error checking profile completion nudge:', error)
+    }
+  }
+
+  // Handle popup dismissal and update database
+  const handleProfileCompletionPopupDismiss = async () => {
+    setShowProfileCompletionPopup(false)
+    
+    try {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      
+      if (user) {
+        await supabase
+          .from('profiles')
+          .update({ profile_completion_nudge_shown: true })
+          .eq('id', user.id)
+      }
+    } catch (error) {
+      console.error('Error updating profile completion nudge flag:', error)
+    }
+  }
 
   const fetchActivity = async (page: number, reset: boolean = false) => {
     try {
@@ -735,6 +786,14 @@ export default function DashboardClient({ initialProfile, initialStats, todayBat
           </div>
         </div>
       </div>
+      
+      {/* Profile Completion Popup */}
+      {showProfileCompletionPopup && username && (
+        <ProfileCompletionPopup
+          onDismiss={handleProfileCompletionPopupDismiss}
+          username={username}
+        />
+      )}
     </div>
   )
 }
