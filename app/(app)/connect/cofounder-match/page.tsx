@@ -62,17 +62,30 @@ export default async function CoFounderMatchPage() {
     }
   })
 
-  // Filter out users with any requests from profiles array (but keep current user)
-  const filteredProfiles = profiles?.filter(profile => 
-    !allRequestedUserIds.has(profile.id)
-  ) || []
-
   // Fetch current user's profile to check if they are listed
   const { data: currentUserProfile } = await supabase
     .from('profiles')
     .select('open_to_cofounder')
     .eq('id', user.id)
     .single()
+
+  // Filter out users with any requests from profiles array (but keep current user if they're listed)
+  const filteredProfiles = profiles?.filter(profile => 
+    !allRequestedUserIds.has(profile.id) || profile.id === user.id
+  ) || []
+
+  // If current user is listed and not already in filteredProfiles, add them
+  if (currentUserProfile?.open_to_cofounder && !filteredProfiles.find(p => p.id === user.id)) {
+    const { data: currentUserFullProfile } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', user.id)
+      .single()
+    
+    if (currentUserFullProfile) {
+      filteredProfiles.push(currentUserFullProfile)
+    }
+  }
 
   // Fetch accepted cofounder connections
   const { data: connections } = await supabase

@@ -135,9 +135,8 @@ export default function CofounderMatchClient({
 
   // Calculate the 4 sections
   // Note: profiles array is already filtered on server side to exclude users with pending/accepted requests
-  const discoverFounders = profiles.filter(profile => 
-    profile.id !== currentUserId
-  )
+  // Current user will be included if they are listed as open_to_cofounder
+  const discoverFounders = profiles
 
   const outgoingRequests = requests
     .filter(req => req.sender_id === currentUserId && req.status === 'pending')
@@ -173,12 +172,13 @@ export default function CofounderMatchClient({
     )
   }
 
-  const ProfileCard = ({ profile, showConnectButton = true, showCancelButton = false, showAcceptDecline = false, request }: {
+  const ProfileCard = ({ profile, showConnectButton = true, showCancelButton = false, showAcceptDecline = false, request, isCurrentUser = false }: {
     profile: Profile
     showConnectButton?: boolean
     showCancelButton?: boolean
     showAcceptDecline?: boolean
     request?: CofounderRequest
+    isCurrentUser?: boolean
   }) => (
     <div style={{
       background: 'var(--surface)',
@@ -193,7 +193,7 @@ export default function CofounderMatchClient({
         width: '48px',
         height: '48px',
         borderRadius: '50%',
-        background: 'var(--blue)',
+        background: isCurrentUser ? 'var(--green)' : 'var(--blue)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -215,9 +215,25 @@ export default function CofounderMatchClient({
           marginBottom: '4px',
           overflow: 'hidden',
           textOverflow: 'ellipsis',
-          whiteSpace: 'nowrap'
+          whiteSpace: 'nowrap',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px'
         }}>
           {profile.display_name || profile.username || 'Unknown'}
+          {isCurrentUser && (
+            <span style={{
+              fontSize: '12px',
+              fontWeight: 600,
+              color: 'white',
+              background: 'var(--green)',
+              padding: '2px 8px',
+              borderRadius: '12px',
+              fontFamily: 'var(--font-display)'
+            }}>
+              You
+            </span>
+          )}
         </div>
         <div style={{
           fontSize: '14px',
@@ -244,53 +260,11 @@ export default function CofounderMatchClient({
         )}
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-        {showConnectButton && !showAcceptDecline && (
-          <button
-            onClick={() => handleSendRequest(profile.id)}
-            style={{
-              padding: '8px 16px',
-              background: 'var(--green)',
-              color: 'white',
-              border: 'none',
-              borderRadius: '6px',
-              fontSize: '12px',
-              fontWeight: 600,
-              fontFamily: 'var(--font-display)',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              whiteSpace: 'nowrap'
-            }}
-          >
-            Connect
-          </button>
-        )}
-        
-        {showCancelButton && request && (
-          <button
-            onClick={() => handleCancelRequest(request.id)}
-            style={{
-              padding: '8px 16px',
-              background: 'var(--surface)',
-              color: 'var(--text2)',
-              border: '1px solid var(--border)',
-              borderRadius: '6px',
-              fontSize: '12px',
-              fontWeight: 600,
-              fontFamily: 'var(--font-display)',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              whiteSpace: 'nowrap'
-            }}
-          >
-            Cancel
-          </button>
-        )}
-
-        {showAcceptDecline && request && (
-          <>
+      {!isCurrentUser && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          {showConnectButton && !showAcceptDecline && (
             <button
-              onClick={() => handleRequestAction(request.id, 'accept')}
+              onClick={() => handleSendRequest(profile.id)}
               style={{
                 padding: '8px 16px',
                 background: 'var(--green)',
@@ -305,10 +279,13 @@ export default function CofounderMatchClient({
                 whiteSpace: 'nowrap'
               }}
             >
-              Accept
+              Connect
             </button>
+          )}
+          
+          {showCancelButton && request && (
             <button
-              onClick={() => handleRequestAction(request.id, 'reject')}
+              onClick={() => handleCancelRequest(request.id)}
               style={{
                 padding: '8px 16px',
                 background: 'var(--surface)',
@@ -323,11 +300,52 @@ export default function CofounderMatchClient({
                 whiteSpace: 'nowrap'
               }}
             >
-              Decline
+              Cancel
             </button>
-          </>
-        )}
-      </div>
+          )}
+
+          {showAcceptDecline && request && (
+            <>
+              <button
+                onClick={() => handleRequestAction(request.id, 'accept')}
+                style={{
+                  padding: '8px 16px',
+                  background: 'var(--green)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  fontFamily: 'var(--font-display)',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  whiteSpace: 'nowrap'
+                }}
+              >
+                Accept
+              </button>
+              <button
+                onClick={() => handleRequestAction(request.id, 'reject')}
+                style={{
+                  padding: '8px 16px',
+                  background: 'var(--surface)',
+                  color: 'var(--text2)',
+                  border: '1px solid var(--border)',
+                  borderRadius: '6px',
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  fontFamily: 'var(--font-display)',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  whiteSpace: 'nowrap'
+                }}
+              >
+                Decline
+              </button>
+            </>
+          )}
+        </div>
+      )}
     </div>
   )
 
@@ -649,7 +667,12 @@ export default function CofounderMatchClient({
                       gap: '16px'
                     }}>
                       {discoverFounders.map((profile) => (
-                        <ProfileCard key={profile.id} profile={profile} showConnectButton={true} />
+                        <ProfileCard 
+                          key={profile.id} 
+                          profile={profile} 
+                          showConnectButton={true} 
+                          isCurrentUser={profile.id === currentUserId}
+                        />
                       ))}
                     </div>
                   )}
