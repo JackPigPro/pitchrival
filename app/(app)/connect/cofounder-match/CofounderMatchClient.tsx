@@ -243,7 +243,22 @@ export default function CofounderMatchClient({
           textOverflow: 'ellipsis',
           whiteSpace: 'nowrap'
         }}>
-          @{profile.username}
+          <a 
+            href={`/profile/${profile.username}`}
+            style={{
+              color: 'var(--text2)',
+              textDecoration: 'none',
+              transition: 'color 0.2s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = 'var(--text)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = 'var(--text2)'
+            }}
+          >
+            @{profile.username}
+          </a>
         </div>
         {profile.bio && (
           <div style={{
