@@ -1103,5 +1103,51 @@ export default function SchoolsClient() {
     )
   }
 
-  return null
+  // Fallback - this should not happen but prevents blank page
+  return (
+    <div style={{ 
+      minHeight: '100vh',
+      background: 'var(--bg)',
+      backgroundImage: 'linear-gradient(rgba(21,128,61,.065) 1px, transparent 1px), linear-gradient(90deg, rgba(21,128,61,.065) 1px, transparent 1px)',
+      backgroundSize: '48px 48px',
+      padding: '40px 24px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center'
+    }}>
+      <div style={{ 
+        background: 'var(--card)', 
+        borderRadius: '16px', 
+        padding: '48px',
+        border: '1px solid var(--border)',
+        boxShadow: 'var(--shadow)',
+        textAlign: 'center',
+        maxWidth: '400px'
+      }}>
+        <h1 style={{ fontSize: '24px', fontWeight: 700, marginBottom: '16px', fontFamily: 'var(--font-display)' }}>
+          Something went wrong
+        </h1>
+        <p style={{ color: 'var(--text2)', marginBottom: '24px' }}>
+          Unable to determine your school status. Please refresh the page.
+        </p>
+        <button
+          onClick={() => window.location.reload()}
+          style={{
+            display: 'inline-block',
+            padding: '12px 24px',
+            background: 'var(--green)',
+            color: 'white',
+            border: 'none',
+            borderRadius: '8px',
+            fontSize: '14px',
+            fontWeight: 600,
+            fontFamily: 'var(--font-display)',
+            cursor: 'pointer'
+          }}
+        >
+          Refresh Page
+        </button>
+      </div>
+    </div>
+  )
 }
