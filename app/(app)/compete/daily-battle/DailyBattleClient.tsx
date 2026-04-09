@@ -372,7 +372,7 @@ export default function DailyBattleClient({ battle, userSubmission, userStreak, 
           <div>
             {/* User's Submission */}
             <div style={{
-              background: 'var(--surface)',
+              background: 'var(--card)',
               padding: '24px',
               borderRadius: '12px',
               marginBottom: '16px',
@@ -395,7 +395,7 @@ export default function DailyBattleClient({ battle, userSubmission, userStreak, 
 
             {/* Other Submissions Section */}
             <div style={{
-              background: 'var(--surface)',
+              background: 'var(--card)',
               padding: '24px',
               borderRadius: '12px',
               marginBottom: '16px'
