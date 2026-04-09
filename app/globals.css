@@ -904,6 +904,13 @@ button:hover, .nav-login:hover, .nav-signup:hover, .ft-cta:hover, .pc-cta:hover,
     display: none !important;
   }
   
+  /* Make text sections full width and centered on mobile */
+  .feature-text {
+    max-width: 100%;
+    text-align: center;
+    padding: 0 24px;
+  }
+  
   .testimonials-section {
     padding: 64px 24px;
   }
@@ -986,6 +993,13 @@ button:hover, .nav-login:hover, .nav-signup:hover, .ft-cta:hover, .pc-cta:hover,
   /* Hide landing page visual sections on phones */
   .feature-visual {
     display: none !important;
+  }
+  
+  /* Make text sections full width and centered on mobile */
+  .feature-text {
+    max-width: 100%;
+    text-align: center;
+    padding: 0 16px;
   }
   
   .testimonials-section {
