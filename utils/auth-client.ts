@@ -7,6 +7,8 @@ export interface UserProfile {
   display_name?: string
   status_tags?: string[]
   onboarding_complete?: boolean
+  is_teacher?: boolean
+  teacher_verified?: boolean
   created_at: string
 }
 

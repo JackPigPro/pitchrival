@@ -141,7 +141,7 @@ export function useUser() {
       // Fetch fresh data
       const profileResult = await supabase
         .from('profiles')
-        .select('id, username, display_name, status_tags, onboarding_complete, created_at')
+        .select('id, username, display_name, status_tags, onboarding_complete, is_teacher, teacher_verified, created_at')
         .eq('id', userId)
         .single()
 

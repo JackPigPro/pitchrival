@@ -1,15 +1,15 @@
-'use client'
+import { createClient } from '@/utils/supabase/server'
+import { redirect } from 'next/navigation'
+import SchoolsClient from './SchoolsClient'
 
-import { useRouter } from 'next/navigation'
-import ComingSoon from '@/components/ComingSoon'
+export default async function SchoolsPage() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
 
-export default function SchoolsPage() {
-  const router = useRouter()
-
-  const handleBack = () => {
-    router.push('/')
+  if (!user) {
+    // Let the client handle showing the login screen
   }
 
-  return <ComingSoon onBack={handleBack} />
+  return <SchoolsClient />
 }
 
