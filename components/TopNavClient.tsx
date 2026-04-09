@@ -179,7 +179,7 @@ export default function TopNavClient({
         }}
         className="mobile-menu-toggle"
       >
-        {mobileMenuOpen ? '×' : '==='}
+        {mobileMenuOpen ? '×' : '⋯'}
       </button>
 
       {/* Mobile Menu Container */}
@@ -195,6 +195,103 @@ export default function TopNavClient({
         maxHeight: 'calc(100vh - 68px)',
         overflowY: 'auto'
       }}>
+        {/* Mobile Login/Signup Section */}
+        <div style={{ padding: '16px', borderBottom: '1px solid var(--border)' }}>
+          {user ? (
+            <>
+              <div style={{ 
+                fontSize: '14px', 
+                fontWeight: '700', 
+                color: 'var(--text2)', 
+                marginBottom: '12px',
+                fontFamily: 'var(--font-display)'
+              }}>
+                {user.name ?? user.email ?? 'Account'}
+              </div>
+              <Link 
+                href={user.username ? `/profile/${user.username}` : "/profile"} 
+                prefetch={true}
+                style={{
+                  ...dropdownLinkStyle,
+                  display: 'block',
+                  marginBottom: '8px'
+                }} 
+                onClick={() => {
+                  handleNavPageClick()
+                  setMobileMenuOpen(false)
+                }}
+              >
+                Profile
+              </Link>
+              <Link 
+                href="/settings" 
+                prefetch={true}
+                style={{
+                  ...dropdownLinkStyle,
+                  display: 'block',
+                  marginBottom: '8px'
+                }} 
+                onClick={() => {
+                  handleNavPageClick()
+                  setMobileMenuOpen(false)
+                }}
+              >
+                Settings
+              </Link>
+              <form action={signOut} onSubmit={() => setMobileMenuOpen(false)}>
+                <button
+                  type="submit"
+                  style={{
+                    ...dropdownLinkStyle,
+                    width: '100%',
+                    background: 'transparent',
+                    textAlign: 'left',
+                    cursor: 'pointer',
+                    padding: '12px'
+                  }}
+                >
+                  Sign Out
+                </button>
+              </form>
+            </>
+          ) : (
+            <>
+              <Link 
+                href="/login?mode=login" 
+                prefetch={true}
+                style={{
+                  ...dropdownLinkStyle,
+                  display: 'block',
+                  marginBottom: '8px',
+                  border: '1px solid var(--border)',
+                  textAlign: 'center'
+                }} 
+                onClick={() => {
+                  setMobileMenuOpen(false)
+                }}
+              >
+                Log In
+              </Link>
+              <Link 
+                href="/login?mode=signup" 
+                prefetch={true}
+                style={{
+                  ...dropdownLinkStyle,
+                  display: 'block',
+                  background: 'var(--green)',
+                  color: 'white',
+                  textAlign: 'center'
+                }} 
+                onClick={() => {
+                  setMobileMenuOpen(false)
+                }}
+              >
+                Sign Up
+              </Link>
+            </>
+          )}
+        </div>
+
         {/* Mobile Connect Section */}
         <div style={{ padding: '16px', borderBottom: '1px solid var(--border)' }}>
           <div style={{ 
@@ -438,10 +535,11 @@ export default function TopNavClient({
               style={{ 
                 ...menuItemStyle, 
                 cursor: 'default',
-                ...(open === 'connect' ? menuItemHoverStyle : {})
+                ...(open === 'connect' ? menuItemHoverStyle : {}),
+                ...(isActiveRoute('/connect') ? { background: 'var(--blue)', color: 'white', fontWeight: 800 } : {})
               }}
             >
-              Connect <span style={{ fontSize: '12px', opacity: 0.7 }}>£</span>
+              Connect
             </span>
           ) : (
             <a
@@ -453,12 +551,13 @@ export default function TopNavClient({
               }}
               style={{
                 ...menuItemStyle,
-                ...(hoveredItem === 'connect' ? menuItemHoverStyle : {})
+                ...(hoveredItem === 'connect' ? menuItemHoverStyle : {}),
+                ...(isActiveRoute('/connect') ? { background: 'var(--blue)', color: 'white', fontWeight: 800 } : {})
               }}
               onMouseEnter={() => setHoveredItem('connect')}
               onMouseLeave={() => setHoveredItem(null)}
             >
-              Connect <span style={{ fontSize: '12px', opacity: 0.7 }}>£</span>
+              Connect
             </a>
           )}
           <div
@@ -528,10 +627,11 @@ export default function TopNavClient({
               style={{ 
                 ...menuItemStyle, 
                 cursor: 'default',
-                ...(open === 'compete' ? menuItemHoverStyle : {})
+                ...(open === 'compete' ? menuItemHoverStyle : {}),
+                ...(isActiveRoute('/compete') ? { background: 'var(--green)', color: 'white', fontWeight: 800 } : {})
               }}
             >
-              Compete <span style={{ fontSize: '12px', opacity: 0.7 }}>£</span>
+              Compete
             </span>
           ) : (
             <a
@@ -543,12 +643,13 @@ export default function TopNavClient({
               }}
               style={{
                 ...menuItemStyle,
-                ...(hoveredItem === 'compete' ? menuItemHoverStyle : {})
+                ...(hoveredItem === 'compete' ? menuItemHoverStyle : {}),
+                ...(isActiveRoute('/compete') ? { background: 'var(--green)', color: 'white', fontWeight: 800 } : {})
               }}
               onMouseEnter={() => setHoveredItem('compete')}
               onMouseLeave={() => setHoveredItem(null)}
             >
-              Compete <span style={{ fontSize: '12px', opacity: 0.7 }}>£</span>
+              Compete
             </a>
           )}
           <div
