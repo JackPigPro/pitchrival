@@ -132,6 +132,7 @@ export default function ConnectSection({ onComingSoon }: ConnectSectionProps) {
           )}
         </div>
       </div>
+
     </div>
   )
 }

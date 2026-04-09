@@ -124,6 +124,7 @@ export default function CompeteSection({ onComingSoon }: CompeteSectionProps) {
           </div>
         </div>
       </div>
+
     </div>
   )
 }
