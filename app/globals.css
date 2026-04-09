@@ -727,6 +727,45 @@ button:hover, .nav-login:hover, .nav-signup:hover, .ft-cta:hover, .pc-cta:hover,
   .hero-deco-card, .pc, .idea-post, .cf-match-card {
     box-shadow: 0 2px 12px rgba(0,0,0,0.06);
   }
+  
+  /* Fix visual elements cutoff */
+  .hero-deco-card {
+    display: none; /* Hide floating cards on mobile to prevent overflow */
+  }
+  
+  .hero::after {
+    width: 100vw;
+    height: 400px;
+    background: radial-gradient(ellipse, rgba(21,128,61,.07) 0%, transparent 70%);
+  }
+  
+  .feature-visual {
+    width: 100%;
+    max-width: none;
+    padding: 24px 16px;
+    overflow: hidden;
+  }
+  
+  .connect-board, .match-arena, .learn-player {
+    width: 100%;
+    max-width: none;
+  }
+  
+  /* Footer fixes */
+  .site-footer {
+    width: 100%;
+    padding: 32px 16px;
+  }
+  
+  .content-container {
+    max-width: 100%;
+    padding: 0 16px;
+    overflow-x: hidden;
+  }
+  
+  .content-section {
+    overflow-x: hidden;
+  }
 }
 .lp-lesson-sub { font-size: 11px; color: var(--text3); margin-top: 1px; }
 .lp-lesson.active-l .lp-lesson-sub { color: var(--purple); opacity: .7; }
