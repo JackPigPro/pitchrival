@@ -79,23 +79,26 @@ export default function SchoolsClient() {
     if (!user) return
 
     try {
-      // Check if user is in a class
-      const { data: classMember } = await supabase
-        .from('class_members')
-        .select('*')
-        .eq('user_id', user.id)
-        .single()
-
-      if (classMember) {
-        // Fetch class details
-        const { data: classData } = await supabase
-          .from('classes')
+      // Only check class_members for students (not teachers)
+      if (!isTeacher) {
+        // Check if user is in a class
+        const { data: classMember } = await supabase
+          .from('class_members')
           .select('*')
-          .eq('id', classMember.class_id)
+          .eq('user_id', user.id)
           .single()
-        
-        if (classData) {
-          setUserClass(classData)
+
+        if (classMember) {
+          // Fetch class details
+          const { data: classData } = await supabase
+            .from('classes')
+            .select('*')
+            .eq('id', classMember.class_id)
+            .single()
+          
+          if (classData) {
+            setUserClass(classData)
+          }
         }
       }
 
