@@ -24,6 +24,7 @@ export default async function LeaderboardPage() {
     .from('user_stats')
     .select('user_id, elo, rank, weekly_duel_entered')
     .order('elo', { ascending: false })
+    .order('user_id', { ascending: true })
 
   if (statsError) {
     console.error('Error fetching user stats:', statsError)
@@ -112,7 +113,13 @@ export default async function LeaderboardPage() {
       created_at: new Date().toISOString(),
       profiles: user.profiles
     }
-  }).sort((a, b) => b.new_elo - a.new_elo) // Sort by period gain descending
+  }).sort((a, b) => {
+    // Sort by period gain descending, then by user_id ascending to prevent ties
+    if (b.new_elo !== a.new_elo) {
+      return b.new_elo - a.new_elo
+    }
+    return a.user_id.localeCompare(b.user_id)
+  })
 
   // Build complete weekly list - start with all users, then calculate their weekly gains
   const completeWeeklyList = transformedAllUsers.map(user => {
@@ -127,7 +134,13 @@ export default async function LeaderboardPage() {
       created_at: new Date().toISOString(),
       profiles: user.profiles
     }
-  }).sort((a, b) => b.new_elo - a.new_elo) // Sort by period gain descending
+  }).sort((a, b) => {
+    // Sort by period gain descending, then by user_id ascending to prevent ties
+    if (b.new_elo !== a.new_elo) {
+      return b.new_elo - a.new_elo
+    }
+    return a.user_id.localeCompare(b.user_id)
+  })
 
 
   // Get current user's stats (only if authenticated)

@@ -20,7 +20,29 @@ export default function TopNavClient({
   const supabase = createClient()
   const [open, setOpen] = useState<'connect' | 'compete' | 'settings' | null>(null)
   const [hoveredItem, setHoveredItem] = useState<string | null>(null)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const { theme, toggleTheme } = useTheme()
+
+  // Helper function to check if a route is active
+  const isActiveRoute = (route: string) => {
+    if (route === '/') {
+      return pathname === '/'
+    }
+    return pathname.startsWith(route)
+  }
+
+  // Helper function to get active style
+  const getActiveStyle = (route: string, baseStyle: React.CSSProperties) => {
+    if (isActiveRoute(route)) {
+      return {
+        ...baseStyle,
+        background: 'var(--green)',
+        color: 'white',
+        fontWeight: 800
+      }
+    }
+    return baseStyle
+  }
 
   const menuItemStyle: React.CSSProperties = {
     textDecoration: 'none',
@@ -141,6 +163,269 @@ export default function TopNavClient({
         <span className="nav-name">PitchRival</span>
       </Link>
 
+      {/* Mobile Hamburger Menu Button */}
+      <button
+        onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+        style={{
+          display: 'none',
+          background: 'none',
+          border: 'none',
+          fontSize: '24px',
+          cursor: 'pointer',
+          padding: '8px',
+          borderRadius: '8px',
+          color: 'var(--text)',
+          marginRight: '16px'
+        }}
+        className="mobile-menu-toggle"
+      >
+        {mobileMenuOpen ? '×' : '==='}
+      </button>
+
+      {/* Mobile Menu Container */}
+      <div className={`mobile-menu-container ${mobileMenuOpen ? '' : 'hidden'}`} style={{
+        position: 'fixed',
+        top: '68px',
+        left: 0,
+        right: 0,
+        background: 'var(--card)',
+        borderBottom: '1px solid var(--border)',
+        boxShadow: 'var(--shadow)',
+        zIndex: 90,
+        maxHeight: 'calc(100vh - 68px)',
+        overflowY: 'auto'
+      }}>
+        {/* Mobile Connect Section */}
+        <div style={{ padding: '16px', borderBottom: '1px solid var(--border)' }}>
+          <div style={{ 
+            fontSize: '14px', 
+            fontWeight: '700', 
+            color: 'var(--blue)', 
+            marginBottom: '12px',
+            fontFamily: 'var(--font-display)'
+          }}>
+            Connect
+          </div>
+          {isLoggedIn ? (
+            <>
+              <Link 
+                href="/connect/cofounder-match" 
+                prefetch={true}
+                style={{
+                  ...dropdownLinkStyle,
+                  display: 'block',
+                  marginBottom: '8px',
+                  ...(hoveredItem === 'cofounder-match' ? dropdownLinkHoverStyle : {})
+                }} 
+                onClick={() => {
+                  handleNavPageClick()
+                  setMobileMenuOpen(false)
+                }}
+                onMouseEnter={() => setHoveredItem('cofounder-match')}
+                onMouseLeave={() => setHoveredItem(null)}
+              >
+                Co-founder Match
+              </Link>
+              <Link 
+                href="/connect/messages" 
+                prefetch={true}
+                style={{
+                  ...dropdownLinkStyle,
+                  display: 'block',
+                  marginBottom: '8px',
+                  ...(hoveredItem === 'messages' ? dropdownLinkHoverStyle : {})
+                }} 
+                onClick={() => {
+                  handleNavPageClick()
+                  setMobileMenuOpen(false)
+                }}
+                onMouseEnter={() => setHoveredItem('messages')}
+                onMouseLeave={() => setHoveredItem(null)}
+              >
+                Messages
+              </Link>
+              <Link 
+                href="/connect/ideas" 
+                prefetch={true}
+                style={{
+                  ...dropdownLinkStyle,
+                  display: 'block',
+                  ...(hoveredItem === 'ideas' ? dropdownLinkHoverStyle : {})
+                }} 
+                onClick={() => {
+                  handleNavPageClick()
+                  setMobileMenuOpen(false)
+                }}
+                onMouseEnter={() => setHoveredItem('ideas')}
+                onMouseLeave={() => setHoveredItem(null)}
+              >
+                Ideas
+              </Link>
+            </>
+          ) : (
+            <a
+              href="/#connect"
+              onClick={(e) => {
+                e.preventDefault()
+                scrollToLandingSection('connect', 'center')
+                setMobileMenuOpen(false)
+              }}
+              style={dropdownLinkStyle}
+            >
+              Connect
+            </a>
+          )}
+        </div>
+
+        {/* Mobile Compete Section */}
+        <div style={{ padding: '16px', borderBottom: '1px solid var(--border)' }}>
+          <div style={{ 
+            fontSize: '14px', 
+            fontWeight: '700', 
+            color: 'var(--green)', 
+            marginBottom: '12px',
+            fontFamily: 'var(--font-display)'
+          }}>
+            Compete
+          </div>
+          {isLoggedIn ? (
+            <>
+              <Link 
+                href="/compete/daily-battle" 
+                prefetch={true}
+                style={{
+                  ...dropdownLinkStyle,
+                  display: 'block',
+                  marginBottom: '8px',
+                  ...(hoveredItem === 'daily-battle' ? dropdownLinkHoverStyle : {})
+                }} 
+                onClick={() => {
+                  handleNavPageClick()
+                  setMobileMenuOpen(false)
+                }}
+                onMouseEnter={() => setHoveredItem('daily-battle')}
+                onMouseLeave={() => setHoveredItem(null)}
+              >
+                Daily Battle
+              </Link>
+              <Link 
+                href="/compete/weekly-duel" 
+                prefetch={true}
+                style={{
+                  ...dropdownLinkStyle,
+                  display: 'block',
+                  marginBottom: '8px',
+                  ...(hoveredItem === 'weekly-duel' ? dropdownLinkHoverStyle : {})
+                }} 
+                onClick={() => {
+                  handleNavPageClick()
+                  setMobileMenuOpen(false)
+                }}
+                onMouseEnter={() => setHoveredItem('weekly-duel')}
+                onMouseLeave={() => setHoveredItem(null)}
+              >
+                Weekly Duel
+              </Link>
+              <Link 
+                href="/compete/leaderboard" 
+                prefetch={true}
+                style={{
+                  ...dropdownLinkStyle,
+                  display: 'block',
+                  ...(hoveredItem === 'leaderboard' ? dropdownLinkHoverStyle : {})
+                }} 
+                onClick={() => {
+                  handleNavPageClick()
+                  setMobileMenuOpen(false)
+                }}
+                onMouseEnter={() => setHoveredItem('leaderboard')}
+                onMouseLeave={() => setHoveredItem(null)}
+              >
+                Leaderboard
+              </Link>
+            </>
+          ) : (
+            <a
+              href="/#compete"
+              onClick={(e) => {
+                e.preventDefault()
+                scrollToLandingSection('compete', 'center')
+                setMobileMenuOpen(false)
+              }}
+              style={dropdownLinkStyle}
+            >
+              Compete
+            </a>
+          )}
+        </div>
+
+        {/* Mobile Learn & Schools Section */}
+        <div style={{ padding: '16px' }}>
+          {isLoggedIn ? (
+            <>
+              <Link 
+                href="/learn" 
+                prefetch={true}
+                style={{
+                  ...dropdownLinkStyle,
+                  display: 'block',
+                  marginBottom: '8px'
+                }} 
+                onClick={() => {
+                  handleNavPageClick()
+                  setMobileMenuOpen(false)
+                }}
+              >
+                Learn
+              </Link>
+              <Link 
+                href="/schools" 
+                prefetch={true}
+                style={{
+                  ...dropdownLinkStyle,
+                  display: 'block'
+                }} 
+                onClick={() => {
+                  handleNavPageClick()
+                  setMobileMenuOpen(false)
+                }}
+              >
+                Schools
+              </Link>
+            </>
+          ) : (
+            <>
+              <a
+                href="/#learn"
+                onClick={(e) => {
+                  e.preventDefault()
+                  scrollToLandingSection('learn', 'center')
+                  setMobileMenuOpen(false)
+                }}
+                style={{
+                  ...dropdownLinkStyle,
+                  display: 'block',
+                  marginBottom: '8px'
+                }}
+              >
+                Learn
+              </a>
+              <a
+                href="/#schools"
+                onClick={(e) => {
+                  e.preventDefault()
+                  scrollToLandingSection('schools', 'top')
+                  setMobileMenuOpen(false)
+                }}
+                style={dropdownLinkStyle}
+              >
+                Schools
+              </a>
+            </>
+          )}
+        </div>
+      </div>
+
       <div className="nav-links" style={{ position: 'relative' }}>
         <div
           style={hoverZoneStyle}
@@ -156,7 +441,7 @@ export default function TopNavClient({
                 ...(open === 'connect' ? menuItemHoverStyle : {})
               }}
             >
-              Connect <span style={{ fontSize: '12px', opacity: 0.7 }}>▾</span>
+              Connect <span style={{ fontSize: '12px', opacity: 0.7 }}>£</span>
             </span>
           ) : (
             <a
@@ -173,7 +458,7 @@ export default function TopNavClient({
               onMouseEnter={() => setHoveredItem('connect')}
               onMouseLeave={() => setHoveredItem(null)}
             >
-              Connect <span style={{ fontSize: '12px', opacity: 0.7 }}>▾</span>
+              Connect <span style={{ fontSize: '12px', opacity: 0.7 }}>£</span>
             </a>
           )}
           <div
@@ -191,10 +476,10 @@ export default function TopNavClient({
               href={isLoggedIn ? "/connect/cofounder-match" : "/login?mode=signup"} 
               prefetch={isLoggedIn ? true : false}
               className="topnav-dropdown-link" 
-              style={{
+              style={getActiveStyle('/connect/cofounder-match', {
                 ...dropdownLinkStyle, 
                 ...(hoveredItem === 'cofounder-match' ? dropdownLinkHoverStyle : {})
-              }} 
+              })} 
               onClick={handleNavPageClick}
               onMouseEnter={() => setHoveredItem('cofounder-match')}
               onMouseLeave={() => setHoveredItem(null)}
@@ -205,10 +490,10 @@ export default function TopNavClient({
               href={isLoggedIn ? "/connect/messages" : "/login?mode=signup"} 
               prefetch={isLoggedIn ? true : false}
               className="topnav-dropdown-link" 
-              style={{
+              style={getActiveStyle('/connect/messages', {
                 ...dropdownLinkStyle, 
                 ...(hoveredItem === 'messages' ? dropdownLinkHoverStyle : {})
-              }} 
+              })} 
               onClick={handleNavPageClick}
               onMouseEnter={() => setHoveredItem('messages')}
               onMouseLeave={() => setHoveredItem(null)}
@@ -219,10 +504,10 @@ export default function TopNavClient({
               href={isLoggedIn ? "/connect/ideas" : "/login?mode=signup"} 
               prefetch={isLoggedIn ? true : false}
               className="topnav-dropdown-link" 
-              style={{
+              style={getActiveStyle('/connect/ideas', {
                 ...dropdownLinkStyle, 
                 ...(hoveredItem === 'ideas' ? dropdownLinkHoverStyle : {})
-              }} 
+              })} 
               onClick={handleNavPageClick}
               onMouseEnter={() => setHoveredItem('ideas')}
               onMouseLeave={() => setHoveredItem(null)}
@@ -246,7 +531,7 @@ export default function TopNavClient({
                 ...(open === 'compete' ? menuItemHoverStyle : {})
               }}
             >
-              Compete <span style={{ fontSize: '12px', opacity: 0.7 }}>▾</span>
+              Compete <span style={{ fontSize: '12px', opacity: 0.7 }}>£</span>
             </span>
           ) : (
             <a
@@ -263,7 +548,7 @@ export default function TopNavClient({
               onMouseEnter={() => setHoveredItem('compete')}
               onMouseLeave={() => setHoveredItem(null)}
             >
-              Compete <span style={{ fontSize: '12px', opacity: 0.7 }}>▾</span>
+              Compete <span style={{ fontSize: '12px', opacity: 0.7 }}>£</span>
             </a>
           )}
           <div
@@ -281,10 +566,10 @@ export default function TopNavClient({
               href={isLoggedIn ? "/compete/daily-battle" : "/login?mode=signup"} 
               prefetch={true}
               className="topnav-dropdown-link" 
-              style={{
+              style={getActiveStyle('/compete/daily-battle', {
                 ...dropdownLinkStyle, 
                 ...(hoveredItem === 'daily-battle' ? dropdownLinkHoverStyle : {})
-              }} 
+              })} 
               onClick={handleNavPageClick}
               onMouseEnter={() => setHoveredItem('daily-battle')}
               onMouseLeave={() => setHoveredItem(null)}
@@ -295,10 +580,10 @@ export default function TopNavClient({
               href={isLoggedIn ? "/compete/weekly-duel" : "/login?mode=signup"} 
               prefetch={isLoggedIn ? true : false}
               className="topnav-dropdown-link" 
-              style={{
+              style={getActiveStyle('/compete/weekly-duel', {
                 ...dropdownLinkStyle, 
                 ...(hoveredItem === 'weekly-duel' ? dropdownLinkHoverStyle : {})
-              }} 
+              })} 
               onClick={handleNavPageClick}
               onMouseEnter={() => setHoveredItem('weekly-duel')}
               onMouseLeave={() => setHoveredItem(null)}
@@ -310,10 +595,10 @@ export default function TopNavClient({
               prefetch={true}
               scroll 
               className="topnav-dropdown-link" 
-              style={{
+              style={getActiveStyle('/compete/leaderboard', {
                 ...dropdownLinkStyle, 
                 ...(hoveredItem === 'leaderboard' ? dropdownLinkHoverStyle : {})
-              }} 
+              })} 
               onClick={handleNavPageClick}
               onMouseEnter={() => setHoveredItem('leaderboard')}
               onMouseLeave={() => setHoveredItem(null)}
@@ -329,10 +614,10 @@ export default function TopNavClient({
               href="/learn" 
               prefetch={true}
               className="topnav-link" 
-              style={{
+              style={getActiveStyle('/learn', {
                 ...menuItemStyle,
                 ...(hoveredItem === 'learn' ? menuItemHoverStyle : {})
-              }}
+              })}
               onMouseEnter={() => setHoveredItem('learn')}
               onMouseLeave={() => setHoveredItem(null)}
             >
@@ -361,10 +646,10 @@ export default function TopNavClient({
               href="/schools" 
               prefetch={true}
               className="topnav-link" 
-              style={{
+              style={getActiveStyle('/schools', {
                 ...menuItemStyle,
                 ...(hoveredItem === 'schools' ? menuItemHoverStyle : {})
-              }}
+              })}
               onMouseEnter={() => setHoveredItem('schools')}
               onMouseLeave={() => setHoveredItem(null)}
             >

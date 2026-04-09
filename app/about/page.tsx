@@ -26,7 +26,7 @@ export default function AboutPage() {
                   Nobody had built the daily version of that feeling. I used to wake up at 3am to grind vocabulary.com leaderboards with a friend. Not because anyone told us to. Not for a grade. Just because the competition was addictive and we wanted to win.
                 </p>
                 <p className="story-paragraph highlight">
-                  That's the feeling I'm trying to bottle — that same pull, but for entrepreneurial skills.
+                  That's the feeling I'm trying to create — but for entrepreneurial skills.
                 </p>
               </div>
             </div>

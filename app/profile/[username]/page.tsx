@@ -71,7 +71,13 @@ async function ProfileContent({ username }: { username: string }) {
         user_id: user.user_id,
         dailyGain: totalDailyGain
       }
-    }).sort((a, b) => b.dailyGain - a.dailyGain) // Sort by daily gain descending
+    }).sort((a, b) => {
+      // Sort by daily gain descending, then by user_id ascending to prevent ties
+      if (b.dailyGain !== a.dailyGain) {
+        return b.dailyGain - a.dailyGain
+      }
+      return a.user_id.localeCompare(b.user_id)
+    })
 
     // Find current user's rank
     const userIndex = completeDailyList.findIndex(user => user.user_id === profile.id)

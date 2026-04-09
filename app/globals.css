@@ -116,6 +116,48 @@ body[data-theme='dark'] .nav {
 }
 .nav-name { font-size: 19px; font-weight: 800; color: var(--text); letter-spacing: -.5px; font-family: var(--font-display); }
 .nav-links { display: flex; align-items: center; gap: 2px; flex: 1; }
+
+/* Mobile Navigation */
+@media (max-width: 768px) {
+  .mobile-menu-toggle {
+    display: block !important;
+  }
+  
+  .nav-links {
+    display: none !important;
+  }
+  
+  .mobile-menu-container {
+    display: block !important;
+  }
+  
+  .mobile-menu-container.hidden {
+    display: none !important;
+  }
+  
+  .nav-right {
+    gap: 8px;
+  }
+  
+  .nav-login, .nav-signup {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+}
+
+@media (min-width: 769px) {
+  .mobile-menu-toggle {
+    display: none !important;
+  }
+  
+  .mobile-menu-container {
+    display: none !important;
+  }
+  
+  .nav-links {
+    display: flex !important;
+  }
+}
 .nav-link {
   background: none; border: none; color: var(--text2);
   padding: 7px 14px; border-radius: 7px;
