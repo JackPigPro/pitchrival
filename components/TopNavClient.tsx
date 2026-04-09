@@ -195,109 +195,12 @@ export default function TopNavClient({
         maxHeight: 'calc(100vh - 68px)',
         overflowY: 'auto'
       }}>
-        {/* Mobile Login/Signup Section */}
-        <div style={{ padding: '16px', borderBottom: '1px solid var(--border)' }}>
-          {user ? (
-            <>
-              <div style={{ 
-                fontSize: '14px', 
-                fontWeight: '700', 
-                color: 'var(--text2)', 
-                marginBottom: '12px',
-                fontFamily: 'var(--font-display)'
-              }}>
-                {user.name ?? user.email ?? 'Account'}
-              </div>
-              <Link 
-                href={user.username ? `/profile/${user.username}` : "/profile"} 
-                prefetch={true}
-                style={{
-                  ...dropdownLinkStyle,
-                  display: 'block',
-                  marginBottom: '8px'
-                }} 
-                onClick={() => {
-                  handleNavPageClick()
-                  setMobileMenuOpen(false)
-                }}
-              >
-                Profile
-              </Link>
-              <Link 
-                href="/settings" 
-                prefetch={true}
-                style={{
-                  ...dropdownLinkStyle,
-                  display: 'block',
-                  marginBottom: '8px'
-                }} 
-                onClick={() => {
-                  handleNavPageClick()
-                  setMobileMenuOpen(false)
-                }}
-              >
-                Settings
-              </Link>
-              <form action={signOut} onSubmit={() => setMobileMenuOpen(false)}>
-                <button
-                  type="submit"
-                  style={{
-                    ...dropdownLinkStyle,
-                    width: '100%',
-                    background: 'transparent',
-                    textAlign: 'left',
-                    cursor: 'pointer',
-                    padding: '12px'
-                  }}
-                >
-                  Sign Out
-                </button>
-              </form>
-            </>
-          ) : (
-            <>
-              <Link 
-                href="/login?mode=login" 
-                prefetch={true}
-                style={{
-                  ...dropdownLinkStyle,
-                  display: 'block',
-                  marginBottom: '8px',
-                  border: '1px solid var(--border)',
-                  textAlign: 'center'
-                }} 
-                onClick={() => {
-                  setMobileMenuOpen(false)
-                }}
-              >
-                Log In
-              </Link>
-              <Link 
-                href="/login?mode=signup" 
-                prefetch={true}
-                style={{
-                  ...dropdownLinkStyle,
-                  display: 'block',
-                  background: 'var(--green)',
-                  color: 'white',
-                  textAlign: 'center'
-                }} 
-                onClick={() => {
-                  setMobileMenuOpen(false)
-                }}
-              >
-                Sign Up
-              </Link>
-            </>
-          )}
-        </div>
-
         {/* Mobile Connect Section */}
         <div style={{ padding: '16px', borderBottom: '1px solid var(--border)' }}>
           <div style={{ 
             fontSize: '14px', 
             fontWeight: '700', 
-            color: 'var(--blue)', 
+            color: 'var(--green)', 
             marginBottom: '12px',
             fontFamily: 'var(--font-display)'
           }}>
@@ -521,6 +424,103 @@ export default function TopNavClient({
             </>
           )}
         </div>
+
+        {/* Mobile Login/Signup Section */}
+        <div style={{ padding: '16px' }}>
+          {user ? (
+            <>
+              <div style={{ 
+                fontSize: '14px', 
+                fontWeight: '700', 
+                color: 'var(--text2)', 
+                marginBottom: '12px',
+                fontFamily: 'var(--font-display)'
+              }}>
+                {user.name ?? user.email ?? 'Account'}
+              </div>
+              <Link 
+                href={user.username ? `/profile/${user.username}` : "/profile"} 
+                prefetch={true}
+                style={{
+                  ...dropdownLinkStyle,
+                  display: 'block',
+                  marginBottom: '8px'
+                }} 
+                onClick={() => {
+                  handleNavPageClick()
+                  setMobileMenuOpen(false)
+                }}
+              >
+                Profile
+              </Link>
+              <Link 
+                href="/settings" 
+                prefetch={true}
+                style={{
+                  ...dropdownLinkStyle,
+                  display: 'block',
+                  marginBottom: '8px'
+                }} 
+                onClick={() => {
+                  handleNavPageClick()
+                  setMobileMenuOpen(false)
+                }}
+              >
+                Settings
+              </Link>
+              <form action={signOut} onSubmit={() => setMobileMenuOpen(false)}>
+                <button
+                  type="submit"
+                  style={{
+                    ...dropdownLinkStyle,
+                    width: '100%',
+                    background: 'transparent',
+                    textAlign: 'left',
+                    cursor: 'pointer',
+                    padding: '12px'
+                  }}
+                >
+                  Sign Out
+                </button>
+              </form>
+            </>
+          ) : (
+            <>
+              <Link 
+                href="/login?mode=login" 
+                prefetch={true}
+                style={{
+                  ...dropdownLinkStyle,
+                  display: 'block',
+                  marginBottom: '8px',
+                  border: '1px solid var(--border)',
+                  textAlign: 'center'
+                }} 
+                onClick={() => {
+                  setMobileMenuOpen(false)
+                }}
+              >
+                Log In
+              </Link>
+              <Link 
+                href="/login?mode=signup" 
+                prefetch={true}
+                style={{
+                  ...dropdownLinkStyle,
+                  display: 'block',
+                  background: 'var(--green)',
+                  color: 'white',
+                  textAlign: 'center'
+                }} 
+                onClick={() => {
+                  setMobileMenuOpen(false)
+                }}
+              >
+                Sign Up
+              </Link>
+            </>
+          )}
+        </div>
       </div>
 
       <div className="nav-links" style={{ position: 'relative' }}>
@@ -536,7 +536,7 @@ export default function TopNavClient({
                 ...menuItemStyle, 
                 cursor: 'default',
                 ...(open === 'connect' ? menuItemHoverStyle : {}),
-                ...(isActiveRoute('/connect') ? { background: 'var(--blue)', color: 'white', fontWeight: 800 } : {})
+                ...(isActiveRoute('/connect') ? { background: 'var(--green)', color: 'white', fontWeight: 800 } : {})
               }}
             >
               Connect
@@ -552,7 +552,7 @@ export default function TopNavClient({
               style={{
                 ...menuItemStyle,
                 ...(hoveredItem === 'connect' ? menuItemHoverStyle : {}),
-                ...(isActiveRoute('/connect') ? { background: 'var(--blue)', color: 'white', fontWeight: 800 } : {})
+                ...(isActiveRoute('/connect') ? { background: 'var(--green)', color: 'white', fontWeight: 800 } : {})
               }}
               onMouseEnter={() => setHoveredItem('connect')}
               onMouseLeave={() => setHoveredItem(null)}

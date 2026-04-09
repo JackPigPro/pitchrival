@@ -139,9 +139,9 @@ body[data-theme='dark'] .nav {
     gap: 8px;
   }
   
-  .nav-login, .nav-signup {
-    padding: 6px 12px;
-    font-size: 12px;
+  .nav-right .nav-login:not(.mobile-menu-toggle):not([title*="Switch"]),
+  .nav-right .nav-signup {
+    display: none !important;
   }
 }
 
