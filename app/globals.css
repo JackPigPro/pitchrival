@@ -135,6 +135,25 @@ body[data-theme='dark'] .nav {
     display: none !important;
   }
   
+  .nav {
+    padding: 0 16px;
+  }
+  
+  .nav-brand {
+    margin-right: 16px;
+  }
+  
+  .nav-name {
+    font-size: 16px;
+  }
+  
+  .mobile-menu-toggle {
+    font-size: 20px !important;
+    padding: 12px !important;
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
   .nav-right {
     gap: 8px;
   }
@@ -202,6 +221,39 @@ body[data-theme='dark'] .nav {
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   padding: 140px 48px 0;
   position: relative; text-align: center; overflow: hidden;
+}
+
+/* Phone-specific hero optimizations */
+@media (max-width: 480px) {
+  .hero {
+    padding: 100px 16px 0;
+  }
+  
+  .hero-h1 {
+    font-size: 36px !important;
+    line-height: 1.1;
+    margin-bottom: 16px;
+  }
+  
+  .hero-sub {
+    font-size: 16px !important;
+    max-width: 100%;
+    margin-bottom: 24px;
+  }
+  
+  .hero-actions {
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    max-width: 280px;
+  }
+  
+  .btn-cta-primary, .btn-cta-ghost {
+    width: 100%;
+    padding: 14px 20px;
+    font-size: 14px;
+    min-height: 44px;
+  }
 }
 .hero-bg {
   position: absolute; inset: 0; pointer-events: none; z-index: 0;
@@ -333,6 +385,41 @@ button:hover, .nav-login:hover, .nav-signup:hover, .ft-cta:hover, .pc-cta:hover,
 .pillar-header-arrow { width: 56px; height: 1px; background: var(--border2); position: relative; margin: 0 12px; flex-shrink: 0; }
 .pillar-header-arrow::after { content: '→'; position: absolute; right: -7px; top: 50%; transform: translateY(-50%); font-size: 12px; color: var(--border2); line-height: 1; }
 .pillar-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; border: 1px solid var(--border); border-radius: 16px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04); max-width: 1200px; margin: 0 auto; }
+
+/* Phone-specific pillar optimizations */
+@media (max-width: 480px) {
+  .pillar-wrapper {
+    padding-bottom: 32px;
+  }
+  
+  .pillar-row {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    border-radius: 12px;
+  }
+  
+  .pc {
+    padding: 24px 20px 0;
+    min-height: 280px;
+  }
+  
+  .pc-title {
+    font-size: 14px;
+    margin-bottom: 8px;
+  }
+  
+  .pc-desc {
+    font-size: 11px;
+    margin-bottom: 16px;
+  }
+  
+  .pc-cta {
+    width: 100%;
+    padding: 12px 16px;
+    font-size: 11px;
+    min-height: 44px;
+  }
+}
 .pc { background: var(--card); padding: 32px 28px 0; text-align: left; cursor: pointer; position: relative; display: flex; flex-direction: column; transition: background .15s; min-height: 320px; border: 1px solid rgba(0,0,0,0.08); }
 .pc + .pc { border-left: 1px solid var(--border); }
 .pc:hover { background: var(--card2); }
@@ -608,6 +695,39 @@ button:hover, .nav-login:hover, .nav-signup:hover, .ft-cta:hover, .pc-cta:hover,
 .lp-lesson-info { flex: 1; }
 .lp-lesson-name { font-size: 13px; font-weight: 600; color: var(--text); }
 .lp-lesson.active-l .lp-lesson-name { color: var(--purple); font-weight: 700; }
+
+/* Mobile interactive component improvements */
+@media (max-width: 480px) {
+  .btn-cta-primary, .btn-cta-ghost {
+    transition: all 0.3s ease;
+  }
+  
+  .nav-link, .topnav-link, .topnav-dropdown-link {
+    min-height: 44px;
+    padding: 12px 16px;
+  }
+  
+  .value-card {
+    padding: 20px 16px;
+    margin-bottom: 16px;
+  }
+  
+  .founder-card {
+    padding: 24px 20px;
+    margin-bottom: 24px;
+  }
+}
+
+/* Performance optimizations */
+@media (max-width: 480px) {
+  .hero-bg, .feature-section::before {
+    background-size: 32px 32px;
+  }
+  
+  .hero-deco-card, .pc, .idea-post, .cf-match-card {
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  }
+}
 .lp-lesson-sub { font-size: 11px; color: var(--text3); margin-top: 1px; }
 .lp-lesson.active-l .lp-lesson-sub { color: var(--purple); opacity: .7; }
 .lp-lesson-time { font-size: 11px; color: var(--text3); flex-shrink: 0; }
