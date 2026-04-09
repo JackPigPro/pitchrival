@@ -1350,3 +1350,644 @@ button:hover, .nav-login:hover, .nav-signup:hover, .ft-cta:hover, .pc-cta:hover,
   color: var(--text3);
   text-align: center;
 }
+
+/* ═══════════════════════════════════════════════════════════
+   DASHBOARD MOBILE RESPONSIVE
+   ═══════════════════════════════════════════════════════════ */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+}
+
+.dashboard-card {
+  background: var(--card);
+  border-radius: 16px;
+  padding: 32px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+}
+
+.dashboard-header-title {
+  font-size: 48px;
+  font-weight: 800;
+  letter-spacing: -2px;
+  font-family: var(--font-display);
+  color: var(--text);
+  margin: 0;
+}
+
+.dashboard-subheader {
+  font-size: 18px;
+  font-weight: 400;
+  font-family: var(--font-body);
+  color: var(--text2);
+}
+
+@media (max-width: 768px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  
+  .dashboard-card {
+    padding: 24px !important;
+  }
+  
+  .dashboard-card h2 {
+    font-size: 18px !important;
+  }
+  
+  .dashboard-header-title {
+    font-size: 32px !important;
+  }
+  
+  .dashboard-subheader {
+    font-size: 16px !important;
+  }
+  
+  .dashboard-header-container {
+    padding: 0 16px;
+  }
+  
+  .dashboard-header-container > div {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 12px !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   DAILY BATTLE MOBILE RESPONSIVE
+   ═══════════════════════════════════════════════════════════ */
+.daily-battle-container {
+  display: flex;
+  gap: 32px;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.daily-battle-main {
+  flex: 1;
+}
+
+.daily-battle-sidebar {
+  width: 320px;
+  flex-shrink: 0;
+}
+
+.daily-battle-submissions-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 768px) {
+  .daily-battle-container {
+    flex-direction: column;
+    gap: 24px;
+    padding: 0 16px;
+  }
+  
+  .daily-battle-sidebar {
+    width: 100%;
+    order: 2;
+  }
+  
+  .daily-battle-main {
+    order: 1;
+  }
+  
+  .daily-battle-submissions-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .daily-battle-prompt {
+    padding: 24px !important;
+  }
+  
+  .daily-battle-prompt h2 {
+    font-size: 24px !important;
+  }
+  
+  .daily-battle-prompt p {
+    font-size: 18px !important;
+  }
+  
+  .daily-battle-submit-area {
+    padding: 24px !important;
+  }
+  
+  .daily-battle-submit-area textarea {
+    font-size: 16px !important;
+    min-height: 120px !important;
+  }
+  
+  .daily-battle-submit-area button {
+    min-height: 44px !important;
+    font-size: 16px !important;
+  }
+  
+  .daily-battle-sidebar {
+    padding: 20px !important;
+  }
+  
+  .daily-battle-sidebar h3 {
+    font-size: 18px !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   WEEKLY DUEL MOBILE RESPONSIVE
+   ═══════════════════════════════════════════════════════════ */
+.weekly-duel-container {
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.weekly-duel-main {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.weekly-duel-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.weekly-duel-voting-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+@media (max-width: 768px) {
+  .weekly-duel-container {
+    grid-template-columns: 1fr;
+    gap: 24px;
+    padding: 0 16px;
+  }
+  
+  .weekly-duel-sidebar {
+    order: 2;
+  }
+  
+  .weekly-duel-main {
+    order: 1;
+  }
+  
+  .weekly-duel-voting-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .weekly-duel-card {
+    padding: 24px !important;
+  }
+  
+  .weekly-duel-card h2 {
+    font-size: 20px !important;
+  }
+  
+  .weekly-duel-card textarea {
+    font-size: 16px !important;
+    min-height: 120px !important;
+  }
+  
+  .weekly-duel-card button {
+    min-height: 44px !important;
+    font-size: 16px !important;
+  }
+  
+  .weekly-duel-voting-option {
+    padding: 20px !important;
+  }
+  
+  .weekly-duel-voting-option div {
+    font-size: 16px !important;
+  }
+  
+  .weekly-duel-admin-bar {
+    padding: 16px !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 12px !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   LEADERBOARD MOBILE RESPONSIVE
+   ═══════════════════════════════════════════════════════════ */
+.leaderboard-container {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 32px;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 40px 24px;
+}
+
+.leaderboard-main {
+  background: var(--card);
+  border-radius: 16px;
+  padding: 32px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+}
+
+.leaderboard-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.leaderboard-table-headers {
+  display: grid;
+  grid-template-columns: 48px 1fr 80px 100px;
+  gap: 16px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.leaderboard-row {
+  display: grid;
+  grid-template-columns: 48px 1fr 80px 100px;
+  gap: 16px;
+  align-items: center;
+  padding: 16px 20px;
+  border-radius: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  transition: all 0.2s ease;
+}
+
+@media (max-width: 768px) {
+  .leaderboard-container {
+    grid-template-columns: 1fr;
+    gap: 24px;
+    padding: 40px 16px;
+  }
+  
+  .leaderboard-sidebar {
+    order: 2;
+  }
+  
+  .leaderboard-main {
+    order: 1;
+    padding: 24px !important;
+  }
+  
+  .leaderboard-table-headers {
+    grid-template-columns: 48px 1fr 100px;
+    gap: 12px;
+    padding-bottom: 8px;
+  }
+  
+  .leaderboard-row {
+    grid-template-columns: 48px 1fr 100px;
+    gap: 12px;
+    padding: 12px 16px;
+  }
+  
+  /* Hide Rank Title column on mobile */
+  .leaderboard-table-headers > div:nth-child(3),
+  .leaderboard-row > div:nth-child(3) {
+    display: none;
+  }
+  
+  .leaderboard-tabs {
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+  }
+  
+  .leaderboard-tabs button {
+    min-height: 44px !important;
+    font-size: 14px !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════
+   IDEAS FEED MOBILE RESPONSIVE
+   ═══════════════════════════════════════════════════ */
+.ideas-feed-container {
+  display: flex;
+  gap: 24px;
+  height: 100%;
+}
+
+.ideas-feed-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.ideas-feed-sidebar {
+  width: 380px;
+  flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .ideas-feed-container {
+    flex-direction: column;
+    gap: 24px;
+    padding: 0 16px;
+  }
+  
+  .ideas-feed-sidebar {
+    width: 100%;
+    order: 2;
+  }
+  
+  .ideas-feed-main {
+    order: 1;
+  }
+  
+  .ideas-feed-modal {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    max-width: none !important;
+    border-radius: 0 !important;
+  }
+  
+  .ideas-feed-create-form {
+    padding: 24px !important;
+  }
+  
+  .ideas-feed-create-form input,
+  .ideas-feed-create-form textarea {
+    font-size: 16px !important;
+    min-height: 44px !important;
+  }
+  
+  .ideas-feed-create-form button {
+    min-height: 44px !important;
+    font-size: 16px !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   COFOUNDER MATCH MOBILE RESPONSIVE
+   ═══════════════════════════════════════════════════════════ */
+.cofounder-match-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 40px 24px;
+}
+
+.cofounder-match-section {
+  background: var(--card);
+  border-radius: 16px;
+  padding: 32px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  margin-bottom: 24px;
+}
+
+.cofounder-match-profiles-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.cofounder-match-requests-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+@media (max-width: 768px) {
+  .cofounder-match-container {
+    grid-template-columns: 1fr;
+    gap: 24px;
+    padding: 40px 16px;
+  }
+  
+  .cofounder-match-section {
+    padding: 24px !important;
+  }
+  
+  .cofounder-match-profiles-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .cofounder-match-requests-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .cofounder-match-section h2 {
+    font-size: 18px !important;
+  }
+  
+  .cofounder-match-profile-card {
+    padding: 20px !important;
+  }
+  
+  .cofounder-match-profile-card a {
+    min-height: 44px !important;
+    font-size: 14px !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   MESSAGES MOBILE RESPONSIVE
+   ═══════════════════════════════════════════════════════════ */
+.messages-container {
+  display: flex;
+  height: calc(100vh - 68px);
+  background: var(--background);
+  overflow: hidden;
+}
+
+.messages-sidebar {
+  width: 280px;
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.messages-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.messages-conversation-list {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 16px 20px;
+}
+
+.messages-chat-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+@media (max-width: 768px) {
+  .messages-container {
+    flex-direction: column;
+  }
+  
+  .messages-sidebar {
+    width: 100%;
+    height: 200px;
+    order: 2;
+  }
+  
+  .messages-main {
+    order: 1;
+    height: calc(100vh - 200px);
+  }
+  
+  .messages-conversation-list {
+    padding: 16px;
+  }
+  
+  .messages-chat-area {
+    height: calc(100vh - 200px);
+  }
+  
+  .messages-skeleton-item {
+    padding: 12px !important;
+  }
+  
+  .messages-skeleton-line {
+    height: 16px !important;
+    margin-bottom: 8px !important;
+  }
+  
+  .messages-message-input {
+    min-height: 44px !important;
+    font-size: 16px !important;
+  }
+  
+  .messages-back-button {
+    min-height: 44px !important;
+    font-size: 14px !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   PROFILE MOBILE RESPONSIVE
+   ═══════════════════════════════════════════════════════════ */
+.profile-page-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 40px 24px;
+}
+
+.profile-edit-form {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 32px;
+}
+
+@media (max-width: 768px) {
+  .profile-page-container {
+    padding: 40px 16px;
+  }
+  
+  .profile-edit-form {
+    padding: 24px !important;
+  }
+  
+  .profile-input {
+    font-size: 16px !important;
+    min-height: 44px !important;
+    padding: 12px !important;
+  }
+  
+  .profile-textarea {
+    font-size: 16px !important;
+    min-height: 120px !important;
+    padding: 12px !important;
+  }
+  
+  .profile-button {
+    min-height: 44px !important;
+    font-size: 16px !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SETTINGS MOBILE RESPONSIVE
+   ═════════════════════════════════════════════════════════════ */
+.settings-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 40px 24px;
+}
+
+@media (max-width: 768px) {
+  .settings-container {
+    padding: 40px 16px;
+  }
+  
+  .settings-form {
+    padding: 24px !important;
+  }
+  
+  .settings-input {
+    font-size: 16px !important;
+    min-height: 44px !important;
+    padding: 12px !important;
+  }
+  
+  .settings-button {
+    min-height: 44px !important;
+    font-size: 16px !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   ADMIN MOBILE RESPONSIVE
+   ═════════════════════════════════════════════════════════════════ */
+.admin-tabs-container {
+  display: flex;
+  gap: 2px;
+  margin-bottom: 32px;
+  background: var(--surface);
+  padding: 4px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+}
+
+@media (max-width: 768px) {
+  .admin-tabs-container {
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+    margin-bottom: 24px;
+    padding: 12px;
+  }
+  
+  .admin-tab-button {
+    min-height: 44px !important;
+    font-size: 14px !important;
+    padding: 12px 16px !important;
+  }
+}

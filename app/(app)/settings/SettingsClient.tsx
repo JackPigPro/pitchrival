@@ -93,15 +93,7 @@ export default function SettingsClient({ initialProfile }: { initialProfile: Pro
   }
 
   return (
-    <div 
-      style={{
-        minHeight: '100vh',
-        background: 'var(--bg)',
-        backgroundImage: 'linear-gradient(rgba(21,128,61,.065) 1px, transparent 1px), linear-gradient(90deg, rgba(21,128,61,.065) 1px, transparent 1px)',
-        backgroundSize: '48px 48px',
-        padding: '40px 24px'
-      }}
-    >
+    <div className="settings-container">
       <div style={{ maxWidth: '600px', margin: '0 auto' }}>
         {/* Page Header */}
         <div style={{ marginBottom: '48px' }}>

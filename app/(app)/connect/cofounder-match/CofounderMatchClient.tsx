@@ -694,7 +694,7 @@ export default function CofounderMatchClient({
                 </div>
 
                 {/* Bottom Row - Two Columns */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+                <div className="cofounder-match-bottom-row">
                   {/* Outgoing Requests - Left */}
                   <div style={{ 
                     background: 'var(--card)', 
@@ -730,11 +730,7 @@ export default function CofounderMatchClient({
                         </div>
                       </div>
                     ) : (
-                      <div style={{ 
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-                        gap: '16px'
-                      }}>
+                      <div className="cofounder-match-requests-grid">
                         {outgoingRequests.map(({ request, profile }) => (
                           <ProfileCard 
                             key={request.id} 
@@ -776,18 +772,14 @@ export default function CofounderMatchClient({
                         fontFamily: 'var(--font-body)'
                       }}>
                         <div style={{ fontSize: '48px', fontWeight: 800, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '16px' }}>
-                          �
+                          📤
                         </div>
                         <div style={{ fontSize: '20px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '8px' }}>
                           No incoming requests
                         </div>
                       </div>
                     ) : (
-                      <div style={{ 
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-                        gap: '16px'
-                      }}>
+                      <div className="cofounder-match-requests-grid">
                         {incomingRequests.map(({ request, profile }) => (
                           <ProfileCard 
                             key={request.id} 
@@ -837,11 +829,7 @@ export default function CofounderMatchClient({
                     </div>
                   </div>
                 ) : (
-                  <div style={{ 
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-                    gap: '16px'
-                  }}>
+                  <div className="cofounder-match-profiles-grid">
                     {myCofounders.map((profile) => (
                       <CofounderCard key={profile.id} profile={profile} />
                     ))}

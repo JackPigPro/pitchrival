@@ -302,34 +302,25 @@ export default function DailyBattleClient({ battle, userSubmission, userStreak, 
         </div>
       </div>
 
-      <div style={{ display: 'flex', gap: '32px', maxWidth: '1400px', margin: '0 auto', padding: '0 24px' }}>
+      <div className="daily-battle-container">
         {/* Main Content */}
-        <div style={{ flex: 1 }}>
+        <div className="daily-battle-main">
         {/* ELO Popup */}
         <EloPopup message={eloPopupMessage} show={showEloPopup} />
 
         {/* Today's Prompt */}
-        <div style={{
-          background: 'var(--surface)',
-          padding: '32px',
-          borderRadius: '12px',
-          marginBottom: '24px'
-        }}>
-          <h2 style={{ fontSize: '32px', fontWeight: 'bold', marginBottom: '16px' }}>
+        <div className="daily-battle-prompt">
+          <h2>
             Today's Prompt
           </h2>
-          <p style={{ fontSize: '24px', lineHeight: '1.4', color: 'var(--text-primary)' }}>
+          <p>
             {battle?.prompt || 'No prompt yet today — be creative! 🎨'}
           </p>
         </div>
 
         {/* Not Submitted State */}
         {!localUserSubmission ? (
-          <div style={{
-            background: 'var(--surface)',
-            padding: '32px',
-            borderRadius: '12px'
-          }}>
+          <div className="daily-battle-submit-area">
             <div style={{ marginBottom: '16px' }}>
               <textarea
                 value={submission}
@@ -360,6 +351,7 @@ export default function DailyBattleClient({ battle, userSubmission, userStreak, 
             <button
               onClick={handleSubmit}
               disabled={!submission.trim() || submitting}
+              className="daily-battle-submit-button"
               style={{
                 background: submission.trim() && !submitting ? 'var(--green)' : 'var(--border)',
                 color: 'white',
@@ -419,7 +411,7 @@ export default function DailyBattleClient({ battle, userSubmission, userStreak, 
                 (() => {
                   const filteredSubmissions = submissions.filter(s => s.user_id !== userId)
                   return filteredSubmissions.length > 0 ? (
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
+                    <div className="daily-battle-submissions-grid">
                       {submissions.filter(s => {
                     console.log('Filtering submission:', s.user_id, 'vs userId:', userId, 'match:', s.user_id === userId)
                     return s.user_id !== userId
@@ -532,12 +524,8 @@ export default function DailyBattleClient({ battle, userSubmission, userStreak, 
       </div>
 
         {/* Right Side Panel - Streak Info */}
-        <div style={{ width: '320px' }}>
-        <div style={{
-          background: 'var(--surface)',
-          padding: '24px',
-          borderRadius: '12px'
-        }}>
+        <div className="daily-battle-sidebar">
+        <div>
           <h3 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
             🔥 Your Streak
           </h3>

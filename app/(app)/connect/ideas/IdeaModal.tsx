@@ -484,11 +484,8 @@ export default function IdeaModal({ idea, onClose, onUpdate, onDelete, currentUs
   }
 
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
+    <div className="ideas-feed-modal">
+      <div style={{
       bottom: 0,
       background: 'rgba(0, 0, 0, 0.5)',
       display: 'flex',
@@ -827,5 +824,6 @@ export default function IdeaModal({ idea, onClose, onUpdate, onDelete, currentUs
         </div>
       </div>
     </div>
+  </div>
   )
 }

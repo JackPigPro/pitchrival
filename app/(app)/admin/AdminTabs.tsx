@@ -10,20 +10,11 @@ export default function AdminTabs() {
   return (
     <div>
       {/* Tab Navigation */}
-      <div style={{ 
-        display: 'flex', 
-        gap: '2px',
-        marginBottom: '32px',
-        background: 'var(--surface)',
-        padding: '4px',
-        borderRadius: '12px',
-        border: '1px solid var(--border)'
-      }}>
+      <div className="admin-tabs-container">
         <button
           onClick={() => setActiveTab('weekly-duel')}
+          className="admin-tab-button"
           style={{
-            flex: 1,
-            padding: '12px 24px',
             background: activeTab === 'weekly-duel' ? 'var(--card)' : 'transparent',
             border: 'none',
             borderRadius: '8px',
@@ -39,9 +30,8 @@ export default function AdminTabs() {
         </button>
         <button
           onClick={() => setActiveTab('daily-battle')}
+          className="admin-tab-button"
           style={{
-            flex: 1,
-            padding: '12px 24px',
             background: activeTab === 'daily-battle' ? 'var(--card)' : 'transparent',
             border: 'none',
             borderRadius: '8px',

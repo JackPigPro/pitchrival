@@ -561,20 +561,14 @@ export default function WeeklyDuelClient({
         </div>
       )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 400px', gap: '24px', maxWidth: '1400px', margin: '0 auto', padding: '0 24px' }}>
+      <div className="weekly-duel-container">
       
       {/* Left Side */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      <div className="weekly-duel-main">
         
         {/* Active State - Submission Form or Confirmation */}
         {displayState === 'active' && currentDuel && (
-          <div style={{ 
-            background: 'var(--card)', 
-            borderRadius: '16px', 
-            padding: '32px',
-            border: "1px solid var(--border)",
-            boxShadow: 'var(--shadow)'
-          }}>
+          <div className="weekly-duel-card">
             {!displayUserSubmission ? (
               // Submission Form
               <div>
@@ -888,23 +882,15 @@ export default function WeeklyDuelClient({
                     </div>
                   ) : currentPair ? (
                     <div>
-                      <div style={{ fontSize: '20px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '24px', textAlign: 'center' }}>
+                      <div className="weekly-duel-voting-header">
                         Vote for better submission
                       </div>
                       
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginBottom: '32px' }}>
-                        <div style={{ 
-                          textAlign: 'center', 
-                          padding: '32px', 
-                          borderRadius: '12px',
-                          border: '2px solid var(--purple)',
-                          background: 'var(--purple-tint)',
-                          cursor: 'pointer',
-                          transition: 'all 0.2s ease'
-                        }}
+                      <div className="weekly-duel-voting-grid">
+                        <div className="weekly-duel-voting-option"
                           onClick={() => handleVote(currentPair.a, currentPair.b)}
                         >
-                          <div style={{ fontSize: '16px', fontWeight: 700, fontFamily: 'var(--font-display)', color: 'var(--text)', marginBottom: '16px' }}>
+                          <div className="weekly-duel-voting-option-content">
                             {allSubmissions.find(s => s.id === currentPair.a)?.content || 'Submission A'}
                           </div>
                           <button
@@ -1089,7 +1075,7 @@ export default function WeeklyDuelClient({
         </div>
 
         {/* Right Side */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+        <div className="weekly-duel-sidebar">
           
           {/* Dates and Submission Counter */}
           {currentDuel && (

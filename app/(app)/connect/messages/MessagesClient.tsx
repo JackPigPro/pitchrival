@@ -336,16 +336,9 @@ export default function MessagesClient() {
 
   if (authLoading) {
     return (
-      <div style={{ display: 'flex', height: 'calc(100vh - 68px)', background: 'var(--background)', overflow: 'hidden' }}>
+      <div className="messages-container">
         {/* Left sidebar - Conversation list skeleton */}
-        <div style={{ 
-          width: '280px', 
-          borderRight: '1px solid var(--border)',
-          display: 'flex',
-          flexDirection: 'column',
-          height: '100%',
-          overflow: 'hidden'
-        }}>
+        <div className="messages-sidebar">
           <div style={{ 
             padding: '20px', 
             borderBottom: '1px solid var(--border)',
@@ -360,10 +353,10 @@ export default function MessagesClient() {
             }} />
           </div>
           
-          <div style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', padding: '16px 20px' }}>
+          <div className="messages-conversation-list">
             {/* Skeleton conversation items */}
             {[1, 2, 3, 4, 5].map((i) => (
-              <div key={i} style={{ marginBottom: '16px' }}>
+              <div key={i} className="messages-skeleton-item">
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                   <div style={{
                     width: '40px',
@@ -376,7 +369,7 @@ export default function MessagesClient() {
                   
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ 
-                      display: 'flex', 
+                      display: 'flex',
                       justifyContent: 'space-between', 
                       alignItems: 'center',
                       marginBottom: '8px'
@@ -388,23 +381,9 @@ export default function MessagesClient() {
                         borderRadius: '4px',
                         animation: 'pulse 2s infinite'
                       }} />
-                      <div style={{ 
-                        width: '40px',
-                        height: '12px',
-                        background: 'var(--border)',
-                        borderRadius: '4px',
-                        animation: 'pulse 2s infinite',
-                        flexShrink: 0
-                      }} />
+                      
+                      <div className="messages-skeleton-line" />
                     </div>
-                    
-                    <div style={{
-                      width: '160px',
-                      height: '14px',
-                      background: 'var(--border)',
-                      borderRadius: '4px',
-                      animation: 'pulse 2s infinite'
-                    }} />
                   </div>
                 </div>
               </div>

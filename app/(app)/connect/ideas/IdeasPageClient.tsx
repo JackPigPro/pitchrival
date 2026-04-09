@@ -160,9 +160,9 @@ export default function IdeasPageClient() {
   }
 
   return (
-    <div style={{ display: 'flex', gap: '24px', height: '100%' }}>
+    <div className="ideas-feed-container">
       {/* Left side - Ideas feed */}
-      <div style={{ flex: 1, minWidth: 0 }}>
+      <div className="ideas-feed-main">
         <IdeasFeed
           ideas={ideas}
           onIdeaClick={handleIdeaClick}
@@ -177,7 +177,7 @@ export default function IdeasPageClient() {
       </div>
 
       {/* Right side - Create idea form */}
-      <div style={{ width: '380px', flexShrink: 0 }}>
+      <div className="ideas-feed-sidebar">
         <CreateIdeaForm onSubmit={handleCreateIdea} />
       </div>
 

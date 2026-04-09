@@ -171,24 +171,11 @@ export default function LeaderboardClient({
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: '32px' }}>
+        <div className="leaderboard-container">
           {/* Left Side - Leaderboard List */}
-          <div style={{ 
-            background: 'var(--card)', 
-            borderRadius: '16px', 
-            padding: '32px',
-            border: '1px solid var(--border)',
-            boxShadow: 'var(--shadow)'
-          }}>
+          <div className="leaderboard-main">
             {/* Tab Switcher */}
-            <div style={{ 
-              display: 'flex', 
-              gap: '4px', 
-              marginBottom: '24px',
-              background: 'var(--surface)',
-              padding: '4px',
-              borderRadius: '12px'
-            }}>
+            <div className="leaderboard-tabs">
               {(['daily', 'weekly', 'alltime'] as const).map((tab) => (
                 <button
                   key={tab}
@@ -216,20 +203,13 @@ export default function LeaderboardClient({
             </div>
 
             {/* Column Headers */}
-            <div style={{ 
-              display: 'grid', 
-              gridTemplateColumns: '48px 1fr 80px 100px', 
-              gap: '16px',
-              marginBottom: '16px',
-              paddingBottom: '12px',
-              borderBottom: '1px solid var(--border)'
-            }}>
+            <div className="leaderboard-table-headers">
               <div style={{ 
                 fontSize: '12px', 
                 fontWeight: '600', 
                 fontFamily: 'var(--font-display)', 
-                color: 'var(--text2)',
-                letterSpacing: '0.5px',
+                color: 'var(--text2)', 
+                letterSpacing: '0.5px', 
                 textTransform: 'uppercase'
               }}>
                 #
@@ -238,8 +218,8 @@ export default function LeaderboardClient({
                 fontSize: '12px', 
                 fontWeight: '600', 
                 fontFamily: 'var(--font-display)', 
-                color: 'var(--text2)',
-                letterSpacing: '0.5px',
+                color: 'var(--text2)', 
+                letterSpacing: '0.5px', 
                 textTransform: 'uppercase'
               }}>
                 Username
@@ -248,8 +228,8 @@ export default function LeaderboardClient({
                 fontSize: '12px', 
                 fontWeight: '600', 
                 fontFamily: 'var(--font-display)', 
-                color: 'var(--text2)',
-                letterSpacing: '0.5px',
+                color: 'var(--text2)', 
+                letterSpacing: '0.5px', 
                 textTransform: 'uppercase',
                 textAlign: 'right'
               }}>
@@ -268,8 +248,8 @@ export default function LeaderboardClient({
               </div>
             </div>
 
-            {/* Leaderboard Rows */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {/* Right Side */}
+          <div className="leaderboard-sidebar">
               {displayList.map((user, index) => {
                 const rank = index + 1
                 const isCurrentUser = currentUserId && user.user_id === currentUserId
@@ -279,13 +259,8 @@ export default function LeaderboardClient({
                 return (
                   <div
                     key={user.user_id}
+                    className="leaderboard-row"
                     style={{
-                      display: 'grid',
-                      gridTemplateColumns: '48px 1fr 80px 100px',
-                      gap: '16px',
-                      alignItems: 'center',
-                      padding: '16px 20px',
-                      borderRadius: '12px',
                       background: isCurrentUser ? getRankFaintColor(userRank) : getRankFaintColor(userRank),
                       border: isCurrentUser ? '1px solid var(--green)' : '1px solid var(--border)',
                       transition: 'all 0.2s ease'

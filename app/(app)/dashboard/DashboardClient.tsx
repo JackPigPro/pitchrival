@@ -367,11 +367,11 @@ export default function DashboardClient({ initialProfile, initialStats, todayBat
     }}>
       <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
         {/* Header */}
-        <div style={{ marginBottom: '32px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-            <h1 style={{ fontSize: '48px', fontWeight: 800, letterSpacing: '-2px', fontFamily: 'var(--font-display)', color: 'var(--text)', margin: 0 }}>
+        <div style={{ marginBottom: '32px' }} className="dashboard-header-container">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }} className="dashboard-header">
+            <div className="dashboard-header-title">
               Dashboard
-            </h1>
+            </div>
             <div style={{ 
               fontSize: '48px', 
               fontWeight: 800, 
@@ -385,14 +385,9 @@ export default function DashboardClient({ initialProfile, initialStats, todayBat
           </div>
           
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div style={{ 
-              fontSize: '18px', 
-              fontWeight: '400', 
-              fontFamily: 'var(--font-body)', 
-              color: 'var(--text2)' 
-            }}>
-              Welcome back, {display_name || username || 'User'}!
-            </div>
+        <div className="dashboard-subheader">
+          Welcome back, {display_name || username || 'User'}!
+        </div>
             <div style={{ 
               fontSize: '18px', 
               fontWeight: '400', 
@@ -408,15 +403,9 @@ export default function DashboardClient({ initialProfile, initialStats, todayBat
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px' }}>
+        <div className="dashboard-grid">
           {/* Top Left - Player Stats */}
-          <div style={{ 
-            background: 'var(--card)', 
-            borderRadius: '16px', 
-            padding: '32px',
-            border: '1px solid var(--border)',
-            boxShadow: 'var(--shadow)'
-          }}>
+          <div className="dashboard-card">
             <h2 style={{ 
               fontSize: '20px', 
               fontWeight: 700, 
@@ -507,13 +496,7 @@ export default function DashboardClient({ initialProfile, initialStats, todayBat
           </div>
 
           {/* Top Right - Recent Activity */}
-          <div style={{ 
-            background: 'var(--card)', 
-            borderRadius: '16px', 
-            padding: '32px',
-            border: '1px solid var(--border)',
-            boxShadow: 'var(--shadow)'
-          }}>
+          <div className="dashboard-card">
             <h2 style={{ 
               fontSize: '20px', 
               fontWeight: 700, 
@@ -624,13 +607,7 @@ export default function DashboardClient({ initialProfile, initialStats, todayBat
           </div>
 
           {/* Bottom Left - Daily Battle */}
-          <div style={{ 
-            background: 'var(--card)', 
-            borderRadius: '16px', 
-            padding: '32px',
-            border: '1px solid var(--border)',
-            boxShadow: 'var(--shadow)'
-          }}>
+          <div className="dashboard-card">
             <h2 style={{ 
               fontSize: '20px', 
               fontWeight: 700, 
@@ -725,13 +702,7 @@ export default function DashboardClient({ initialProfile, initialStats, todayBat
           </div>
 
           {/* Bottom Right - Quick Actions */}
-          <div style={{ 
-            background: 'var(--card)', 
-            borderRadius: '16px', 
-            padding: '32px',
-            border: '1px solid var(--border)',
-            boxShadow: 'var(--shadow)'
-          }}>
+          <div className="dashboard-card">
             <h2 style={{ 
               fontSize: '20px', 
               fontWeight: 700, 
