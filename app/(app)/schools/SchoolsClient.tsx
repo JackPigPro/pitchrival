@@ -431,7 +431,7 @@ export default function SchoolsClient() {
   }
 
   // View 1: User is not in a class and not verified
-  if (!profile?.is_teacher) {
+  if (!profile?.is_teacher || (profile?.is_teacher && !profile?.teacher_verified)) {
     // Show join class + become teacher cards
     return (
       <div style={{ 
@@ -552,7 +552,7 @@ export default function SchoolsClient() {
                 Become a Teacher
               </h2>
               
-              {!showTeacherForm || isTeacher ? (
+              {!showTeacherForm || (profile?.is_teacher && !profile?.teacher_verified) ? (
                 <div>
                   <p style={{ 
                     color: 'var(--text2)', 
@@ -563,25 +563,36 @@ export default function SchoolsClient() {
                     Create and manage classes, track student progress, and access premium educational features.
                   </p>
                   
-                  {isTeacher ? (
-                    <button
-                      disabled
-                      style={{
-                        width: '100%',
-                        padding: '16px',
-                        background: 'var(--border)',
+                  {profile?.is_teacher && !profile?.teacher_verified ? (
+                    <div>
+                      <button
+                        disabled
+                        style={{
+                          width: '100%',
+                          padding: '16px',
+                          background: 'var(--border)',
+                          color: 'var(--text2)',
+                          border: 'none',
+                          borderRadius: '8px',
+                          fontSize: '16px',
+                          fontWeight: 600,
+                          fontFamily: 'var(--font-display)',
+                          cursor: 'not-allowed',
+                          opacity: 0.6,
+                          marginBottom: '12px'
+                        }}
+                      >
+                        Application pending
+                      </button>
+                      <p style={{
+                        fontSize: '14px',
                         color: 'var(--text2)',
-                        border: 'none',
-                        borderRadius: '8px',
-                        fontSize: '16px',
-                        fontWeight: 600,
-                        fontFamily: 'var(--font-display)',
-                        cursor: 'not-allowed',
-                        opacity: 0.6
-                      }}
-                    >
-                      Applied
-                    </button>
+                        textAlign: 'center',
+                        margin: 0
+                      }}>
+                        Application pending — typically approved within 2-4 hours
+                      </p>
+                    </div>
                   ) : (
                     <button
                       onClick={() => setShowTeacherForm(true)}
@@ -617,8 +628,9 @@ export default function SchoolsClient() {
                     <input
                       type="text"
                       placeholder="Full name"
-                      value={teacherFormData.full_name}
+                      value={profile?.is_teacher && !profile?.teacher_verified ? teacherVerification?.full_name || '' : teacherFormData.full_name}
                       onChange={(e) => setTeacherFormData({...teacherFormData, full_name: e.target.value})}
+                      disabled={profile?.is_teacher && !profile?.teacher_verified}
                       required
                       style={{
                         width: '100%',
@@ -626,18 +638,20 @@ export default function SchoolsClient() {
                         fontSize: '14px',
                         border: '1px solid var(--border)',
                         borderRadius: '6px',
-                        background: 'var(--surface)',
-                        color: 'var(--text)',
+                        background: profile?.is_teacher && !profile?.teacher_verified ? 'var(--border)' : 'var(--surface)',
+                        color: profile?.is_teacher && !profile?.teacher_verified ? 'var(--text2)' : 'var(--text)',
                         fontFamily: 'var(--font-body)',
-                        marginBottom: '12px'
+                        marginBottom: '12px',
+                        opacity: profile?.is_teacher && !profile?.teacher_verified ? 0.6 : 1
                       }}
                     />
                     
                     <input
                       type="text"
                       placeholder="School name"
-                      value={teacherFormData.school_name}
+                      value={profile?.is_teacher && !profile?.teacher_verified ? teacherVerification?.school_name || '' : teacherFormData.school_name}
                       onChange={(e) => setTeacherFormData({...teacherFormData, school_name: e.target.value})}
+                      disabled={profile?.is_teacher && !profile?.teacher_verified}
                       required
                       style={{
                         width: '100%',
@@ -645,26 +659,29 @@ export default function SchoolsClient() {
                         fontSize: '14px',
                         border: '1px solid var(--border)',
                         borderRadius: '6px',
-                        background: 'var(--surface)',
-                        color: 'var(--text)',
+                        background: profile?.is_teacher && !profile?.teacher_verified ? 'var(--border)' : 'var(--surface)',
+                        color: profile?.is_teacher && !profile?.teacher_verified ? 'var(--text2)' : 'var(--text)',
                         fontFamily: 'var(--font-body)',
-                        marginBottom: '12px'
+                        marginBottom: '12px',
+                        opacity: profile?.is_teacher && !profile?.teacher_verified ? 0.6 : 1
                       }}
                     />
                     
                     <select
-                      value={teacherFormData.role}
+                      value={profile?.is_teacher && !profile?.teacher_verified ? teacherVerification?.role || 'Teacher' : teacherFormData.role}
                       onChange={(e) => setTeacherFormData({...teacherFormData, role: e.target.value})}
+                      disabled={profile?.is_teacher && !profile?.teacher_verified}
                       style={{
                         width: '100%',
                         padding: '12px',
                         fontSize: '14px',
                         border: '1px solid var(--border)',
                         borderRadius: '6px',
-                        background: 'var(--surface)',
-                        color: 'var(--text)',
+                        background: profile?.is_teacher && !profile?.teacher_verified ? 'var(--border)' : 'var(--surface)',
+                        color: profile?.is_teacher && !profile?.teacher_verified ? 'var(--text2)' : 'var(--text)',
                         fontFamily: 'var(--font-body)',
-                        marginBottom: '16px'
+                        marginBottom: '16px',
+                        opacity: profile?.is_teacher && !profile?.teacher_verified ? 0.6 : 1
                       }}
                     >
                       <option value="Teacher">Teacher</option>
@@ -760,93 +777,6 @@ export default function SchoolsClient() {
     )
   }
 
-  // View 2: User is a teacher but not yet verified
-  if (profile?.is_teacher && !profile?.teacher_verified) {
-    return (
-      <div style={{ 
-        minHeight: '100vh',
-        background: 'var(--bg)',
-        backgroundImage: 'linear-gradient(rgba(21,128,61,.065) 1px, transparent 1px), linear-gradient(90deg, rgba(21,128,61,.065) 1px, transparent 1px)',
-        backgroundSize: '48px 48px',
-        padding: '40px 24px'
-      }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-          <h1 style={{ 
-            fontSize: '48px', 
-            fontWeight: 800, 
-            letterSpacing: '-2px', 
-            fontFamily: 'var(--font-display)', 
-            color: 'var(--text)', 
-            marginBottom: '32px'
-          }}>
-            Teacher Application Submitted
-          </h1>
-
-          <div style={{
-            background: 'var(--card)',
-            border: '1px solid var(--border)',
-            borderRadius: '16px',
-            padding: '32px',
-            maxWidth: '600px'
-          }}>
-            <div style={{ 
-              fontSize: '24px', 
-              fontWeight: 700, 
-              marginBottom: '24px',
-              fontFamily: 'var(--font-display)',
-              color: 'var(--text)'
-            }}>
-              Awaiting Verification
-            </div>
-            
-            <div style={{ 
-              fontSize: '16px', 
-              color: 'var(--text2)', 
-              marginBottom: '24px',
-              lineHeight: '1.6',
-              fontFamily: 'var(--font-body)'
-            }}>
-              Your teacher application has been submitted and is currently under review. 
-              This typically takes 2-4 hours for approval.
-            </div>
-            
-            <div style={{
-              background: 'var(--surface)',
-              border: '1px solid var(--border)',
-              borderRadius: '8px',
-              padding: '20px',
-              marginBottom: '24px'
-            }}>
-              <div style={{ fontSize: '14px', color: 'var(--text2)', marginBottom: '8px' }}>
-                <strong>Application Details:</strong>
-              </div>
-              <div style={{ fontSize: '14px', color: 'var(--text2)', marginBottom: '4px' }}>
-                <strong>Name:</strong> {teacherVerification?.full_name}
-              </div>
-              <div style={{ fontSize: '14px', color: 'var(--text2)', marginBottom: '4px' }}>
-                <strong>School:</strong> {teacherVerification?.school_name}
-              </div>
-              <div style={{ fontSize: '14px', color: 'var(--text2)', marginBottom: '4px' }}>
-                <strong>Role:</strong> {teacherVerification?.role}
-              </div>
-              <div style={{ fontSize: '14px', color: 'var(--text2)' }}>
-                <strong>Status:</strong> <span style={{ color: 'var(--orange)' }}>Pending Verification</span>
-              </div>
-            </div>
-            
-            <div style={{ 
-              fontSize: '14px', 
-              color: 'var(--text2)', 
-              fontStyle: 'italic',
-              textAlign: 'center'
-            }}>
-              You'll receive a notification once your application is approved.
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  }
 
   // View 3: User is a verified teacher
   if (profile?.is_teacher && profile?.teacher_verified) {
