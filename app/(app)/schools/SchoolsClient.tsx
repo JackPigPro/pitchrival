@@ -341,6 +341,15 @@ export default function SchoolsClient() {
     }
   }
 
+  // Debug log to diagnose frozen skeleton
+  console.log('Render state:', {
+    authLoading,
+    dataLoading,
+    isTeacher: profile?.is_teacher,
+    isVerified: profile?.teacher_verified,
+    user: !!user
+  })
+
   // Show loading skeleton while EITHER auth OR data is loading
   if (authLoading || dataLoading) {
     return (
