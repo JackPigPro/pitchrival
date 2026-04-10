@@ -1052,7 +1052,7 @@ export default function SchoolsClient() {
             
             <div style={{ display: 'flex', gap: '16px' }}>
               <button
-                onClick={() => router.push(`/schools/${userClass.id}`)}
+                onClick={() => router.push(`/schools/${userClass.id}/student`)}
                 style={{
                   flex: 1,
                   padding: '16px',
