@@ -717,7 +717,7 @@ export default function StudentClassClient({ classData }: StudentClassClientProp
         </div>
         <div style={{
           position: 'fixed',
-          top: '20px',
+          top: '80px',
           right: '20px',
           background: 'var(--green)',
           color: 'white',
@@ -745,21 +745,48 @@ export default function StudentClassClient({ classData }: StudentClassClientProp
       padding: '40px 24px'
     }}>
       <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-        <h1 style={{ 
-          fontSize: '32px',
-          fontWeight: 700,
-          marginBottom: '8px',
-          color: 'var(--text)'
-        }}>
-          {classData.name}
-        </h1>
-        <p style={{ 
-          fontSize: '16px',
-          color: 'var(--text-secondary)',
-          marginBottom: '32px'
-        }}>
-          {classData.school_name} · {classData.teacher_name}
-        </p>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '32px' }}>
+          <div>
+            <h1 style={{ 
+              fontSize: '32px',
+              fontWeight: 700,
+              marginBottom: '8px',
+              color: 'var(--text)'
+            }}>
+              {classData.name}
+            </h1>
+            <p style={{ 
+              fontSize: '16px',
+              color: 'var(--text-secondary)'
+            }}>
+              {classData.school_name} · {classData.teacher_name}
+            </p>
+          </div>
+          <button
+            onClick={handleLeaveClass}
+            style={{
+              background: 'var(--red)',
+              color: 'white',
+              border: 'none',
+              padding: '12px 24px',
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontWeight: 600,
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = 'var(--red-dark)'
+              e.currentTarget.style.transform = 'translateY(-2px)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'var(--red)'
+              e.currentTarget.style.transform = 'translateY(0)'
+            }}
+          >
+            Leave Class
+          </button>
+        </div>
 
         {/* Tabs */}
         <div style={{ 

@@ -3,6 +3,9 @@ import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import StudentClassClient from './StudentClassClient'
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 export default async function StudentClassPage({ params }: { params: Promise<{ classId: string }> }) {
   const { classId } = await params
   const supabase = await createClient()
