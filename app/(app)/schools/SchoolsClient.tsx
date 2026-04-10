@@ -74,6 +74,14 @@ export default function SchoolsClient() {
     }
   }, [user, authLoading])
 
+  // Set success message when profile loads and user is a teacher
+  useEffect(() => {
+    if (profile && profile.is_teacher && !teacherSuccess) {
+      setTeacherSuccess('Teacher application submitted! Awaiting verification - this typically takes 2-4 hours for approval.')
+      setShowTeacherForm(false)
+    }
+  }, [profile, teacherSuccess])
+
   // Fallback timeout to prevent frozen skeleton during navigation
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -348,7 +356,7 @@ export default function SchoolsClient() {
     }
   }
 
-  // Show loading skeleton during initial auth loading or when profile is not yet loaded
+  // Show loading skeleton during initial auth loading or while profile is loading
   if (authLoading || (user && !profile)) {
     return (
       <div style={{ 
