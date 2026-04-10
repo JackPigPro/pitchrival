@@ -69,20 +69,60 @@ export default function SchoolsClient() {
 
   // Fetch user data
   useEffect(() => {
-    if (user && profile && !authLoading) {
+    if (user?.id && !authLoading) {
       fetchUserData()
     }
-  }, [user, profile, authLoading])
+  }, [user, authLoading])
 
 
   const fetchUserData = async () => {
-    if (!user) return
-    
+    console.log('fetchUserData called, user:', user?.id)
+    if (!user?.id) {
+      console.log('No user id, skipping fetch')
+      setDataLoading(false)
+      return
+    }
     setDataLoading(true)
     try {
-      // Only check class_members for students (not teachers)
-      if (!isTeacher) {
-        // Check if user is in a class
+      // Fetch profile directly - don't rely on useUser profile
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('is_teacher, teacher_verified')
+        .eq('id', user.id)
+        .single()
+
+      const isTeacher = profileData?.is_teacher === true
+      const isVerifiedTeacher = profileData?.teacher_verified === true
+
+      if (isTeacher && !isVerifiedTeacher) {
+        // Show pending state - no further queries needed
+        return
+      }
+
+      if (isTeacher && isVerifiedTeacher) {
+        // Fetch teacher verification
+        const { data: verification } = await supabase
+          .from('teacher_verifications')
+          .select('*')
+          .eq('user_id', user.id)
+          .single()
+        
+        if (verification) {
+          setTeacherVerification(verification)
+        }
+
+        // Fetch teacher's classes
+        const { data: classes } = await supabase
+          .from('classes')
+          .select('*')
+          .eq('teacher_id', user.id)
+          .order('created_at', { ascending: false })
+        
+        if (classes) {
+          setTeacherClasses(classes)
+        }
+      } else {
+        // Fetch class membership for students
         const { data: classMember } = await supabase
           .from('class_members')
           .select('*')
@@ -99,33 +139,6 @@ export default function SchoolsClient() {
           
           if (classData) {
             setUserClass(classData)
-          }
-        }
-      }
-
-      // Check if user is a teacher and fetch their classes
-      if (isTeacher) {
-        // Fetch teacher verification
-        const { data: verification } = await supabase
-          .from('teacher_verifications')
-          .select('*')
-          .eq('user_id', user.id)
-          .single()
-        
-        if (verification) {
-          setTeacherVerification(verification)
-        }
-
-        // Fetch teacher's classes (only if verified)
-        if (verification?.verified) {
-          const { data: classes } = await supabase
-            .from('classes')
-            .select('*')
-            .eq('teacher_id', user.id)
-            .order('created_at', { ascending: false })
-          
-          if (classes) {
-            setTeacherClasses(classes)
           }
         }
       }
