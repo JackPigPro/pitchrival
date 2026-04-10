@@ -634,22 +634,23 @@ export default function StudentClassClient({ classData }: StudentClassClientProp
     if (!user) return
 
     try {
-      // Remove from class_members
-      await supabase
+      // Delete the row from class_members where user_id = current user's id
+      const { error } = await supabase
         .from('class_members')
         .delete()
         .eq('user_id', user.id)
         .eq('class_id', classData.id)
 
-      // Update student count
-      await supabase
-        .from('classes')
-        .update({ student_count: Math.max(0, classData.student_count - 1) })
-        .eq('id', classData.id)
+      if (error) {
+        throw error
+      }
 
-      router.push('/schools')
+      // After successful delete, redirect to /schools using window.location.href
+      window.location.href = '/schools'
     } catch (error) {
+      // If delete fails, show an alert with the error
       console.error('Error leaving class:', error)
+      alert(`Failed to leave class: ${error instanceof Error ? error.message : 'Unknown error'}`)
     }
   }
 
