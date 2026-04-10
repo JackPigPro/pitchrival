@@ -2,6 +2,9 @@ import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import SchoolsClient from './SchoolsClient'
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 export default async function SchoolsPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
