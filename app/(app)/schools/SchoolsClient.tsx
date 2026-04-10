@@ -73,12 +73,14 @@ export default function SchoolsClient() {
     } else if (!authLoading && !user) {
       setLoading(false)
     }
-  }, [user, authLoading, isTeacher]) // Add isTeacher dependency
+  }, [user, authLoading]) // Remove isTeacher dependency to prevent infinite loops
 
   const fetchUserData = async () => {
     if (!user) return
 
     try {
+      setLoading(true)
+      
       // Only check class_members for students (not teachers)
       if (!isTeacher) {
         // Check if user is in a class
@@ -115,15 +117,17 @@ export default function SchoolsClient() {
           setTeacherVerification(verification)
         }
 
-        // Fetch teacher's classes
-        const { data: classes } = await supabase
-          .from('classes')
-          .select('*')
-          .eq('teacher_id', user.id)
-          .order('created_at', { ascending: false })
-        
-        if (classes) {
-          setTeacherClasses(classes)
+        // Fetch teacher's classes (only if verified)
+        if (verification?.verified) {
+          const { data: classes } = await supabase
+            .from('classes')
+            .select('*')
+            .eq('teacher_id', user.id)
+            .order('created_at', { ascending: false })
+          
+          if (classes) {
+            setTeacherClasses(classes)
+          }
         }
       }
     } catch (error) {
