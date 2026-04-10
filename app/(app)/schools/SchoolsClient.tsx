@@ -287,21 +287,31 @@ export default function SchoolsClient({ userId, profile, userClass, teacherClass
     }
 
     try {
-      // Remove from class_members
-      await supabase
+      // Delete the row from class_members where user_id = current user's id
+      const { error } = await supabase
         .from('class_members')
         .delete()
         .eq('user_id', userId)
+        .eq('class_id', currentUserClass.id)
 
-      // Update student count
-      await supabase
-        .from('classes')
-        .update({ student_count: Math.max(0, currentUserClass.student_count - 1) })
-        .eq('id', currentUserClass.id)
+      if (error) {
+        throw error
+      }
 
-      setCurrentUserClass(null)
+      // Clear any client-side cache to ensure fresh data
+      if (typeof window !== 'undefined') {
+        // Clear any potential client-side state
+        localStorage.clear()
+        sessionStorage.clear()
+      }
+
+      // Force a hard redirect with cache busting to ensure fresh server-side check
+      const timestamp = Date.now()
+      window.location.href = `/schools?t=${timestamp}`
     } catch (error) {
+      // If delete fails, show an alert with the error
       console.error('Error leaving class:', error)
+      alert(`Failed to leave class: ${error instanceof Error ? error.message : 'Unknown error'}`)
     }
   }
 
