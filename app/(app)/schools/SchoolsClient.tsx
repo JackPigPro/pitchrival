@@ -75,6 +75,16 @@ export default function SchoolsClient() {
     }
   }, [user, authLoading]) // Remove isTeacher dependency to prevent infinite loops
 
+  // Ensure loading is false after initial auth check
+  useEffect(() => {
+    if (!authLoading) {
+      const timer = setTimeout(() => {
+        setLoading(false)
+      }, 1000) // Give 1 second for data to load
+      return () => clearTimeout(timer)
+    }
+  }, [authLoading])
+
   const fetchUserData = async () => {
     if (!user) return
 
@@ -136,6 +146,18 @@ export default function SchoolsClient() {
       setLoading(false)
     }
   }
+
+  // Add a timeout to prevent infinite loading
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (loading) {
+        console.warn('Loading timeout - forcing loading to false')
+        setLoading(false)
+      }
+    }, 5000) // 5 second timeout
+
+    return () => clearTimeout(timeout)
+  }, [loading])
 
   // Handle join class
   const handleJoinClass = async (e: React.FormEvent) => {
