@@ -43,7 +43,7 @@ export default function SchoolsClient() {
   const [userClass, setUserClass] = useState<Class | null>(null)
   const [teacherClasses, setTeacherClasses] = useState<Class[]>([])
   const [teacherVerification, setTeacherVerification] = useState<TeacherVerification | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [dataLoading, setDataLoading] = useState(true)
 
   // Form states
   const [joinCode, setJoinCode] = useState('')
@@ -74,29 +74,11 @@ export default function SchoolsClient() {
     }
   }, [user, authLoading])
 
-  // Set success message when profile loads and user is a teacher
-  useEffect(() => {
-    if (profile && profile.is_teacher && !teacherSuccess) {
-      setTeacherSuccess('Teacher application submitted! Awaiting verification - this typically takes 2-4 hours for approval.')
-      setShowTeacherForm(false)
-    }
-  }, [profile, teacherSuccess])
-
-  // Robust timeout fallback to prevent frozen skeleton
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      if (authLoading || (user && !profile)) {
-        console.warn('Loading timeout detected - forcing page render')
-        // Force the page to render even if loading states are stuck
-      }
-    }, 3000) // 3 second timeout
-
-    return () => clearTimeout(timeout)
-  }, [authLoading, user, profile])
 
   const fetchUserData = async () => {
     if (!user) return
 
+    setDataLoading(true)
     try {
       // Only check class_members for students (not teachers)
       if (!isTeacher) {
@@ -149,6 +131,8 @@ export default function SchoolsClient() {
       }
     } catch (error) {
       console.error('Error fetching user data:', error)
+    } finally {
+      setDataLoading(false)
     }
   }
 
@@ -357,8 +341,8 @@ export default function SchoolsClient() {
     }
   }
 
-  // Show loading skeleton only during initial auth loading
-  if (authLoading) {
+  // Show loading skeleton while EITHER auth OR data is loading
+  if (authLoading || dataLoading) {
     return (
       <div style={{ 
         minHeight: '100vh',
@@ -447,11 +431,8 @@ export default function SchoolsClient() {
   }
 
   // View 1: User is not in a class and not verified
-  if (!isInClass && !isVerifiedTeacher) {
-    // If user is already a teacher (has is_teacher=true), set success message
-    if (isTeacher && !teacherSuccess) {
-      setTeacherSuccess('Teacher application submitted! Awaiting verification - this typically takes 2-4 hours for approval.')
-    }
+  if (!profile?.is_teacher) {
+    // Show join class + become teacher cards
     return (
       <div style={{ 
         minHeight: '100vh',
@@ -780,7 +761,7 @@ export default function SchoolsClient() {
   }
 
   // View 2: User is a teacher but not yet verified
-  if (isTeacher && !isVerifiedTeacher) {
+  if (profile?.is_teacher && !profile?.teacher_verified) {
     return (
       <div style={{ 
         minHeight: '100vh',
@@ -868,7 +849,7 @@ export default function SchoolsClient() {
   }
 
   // View 3: User is a verified teacher
-  if (isVerifiedTeacher) {
+  if (profile?.is_teacher && profile?.teacher_verified) {
     return (
       <div style={{ 
         minHeight: '100vh',
