@@ -210,7 +210,7 @@ export default function SchoolsClient() {
           full_name: teacherFormData.full_name,
           school_name: teacherFormData.school_name,
           role: teacherFormData.role,
-          verified: true // Auto-approve for now
+          verified: false // Requires admin approval
         })
 
       if (verificationError) {
@@ -218,12 +218,12 @@ export default function SchoolsClient() {
         return
       }
 
-      // Update profile
+      // Update profile to indicate teacher status but not verified
       const { error: profileError } = await supabase
         .from('profiles')
         .update({ 
           is_teacher: true,
-          teacher_verified: true // Auto-approve for now
+          teacher_verified: false // Requires admin approval
         })
         .eq('id', user.id)
 
@@ -232,7 +232,7 @@ export default function SchoolsClient() {
         return
       }
 
-      setTeacherSuccess('Teacher access granted! You can now create classes.')
+      setTeacherSuccess('Teacher application submitted! Awaiting verification - this typically takes 2-4 hours for approval.')
       setShowTeacherForm(false)
       
       // Refresh data
@@ -712,7 +712,95 @@ export default function SchoolsClient() {
     )
   }
 
-  // View 2: User is a verified teacher
+  // View 2: User is a teacher but not yet verified
+  if (isTeacher && !isVerifiedTeacher) {
+    return (
+      <div style={{ 
+        minHeight: '100vh',
+        background: 'var(--bg)',
+        backgroundImage: 'linear-gradient(rgba(21,128,61,.065) 1px, transparent 1px), linear-gradient(90deg, rgba(21,128,61,.065) 1px, transparent 1px)',
+        backgroundSize: '48px 48px',
+        padding: '40px 24px'
+      }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+          <h1 style={{ 
+            fontSize: '48px', 
+            fontWeight: 800, 
+            letterSpacing: '-2px', 
+            fontFamily: 'var(--font-display)', 
+            color: 'var(--text)', 
+            marginBottom: '32px'
+          }}>
+            Teacher Application Submitted
+          </h1>
+
+          <div style={{
+            background: 'var(--card)',
+            border: '1px solid var(--border)',
+            borderRadius: '16px',
+            padding: '32px',
+            maxWidth: '600px'
+          }}>
+            <div style={{ 
+              fontSize: '24px', 
+              fontWeight: 700, 
+              marginBottom: '24px',
+              fontFamily: 'var(--font-display)',
+              color: 'var(--text)'
+            }}>
+              Awaiting Verification
+            </div>
+            
+            <div style={{ 
+              fontSize: '16px', 
+              color: 'var(--text2)', 
+              marginBottom: '24px',
+              lineHeight: '1.6',
+              fontFamily: 'var(--font-body)'
+            }}>
+              Your teacher application has been submitted and is currently under review. 
+              This typically takes 2-4 hours for approval.
+            </div>
+            
+            <div style={{
+              background: 'var(--surface)',
+              border: '1px solid var(--border)',
+              borderRadius: '8px',
+              padding: '20px',
+              marginBottom: '24px'
+            }}>
+              <div style={{ fontSize: '14px', color: 'var(--text2)', marginBottom: '8px' }}>
+                <strong>Application Details:</strong>
+              </div>
+              <div style={{ fontSize: '14px', color: 'var(--text2)', marginBottom: '4px' }}>
+                <strong>Name:</strong> {teacherVerification?.full_name}
+              </div>
+              <div style={{ fontSize: '14px', color: 'var(--text2)', marginBottom: '4px' }}>
+                <strong>School:</strong> {teacherVerification?.school_name}
+              </div>
+              <div style={{ fontSize: '14px', color: 'var(--text2)', marginBottom: '4px' }}>
+                <strong>Role:</strong> {teacherVerification?.role}
+              </div>
+              <div style={{ fontSize: '14px', color: 'var(--text2)' }}>
+                <strong>Status:</strong> <span style={{ color: 'var(--orange)' }}>Pending Verification</span>
+              </div>
+            </div>
+            
+            <div style={{ 
+              fontSize: '14px', 
+              color: 'var(--text2)', 
+              fontStyle: 'italic',
+              textAlign: 'center'
+            }}>
+              You'll receive a notification once your application is approved.
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // View 3: User is a verified teacher
   if (isVerifiedTeacher) {
     return (
       <div style={{ 
