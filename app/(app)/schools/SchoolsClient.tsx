@@ -55,6 +55,7 @@ export default function SchoolsClient() {
     role: 'Teacher'
   })
   const [teacherSuccess, setTeacherSuccess] = useState('')
+  const [teacherSubmitting, setTeacherSubmitting] = useState(false)
   const [showCreateClassForm, setShowCreateClassForm] = useState(false)
   const [createClassFormData, setCreateClassFormData] = useState({
     name: '',
@@ -224,10 +225,20 @@ export default function SchoolsClient() {
     e.preventDefault()
 
     if (!user) {
+      console.error('No user found')
       return
     }
 
+    if (!teacherFormData.full_name || !teacherFormData.school_name) {
+      console.error('Missing required fields')
+      return
+    }
+
+    setTeacherSubmitting(true)
+
     try {
+      console.log('Submitting teacher application...')
+      
       // Insert teacher verification
       const { error: verificationError } = await supabase
         .from('teacher_verifications')
@@ -241,6 +252,7 @@ export default function SchoolsClient() {
 
       if (verificationError) {
         console.error('Error creating teacher verification:', verificationError)
+        setTeacherSubmitting(false)
         return
       }
 
@@ -255,9 +267,11 @@ export default function SchoolsClient() {
 
       if (profileError) {
         console.error('Error updating profile:', profileError)
+        setTeacherSubmitting(false)
         return
       }
 
+      console.log('Teacher application submitted successfully')
       setTeacherSuccess('Teacher application submitted! Awaiting verification - this typically takes 2-4 hours for approval.')
       setShowTeacherForm(false)
       
@@ -265,6 +279,8 @@ export default function SchoolsClient() {
       await fetchUserData()
     } catch (error) {
       console.error('Error submitting teacher application:', error)
+    } finally {
+      setTeacherSubmitting(false)
     }
   }
 
@@ -701,20 +717,22 @@ export default function SchoolsClient() {
                   <div style={{ display: 'flex', gap: '12px' }}>
                     <button
                       type="submit"
+                      disabled={teacherSubmitting}
                       style={{
                         flex: 1,
                         padding: '12px',
-                        background: 'var(--blue)',
-                        color: 'white',
+                        background: teacherSubmitting ? 'var(--border)' : 'var(--blue)',
+                        color: teacherSubmitting ? 'var(--text2)' : 'white',
                         border: 'none',
                         borderRadius: '6px',
                         fontSize: '14px',
                         fontWeight: 600,
                         fontFamily: 'var(--font-display)',
-                        cursor: 'pointer'
+                        cursor: teacherSubmitting ? 'not-allowed' : 'pointer',
+                        opacity: teacherSubmitting ? 0.7 : 1
                       }}
                     >
-                      Submit Application
+                      {teacherSubmitting ? 'Submitting...' : 'Submit Application'}
                     </button>
                     
                     <button
