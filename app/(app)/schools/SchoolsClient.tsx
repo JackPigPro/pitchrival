@@ -410,8 +410,12 @@ export default function SchoolsClient() {
     )
   }
 
-  // View 1: User is not in a class and not a teacher
+  // View 1: User is not in a class and not verified
   if (!isInClass && !isVerifiedTeacher) {
+    // If user is already a teacher (has is_teacher=true), set success message
+    if (isTeacher && !teacherSuccess) {
+      setTeacherSuccess('Teacher application submitted! Awaiting verification - this typically takes 2-4 hours for approval.')
+    }
     return (
       <div style={{ 
         minHeight: '100vh',
@@ -542,32 +546,53 @@ export default function SchoolsClient() {
                     Create and manage classes, track student progress, and access premium educational features.
                   </p>
                   
-                  <button
-                    onClick={() => setShowTeacherForm(true)}
-                    style={{
-                      width: '100%',
-                      padding: '16px',
-                      background: 'var(--blue)',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '8px',
-                      fontSize: '16px',
-                      fontWeight: 600,
-                      fontFamily: 'var(--font-display)',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s ease'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background = '#3b82f6'
-                      e.currentTarget.style.transform = 'translateY(-1px)'
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = 'var(--blue)'
-                      e.currentTarget.style.transform = 'translateY(0)'
-                    }}
-                  >
-                    Apply for Teacher Access
-                  </button>
+                  {isTeacher ? (
+                    <button
+                      disabled
+                      style={{
+                        width: '100%',
+                        padding: '16px',
+                        background: 'var(--border)',
+                        color: 'var(--text2)',
+                        border: 'none',
+                        borderRadius: '8px',
+                        fontSize: '16px',
+                        fontWeight: 600,
+                        fontFamily: 'var(--font-display)',
+                        cursor: 'not-allowed',
+                        opacity: 0.6
+                      }}
+                    >
+                      Applied
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => setShowTeacherForm(true)}
+                      style={{
+                        width: '100%',
+                        padding: '16px',
+                        background: 'var(--blue)',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '8px',
+                        fontSize: '16px',
+                        fontWeight: 600,
+                        fontFamily: 'var(--font-display)',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = '#3b82f6'
+                        e.currentTarget.style.transform = 'translateY(-1px)'
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = 'var(--blue)'
+                        e.currentTarget.style.transform = 'translateY(0)'
+                      }}
+                    >
+                      Apply for Teacher Access
+                    </button>
+                  )}
                 </div>
               ) : (
                 <form onSubmit={handleTeacherApplication}>
