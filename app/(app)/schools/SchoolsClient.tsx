@@ -69,15 +69,15 @@ export default function SchoolsClient() {
 
   // Fetch user data
   useEffect(() => {
-    if (user && !authLoading) {
+    if (user && profile && !authLoading) {
       fetchUserData()
     }
-  }, [user, authLoading])
+  }, [user, profile, authLoading])
 
 
   const fetchUserData = async () => {
     if (!user) return
-
+    
     setDataLoading(true)
     try {
       // Only check class_members for students (not teachers)
@@ -130,9 +130,9 @@ export default function SchoolsClient() {
         }
       }
     } catch (error) {
-      console.error('Error fetching user data:', error)
+      console.error('fetchUserData error:', error)
     } finally {
-      setDataLoading(false)
+      setDataLoading(false) // always runs no matter what
     }
   }
 
