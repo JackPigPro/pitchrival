@@ -16,6 +16,7 @@ interface Profile {
   twitter?: string
   linkedin?: string
   github?: string
+  is_teacher?: boolean
   created_at: string
 }
 
@@ -67,7 +68,50 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
     github: initialProfile.github || ''
   })
 
+  // Classes state
+  const [userClass, setUserClass] = useState<any>(null)
+  const [teacherClasses, setTeacherClasses] = useState<any[]>([])
+  const [classesLoading, setClassesLoading] = useState(false)
+
   const supabase = createClient()
+
+  // Fetch classes data
+  useEffect(() => {
+    fetchClassesData()
+  }, [currentProfile])
+
+  const fetchClassesData = async () => {
+    if (!currentProfile?.id) return
+    
+    setClassesLoading(true)
+    try {
+      if (currentProfile.is_teacher) {
+        // Fetch teacher's classes
+        const { data: classes } = await supabase
+          .from('classes')
+          .select('*')
+          .eq('teacher_id', currentProfile.id)
+          .order('created_at', { ascending: false })
+        
+        setTeacherClasses(classes || [])
+      } else {
+        // Check if user is in a class as a student
+        const { data: classMember } = await supabase
+          .from('class_members')
+          .select('*, classes(*)')
+          .eq('user_id', currentProfile.id)
+          .maybeSingle()
+        
+        if (classMember?.classes) {
+          setUserClass(classMember.classes)
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching classes data:', error)
+    } finally {
+      setClassesLoading(false)
+    }
+  }
 
   // Check username availability in real-time
   useEffect(() => {
@@ -1153,6 +1197,72 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
                 </div>
               )}
             </div>
+
+            {/* Classes Card */}
+            {(currentProfile.is_teacher || userClass) && (
+              <div style={{ 
+                background: 'var(--card)', 
+                borderRadius: '16px', 
+                padding: '32px',
+                border: '1px solid var(--border)',
+                boxShadow: 'var(--shadow)',
+                width: '100%'
+              }}>
+                <h3 style={{ 
+                  fontSize: '20px', 
+                  fontWeight: '700', 
+                  marginBottom: '20px', 
+                  fontFamily: 'var(--font-display)',
+                  color: 'var(--text)'
+                }}>
+                  Classes
+                </h3>
+                
+                {classesLoading ? (
+                  <div style={{ textAlign: 'center', padding: '20px', color: 'var(--text2)' }}>
+                    Loading classes...
+                  </div>
+                ) : currentProfile.is_teacher ? (
+                  teacherClasses.length > 0 ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                      {teacherClasses.map((classItem) => (
+                        <div key={classItem.id} style={{
+                          background: 'var(--surface)',
+                          border: '1px solid var(--border)',
+                          borderRadius: '8px',
+                          padding: '16px'
+                        }}>
+                          <div style={{ fontWeight: 600, color: 'var(--text)', marginBottom: '4px' }}>
+                            {classItem.name}
+                          </div>
+                          <div style={{ fontSize: '14px', color: 'var(--text2)' }}>
+                            {classItem.student_count} students · {classItem.school_name}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div style={{ textAlign: 'center', padding: '20px', color: 'var(--text2)' }}>
+                      No classes created yet
+                    </div>
+                  )
+                ) : userClass ? (
+                  <div style={{
+                    background: 'var(--surface)',
+                    border: '1px solid var(--border)',
+                    borderRadius: '8px',
+                    padding: '16px'
+                  }}>
+                    <div style={{ fontWeight: 600, color: 'var(--text)', marginBottom: '4px' }}>
+                      {userClass.name}
+                    </div>
+                    <div style={{ fontSize: '14px', color: 'var(--text2)' }}>
+                      Teacher: {userClass.teacher_name} · {userClass.school_name}
+                    </div>
+                  </div>
+                ) : null}
+              </div>
+            )}
 
             {/* Member Since Card */}
             <div style={{ 

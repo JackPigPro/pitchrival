@@ -232,7 +232,7 @@ export default function SchoolsClient() {
         return
       }
 
-      setTeacherSuccess('Your teacher account is being reviewed. You\'ll be notified when approved.')
+      setTeacherSuccess('Teacher access granted! You can now create classes.')
       setShowTeacherForm(false)
       
       // Refresh data
