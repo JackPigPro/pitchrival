@@ -82,16 +82,17 @@ export default function SchoolsClient() {
     }
   }, [profile, teacherSuccess])
 
-  // Fallback timeout to prevent frozen skeleton during navigation
+  // Robust timeout fallback to prevent frozen skeleton
   useEffect(() => {
     const timeout = setTimeout(() => {
-      if (authLoading && user) {
-        console.warn('Auth loading timeout with user present - forcing render')
+      if (authLoading || (user && !profile)) {
+        console.warn('Loading timeout detected - forcing page render')
+        // Force the page to render even if loading states are stuck
       }
-    }, 2000) // 2 second timeout
+    }, 3000) // 3 second timeout
 
     return () => clearTimeout(timeout)
-  }, [authLoading, user])
+  }, [authLoading, user, profile])
 
   const fetchUserData = async () => {
     if (!user) return
@@ -356,8 +357,8 @@ export default function SchoolsClient() {
     }
   }
 
-  // Show loading skeleton during initial auth loading or while profile is loading
-  if (authLoading || (user && !profile)) {
+  // Show loading skeleton only during initial auth loading
+  if (authLoading) {
     return (
       <div style={{ 
         minHeight: '100vh',
