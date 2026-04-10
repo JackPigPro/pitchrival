@@ -73,6 +73,62 @@ export default function StudentClassClient({ classData }: StudentClassClientProp
     fetchTabData()
   }, [activeTab])
 
+  // Set up real-time subscriptions
+  useEffect(() => {
+    // Subscribe to class_prompts changes
+    const promptsChannel = supabase
+      .channel('class-prompts-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'class_prompts',
+          filter: `class_id=eq.${classData.id}`
+        },
+        (payload) => {
+          console.log('Prompt change detected:', payload)
+          // Refresh prompts when there are changes
+          if (activeTab === 'prompts') {
+            fetchActivePrompts()
+          } else if (activeTab === 'past') {
+            fetchPastPrompts()
+          }
+        }
+      )
+      .subscribe()
+
+    // Subscribe to class_submissions changes for real-time counts
+    const submissionsChannel = supabase
+      .channel('class-submissions-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'class_submissions'
+        },
+        (payload) => {
+          console.log('New submission detected:', payload)
+          // Update submission counts for active prompts
+          if (activeTab === 'prompts') {
+            setActivePrompts(prev => prev.map(prompt => {
+              if (prompt.id === payload.new.prompt_id) {
+                return { ...prompt, submission_count: prompt.submission_count + 1 }
+              }
+              return prompt
+            }))
+          }
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(promptsChannel)
+      supabase.removeChannel(submissionsChannel)
+    }
+  }, [classData.id, activeTab])
+
   const fetchTabData = async () => {
     setLoading(true)
     

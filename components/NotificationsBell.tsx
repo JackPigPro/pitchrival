@@ -6,11 +6,13 @@ import { useSupabase } from '@/components/SupabaseProvider'
 
 interface Notification {
   id: string
-  type: 'idea_liked' | 'idea_commented' | 'comment_replied' | 'cofounder_request_received' | 'cofounder_request_accepted' | 'new_message'
+  type: 'idea_liked' | 'idea_commented' | 'comment_replied' | 'cofounder_request_received' | 'cofounder_request_accepted' | 'new_message' | 'class_prompt' | 'class_results'
   title: string
   body: string
   read: boolean
   created_at: string
+  reference_id?: string
+  reference_type?: string
 }
 
 export default function NotificationsBell() {
@@ -23,18 +25,20 @@ export default function NotificationsBell() {
 
   const getNotificationIcon = (type: Notification['type']) => {
     switch (type) {
-      case 'idea_liked': return '❤️'
-      case 'idea_commented': return '💬'
-      case 'comment_replied': return '↩️'
-      case 'cofounder_request_received': return '🤝'
-      case 'cofounder_request_accepted': return '🎉'
-      case 'new_message': return '✉️'
-      default: return '🔔'
+      case 'idea_liked': return 'heart'
+      case 'idea_commented': return 'message-square'
+      case 'comment_replied': return 'message-square'
+      case 'cofounder_request_received': return 'users'
+      case 'cofounder_request_accepted': return 'check-circle'
+      case 'new_message': return 'mail'
+      case 'class_prompt': return 'book-open'
+      case 'class_results': return 'trophy'
+      default: return 'bell'
     }
   }
 
-  const getNotificationRoute = (type: Notification['type']) => {
-    switch (type) {
+  const getNotificationRoute = (notification: Notification) => {
+    switch (notification.type) {
       case 'idea_liked':
       case 'idea_commented':
       case 'comment_replied':
@@ -44,13 +48,31 @@ export default function NotificationsBell() {
         return '/connect/cofounder-match'
       case 'new_message':
         return '/connect/messages'
+      case 'class_prompt':
+      case 'class_results':
+        // For class notifications, we need to get the class_id from the prompt
+        // This will be handled asynchronously in handleNotificationClick
+        return '/schools'
       default:
         return '/connect'
     }
   }
 
   const handleNotificationClick = async (notification: Notification) => {
-    const route = getNotificationRoute(notification.type)
+    let route = getNotificationRoute(notification)
+    
+    // For class notifications, we need to get the class_id from the prompt
+    if (notification.type === 'class_prompt' || notification.type === 'class_results') {
+      try {
+        const response = await fetch(`/connect/notifications/api/notifications/class-route/${notification.reference_id}`)
+        if (response.ok) {
+          const data = await response.json()
+          route = `/schools/${data.classId}/student`
+        }
+      } catch (error) {
+        console.error('Failed to get class route:', error)
+      }
+    }
     
     // Mark notification as read
     try {

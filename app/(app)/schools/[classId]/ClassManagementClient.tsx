@@ -382,11 +382,39 @@ export default function ClassManagementClient({ classData }: ClassManagementClie
         promptData.end_time = endTime.toISOString()
       }
 
-      const { error } = await supabase
+      const { data: newPrompt, error } = await supabase
         .from('class_prompts')
         .insert(promptData)
+        .select()
+        .single()
 
       if (error) throw error
+
+      // Notify all students in the class about the new prompt
+      if (newPrompt) {
+        // Fetch all students in this class
+        const { data: classMembers } = await supabase
+          .from('class_members')
+          .select('user_id')
+          .eq('class_id', classData.id)
+
+        if (classMembers && classMembers.length > 0) {
+          // Create notifications for all students
+          const notifications = classMembers.map(member => ({
+            user_id: member.user_id,
+            type: 'class_prompt',
+            title: `New prompt in ${classData.name}`,
+            body: newPrompt.title,
+            reference_id: newPrompt.id,
+            reference_type: 'class_prompt',
+            read: false
+          }))
+
+          await supabase
+            .from('notifications')
+            .insert(notifications)
+        }
+      }
 
       // Reset form and refresh prompts
       setShowCreatePromptForm(false)
@@ -430,6 +458,48 @@ export default function ClassManagementClient({ classData }: ClassManagementClie
           .rpc('distribute_class_prizes', { prompt_id: activePrompt.id })
 
         if (error) throw error
+
+        // Fetch all students who submitted to this competition
+        const { data: submissions } = await supabase
+          .from('class_submissions')
+          .select('user_id')
+          .eq('prompt_id', activePrompt.id)
+
+        if (submissions && submissions.length > 0) {
+          // Fetch ELO changes for this competition
+          const { data: eloChanges } = await supabase
+            .from('class_elo_history')
+            .select('user_id, elo_change')
+            .eq('class_id', classData.id)
+            .eq('prompt_id', activePrompt.id)
+
+          const eloMap = new Map(
+            eloChanges?.map(change => [change.user_id, change.elo_change]) || []
+          )
+
+          // Create notifications for each student
+          const notifications = submissions.map(submission => {
+            const eloChange = eloMap.get(submission.user_id) || 0
+            let placement = 'Participated'
+            if (eloChange >= 15) placement = '1st Place'
+            else if (eloChange >= 10) placement = '2nd Place'
+            else if (eloChange >= 5) placement = '3rd Place'
+
+            return {
+              user_id: submission.user_id,
+              type: 'class_results',
+              title: `Results are in for ${activePrompt.title}`,
+              body: `${placement} - ${eloChange > 0 ? '+' : ''}${eloChange} ELO`,
+              reference_id: activePrompt.id,
+              reference_type: 'class_results',
+              read: false
+            }
+          })
+
+          await supabase
+            .from('notifications')
+            .insert(notifications)
+        }
       }
 
       await supabase
