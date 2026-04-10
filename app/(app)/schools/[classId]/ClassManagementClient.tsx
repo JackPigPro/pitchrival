@@ -75,6 +75,7 @@ export default function ClassManagementClient({ classData }: ClassManagementClie
   const [liveSubmissions, setLiveSubmissions] = useState<Submission[]>([])
   const [activePrompt, setActivePrompt] = useState<Prompt | null>(null)
   const [loading, setLoading] = useState(true)
+  const [timeRemaining, setTimeRemaining] = useState<number>(0)
 
   // Form states
   const [showCreatePromptForm, setShowCreatePromptForm] = useState(false)
@@ -92,6 +93,64 @@ export default function ClassManagementClient({ classData }: ClassManagementClie
   useEffect(() => {
     fetchTabData()
   }, [activeTab])
+
+  // Countdown timer for live sessions
+  useEffect(() => {
+    if (!activePrompt || activePrompt.status !== 'active' || !activePrompt.end_time) {
+      setTimeRemaining(0)
+      return
+    }
+
+    const updateCountdown = () => {
+      const now = new Date()
+      const endTime = new Date(activePrompt.end_time!)
+      const diff = endTime.getTime() - now.getTime()
+      
+      if (diff <= 0) {
+        setTimeRemaining(0)
+        // Automatically change status when timer hits zero
+        handleAutoStatusChange()
+      } else {
+        setTimeRemaining(Math.floor(diff / 1000))
+      }
+    }
+
+    updateCountdown()
+    const interval = setInterval(updateCountdown, 1000)
+
+    return () => clearInterval(interval)
+  }, [activePrompt])
+
+  const handleAutoStatusChange = async () => {
+    if (!activePrompt) return
+
+    try {
+      if (activePrompt.mode === 'competition') {
+        // Competition: set to voting
+        await supabase
+          .from('class_prompts')
+          .update({ status: 'voting' })
+          .eq('id', activePrompt.id)
+      } else {
+        // Bellringer: set to completed
+        await supabase
+          .from('class_prompts')
+          .update({ status: 'completed' })
+          .eq('id', activePrompt.id)
+      }
+
+      // Refresh the active prompt
+      await fetchLiveSession()
+    } catch (error) {
+      console.error('Error auto-changing status:', error)
+    }
+  }
+
+  const formatTimeRemaining = (seconds: number) => {
+    const mins = Math.floor(seconds / 60)
+    const secs = seconds % 60
+    return `${mins}:${secs.toString().padStart(2, '0')}`
+  }
 
   // Set up realtime for live submissions
   useEffect(() => {
@@ -1350,12 +1409,30 @@ export default function ClassManagementClient({ classData }: ClassManagementClie
                       </div>
                       
                       <div style={{ textAlign: 'right' }}>
-                        <div style={{ fontSize: '24px', fontWeight: 800, color: 'var(--green)' }}>
-                          {liveSubmissions.length}
-                        </div>
-                        <div style={{ fontSize: '14px', color: 'var(--text2)' }}>
-                          Submissions
-                        </div>
+                        {activePrompt.status === 'active' && timeRemaining > 0 ? (
+                          <div>
+                            <div style={{ 
+                              fontSize: '32px', 
+                              fontWeight: 800, 
+                              color: 'var(--red)',
+                              fontFamily: 'var(--font-display)'
+                            }}>
+                              {formatTimeRemaining(timeRemaining)}
+                            </div>
+                            <div style={{ fontSize: '14px', color: 'var(--text2)' }}>
+                              Time Remaining
+                            </div>
+                          </div>
+                        ) : (
+                          <div>
+                            <div style={{ fontSize: '24px', fontWeight: 800, color: 'var(--green)' }}>
+                              {liveSubmissions.length}
+                            </div>
+                            <div style={{ fontSize: '14px', color: 'var(--text2)' }}>
+                              Submissions
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>

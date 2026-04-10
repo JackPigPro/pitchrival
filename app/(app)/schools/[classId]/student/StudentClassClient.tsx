@@ -50,6 +50,237 @@ interface StudentClassClientProps {
   classData: ClassData
 }
 
+interface VotingUIProps {
+  promptId: string
+  voteCooldown: number
+  setVoteCooldown: (cooldown: number) => void
+  setEloToast: (toast: { show: boolean; message: string } | null) => void
+}
+
+function VotingUI({ promptId, voteCooldown, setVoteCooldown, setEloToast }: VotingUIProps) {
+  const supabase = createClient()
+  const [currentMatchup, setCurrentMatchup] = useState<{ left: any; right: any } | null>(null)
+  const [matchupCount, setMatchupCount] = useState(0)
+  const [totalMatchups, setTotalMatchups] = useState(0)
+  const [loading, setLoading] = useState(true)
+  const [votedMatchups, setVotedMatchups] = useState<Set<string>>(new Set())
+
+  useEffect(() => {
+    fetchNextMatchup()
+  }, [])
+
+  const fetchNextMatchup = async () => {
+    try {
+      const { data, error } = await supabase
+        .rpc('get_next_voting_matchup', { 
+          prompt_id: promptId,
+          user_id: supabase.auth.getUser().then(({ data: { user } }) => user?.id || '')
+        })
+
+      if (error) throw error
+
+      if (data) {
+        setCurrentMatchup(data)
+        setMatchupCount(data.matchup_number || 0)
+        setTotalMatchups(data.total_matchups || 0)
+      } else {
+        setCurrentMatchup(null)
+      }
+    } catch (error) {
+      console.error('Error fetching matchup:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleVote = async (winnerId: string, loserId: string) => {
+    if (voteCooldown > 0) return
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      const { error } = await supabase
+        .rpc('submit_class_vote', {
+          prompt_id: promptId,
+          winner_id: winnerId,
+          loser_id: loserId,
+          user_id: user.id
+        })
+
+      if (error) throw error
+
+      // Add to voted matchups
+      setVotedMatchups(prev => new Set(prev).add(`${winnerId}-${loserId}`))
+      
+      // Set cooldown
+      setVoteCooldown(30)
+      
+      // Show ELO toast
+      setEloToast({ show: true, message: '+1 ELO earned!' })
+      setTimeout(() => setEloToast(null), 3000)
+
+      // Fetch next matchup
+      await fetchNextMatchup()
+    } catch (error) {
+      console.error('Error submitting vote:', error)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div style={{
+        background: 'var(--card)',
+        border: '1px solid var(--border)',
+        borderRadius: '16px',
+        padding: '32px',
+        marginBottom: '32px',
+        textAlign: 'center'
+      }}>
+        <div style={{ fontSize: '18px', color: 'var(--text2)' }}>
+          Loading voting matchups...
+        </div>
+      </div>
+    )
+  }
+
+  if (!currentMatchup) {
+    return (
+      <div style={{
+        background: 'var(--card)',
+        border: '1px solid var(--border)',
+        borderRadius: '16px',
+        padding: '32px',
+        marginBottom: '32px',
+        textAlign: 'center'
+      }}>
+        <div style={{ fontSize: '24px', fontWeight: 700, fontFamily: 'var(--font-display)', marginBottom: '16px' }}>
+          You've voted on all matchups!
+        </div>
+        <div style={{ fontSize: '16px', color: 'var(--text2)' }}>
+          Thanks for participating in the voting.
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div style={{
+      background: 'var(--card)',
+      border: '1px solid var(--border)',
+      borderRadius: '16px',
+      padding: '32px',
+      marginBottom: '32px'
+    }}>
+      <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+        <h3 style={{ 
+          fontSize: '24px', 
+          fontWeight: 700, 
+          fontFamily: 'var(--font-display)',
+          color: 'var(--text)',
+          marginBottom: '8px'
+        }}>
+          Vote for the Better Response
+        </h3>
+        <div style={{ fontSize: '16px', color: 'var(--text2)' }}>
+          Matchup {matchupCount} of {totalMatchups}
+        </div>
+      </div>
+
+      <div style={{ display: 'flex', gap: '24px', alignItems: 'stretch' }}>
+        {/* Left submission */}
+        <div style={{
+          flex: 1,
+          background: 'var(--surface)',
+          border: '2px solid var(--border)',
+          borderRadius: '12px',
+          padding: '24px',
+          cursor: 'pointer',
+          transition: 'all 0.2s ease'
+        }}
+        onClick={() => handleVote(currentMatchup.left.id, currentMatchup.right.id)}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.borderColor = 'var(--green)'
+          e.currentTarget.style.transform = 'translateY(-2px)'
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.borderColor = 'var(--border)'
+          e.currentTarget.style.transform = 'translateY(0)'
+        }}>
+          <div style={{ fontSize: '14px', color: 'var(--text2)', marginBottom: '16px' }}>
+            Option A
+          </div>
+          <div style={{ 
+            color: 'var(--text)', 
+            fontFamily: 'var(--font-body)',
+            lineHeight: '1.6',
+            whiteSpace: 'pre-wrap'
+          }}>
+            {currentMatchup.left.submission_text}
+          </div>
+        </div>
+
+        {/* VS */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: '24px',
+          fontWeight: 800,
+          color: 'var(--text2)',
+          fontFamily: 'var(--font-display)'
+        }}>
+          VS
+        </div>
+
+        {/* Right submission */}
+        <div style={{
+          flex: 1,
+          background: 'var(--surface)',
+          border: '2px solid var(--border)',
+          borderRadius: '12px',
+          padding: '24px',
+          cursor: 'pointer',
+          transition: 'all 0.2s ease'
+        }}
+        onClick={() => handleVote(currentMatchup.right.id, currentMatchup.left.id)}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.borderColor = 'var(--green)'
+          e.currentTarget.style.transform = 'translateY(-2px)'
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.borderColor = 'var(--border)'
+          e.currentTarget.style.transform = 'translateY(0)'
+        }}>
+          <div style={{ fontSize: '14px', color: 'var(--text2)', marginBottom: '16px' }}>
+            Option B
+          </div>
+          <div style={{ 
+            color: 'var(--text)', 
+            fontFamily: 'var(--font-body)',
+            lineHeight: '1.6',
+            whiteSpace: 'pre-wrap'
+          }}>
+            {currentMatchup.right.submission_text}
+          </div>
+        </div>
+      </div>
+
+      {/* Cooldown indicator */}
+      {voteCooldown > 0 && (
+        <div style={{
+          textAlign: 'center',
+          marginTop: '24px',
+          fontSize: '16px',
+          color: 'var(--text2)'
+        }}>
+          Next vote available in {voteCooldown}s
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function StudentClassClient({ classData }: StudentClassClientProps) {
   const { user } = useUser()
   const router = useRouter()
@@ -63,6 +294,11 @@ export default function StudentClassClient({ classData }: StudentClassClientProp
   const [userSubmissions, setUserSubmissions] = useState<Map<string, Submission>>(new Map())
   const [teacherProfile, setTeacherProfile] = useState<{ username: string } | null>(null)
   const [loading, setLoading] = useState(true)
+  const [livePrompt, setLivePrompt] = useState<Prompt | null>(null)
+  const [timeRemaining, setTimeRemaining] = useState<number>(0)
+  const [votingMode, setVotingMode] = useState(false)
+  const [voteCooldown, setVoteCooldown] = useState<number>(0)
+  const [eloToast, setEloToast] = useState<{ show: boolean; message: string } | null>(null)
 
   // Form states
   const [submissionTexts, setSubmissionTexts] = useState<Map<string, string>>(new Map())
@@ -88,6 +324,20 @@ export default function StudentClassClient({ classData }: StudentClassClientProp
         },
         (payload) => {
           console.log('Prompt change detected:', payload)
+          // Handle live prompt changes
+          if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
+            const prompt = payload.new as Prompt
+            if (prompt.is_live && (prompt.status === 'active' || prompt.status === 'voting')) {
+              setLivePrompt(prompt)
+              if (prompt.status === 'voting') {
+                setVotingMode(true)
+              }
+            } else if (prompt.status === 'completed') {
+              setLivePrompt(null)
+              setVotingMode(false)
+            }
+          }
+          
           // Refresh prompts when there are changes
           if (activeTab === 'prompts') {
             fetchActivePrompts()
@@ -128,6 +378,76 @@ export default function StudentClassClient({ classData }: StudentClassClientProp
       supabase.removeChannel(submissionsChannel)
     }
   }, [classData.id, activeTab])
+
+  // Check for live prompts on mount and set up countdown
+  useEffect(() => {
+    const checkLivePrompt = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('class_prompts')
+          .select('*')
+          .eq('class_id', classData.id)
+          .eq('is_live', true)
+          .in('status', ['active', 'voting'])
+          .single()
+
+        if (data && !error) {
+          setLivePrompt(data)
+          if (data.status === 'voting') {
+            setVotingMode(true)
+          }
+        }
+      } catch (error) {
+        console.error('Error checking live prompt:', error)
+      }
+    }
+
+    checkLivePrompt()
+  }, [classData.id])
+
+  // Countdown timer for live sessions
+  useEffect(() => {
+    if (!livePrompt || livePrompt.status !== 'active' || !livePrompt.end_time) {
+      setTimeRemaining(0)
+      return
+    }
+
+    const updateCountdown = () => {
+      const now = new Date()
+      const endTime = new Date(livePrompt.end_time!)
+      const diff = endTime.getTime() - now.getTime()
+      
+      if (diff <= 0) {
+        setTimeRemaining(0)
+        // Live session ended, clear live prompt
+        setLivePrompt(null)
+      } else {
+        setTimeRemaining(Math.floor(diff / 1000))
+      }
+    }
+
+    updateCountdown()
+    const interval = setInterval(updateCountdown, 1000)
+
+    return () => clearInterval(interval)
+  }, [livePrompt])
+
+  // Vote cooldown timer
+  useEffect(() => {
+    if (voteCooldown <= 0) return
+
+    const interval = setInterval(() => {
+      setVoteCooldown(prev => Math.max(0, prev - 1))
+    }, 1000)
+
+    return () => clearInterval(interval)
+  }, [voteCooldown])
+
+  const formatTimeRemaining = (seconds: number) => {
+    const mins = Math.floor(seconds / 60)
+    const secs = seconds % 60
+    return `${mins}:${secs.toString().padStart(2, '0')}`
+  }
 
   const fetchTabData = async () => {
     setLoading(true)
@@ -395,6 +715,23 @@ export default function StudentClassClient({ classData }: StudentClassClientProp
             height: '600px'
           }} />
         </div>
+        <div style={{
+          position: 'fixed',
+          top: '20px',
+          right: '20px',
+          background: 'var(--green)',
+          color: 'white',
+          padding: '16px 24px',
+          borderRadius: '8px',
+          fontSize: '16px',
+          fontWeight: 600,
+          fontFamily: 'var(--font-display)',
+          boxShadow: 'var(--shadow)',
+          zIndex: 1000,
+          animation: 'slideInRight 0.3s ease'
+        }}>
+          Loading...
+        </div>
       </div>
     )
   }
@@ -408,433 +745,274 @@ export default function StudentClassClient({ classData }: StudentClassClientProp
       padding: '40px 24px'
     }}>
       <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-        {/* Class Header */}
-        <div style={{
-          background: 'var(--card)',
-          border: '1px solid var(--border)',
-          borderRadius: '16px',
-          padding: '32px',
+        <h1 style={{ 
+          fontSize: '32px',
+          fontWeight: 700,
+          marginBottom: '8px',
+          color: 'var(--text)'
+        }}>
+          {classData.name}
+        </h1>
+        <p style={{ 
+          fontSize: '16px',
+          color: 'var(--text-secondary)',
           marginBottom: '32px'
         }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px' }}>
-            <div>
-              <h1 style={{ 
-                fontSize: '36px', 
-                fontWeight: 800, 
-                letterSpacing: '-1px', 
-                fontFamily: 'var(--font-display)', 
-                color: 'var(--text)', 
-                marginBottom: '8px'
-              }}>
-                {classData.name}
-              </h1>
-              <div style={{ fontSize: '16px', color: 'var(--text2)', fontFamily: 'var(--font-body)' }}>
-                {teacherProfile ? `Teacher: @${teacherProfile.username}` : 'Loading teacher...'}
-              </div>
-              <div style={{ fontSize: '16px', color: 'var(--text2)', fontFamily: 'var(--font-body)' }}>
-                {classData.school_name}
-              </div>
-            </div>
-            
-            <button
-              onClick={handleLeaveClass}
-              style={{
-                padding: '12px 24px',
-                background: 'var(--red)',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                fontSize: '14px',
-                fontWeight: 600,
-                cursor: 'pointer',
-                fontFamily: 'var(--font-display)'
-              }}
-            >
-              Leave Class
-            </button>
-          </div>
-          
-          <div style={{ fontSize: '14px', color: 'var(--text2)' }}>
-            {classData.student_count} students in this class
-          </div>
-        </div>
+          {classData.school_name} · {classData.teacher_name}
+        </p>
 
         {/* Tabs */}
         <div style={{ 
-          display: 'flex', 
-          borderBottom: '1px solid var(--border)', 
-          marginBottom: '32px' 
+          display: 'flex',
+          gap: '8px',
+          marginBottom: '32px',
+          borderBottom: '1px solid var(--border)',
+          paddingBottom: '0'
         }}>
-          {(['prompts', 'leaderboard', 'past'] as const).map((tab) => (
+          {(['prompts', 'leaderboard', 'past'] as const).map(tab => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
               style={{
-                padding: '16px 24px',
+                padding: '12px 24px',
                 background: 'none',
                 border: 'none',
-                borderBottom: activeTab === tab ? '2px solid var(--green)' : 'none',
-                color: activeTab === tab ? 'var(--text)' : 'var(--text2)',
+                borderBottom: activeTab === tab ? '2px solid var(--green)' : '2px solid transparent',
+                color: activeTab === tab ? 'var(--green)' : 'var(--text-secondary)',
                 fontSize: '16px',
                 fontWeight: 600,
-                fontFamily: 'var(--font-display)',
                 cursor: 'pointer',
+                textTransform: 'capitalize',
                 transition: 'all 0.2s ease'
               }}
             >
-              {tab === 'prompts' ? "Today's Prompts" : tab.charAt(0).toUpperCase() + tab.slice(1)}
+              {tab}
             </button>
           ))}
         </div>
 
         {/* Tab Content */}
-        <div style={{
-          background: 'var(--card)',
-          border: '1px solid var(--border)',
-          borderRadius: '16px',
-          padding: '32px'
-        }}>
-          {activeTab === 'prompts' && (
-            <div>
-              <h2 style={{ 
-                fontSize: '24px', 
-                fontWeight: 700, 
-                marginBottom: '24px',
-                fontFamily: 'var(--font-display)',
-                color: 'var(--text)'
+        {activeTab === 'prompts' && (
+          <div>
+            <h2 style={{ fontSize: '24px', fontWeight: 600, marginBottom: '24px' }}>
+              Active Prompts
+            </h2>
+            {activePrompts.length === 0 ? (
+              <div style={{
+                background: 'var(--card)',
+                border: '1px solid var(--border)',
+                borderRadius: '12px',
+                padding: '48px',
+                textAlign: 'center',
+                color: 'var(--text-secondary)'
               }}>
-                Today's Prompts
-              </h2>
-
-              {activePrompts.length === 0 ? (
-                <div style={{
-                  background: 'var(--surface)',
+                No active prompts
+              </div>
+            ) : (
+              activePrompts.map(prompt => (
+                <div key={prompt.id} style={{
+                  background: 'var(--card)',
                   border: '1px solid var(--border)',
-                  borderRadius: '8px',
-                  padding: '48px',
-                  textAlign: 'center'
+                  borderRadius: '12px',
+                  padding: '24px',
+                  marginBottom: '16px'
                 }}>
-                  <div style={{ fontSize: '48px', marginBottom: '16px' }}> assignment </div>
-                  <p style={{ color: 'var(--text2)', fontFamily: 'var(--font-body)' }}>
-                    No active prompts right now. Check back soon!
-                  </p>
-                </div>
-              ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                  {activePrompts.map((prompt) => {
-                    const userSubmission = userSubmissions.get(prompt.id)
-                    const isSubmitting = submitting.get(prompt.id) || false
-                    const submissionText = submissionTexts.get(prompt.id) || ''
-
-                    return (
-                      <div key={prompt.id} style={{
-                        background: 'var(--surface)',
-                        border: '1px solid var(--border)',
-                        borderRadius: '12px',
-                        padding: '24px'
-                      }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
-                          <div style={{ flex: 1 }}>
-                            <h3 style={{ 
-                              fontSize: '20px', 
-                              fontWeight: 600, 
-                              marginBottom: '8px',
-                              fontFamily: 'var(--font-display)',
-                              color: 'var(--text)'
-                            }}>
-                              {prompt.title}
-                            </h3>
-                            <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '12px' }}>
-                              {getModeBadge(prompt.mode)}
-                              <span style={{ fontSize: '14px', color: 'var(--text2)' }}>
-                                {getTimeRemaining(prompt.end_time)}
-                              </span>
-                              <span style={{ fontSize: '14px', color: 'var(--text2)' }}>
-                                {prompt.submission_count} submissions
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        <p style={{ 
-                          color: 'var(--text)', 
-                          fontFamily: 'var(--font-body)',
-                          marginBottom: '20px',
-                          lineHeight: '1.6'
-                        }}>
-                          {prompt.content}
-                        </p>
-
-                        {!userSubmission ? (
-                          <div>
-                            <textarea
-                              value={submissionText}
-                              onChange={(e) => setSubmissionTexts(prev => new Map(prev.set(prompt.id, e.target.value)))}
-                              placeholder="Enter your response..."
-                              disabled={isSubmitting}
-                              style={{
-                                width: '100%',
-                                minHeight: '120px',
-                                padding: '16px',
-                                fontSize: '14px',
-                                border: '1px solid var(--border)',
-                                borderRadius: '8px',
-                                background: 'var(--bg)',
-                                color: 'var(--text)',
-                                fontFamily: 'var(--font-body)',
-                                resize: 'vertical',
-                                marginBottom: '16px'
-                              }}
-                            />
-                            <button
-                              onClick={() => handleSubmitSubmission(prompt.id)}
-                              disabled={isSubmitting || !submissionText.trim()}
-                              style={{
-                                padding: '12px 24px',
-                                background: isSubmitting || !submissionText.trim() ? 'var(--border)' : 'var(--green)',
-                                color: isSubmitting || !submissionText.trim() ? 'var(--text2)' : 'white',
-                                border: 'none',
-                                borderRadius: '8px',
-                                fontSize: '16px',
-                                fontWeight: 600,
-                                cursor: isSubmitting || !submissionText.trim() ? 'not-allowed' : 'pointer',
-                                fontFamily: 'var(--font-display)'
-                              }}
-                            >
-                              {isSubmitting ? 'Submitting...' : 'Submit'}
-                            </button>
-                          </div>
-                        ) : (
-                          <div>
-                            <div style={{
-                              background: 'var(--green-tint)',
-                              border: '1px solid var(--green)',
-                              borderRadius: '8px',
-                              padding: '16px',
-                              marginBottom: '16px'
-                            }}>
-                              <p style={{ 
-                                color: 'var(--green)',
-                                fontWeight: 600,
-                                fontFamily: 'var(--font-display)',
-                                margin: '0 0 8px 0'
-                              }}>
-                                Your Submission:
-                              </p>
-                              <p style={{ 
-                                color: 'var(--text)',
-                                fontFamily: 'var(--font-body)',
-                                margin: 0,
-                                lineHeight: '1.4'
-                              }}>
-                                {userSubmission.submission_text}
-                              </p>
-                            </div>
-                            <button
-                              style={{
-                                padding: '12px 24px',
-                                background: 'var(--blue)',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '8px',
-                                fontSize: '16px',
-                                fontWeight: 600,
-                                cursor: 'pointer',
-                                fontFamily: 'var(--font-display)'
-                              }}
-                            >
-                              View Responses
-                            </button>
-                          </div>
-                        )}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
+                    <div>
+                      <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '8px' }}>
+                        {prompt.title}
+                      </h3>
+                      <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                        {getModeBadge(prompt.mode)}
+                        <span style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>
+                          {getTimeRemaining(prompt.end_time)}
+                        </span>
                       </div>
-                    )
-                  })}
-                </div>
-              )}
-            </div>
-          )}
-
-          {activeTab === 'leaderboard' && (
-            <div>
-              <h2 style={{ 
-                fontSize: '24px', 
-                fontWeight: 700, 
-                marginBottom: '24px',
-                fontFamily: 'var(--font-display)',
-                color: 'var(--text)'
-              }}>
-                Class Leaderboard
-              </h2>
-
-              {leaderboard.length === 0 ? (
-                <div style={{
-                  background: 'var(--surface)',
-                  border: '1px solid var(--border)',
-                  borderRadius: '8px',
-                  padding: '48px',
-                  textAlign: 'center'
-                }}>
-                  <div style={{ fontSize: '48px', marginBottom: '16px' }}> trophy </div>
-                  <p style={{ color: 'var(--text2)', fontFamily: 'var(--font-body)' }}>
-                    No competition results yet
+                    </div>
+                  </div>
+                  <p style={{ color: 'var(--text)', marginBottom: '16px', lineHeight: '1.5' }}>
+                    {prompt.content}
                   </p>
+                  {votingMode && prompt.status === 'voting' ? (
+                    <VotingUI 
+                      promptId={prompt.id} 
+                      voteCooldown={voteCooldown}
+                      setVoteCooldown={setVoteCooldown}
+                      setEloToast={setEloToast}
+                    />
+                  ) : (
+                    <div>
+                      <textarea
+                        value={submissionTexts.get(prompt.id) || ''}
+                        onChange={(e) => setSubmissionTexts(new Map(submissionTexts.set(prompt.id, e.target.value)))}
+                        placeholder="Write your response here..."
+                        style={{
+                          width: '100%',
+                          minHeight: '120px',
+                          padding: '12px',
+                          border: '1px solid var(--border)',
+                          borderRadius: '8px',
+                          fontSize: '14px',
+                          fontFamily: 'inherit',
+                          resize: 'vertical',
+                          marginBottom: '12px'
+                        }}
+                      />
+                      <button
+                        onClick={() => handleSubmitSubmission(prompt.id)}
+                        disabled={submitting.get(prompt.id) || !submissionTexts.get(prompt.id)?.trim()}
+                        style={{
+                          background: 'var(--green)',
+                          color: 'white',
+                          border: 'none',
+                          padding: '12px 24px',
+                          borderRadius: '8px',
+                          fontSize: '14px',
+                          fontWeight: 600,
+                          cursor: (submitting.get(prompt.id) || !submissionTexts.get(prompt.id)?.trim()) ? 'not-allowed' : 'pointer',
+                          opacity: (submitting.get(prompt.id) || !submissionTexts.get(prompt.id)?.trim()) ? 0.5 : 1
+                        }}
+                      >
+                        {submitting.get(prompt.id) ? 'Submitting...' : 'Submit Response'}
+                      </button>
+                    </div>
+                  )}
                 </div>
-              ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  {leaderboard.map((entry, index) => {
-                    const isCurrentUser = entry.user_id === user?.id
-                    return (
-                      <div key={entry.user_id} style={{
-                        background: isCurrentUser ? 'var(--green-tint)' : 'var(--surface)',
-                        border: isCurrentUser ? '1px solid var(--green)' : '1px solid var(--border)',
-                        borderRadius: '8px',
-                        padding: '16px',
+              ))
+            )}
+          </div>
+        )}
+
+        {activeTab === 'leaderboard' && (
+          <div>
+            <h2 style={{ fontSize: '24px', fontWeight: 600, marginBottom: '24px' }}>
+              Class Leaderboard
+            </h2>
+            {leaderboard.length === 0 ? (
+              <div style={{
+                background: 'var(--card)',
+                border: '1px solid var(--border)',
+                borderRadius: '12px',
+                padding: '48px',
+                textAlign: 'center',
+                color: 'var(--text-secondary)'
+              }}>
+                No leaderboard data available
+              </div>
+            ) : (
+              <div style={{
+                background: 'var(--card)',
+                border: '1px solid var(--border)',
+                borderRadius: '12px',
+                overflow: 'hidden'
+              }}>
+                {leaderboard.map((entry, index) => (
+                  <div key={entry.user_id} style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    padding: '16px 24px',
+                    borderBottom: index < leaderboard.length - 1 ? '1px solid var(--border)' : 'none'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <span style={{
+                        width: '24px',
+                        height: '24px',
+                        borderRadius: '50%',
+                        background: index === 0 ? 'var(--yellow)' : index === 1 ? 'var(--gray)' : index === 2 ? 'var(--orange)' : 'var(--border)',
+                        color: index < 3 ? 'white' : 'var(--text)',
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '16px'
+                        justifyContent: 'center',
+                        fontSize: '12px',
+                        fontWeight: 600
                       }}>
-                        <div style={{
-                          fontSize: '24px',
-                          fontWeight: 800,
-                          fontFamily: 'var(--font-display)',
-                          color: index === 0 ? 'var(--gold)' : index === 1 ? 'var(--text2)' : index === 2 ? '#cd7f32' : 'var(--text3)',
-                          width: '40px',
-                          textAlign: 'center'
-                        }}>
-                          #{index + 1}
-                        </div>
-                        
-                        <div style={{ flex: 1 }}>
-                          <div style={{ 
-                            fontWeight: 600, 
-                            fontFamily: 'var(--font-display)',
-                            cursor: 'pointer'
-                          }}
-                          onClick={() => router.push(`/profile/${entry.username}`)}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.color = 'var(--green)'
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.color = 'var(--text)'
-                          }}>
-                            @{entry.username}
-                          </div>
-                          {isCurrentUser && (
-                            <div style={{ fontSize: '12px', color: 'var(--green)', fontWeight: 600 }}>
-                              You
-                            </div>
-                          )}
-                        </div>
-                        
-                        <div style={{ textAlign: 'right' }}>
-                          <div style={{ 
-                            fontSize: '20px', 
-                            fontWeight: 700, 
-                            fontFamily: 'var(--font-display)',
-                            color: 'var(--green)'
-                          }}>
-                            +{entry.total_elo_earned}
-                          </div>
-                          <div style={{ fontSize: '12px', color: 'var(--text2)' }}>
-                            Class ELO
-                          </div>
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
-              )}
-            </div>
-          )}
-
-          {activeTab === 'past' && (
-            <div>
-              <h2 style={{ 
-                fontSize: '24px', 
-                fontWeight: 700, 
-                marginBottom: '24px',
-                fontFamily: 'var(--font-display)',
-                color: 'var(--text)'
-              }}>
-                Past Prompts
-              </h2>
-
-              {pastPrompts.length === 0 ? (
-                <div style={{
-                  background: 'var(--surface)',
-                  border: '1px solid var(--border)',
-                  borderRadius: '8px',
-                  padding: '48px',
-                  textAlign: 'center'
-                }}>
-                  <div style={{ fontSize: '48px', marginBottom: '16px' }}> history </div>
-                  <p style={{ color: 'var(--text2)', fontFamily: 'var(--font-body)' }}>
-                    No past prompts yet
-                  </p>
-                </div>
-              ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                  {pastPrompts.map((prompt) => (
-                    <div key={prompt.id} style={{
-                      background: 'var(--surface)',
-                      border: '1px solid var(--border)',
-                      borderRadius: '8px',
-                      padding: '20px'
-                    }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
-                        <div>
-                          <h3 style={{ 
-                            fontSize: '18px', 
-                            fontWeight: 600, 
-                            marginBottom: '8px',
-                            fontFamily: 'var(--font-display)',
-                            color: 'var(--text)'
-                          }}>
-                            {prompt.title}
-                          </h3>
-                          <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                            {getModeBadge(prompt.mode)}
-                            <span style={{ fontSize: '14px', color: 'var(--text2)' }}>
-                              {prompt.end_time ? new Date(prompt.end_time).toLocaleDateString() : 'No date'}
-                            </span>
-                            <span style={{ fontSize: '14px', color: 'var(--text2)' }}>
-                              {prompt.submission_count} submissions
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      {prompt.mode === 'competition' && (
-                        <div style={{
-                          background: 'var(--gold-tint)',
-                          border: '1px solid var(--gold)',
-                          borderRadius: '8px',
-                          padding: '16px',
-                          marginTop: '12px'
-                        }}>
-                          <p style={{ 
-                            fontSize: '14px', 
-                            fontWeight: 600,
-                            fontFamily: 'var(--font-display)',
-                            color: 'var(--gold)',
-                            margin: '0 0 8px 0'
-                          }}>
-                            Top 3 Winners:
-                          </p>
-                          <div style={{ fontSize: '14px', color: 'var(--text2)' }}>
-                            Winner: +15 ELO | Second: +10 ELO | Third: +5 ELO
-                          </div>
-                        </div>
-                      )}
+                        {index + 1}
+                      </span>
+                      <span style={{ fontWeight: 600 }}>{entry.username}</span>
                     </div>
-                  ))}
+                    <span style={{ color: 'var(--green)', fontWeight: 600 }}>
+                      +{entry.total_elo_earned} ELO
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {activeTab === 'past' && (
+          <div>
+            <h2 style={{ fontSize: '24px', fontWeight: 600, marginBottom: '24px' }}>
+              Past Prompts
+            </h2>
+            {pastPrompts.length === 0 ? (
+              <div style={{
+                background: 'var(--card)',
+                border: '1px solid var(--border)',
+                borderRadius: '12px',
+                padding: '48px',
+                textAlign: 'center',
+                color: 'var(--text-secondary)'
+              }}>
+                No past prompts
+              </div>
+            ) : (
+              pastPrompts.map(prompt => (
+                <div key={prompt.id} style={{
+                  background: 'var(--card)',
+                  border: '1px solid var(--border)',
+                  borderRadius: '12px',
+                  padding: '24px',
+                  marginBottom: '16px',
+                  opacity: 0.8
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
+                    <div>
+                      <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '8px' }}>
+                        {prompt.title}
+                      </h3>
+                      <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                        {getModeBadge(prompt.mode)}
+                        <span style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>
+                          Completed
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <p style={{ color: 'var(--text)', marginBottom: '16px', lineHeight: '1.5' }}>
+                    {prompt.content}
+                  </p>
+                  <div style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>
+                    {prompt.submission_count} submissions
+                  </div>
                 </div>
-              )}
-            </div>
-          )}
-        </div>
+              ))
+            )}
+          </div>
+        )}
       </div>
+
+      {/* ELO Toast */}
+      {eloToast && (
+        <div style={{
+          position: 'fixed',
+          top: '20px',
+          right: '20px',
+          background: 'var(--green)',
+          color: 'white',
+          padding: '16px 24px',
+          borderRadius: '8px',
+          fontSize: '16px',
+          fontWeight: 600,
+          fontFamily: 'var(--font-display)',
+          boxShadow: 'var(--shadow)',
+          zIndex: 1000,
+          animation: 'slideInRight 0.3s ease'
+        }}>
+          {eloToast.message}
+        </div>
+      )}
     </div>
   )
 }
