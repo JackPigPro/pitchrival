@@ -152,9 +152,9 @@ export default function SchoolsClient({ userId, profile, userClass, teacherClass
       setCurrentUserClass(classData)
       setJoinCode('')
 
-      console.log('Redirecting to class view:', `/schools/${classData.id}`)
-      // Redirect to class view
-      router.push(`/schools/${classData.id}`)
+      console.log('Reloading page to refresh server data')
+      // Force full page reload to ensure server component re-fetches data with new class membership
+      window.location.reload()
     } catch (error) {
       console.error('Error joining class:', error)
       setJoinError('An error occurred. Please try again.')
