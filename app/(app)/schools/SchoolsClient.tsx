@@ -562,7 +562,7 @@ export default function SchoolsClient() {
                 Become a Teacher
               </h2>
               
-              {!showTeacherForm ? (
+              {!showTeacherForm || isTeacher ? (
                 <div>
                   <p style={{ 
                     color: 'var(--text2)', 
