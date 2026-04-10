@@ -84,6 +84,8 @@ export default function SchoolsClient({ userId, profile, userClass, teacherClass
     e.preventDefault()
     setJoinError('')
 
+    console.log('Join class attempt:', { joinCode, userId, isTeacher })
+
     if (!joinCode || joinCode.length !== 6) {
       setJoinError('Please enter a valid 6-digit class code')
       return
@@ -101,18 +103,23 @@ export default function SchoolsClient({ userId, profile, userClass, teacherClass
 
     try {
       // Find class by join code
+      console.log('Looking for class with code:', joinCode.toUpperCase())
       const { data: classData, error: classError } = await supabase
         .from('classes')
         .select('*')
         .eq('join_code', joinCode.toUpperCase())
         .single()
 
+      console.log('Class search result:', { classData, classError })
+
       if (classError || !classData) {
+        console.error('Class not found:', classError)
         setJoinError('Invalid class code')
         return
       }
 
       // Add user to class
+      console.log('Adding user to class:', { classId: classData.id, userId })
       const { error: memberError } = await supabase
         .from('class_members')
         .insert({
@@ -120,17 +127,32 @@ export default function SchoolsClient({ userId, profile, userClass, teacherClass
           user_id: userId
         })
 
+      console.log('Member insertion result:', { memberError })
+
       if (memberError) {
-        setJoinError('Failed to join class. Please try again.')
+        console.error('Failed to add member:', memberError)
+        setJoinError(`Failed to join class: ${memberError.message}`)
         return
       }
 
       // Update student count
-      await supabase
+      console.log('Updating student count from', classData.student_count, 'to', classData.student_count + 1)
+      const { error: updateError } = await supabase
         .from('classes')
         .update({ student_count: classData.student_count + 1 })
         .eq('id', classData.id)
 
+      console.log('Student count update result:', { updateError })
+
+      if (updateError) {
+        console.error('Failed to update student count:', updateError)
+      }
+
+      // Update local state to show immediate feedback
+      setCurrentUserClass(classData)
+      setJoinCode('')
+
+      console.log('Redirecting to class view:', `/schools/${classData.id}`)
       // Redirect to class view
       router.push(`/schools/${classData.id}`)
     } catch (error) {

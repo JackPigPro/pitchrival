@@ -1236,7 +1236,7 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
                             {classItem.name}
                           </div>
                           <div style={{ fontSize: '14px', color: 'var(--text2)' }}>
-                            {classItem.student_count} students · {classItem.school_name}
+                            {classItem.student_count} students{classItem.school_name ? ` · ${classItem.school_name}` : ''}
                           </div>
                         </div>
                       ))}
@@ -1257,10 +1257,14 @@ export default function ProfilePage({ profile: initialProfile, userStats, ideas,
                       {userClass.name}
                     </div>
                     <div style={{ fontSize: '14px', color: 'var(--text2)' }}>
-                      Teacher: {userClass.teacher_name} · {userClass.school_name}
+                      Teacher: {userClass.teacher_name}{userClass.school_name ? ` · ${userClass.school_name}` : ''}
                     </div>
                   </div>
-                ) : null}
+                ) : (
+                  <div style={{ textAlign: 'center', padding: '20px', color: 'var(--text2)' }}>
+                    Not in any class yet
+                  </div>
+                )}
               </div>
             )}
 

@@ -572,9 +572,15 @@ export default function ClassManagementClient({ classData }: ClassManagementClie
     }
   }
 
+  const [copyButtonText, setCopyButtonText] = useState('Copy')
+
   const copyJoinCode = async () => {
     try {
       await navigator.clipboard.writeText(classData.join_code)
+      setCopyButtonText('Copied!')
+      setTimeout(() => {
+        setCopyButtonText('Copy')
+      }, 2000)
     } catch (error) {
       console.error('Error copying join code:', error)
     }
@@ -778,8 +784,8 @@ export default function ClassManagementClient({ classData }: ClassManagementClie
                         onClick={copyJoinCode}
                         style={{
                           padding: '8px 16px',
-                          background: 'var(--green)',
-                          color: 'white',
+                          background: copyButtonText === 'Copied!' ? 'var(--green-tint)' : 'var(--green)',
+                          color: copyButtonText === 'Copied!' ? 'var(--green)' : 'white',
                           border: 'none',
                           borderRadius: '6px',
                           fontSize: '14px',
@@ -788,7 +794,7 @@ export default function ClassManagementClient({ classData }: ClassManagementClie
                           fontFamily: 'var(--font-display)'
                         }}
                       >
-                        Copy
+                        {copyButtonText}
                       </button>
                     </div>
                   </div>

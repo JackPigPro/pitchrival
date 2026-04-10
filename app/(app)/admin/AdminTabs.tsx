@@ -115,6 +115,34 @@ export default function AdminTabs() {
     }
   }
 
+  const handleDeclineTeacher = async (verificationId: string, userId: string) => {
+    try {
+      // Update profiles table to set is_teacher = false
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({ 
+          teacher_verified: false,
+          is_teacher: false 
+        })
+        .eq('id', userId)
+
+      if (profileError) throw profileError
+
+      // Delete from teacher_verifications table
+      const { error: deleteError } = await supabase
+        .from('teacher_verifications')
+        .delete()
+        .eq('id', verificationId)
+
+      if (deleteError) throw deleteError
+
+      // Refresh data
+      await fetchTeacherVerifications()
+    } catch (error) {
+      console.error('Error declining teacher:', error)
+    }
+  }
+
   return (
     <div>
       {/* Tab Navigation */}
@@ -245,28 +273,52 @@ export default function AdminTabs() {
                   
                   <div style={{ display: 'flex', gap: '8px', marginLeft: '20px' }}>
                     {!verification.verified ? (
-                      <button
-                        onClick={() => handleVerifyTeacher(verification.id, verification.user_id)}
-                        style={{
-                          padding: '8px 16px',
-                          background: 'var(--green)',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '6px',
-                          fontSize: '14px',
-                          fontWeight: 600,
-                          cursor: 'pointer',
-                          transition: 'all 0.2s ease'
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.background = '#22c55e'
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.background = 'var(--green)'
-                        }}
-                      >
-                        Verify
-                      </button>
+                      <>
+                        <button
+                          onClick={() => handleVerifyTeacher(verification.id, verification.user_id)}
+                          style={{
+                            padding: '8px 16px',
+                            background: 'var(--green)',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '6px',
+                            fontSize: '14px',
+                            fontWeight: 600,
+                            cursor: 'pointer',
+                            transition: 'all 0.2s ease'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background = '#22c55e'
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background = 'var(--green)'
+                          }}
+                        >
+                          Verify
+                        </button>
+                        <button
+                          onClick={() => handleDeclineTeacher(verification.id, verification.user_id)}
+                          style={{
+                            padding: '8px 16px',
+                            background: 'var(--red)',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '6px',
+                            fontSize: '14px',
+                            fontWeight: 600,
+                            cursor: 'pointer',
+                            transition: 'all 0.2s ease'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background = '#dc2626'
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background = 'var(--red)'
+                          }}
+                        >
+                          Decline
+                        </button>
+                      </>
                     ) : (
                       <button
                         onClick={() => handleRevokeTeacher(verification.id, verification.user_id)}
