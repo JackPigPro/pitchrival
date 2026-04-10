@@ -74,6 +74,17 @@ export default function SchoolsClient() {
     }
   }, [user, authLoading])
 
+  // Fallback timeout to prevent frozen skeleton during navigation
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (authLoading && user) {
+        console.warn('Auth loading timeout with user present - forcing render')
+      }
+    }, 2000) // 2 second timeout
+
+    return () => clearTimeout(timeout)
+  }, [authLoading, user])
+
   const fetchUserData = async () => {
     if (!user) return
 
@@ -337,8 +348,8 @@ export default function SchoolsClient() {
     }
   }
 
-  // Show loading skeleton only during initial auth loading
-  if (authLoading) {
+  // Show loading skeleton only during initial auth loading when no user data
+  if (authLoading && !user) {
     return (
       <div style={{ 
         minHeight: '100vh',
