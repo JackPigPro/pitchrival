@@ -20,6 +20,8 @@ export default async function SchoolsPage() {
     .select('class_id')
     .eq('user_id', user.id)
     .maybeSingle()
+  
+  console.log('classMember query result:', classMember, 'for user:', user.id)
 
   // Fetch class details if in a class
   let userClass = null
