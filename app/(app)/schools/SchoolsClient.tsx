@@ -920,7 +920,7 @@ export default function SchoolsClient() {
                 </div>
                 
                 <button
-                  onClick={() => router.push(`/schools/${classItem.id}`)}
+                  onClick={() => { window.location.href = `/schools/${classItem.id}` }}
                   style={{
                     width: '100%',
                     padding: '12px',
