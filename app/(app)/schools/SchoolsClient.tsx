@@ -364,472 +364,7 @@ export default function SchoolsClient({ userId, profile, userClass, teacherClass
     )
   }
 
-  // View 1: User is not in a class and not verified
-  if (!profile?.is_teacher || (profile?.is_teacher && !profile?.teacher_verified)) {
-    // Show join class + become teacher cards
-    return (
-      <div style={{ 
-        minHeight: '100vh',
-        background: 'var(--bg)',
-        backgroundImage: 'linear-gradient(rgba(21,128,61,.065) 1px, transparent 1px), linear-gradient(90deg, rgba(21,128,61,.065) 1px, transparent 1px)',
-        backgroundSize: '48px 48px',
-        padding: '40px 24px'
-      }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-          <h1 style={{ 
-            fontSize: '48px', 
-            fontWeight: 800, 
-            letterSpacing: '-2px', 
-            fontFamily: 'var(--font-display)', 
-            color: 'var(--text)', 
-            marginBottom: '32px'
-          }}>
-            Schools
-          </h1>
-
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px' }}>
-            {/* Join Class Card */}
-            <div style={{
-              background: 'var(--card)',
-              border: '1px solid var(--border)',
-              borderRadius: '16px',
-              padding: '32px'
-            }}>
-              <h2 style={{ 
-                fontSize: '24px', 
-                fontWeight: 700, 
-                marginBottom: '24px',
-                fontFamily: 'var(--font-display)',
-                color: 'var(--text)'
-              }}>
-                Join a Class
-              </h2>
-              
-              <form onSubmit={handleJoinClass}>
-                <div style={{ marginBottom: '20px' }}>
-                  <input
-                    type="text"
-                    placeholder="Enter 6-digit class code"
-                    value={joinCode}
-                    onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
-                    maxLength={6}
-                    style={{
-                      width: '100%',
-                      padding: '16px',
-                      fontSize: '16px',
-                      border: '1px solid var(--border)',
-                      borderRadius: '8px',
-                      background: 'var(--surface)',
-                      color: 'var(--text)',
-                      fontFamily: 'var(--font-body)',
-                      textTransform: 'uppercase',
-                      letterSpacing: '2px',
-                      textAlign: 'center'
-                    }}
-                  />
-                </div>
-                
-                {joinError && (
-                  <div style={{ 
-                    color: 'var(--red)', 
-                    fontSize: '14px', 
-                    marginBottom: '16px',
-                    fontFamily: 'var(--font-body)'
-                  }}>
-                    {joinError}
-                  </div>
-                )}
-                
-                <button
-                  type="submit"
-                  style={{
-                    width: '100%',
-                    padding: '16px',
-                    background: 'var(--green)',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '8px',
-                    fontSize: '16px',
-                    fontWeight: 600,
-                    fontFamily: 'var(--font-display)',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = '#22c55e'
-                    e.currentTarget.style.transform = 'translateY(-1px)'
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = 'var(--green)'
-                    e.currentTarget.style.transform = 'translateY(0)'
-                  }}
-                >
-                  Join Class
-                </button>
-              </form>
-            </div>
-
-            {/* Become a Teacher Card */}
-            <div style={{
-              background: 'var(--card)',
-              border: '1px solid var(--border)',
-              borderRadius: '16px',
-              padding: '32px'
-            }}>
-              <h2 style={{ 
-                fontSize: '24px', 
-                fontWeight: 700, 
-                marginBottom: '24px',
-                fontFamily: 'var(--font-display)',
-                color: 'var(--text)'
-              }}>
-                Become a Teacher
-              </h2>
-              
-              {!showTeacherForm || (profile?.is_teacher && !profile?.teacher_verified) ? (
-                <div>
-                  <p style={{ 
-                    color: 'var(--text2)', 
-                    marginBottom: '24px',
-                    fontFamily: 'var(--font-body)',
-                    lineHeight: '1.6'
-                  }}>
-                    Create and manage classes, track student progress, and access premium educational features.
-                  </p>
-                  
-                  {profile?.is_teacher && !profile?.teacher_verified ? (
-                    <div>
-                      <button
-                        disabled
-                        style={{
-                          width: '100%',
-                          padding: '16px',
-                          background: 'var(--border)',
-                          color: 'var(--text2)',
-                          border: 'none',
-                          borderRadius: '8px',
-                          fontSize: '16px',
-                          fontWeight: 600,
-                          fontFamily: 'var(--font-display)',
-                          cursor: 'not-allowed',
-                          opacity: 0.6,
-                          marginBottom: '12px'
-                        }}
-                      >
-                        Application pending
-                      </button>
-                      <p style={{
-                        fontSize: '14px',
-                        color: 'var(--text2)',
-                        textAlign: 'center',
-                        margin: 0
-                      }}>
-                        Application pending — typically approved within 2-4 hours
-                      </p>
-                    </div>
-                  ) : (
-                    <button
-                      onClick={() => setShowTeacherForm(true)}
-                      style={{
-                        width: '100%',
-                        padding: '16px',
-                        background: 'var(--blue)',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '8px',
-                        fontSize: '16px',
-                        fontWeight: 600,
-                        fontFamily: 'var(--font-display)',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s ease'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.background = '#3b82f6'
-                        e.currentTarget.style.transform = 'translateY(-1px)'
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.background = 'var(--blue)'
-                        e.currentTarget.style.transform = 'translateY(0)'
-                      }}
-                    >
-                      Apply for Teacher Access
-                    </button>
-                  )}
-                </div>
-              ) : (
-                <form onSubmit={handleTeacherApplication}>
-                  <div style={{ marginBottom: '20px' }}>
-                    <input
-                      type="text"
-                      placeholder="Full name"
-                      value={profile?.is_teacher && !profile?.teacher_verified ? currentTeacherVerification?.full_name || '' : teacherFormData.full_name}
-                      onChange={(e) => setTeacherFormData({...teacherFormData, full_name: e.target.value})}
-                      disabled={profile?.is_teacher && !profile?.teacher_verified}
-                      required
-                      style={{
-                        width: '100%',
-                        padding: '12px',
-                        fontSize: '14px',
-                        border: '1px solid var(--border)',
-                        borderRadius: '6px',
-                        background: profile?.is_teacher && !profile?.teacher_verified ? 'var(--border)' : 'var(--surface)',
-                        color: profile?.is_teacher && !profile?.teacher_verified ? 'var(--text2)' : 'var(--text)',
-                        fontFamily: 'var(--font-body)',
-                        marginBottom: '12px',
-                        opacity: profile?.is_teacher && !profile?.teacher_verified ? 0.6 : 1
-                      }}
-                    />
-                    
-                    <input
-                      type="text"
-                      placeholder="School name"
-                      value={profile?.is_teacher && !profile?.teacher_verified ? currentTeacherVerification?.school_name || '' : teacherFormData.school_name}
-                      onChange={(e) => setTeacherFormData({...teacherFormData, school_name: e.target.value})}
-                      disabled={profile?.is_teacher && !profile?.teacher_verified}
-                      required
-                      style={{
-                        width: '100%',
-                        padding: '12px',
-                        fontSize: '14px',
-                        border: '1px solid var(--border)',
-                        borderRadius: '6px',
-                        background: profile?.is_teacher && !profile?.teacher_verified ? 'var(--border)' : 'var(--surface)',
-                        color: profile?.is_teacher && !profile?.teacher_verified ? 'var(--text2)' : 'var(--text)',
-                        fontFamily: 'var(--font-body)',
-                        marginBottom: '12px',
-                        opacity: profile?.is_teacher && !profile?.teacher_verified ? 0.6 : 1
-                      }}
-                    />
-                    
-                    <select
-                      value={profile?.is_teacher && !profile?.teacher_verified ? currentTeacherVerification?.role || 'Teacher' : teacherFormData.role}
-                      onChange={(e) => setTeacherFormData({...teacherFormData, role: e.target.value})}
-                      disabled={profile?.is_teacher && !profile?.teacher_verified}
-                      style={{
-                        width: '100%',
-                        padding: '12px',
-                        fontSize: '14px',
-                        border: '1px solid var(--border)',
-                        borderRadius: '6px',
-                        background: profile?.is_teacher && !profile?.teacher_verified ? 'var(--border)' : 'var(--surface)',
-                        color: profile?.is_teacher && !profile?.teacher_verified ? 'var(--text2)' : 'var(--text)',
-                        fontFamily: 'var(--font-body)',
-                        marginBottom: '16px',
-                        opacity: profile?.is_teacher && !profile?.teacher_verified ? 0.6 : 1
-                      }}
-                    >
-                      <option value="Teacher">Teacher</option>
-                      <option value="Professor">Professor</option>
-                      <option value="Instructor">Instructor</option>
-                      <option value="Coach">Coach</option>
-                      <option value="Advisor">Advisor</option>
-                    </select>
-                  </div>
-                  
-                  <div style={{
-                    background: 'var(--surface)',
-                    border: '1px solid var(--border)',
-                    borderRadius: '8px',
-                    padding: '16px',
-                    marginBottom: '20px'
-                  }}>
-                    <p style={{ 
-                      fontSize: '12px', 
-                      color: 'var(--text2)',
-                      fontFamily: 'var(--font-body)',
-                      lineHeight: '1.5',
-                      margin: 0
-                    }}>
-                      <strong>Disclaimer:</strong> Teacher accounts are for educators only. Misuse may result in account suspension.
-                    </p>
-                  </div>
-                  
-                  <div style={{ display: 'flex', gap: '12px' }}>
-                    <button
-                      type="submit"
-                      disabled={teacherSubmitting}
-                      style={{
-                        flex: 1,
-                        padding: '12px',
-                        background: teacherSubmitting ? 'var(--border)' : 'var(--blue)',
-                        color: teacherSubmitting ? 'var(--text2)' : 'white',
-                        border: 'none',
-                        borderRadius: '6px',
-                        fontSize: '14px',
-                        fontWeight: 600,
-                        fontFamily: 'var(--font-display)',
-                        cursor: teacherSubmitting ? 'not-allowed' : 'pointer',
-                        opacity: teacherSubmitting ? 0.7 : 1
-                      }}
-                    >
-                      {teacherSubmitting ? 'Submitting...' : 'Submit Application'}
-                    </button>
-                    
-                    <button
-                      type="button"
-                      onClick={() => setShowTeacherForm(false)}
-                      style={{
-                        flex: 1,
-                        padding: '12px',
-                        background: 'var(--surface)',
-                        color: 'var(--text)',
-                        border: '1px solid var(--border)',
-                        borderRadius: '6px',
-                        fontSize: '14px',
-                        fontWeight: 600,
-                        fontFamily: 'var(--font-display)',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </form>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-
-  // View 2: User is a student in a class
-  if (userClass) {
-    return (
-      <div style={{ 
-        minHeight: '100vh',
-        background: 'var(--bg)',
-        backgroundImage: 'linear-gradient(rgba(21,128,61,.065) 1px, transparent 1px), linear-gradient(90deg, rgba(21,128,61,.065) 1px, transparent 1px)',
-        backgroundSize: '48px 48px',
-        padding: '40px 24px'
-      }}>
-        <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-          <h1 style={{ 
-            fontSize: '48px', 
-            fontWeight: 800, 
-            letterSpacing: '-2px', 
-            fontFamily: 'var(--font-display)', 
-            color: 'var(--text)', 
-            marginBottom: '32px'
-          }}>
-            My Class
-          </h1>
-
-          <div style={{
-            background: 'var(--card)',
-            border: '1px solid var(--border)',
-            borderRadius: '16px',
-            padding: '32px',
-            marginBottom: '24px'
-          }}>
-            <h2 style={{ 
-              fontSize: '24px', 
-              fontWeight: 700, 
-              marginBottom: '16px',
-              fontFamily: 'var(--font-display)',
-              color: 'var(--text)'
-            }}>
-              {userClass.name}
-            </h2>
-            
-            <div style={{ fontSize: '16px', color: 'var(--text2)', marginBottom: '24px' }}>
-              <div style={{ marginBottom: '8px' }}>
-                <strong>Teacher:</strong> {userClass.teacher_name}
-              </div>
-              <div style={{ marginBottom: '8px' }}>
-                <strong>School:</strong> {userClass.school_name}
-              </div>
-              <div>
-                <strong>Class Size:</strong> {userClass.student_count} students
-              </div>
-            </div>
-            
-            <div style={{ 
-              background: 'var(--surface)', 
-              border: '1px solid var(--border)', 
-              borderRadius: '8px', 
-              padding: '20px',
-              marginBottom: '24px'
-            }}>
-              <h3 style={{ 
-                fontSize: '18px', 
-                fontWeight: 600, 
-                marginBottom: '12px',
-                fontFamily: 'var(--font-display)',
-                color: 'var(--text)'
-              }}>
-                Latest Activity
-              </h3>
-              <p style={{ color: 'var(--text2)', fontFamily: 'var(--font-body)' }}>
-                No active prompts at the moment. Check back soon for new assignments from your teacher.
-              </p>
-            </div>
-            
-            <div style={{ display: 'flex', gap: '16px' }}>
-              <button
-                onClick={() => router.push(`/schools/${userClass.id}/student`)}
-                style={{
-                  flex: 1,
-                  padding: '16px',
-                  background: 'var(--green)',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '8px',
-                  fontSize: '16px',
-                  fontWeight: 600,
-                  fontFamily: 'var(--font-display)',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = '#22c55e'
-                  e.currentTarget.style.transform = 'translateY(-1px)'
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'var(--green)'
-                  e.currentTarget.style.transform = 'translateY(0)'
-                }}
-              >
-                Go to Class
-              </button>
-              
-              <button
-                onClick={handleLeaveClass}
-                style={{
-                  flex: 1,
-                  padding: '16px',
-                  background: 'var(--surface)',
-                  color: 'var(--red)',
-                  border: '1px solid var(--border)',
-                  borderRadius: '8px',
-                  fontSize: '16px',
-                  fontWeight: 600,
-                  fontFamily: 'var(--font-display)',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = 'var(--red)'
-                  e.currentTarget.style.color = 'white'
-                  e.currentTarget.style.transform = 'translateY(-1px)'
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'var(--surface)'
-                  e.currentTarget.style.color = 'var(--red)'
-                  e.currentTarget.style.transform = 'translateY(0)'
-                }}
-              >
-                Leave Class
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  // View 3: User is a verified teacher
+  // 1. Verified teacher - check first
   if (profile?.is_teacher && profile?.teacher_verified) {
     return (
       <div style={{ 
@@ -1095,51 +630,753 @@ export default function SchoolsClient({ userId, profile, userClass, teacherClass
     )
   }
 
+  // 2. Student in a class - check second
+  if (userClass) {
+    return (
+      <div style={{ 
+        minHeight: '100vh',
+        background: 'var(--bg)',
+        backgroundImage: 'linear-gradient(rgba(21,128,61,.065) 1px, transparent 1px), linear-gradient(90deg, rgba(21,128,61,.065) 1px, transparent 1px)',
+        backgroundSize: '48px 48px',
+        padding: '40px 24px'
+      }}>
+        <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+          <h1 style={{ 
+            fontSize: '48px', 
+            fontWeight: 800, 
+            letterSpacing: '-2px', 
+            fontFamily: 'var(--font-display)', 
+            color: 'var(--text)', 
+            marginBottom: '32px'
+          }}>
+            My Class
+          </h1>
 
-  // Fallback - this should not happen but prevents blank page
+          <div style={{
+            background: 'var(--card)',
+            border: '1px solid var(--border)',
+            borderRadius: '16px',
+            padding: '32px',
+            marginBottom: '24px'
+          }}>
+            <h2 style={{ 
+              fontSize: '24px', 
+              fontWeight: 700, 
+              marginBottom: '16px',
+              fontFamily: 'var(--font-display)',
+              color: 'var(--text)'
+            }}>
+              {userClass.name}
+            </h2>
+            
+            <div style={{ fontSize: '16px', color: 'var(--text2)', marginBottom: '24px' }}>
+              <div style={{ marginBottom: '8px' }}>
+                <strong>Teacher:</strong> {userClass.teacher_name}
+              </div>
+              <div style={{ marginBottom: '8px' }}>
+                <strong>School:</strong> {userClass.school_name}
+              </div>
+              <div>
+                <strong>Class Size:</strong> {userClass.student_count} students
+              </div>
+            </div>
+            
+            <div style={{ 
+              background: 'var(--surface)', 
+              border: '1px solid var(--border)', 
+              borderRadius: '8px', 
+              padding: '20px',
+              marginBottom: '24px'
+            }}>
+              <h3 style={{ 
+                fontSize: '18px', 
+                fontWeight: 600, 
+                marginBottom: '12px',
+                fontFamily: 'var(--font-display)',
+                color: 'var(--text)'
+              }}>
+                Latest Activity
+              </h3>
+              <p style={{ color: 'var(--text2)', fontFamily: 'var(--font-body)' }}>
+                No active prompts at the moment. Check back soon for new assignments from your teacher.
+              </p>
+            </div>
+            
+            <div style={{ display: 'flex', gap: '16px' }}>
+              <button
+                onClick={() => router.push(`/schools/${userClass.id}/student`)}
+                style={{
+                  flex: 1,
+                  padding: '16px',
+                  background: 'var(--green)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontSize: '16px',
+                  fontWeight: 600,
+                  fontFamily: 'var(--font-display)',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = '#22c55e'
+                  e.currentTarget.style.transform = 'translateY(-1px)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'var(--green)'
+                  e.currentTarget.style.transform = 'translateY(0)'
+                }}
+              >
+                Go to Class
+              </button>
+              
+              <button
+                onClick={handleLeaveClass}
+                style={{
+                  flex: 1,
+                  padding: '16px',
+                  background: 'var(--surface)',
+                  color: 'var(--red)',
+                  border: '1px solid var(--border)',
+                  borderRadius: '8px',
+                  fontSize: '16px',
+                  fontWeight: 600,
+                  fontFamily: 'var(--font-display)',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'var(--red)'
+                  e.currentTarget.style.color = 'white'
+                  e.currentTarget.style.transform = 'translateY(-1px)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'var(--surface)'
+                  e.currentTarget.style.color = 'var(--red)'
+                  e.currentTarget.style.transform = 'translateY(0)'
+                }}
+              >
+                Leave Class
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // 3. Pending teacher
+  if (profile?.is_teacher && !profile?.teacher_verified) {
+    return (
+      <div style={{ 
+        minHeight: '100vh',
+        background: 'var(--bg)',
+        backgroundImage: 'linear-gradient(rgba(21,128,61,.065) 1px, transparent 1px), linear-gradient(90deg, rgba(21,128,61,.065) 1px, transparent 1px)',
+        backgroundSize: '48px 48px',
+        padding: '40px 24px'
+      }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+          <h1 style={{ 
+            fontSize: '48px', 
+            fontWeight: 800, 
+            letterSpacing: '-2px', 
+            fontFamily: 'var(--font-display)', 
+            color: 'var(--text)', 
+            marginBottom: '32px'
+          }}>
+            Schools
+          </h1>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px' }}>
+            {/* Join Class Card */}
+            <div style={{
+              background: 'var(--card)',
+              border: '1px solid var(--border)',
+              borderRadius: '16px',
+              padding: '32px'
+            }}>
+              <h2 style={{ 
+                fontSize: '24px', 
+                fontWeight: 700, 
+                marginBottom: '24px',
+                fontFamily: 'var(--font-display)',
+                color: 'var(--text)'
+              }}>
+                Join a Class
+              </h2>
+              
+              <form onSubmit={handleJoinClass}>
+                <div style={{ marginBottom: '20px' }}>
+                  <input
+                    type="text"
+                    placeholder="Enter 6-digit class code"
+                    value={joinCode}
+                    onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
+                    maxLength={6}
+                    style={{
+                      width: '100%',
+                      padding: '16px',
+                      fontSize: '16px',
+                      border: '1px solid var(--border)',
+                      borderRadius: '8px',
+                      background: 'var(--surface)',
+                      color: 'var(--text)',
+                      fontFamily: 'var(--font-body)',
+                      textTransform: 'uppercase',
+                      letterSpacing: '2px',
+                      textAlign: 'center'
+                    }}
+                  />
+                </div>
+                
+                {joinError && (
+                  <div style={{ 
+                    color: 'var(--red)', 
+                    fontSize: '14px', 
+                    marginBottom: '16px',
+                    fontFamily: 'var(--font-body)'
+                  }}>
+                    {joinError}
+                  </div>
+                )}
+                
+                <button
+                  type="submit"
+                  style={{
+                    width: '100%',
+                    padding: '16px',
+                    background: 'var(--green)',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontSize: '16px',
+                    fontWeight: 600,
+                    fontFamily: 'var(--font-display)',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = '#22c55e'
+                    e.currentTarget.style.transform = 'translateY(-1px)'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'var(--green)'
+                    e.currentTarget.style.transform = 'translateY(0)'
+                  }}
+                >
+                  Join Class
+                </button>
+              </form>
+            </div>
+
+            {/* Become a Teacher Card */}
+            <div style={{
+              background: 'var(--card)',
+              border: '1px solid var(--border)',
+              borderRadius: '16px',
+              padding: '32px'
+            }}>
+              <h2 style={{ 
+                fontSize: '24px', 
+                fontWeight: 700, 
+                marginBottom: '24px',
+                fontFamily: 'var(--font-display)',
+                color: 'var(--text)'
+              }}>
+                Become a Teacher
+              </h2>
+              
+              {!showTeacherForm || (profile?.is_teacher && !profile?.teacher_verified) ? (
+                <div>
+                  <p style={{ 
+                    color: 'var(--text2)', 
+                    marginBottom: '24px',
+                    fontFamily: 'var(--font-body)',
+                    lineHeight: '1.6'
+                  }}>
+                    Create and manage classes, track student progress, and access premium educational features.
+                  </p>
+                  
+                  {profile?.is_teacher && !profile?.teacher_verified ? (
+                    <div>
+                      <button
+                        disabled
+                        style={{
+                          width: '100%',
+                          padding: '16px',
+                          background: 'var(--border)',
+                          color: 'var(--text2)',
+                          border: 'none',
+                          borderRadius: '8px',
+                          fontSize: '16px',
+                          fontWeight: 600,
+                          fontFamily: 'var(--font-display)',
+                          cursor: 'not-allowed',
+                          opacity: 0.6,
+                          marginBottom: '12px'
+                        }}
+                      >
+                        Application pending
+                      </button>
+                      <p style={{
+                        fontSize: '14px',
+                        color: 'var(--text2)',
+                        textAlign: 'center',
+                        margin: 0
+                      }}>
+                        Application pending - typically approved within 2-4 hours
+                      </p>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => setShowTeacherForm(true)}
+                      style={{
+                        width: '100%',
+                        padding: '16px',
+                        background: 'var(--blue)',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '8px',
+                        fontSize: '16px',
+                        fontWeight: 600,
+                        fontFamily: 'var(--font-display)',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = '#3b82f6'
+                        e.currentTarget.style.transform = 'translateY(-1px)'
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = 'var(--blue)'
+                        e.currentTarget.style.transform = 'translateY(0)'
+                      }}
+                    >
+                      Apply for Teacher Access
+                    </button>
+                  )}
+                </div>
+              ) : (
+                <form onSubmit={handleTeacherApplication}>
+                  <div style={{ marginBottom: '20px' }}>
+                    <input
+                      type="text"
+                      placeholder="Full name"
+                      value={profile?.is_teacher && !profile?.teacher_verified ? currentTeacherVerification?.full_name || '' : teacherFormData.full_name}
+                      onChange={(e) => setTeacherFormData({...teacherFormData, full_name: e.target.value})}
+                      disabled={profile?.is_teacher && !profile?.teacher_verified}
+                      required
+                      style={{
+                        width: '100%',
+                        padding: '12px',
+                        fontSize: '14px',
+                        border: '1px solid var(--border)',
+                        borderRadius: '6px',
+                        background: profile?.is_teacher && !profile?.teacher_verified ? 'var(--border)' : 'var(--surface)',
+                        color: profile?.is_teacher && !profile?.teacher_verified ? 'var(--text2)' : 'var(--text)',
+                        fontFamily: 'var(--font-body)',
+                        marginBottom: '12px',
+                        opacity: profile?.is_teacher && !profile?.teacher_verified ? 0.6 : 1
+                      }}
+                    />
+                    
+                    <input
+                      type="text"
+                      placeholder="School name"
+                      value={profile?.is_teacher && !profile?.teacher_verified ? currentTeacherVerification?.school_name || '' : teacherFormData.school_name}
+                      onChange={(e) => setTeacherFormData({...teacherFormData, school_name: e.target.value})}
+                      disabled={profile?.is_teacher && !profile?.teacher_verified}
+                      required
+                      style={{
+                        width: '100%',
+                        padding: '12px',
+                        fontSize: '14px',
+                        border: '1px solid var(--border)',
+                        borderRadius: '6px',
+                        background: profile?.is_teacher && !profile?.teacher_verified ? 'var(--border)' : 'var(--surface)',
+                        color: profile?.is_teacher && !profile?.teacher_verified ? 'var(--text2)' : 'var(--text)',
+                        fontFamily: 'var(--font-body)',
+                        marginBottom: '12px',
+                        opacity: profile?.is_teacher && !profile?.teacher_verified ? 0.6 : 1
+                      }}
+                    />
+                    
+                    <select
+                      value={profile?.is_teacher && !profile?.teacher_verified ? currentTeacherVerification?.role || 'Teacher' : teacherFormData.role}
+                      onChange={(e) => setTeacherFormData({...teacherFormData, role: e.target.value})}
+                      disabled={profile?.is_teacher && !profile?.teacher_verified}
+                      style={{
+                        width: '100%',
+                        padding: '12px',
+                        fontSize: '14px',
+                        border: '1px solid var(--border)',
+                        borderRadius: '6px',
+                        background: profile?.is_teacher && !profile?.teacher_verified ? 'var(--border)' : 'var(--surface)',
+                        color: profile?.is_teacher && !profile?.teacher_verified ? 'var(--text2)' : 'var(--text)',
+                        fontFamily: 'var(--font-body)',
+                        marginBottom: '16px',
+                        opacity: profile?.is_teacher && !profile?.teacher_verified ? 0.6 : 1
+                      }}
+                    >
+                      <option value="Teacher">Teacher</option>
+                      <option value="Professor">Professor</option>
+                      <option value="Instructor">Instructor</option>
+                      <option value="Coach">Coach</option>
+                      <option value="Advisor">Advisor</option>
+                    </select>
+                  </div>
+                  
+                  <div style={{
+                    background: 'var(--surface)',
+                    border: '1px solid var(--border)',
+                    borderRadius: '8px',
+                    padding: '16px',
+                    marginBottom: '20px'
+                  }}>
+                    <p style={{ 
+                      fontSize: '12px', 
+                      color: 'var(--text2)',
+                      fontFamily: 'var(--font-body)',
+                      lineHeight: '1.5',
+                      margin: 0
+                    }}>
+                      <strong>Disclaimer:</strong> Teacher accounts are for educators only. Misuse may result in account suspension.
+                    </p>
+                  </div>
+                  
+                  <div style={{ display: 'flex', gap: '12px' }}>
+                    <button
+                      type="submit"
+                      disabled={teacherSubmitting}
+                      style={{
+                        flex: 1,
+                        padding: '12px',
+                        background: teacherSubmitting ? 'var(--border)' : 'var(--blue)',
+                        color: teacherSubmitting ? 'var(--text2)' : 'white',
+                        border: 'none',
+                        borderRadius: '6px',
+                        fontSize: '14px',
+                        fontWeight: 600,
+                        fontFamily: 'var(--font-display)',
+                        cursor: teacherSubmitting ? 'not-allowed' : 'pointer',
+                        opacity: teacherSubmitting ? 0.7 : 1
+                      }}
+                    >
+                      {teacherSubmitting ? 'Submitting...' : 'Submit Application'}
+                    </button>
+                    
+                    <button
+                      type="button"
+                      onClick={() => setShowTeacherForm(false)}
+                      style={{
+                        flex: 1,
+                        padding: '12px',
+                        background: 'var(--surface)',
+                        color: 'var(--text)',
+                        border: '1px solid var(--border)',
+                        borderRadius: '6px',
+                        fontSize: '14px',
+                        fontWeight: 600,
+                        fontFamily: 'var(--font-display)',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </form>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // 4. Default - join or become teacher
   return (
     <div style={{ 
       minHeight: '100vh',
       background: 'var(--bg)',
       backgroundImage: 'linear-gradient(rgba(21,128,61,.065) 1px, transparent 1px), linear-gradient(90deg, rgba(21,128,61,.065) 1px, transparent 1px)',
       backgroundSize: '48px 48px',
-      padding: '40px 24px',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center'
+      padding: '40px 24px'
     }}>
-      <div style={{ 
-        background: 'var(--card)', 
-        borderRadius: '16px', 
-        padding: '48px',
-        border: '1px solid var(--border)',
-        boxShadow: 'var(--shadow)',
-        textAlign: 'center',
-        maxWidth: '400px'
-      }}>
-        <h1 style={{ fontSize: '24px', fontWeight: 700, marginBottom: '16px', fontFamily: 'var(--font-display)' }}>
-          Something went wrong
+      <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+        <h1 style={{ 
+          fontSize: '48px', 
+          fontWeight: 800, 
+          letterSpacing: '-2px', 
+          fontFamily: 'var(--font-display)', 
+          color: 'var(--text)', 
+          marginBottom: '32px'
+        }}>
+          Schools
         </h1>
-        <p style={{ color: 'var(--text2)', marginBottom: '24px' }}>
-          Unable to determine your school status. Please refresh the page.
-        </p>
-        <button
-          onClick={() => window.location.reload()}
-          style={{
-            display: 'inline-block',
-            padding: '12px 24px',
-            background: 'var(--green)',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            fontSize: '14px',
-            fontWeight: 600,
-            fontFamily: 'var(--font-display)',
-            cursor: 'pointer'
-          }}
-        >
-          Refresh Page
-        </button>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px' }}>
+          {/* Join Class Card */}
+          <div style={{
+            background: 'var(--card)',
+            border: '1px solid var(--border)',
+            borderRadius: '16px',
+            padding: '32px'
+          }}>
+            <h2 style={{ 
+              fontSize: '24px', 
+              fontWeight: 700, 
+              marginBottom: '24px',
+              fontFamily: 'var(--font-display)',
+              color: 'var(--text)'
+            }}>
+              Join a Class
+            </h2>
+            
+            <form onSubmit={handleJoinClass}>
+              <div style={{ marginBottom: '20px' }}>
+                <input
+                  type="text"
+                  placeholder="Enter 6-digit class code"
+                  value={joinCode}
+                  onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
+                  maxLength={6}
+                  style={{
+                    width: '100%',
+                    padding: '16px',
+                    fontSize: '16px',
+                    border: '1px solid var(--border)',
+                    borderRadius: '8px',
+                    background: 'var(--surface)',
+                    color: 'var(--text)',
+                    fontFamily: 'var(--font-body)',
+                    textTransform: 'uppercase',
+                    letterSpacing: '2px',
+                    textAlign: 'center'
+                  }}
+                />
+              </div>
+              
+              {joinError && (
+                <div style={{ 
+                  color: 'var(--red)', 
+                  fontSize: '14px', 
+                  marginBottom: '16px',
+                  fontFamily: 'var(--font-body)'
+                }}>
+                  {joinError}
+                </div>
+              )}
+              
+              <button
+                type="submit"
+                style={{
+                  width: '100%',
+                  padding: '16px',
+                  background: 'var(--green)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontSize: '16px',
+                  fontWeight: 600,
+                  fontFamily: 'var(--font-display)',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = '#22c55e'
+                  e.currentTarget.style.transform = 'translateY(-1px)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'var(--green)'
+                  e.currentTarget.style.transform = 'translateY(0)'
+                }}
+              >
+                Join Class
+              </button>
+            </form>
+          </div>
+
+          {/* Become a Teacher Card */}
+          <div style={{
+            background: 'var(--card)',
+            border: '1px solid var(--border)',
+            borderRadius: '16px',
+            padding: '32px'
+          }}>
+            <h2 style={{ 
+              fontSize: '24px', 
+              fontWeight: 700, 
+              marginBottom: '24px',
+              fontFamily: 'var(--font-display)',
+              color: 'var(--text)'
+            }}>
+              Become a Teacher
+            </h2>
+            
+            {!showTeacherForm ? (
+              <div>
+                <p style={{ 
+                  color: 'var(--text2)', 
+                  marginBottom: '24px',
+                  fontFamily: 'var(--font-body)',
+                  lineHeight: '1.6'
+                }}>
+                  Create and manage classes, track student progress, and access premium educational features.
+                </p>
+                
+                <button
+                  onClick={() => setShowTeacherForm(true)}
+                  style={{
+                    width: '100%',
+                    padding: '16px',
+                    background: 'var(--blue)',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontSize: '16px',
+                    fontWeight: 600,
+                    fontFamily: 'var(--font-display)',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = '#3b82f6'
+                    e.currentTarget.style.transform = 'translateY(-1px)'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'var(--blue)'
+                    e.currentTarget.style.transform = 'translateY(0)'
+                  }}
+                >
+                  Apply for Teacher Access
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleTeacherApplication}>
+                <div style={{ marginBottom: '20px' }}>
+                  <input
+                    type="text"
+                    placeholder="Full name"
+                    value={teacherFormData.full_name}
+                    onChange={(e) => setTeacherFormData({...teacherFormData, full_name: e.target.value})}
+                    required
+                    style={{
+                      width: '100%',
+                      padding: '12px',
+                      fontSize: '14px',
+                      border: '1px solid var(--border)',
+                      borderRadius: '6px',
+                      background: 'var(--surface)',
+                      color: 'var(--text)',
+                      fontFamily: 'var(--font-body)',
+                      marginBottom: '12px'
+                    }}
+                  />
+                  
+                  <input
+                    type="text"
+                    placeholder="School name"
+                    value={teacherFormData.school_name}
+                    onChange={(e) => setTeacherFormData({...teacherFormData, school_name: e.target.value})}
+                    required
+                    style={{
+                      width: '100%',
+                      padding: '12px',
+                      fontSize: '14px',
+                      border: '1px solid var(--border)',
+                      borderRadius: '6px',
+                      background: 'var(--surface)',
+                      color: 'var(--text)',
+                      fontFamily: 'var(--font-body)',
+                      marginBottom: '12px'
+                    }}
+                  />
+                  
+                  <select
+                    value={teacherFormData.role}
+                    onChange={(e) => setTeacherFormData({...teacherFormData, role: e.target.value})}
+                    style={{
+                      width: '100%',
+                      padding: '12px',
+                      fontSize: '14px',
+                      border: '1px solid var(--border)',
+                      borderRadius: '6px',
+                      background: 'var(--surface)',
+                      color: 'var(--text)',
+                      fontFamily: 'var(--font-body)',
+                      marginBottom: '16px'
+                    }}
+                  >
+                    <option value="Teacher">Teacher</option>
+                    <option value="Professor">Professor</option>
+                    <option value="Instructor">Instructor</option>
+                    <option value="Coach">Coach</option>
+                    <option value="Advisor">Advisor</option>
+                  </select>
+                </div>
+                
+                <div style={{
+                  background: 'var(--surface)',
+                  border: '1px solid var(--border)',
+                  borderRadius: '8px',
+                  padding: '16px',
+                  marginBottom: '20px'
+                }}>
+                  <p style={{ 
+                    fontSize: '12px', 
+                    color: 'var(--text2)',
+                    fontFamily: 'var(--font-body)',
+                    lineHeight: '1.5',
+                    margin: 0
+                  }}>
+                    <strong>Disclaimer:</strong> Teacher accounts are for educators only. Misuse may result in account suspension.
+                  </p>
+                </div>
+                
+                <div style={{ display: 'flex', gap: '12px' }}>
+                  <button
+                    type="submit"
+                    disabled={teacherSubmitting}
+                    style={{
+                      flex: 1,
+                      padding: '12px',
+                      background: teacherSubmitting ? 'var(--border)' : 'var(--blue)',
+                      color: teacherSubmitting ? 'var(--text2)' : 'white',
+                      border: 'none',
+                      borderRadius: '6px',
+                      fontSize: '14px',
+                      fontWeight: 600,
+                      fontFamily: 'var(--font-display)',
+                      cursor: teacherSubmitting ? 'not-allowed' : 'pointer',
+                      opacity: teacherSubmitting ? 0.7 : 1
+                    }}
+                  >
+                    {teacherSubmitting ? 'Submitting...' : 'Submit Application'}
+                  </button>
+                  
+                  <button
+                    type="button"
+                    onClick={() => setShowTeacherForm(false)}
+                    style={{
+                      flex: 1,
+                      padding: '12px',
+                      background: 'var(--surface)',
+                      color: 'var(--text)',
+                      border: '1px solid var(--border)',
+                      borderRadius: '6px',
+                      fontSize: '14px',
+                      fontWeight: 600,
+                      fontFamily: 'var(--font-display)',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   )
