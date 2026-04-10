@@ -44,9 +44,15 @@ interface SchoolsClientProps {
   userClass: Class | null
   teacherClasses: Class[]
   teacherVerification: TeacherVerification | null
+  debug?: {
+    classMember: { class_id: any } | null
+    profile: { is_teacher: any; teacher_verified: any; username: any } | null
+    userId: string
+  }
 }
 
-export default function SchoolsClient({ userId, profile, userClass, teacherClasses, teacherVerification }: SchoolsClientProps) {
+export default function SchoolsClient({ userId, profile, userClass, teacherClasses, teacherVerification, debug }: SchoolsClientProps) {
+  console.log('Client received props:', { profile, userClass, teacherClasses, debug })
   const router = useRouter()
   const supabase = createClient()
 

@@ -21,7 +21,9 @@ export default async function SchoolsPage() {
     .eq('user_id', user.id)
     .maybeSingle()
   
-  console.log('classMember query result:', classMember, 'for user:', user.id)
+  console.log('Server: user id:', user.id)
+console.log('Server: classMember result:', classMember)
+console.log('Server: profile result:', profile)
 
   // Fetch class details if in a class
   let userClass = null
@@ -63,6 +65,7 @@ export default async function SchoolsPage() {
       userClass={userClass}
       teacherClasses={teacherClasses}
       teacherVerification={teacherVerification}
+      debug={{ classMember, profile, userId: user.id }}
     />
   )
 }
