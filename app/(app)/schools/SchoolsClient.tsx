@@ -81,7 +81,6 @@ export default function SchoolsClient({ userId, profile, userClass, teacherClass
   // Determine user state from props
   const isTeacher = profile?.is_teacher === true
   const isVerifiedTeacher = profile?.teacher_verified === true
-  const isInClass = !!currentUserClass
 
 
   
@@ -695,6 +694,141 @@ export default function SchoolsClient({ userId, profile, userClass, teacherClass
   }
 
 
+  // View 2: User is a student in a class
+  if (userClass) {
+    return (
+      <div style={{ 
+        minHeight: '100vh',
+        background: 'var(--bg)',
+        backgroundImage: 'linear-gradient(rgba(21,128,61,.065) 1px, transparent 1px), linear-gradient(90deg, rgba(21,128,61,.065) 1px, transparent 1px)',
+        backgroundSize: '48px 48px',
+        padding: '40px 24px'
+      }}>
+        <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+          <h1 style={{ 
+            fontSize: '48px', 
+            fontWeight: 800, 
+            letterSpacing: '-2px', 
+            fontFamily: 'var(--font-display)', 
+            color: 'var(--text)', 
+            marginBottom: '32px'
+          }}>
+            My Class
+          </h1>
+
+          <div style={{
+            background: 'var(--card)',
+            border: '1px solid var(--border)',
+            borderRadius: '16px',
+            padding: '32px',
+            marginBottom: '24px'
+          }}>
+            <h2 style={{ 
+              fontSize: '24px', 
+              fontWeight: 700, 
+              marginBottom: '16px',
+              fontFamily: 'var(--font-display)',
+              color: 'var(--text)'
+            }}>
+              {userClass.name}
+            </h2>
+            
+            <div style={{ fontSize: '16px', color: 'var(--text2)', marginBottom: '24px' }}>
+              <div style={{ marginBottom: '8px' }}>
+                <strong>Teacher:</strong> {userClass.teacher_name}
+              </div>
+              <div style={{ marginBottom: '8px' }}>
+                <strong>School:</strong> {userClass.school_name}
+              </div>
+              <div>
+                <strong>Class Size:</strong> {userClass.student_count} students
+              </div>
+            </div>
+            
+            <div style={{ 
+              background: 'var(--surface)', 
+              border: '1px solid var(--border)', 
+              borderRadius: '8px', 
+              padding: '20px',
+              marginBottom: '24px'
+            }}>
+              <h3 style={{ 
+                fontSize: '18px', 
+                fontWeight: 600, 
+                marginBottom: '12px',
+                fontFamily: 'var(--font-display)',
+                color: 'var(--text)'
+              }}>
+                Latest Activity
+              </h3>
+              <p style={{ color: 'var(--text2)', fontFamily: 'var(--font-body)' }}>
+                No active prompts at the moment. Check back soon for new assignments from your teacher.
+              </p>
+            </div>
+            
+            <div style={{ display: 'flex', gap: '16px' }}>
+              <button
+                onClick={() => router.push(`/schools/${userClass.id}/student`)}
+                style={{
+                  flex: 1,
+                  padding: '16px',
+                  background: 'var(--green)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontSize: '16px',
+                  fontWeight: 600,
+                  fontFamily: 'var(--font-display)',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = '#22c55e'
+                  e.currentTarget.style.transform = 'translateY(-1px)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'var(--green)'
+                  e.currentTarget.style.transform = 'translateY(0)'
+                }}
+              >
+                Go to Class
+              </button>
+              
+              <button
+                onClick={handleLeaveClass}
+                style={{
+                  flex: 1,
+                  padding: '16px',
+                  background: 'var(--surface)',
+                  color: 'var(--red)',
+                  border: '1px solid var(--border)',
+                  borderRadius: '8px',
+                  fontSize: '16px',
+                  fontWeight: 600,
+                  fontFamily: 'var(--font-display)',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'var(--red)'
+                  e.currentTarget.style.color = 'white'
+                  e.currentTarget.style.transform = 'translateY(-1px)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'var(--surface)'
+                  e.currentTarget.style.color = 'var(--red)'
+                  e.currentTarget.style.transform = 'translateY(0)'
+                }}
+              >
+                Leave Class
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   // View 3: User is a verified teacher
   if (profile?.is_teacher && profile?.teacher_verified) {
     return (
@@ -961,140 +1095,6 @@ export default function SchoolsClient({ userId, profile, userClass, teacherClass
     )
   }
 
-  // View 3: User is a student in a class
-  if (isInClass && userClass) {
-    return (
-      <div style={{ 
-        minHeight: '100vh',
-        background: 'var(--bg)',
-        backgroundImage: 'linear-gradient(rgba(21,128,61,.065) 1px, transparent 1px), linear-gradient(90deg, rgba(21,128,61,.065) 1px, transparent 1px)',
-        backgroundSize: '48px 48px',
-        padding: '40px 24px'
-      }}>
-        <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-          <h1 style={{ 
-            fontSize: '48px', 
-            fontWeight: 800, 
-            letterSpacing: '-2px', 
-            fontFamily: 'var(--font-display)', 
-            color: 'var(--text)', 
-            marginBottom: '32px'
-          }}>
-            My Class
-          </h1>
-
-          <div style={{
-            background: 'var(--card)',
-            border: '1px solid var(--border)',
-            borderRadius: '16px',
-            padding: '32px',
-            marginBottom: '24px'
-          }}>
-            <h2 style={{ 
-              fontSize: '24px', 
-              fontWeight: 700, 
-              marginBottom: '16px',
-              fontFamily: 'var(--font-display)',
-              color: 'var(--text)'
-            }}>
-              {currentUserClass.name}
-            </h2>
-            
-            <div style={{ fontSize: '16px', color: 'var(--text2)', marginBottom: '24px' }}>
-              <div style={{ marginBottom: '8px' }}>
-                <strong>Teacher:</strong> {currentUserClass.teacher_name}
-              </div>
-              <div style={{ marginBottom: '8px' }}>
-                <strong>School:</strong> {currentUserClass.school_name}
-              </div>
-              <div>
-                <strong>Class Size:</strong> {currentUserClass.student_count} students
-              </div>
-            </div>
-            
-            <div style={{ 
-              background: 'var(--surface)', 
-              border: '1px solid var(--border)', 
-              borderRadius: '8px', 
-              padding: '20px',
-              marginBottom: '24px'
-            }}>
-              <h3 style={{ 
-                fontSize: '18px', 
-                fontWeight: 600, 
-                marginBottom: '12px',
-                fontFamily: 'var(--font-display)',
-                color: 'var(--text)'
-              }}>
-                Latest Activity
-              </h3>
-              <p style={{ color: 'var(--text2)', fontFamily: 'var(--font-body)' }}>
-                No active prompts at the moment. Check back soon for new assignments from your teacher.
-              </p>
-            </div>
-            
-            <div style={{ display: 'flex', gap: '16px' }}>
-              <button
-                onClick={() => router.push(`/schools/${currentUserClass.id}/student`)}
-                style={{
-                  flex: 1,
-                  padding: '16px',
-                  background: 'var(--green)',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '8px',
-                  fontSize: '16px',
-                  fontWeight: 600,
-                  fontFamily: 'var(--font-display)',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = '#22c55e'
-                  e.currentTarget.style.transform = 'translateY(-1px)'
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'var(--green)'
-                  e.currentTarget.style.transform = 'translateY(0)'
-                }}
-              >
-                Go to Class
-              </button>
-              
-              <button
-                onClick={handleLeaveClass}
-                style={{
-                  flex: 1,
-                  padding: '16px',
-                  background: 'var(--surface)',
-                  color: 'var(--red)',
-                  border: '1px solid var(--border)',
-                  borderRadius: '8px',
-                  fontSize: '16px',
-                  fontWeight: 600,
-                  fontFamily: 'var(--font-display)',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = 'var(--red)'
-                  e.currentTarget.style.color = 'white'
-                  e.currentTarget.style.transform = 'translateY(-1px)'
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'var(--surface)'
-                  e.currentTarget.style.color = 'var(--red)'
-                  e.currentTarget.style.transform = 'translateY(0)'
-                }}
-              >
-                Leave Class
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  }
 
   // Fallback - this should not happen but prevents blank page
   return (
