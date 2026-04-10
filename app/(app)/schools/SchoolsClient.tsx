@@ -35,7 +35,7 @@ interface ClassMember {
 }
 
 export default function SchoolsClient() {
-  const { user, authLoading, profile } = useUser()
+  const { user, authLoading, profile, refresh } = useUser()
   const router = useRouter()
   const supabase = createClient()
 
@@ -85,6 +85,16 @@ export default function SchoolsClient() {
       return () => clearTimeout(timer)
     }
   }, [authLoading])
+
+  // Debug isTeacher changes
+  useEffect(() => {
+    console.log('isTeacher changed:', isTeacher, 'profile:', profile)
+  }, [isTeacher, profile])
+
+  // Debug loading state changes
+  useEffect(() => {
+    console.log('teacherSubmitting changed:', teacherSubmitting)
+  }, [teacherSubmitting])
 
   const fetchUserData = async () => {
     if (!user) return
@@ -275,8 +285,13 @@ export default function SchoolsClient() {
       setTeacherSuccess('Teacher application submitted! Awaiting verification - this typically takes 2-4 hours for approval.')
       setShowTeacherForm(false)
       
-      // Refresh data
+      // Force refresh the user data to get updated is_teacher status
+      await refresh()
+      
+      // Refresh local data
       await fetchUserData()
+      
+      console.log('Data refreshed, isTeacher:', profile?.is_teacher)
     } catch (error) {
       console.error('Error submitting teacher application:', error)
     } finally {
