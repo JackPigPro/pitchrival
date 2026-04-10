@@ -752,24 +752,6 @@ export default function SchoolsClient() {
                   </div>
                 </form>
               )}
-              
-              {teacherSuccess && (
-                <div style={{
-                  background: 'var(--green-tint)',
-                  border: '1px solid var(--green)',
-                  borderRadius: '8px',
-                  padding: '16px',
-                  marginTop: '20px'
-                }}>
-                  <p style={{ 
-                    color: 'var(--green)',
-                    fontFamily: 'var(--font-body)',
-                    margin: 0
-                  }}>
-                    {teacherSuccess}
-                  </p>
-                </div>
-              )}
             </div>
           </div>
         </div>
