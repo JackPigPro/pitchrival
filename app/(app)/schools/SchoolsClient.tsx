@@ -348,8 +348,8 @@ export default function SchoolsClient() {
     }
   }
 
-  // Show loading skeleton only during initial auth loading when no user data
-  if (authLoading && !user) {
+  // Show loading skeleton during initial auth loading or when profile is not yet loaded
+  if (authLoading || (user && !profile)) {
     return (
       <div style={{ 
         minHeight: '100vh',
