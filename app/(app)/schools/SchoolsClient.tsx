@@ -86,7 +86,7 @@ export default function SchoolsClient() {
           .from('class_members')
           .select('*')
           .eq('user_id', user.id)
-          .single()
+          .maybeSingle()
 
         if (classMember) {
           // Fetch class details
