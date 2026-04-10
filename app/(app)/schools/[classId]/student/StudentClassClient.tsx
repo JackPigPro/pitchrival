@@ -645,8 +645,16 @@ export default function StudentClassClient({ classData }: StudentClassClientProp
         throw error
       }
 
-      // After successful delete, redirect to /schools using window.location.href
-      window.location.href = '/schools'
+      // Clear any client-side cache to ensure fresh data
+      if (typeof window !== 'undefined') {
+        // Clear any potential client-side state
+        localStorage.clear()
+        sessionStorage.clear()
+      }
+
+      // Force a hard redirect with cache busting to ensure fresh server-side check
+      const timestamp = Date.now()
+      window.location.href = `/schools?t=${timestamp}`
     } catch (error) {
       // If delete fails, show an alert with the error
       console.error('Error leaving class:', error)
