@@ -5,11 +5,63 @@ import SchoolsClient from './SchoolsClient'
 export default async function SchoolsPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/login')
 
-  if (!user) {
-    // Let the client handle showing the login screen
+  // Fetch profile
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('is_teacher, teacher_verified, username')
+    .eq('id', user.id)
+    .single()
+
+  // Fetch class membership
+  const { data: classMember } = await supabase
+    .from('class_members')
+    .select('class_id')
+    .eq('user_id', user.id)
+    .maybeSingle()
+
+  // Fetch class details if in a class
+  let userClass = null
+  if (classMember) {
+    const { data: classData } = await supabase
+      .from('classes')
+      .select('*')
+      .eq('id', classMember.class_id)
+      .single()
+    userClass = classData
   }
 
-  return <SchoolsClient />
+  // Fetch teacher classes if teacher
+  let teacherClasses = []
+  if (profile?.is_teacher && profile?.teacher_verified) {
+    const { data: classes } = await supabase
+      .from('classes')
+      .select('*')
+      .eq('teacher_id', user.id)
+      .order('created_at', { ascending: false })
+    teacherClasses = classes || []
+  }
+
+  // Fetch teacher verification if teacher but not verified
+  let teacherVerification = null
+  if (profile?.is_teacher && !profile?.teacher_verified) {
+    const { data: verification } = await supabase
+      .from('teacher_verifications')
+      .select('*')
+      .eq('user_id', user.id)
+      .single()
+    teacherVerification = verification
+  }
+
+  return (
+    <SchoolsClient
+      userId={user.id}
+      profile={profile}
+      userClass={userClass}
+      teacherClasses={teacherClasses}
+      teacherVerification={teacherVerification}
+    />
+  )
 }
 

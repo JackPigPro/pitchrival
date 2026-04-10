@@ -34,16 +34,26 @@ interface ClassMember {
   joined_at: string
 }
 
-export default function SchoolsClient() {
-  const { user, authLoading, profile, refresh } = useUser()
+interface SchoolsClientProps {
+  userId: string
+  profile: {
+    is_teacher: boolean
+    teacher_verified: boolean
+    username: string
+  } | null
+  userClass: Class | null
+  teacherClasses: Class[]
+  teacherVerification: TeacherVerification | null
+}
+
+export default function SchoolsClient({ userId, profile, userClass, teacherClasses, teacherVerification }: SchoolsClientProps) {
   const router = useRouter()
   const supabase = createClient()
 
-  // State for different views
-  const [userClass, setUserClass] = useState<Class | null>(null)
-  const [teacherClasses, setTeacherClasses] = useState<Class[]>([])
-  const [teacherVerification, setTeacherVerification] = useState<TeacherVerification | null>(null)
-  const [dataLoading, setDataLoading] = useState(true)
+  // State for different views - now initialized from props
+  const [currentTeacherClasses, setCurrentTeacherClasses] = useState<Class[]>(teacherClasses)
+  const [currentUserClass, setCurrentUserClass] = useState<Class | null>(userClass)
+  const [currentTeacherVerification, setCurrentTeacherVerification] = useState<TeacherVerification | null>(teacherVerification)
 
   // Form states
   const [joinCode, setJoinCode] = useState('')
@@ -62,92 +72,11 @@ export default function SchoolsClient() {
     school_name: ''
   })
 
-  // Determine user state - ensure safe checks during loading
+  // Determine user state from props
   const isTeacher = profile?.is_teacher === true
   const isVerifiedTeacher = profile?.teacher_verified === true
-  const isInClass = !!userClass
+  const isInClass = !!currentUserClass
 
-  // Fetch user data
-  useEffect(() => {
-    if (user?.id && !authLoading) {
-      fetchUserData()
-    }
-  }, [user, authLoading])
-
-
-  const fetchUserData = async () => {
-    console.log('fetchUserData called, user:', user?.id)
-    if (!user?.id) {
-      console.log('No user id, skipping fetch')
-      setDataLoading(false)
-      return
-    }
-    setDataLoading(true)
-    try {
-      // Fetch profile directly - don't rely on useUser profile
-      const { data: profileData } = await supabase
-        .from('profiles')
-        .select('is_teacher, teacher_verified')
-        .eq('id', user.id)
-        .single()
-
-      const isTeacher = profileData?.is_teacher === true
-      const isVerifiedTeacher = profileData?.teacher_verified === true
-
-      if (isTeacher && !isVerifiedTeacher) {
-        // Show pending state - no further queries needed
-        return
-      }
-
-      if (isTeacher && isVerifiedTeacher) {
-        // Fetch teacher verification
-        const { data: verification } = await supabase
-          .from('teacher_verifications')
-          .select('*')
-          .eq('user_id', user.id)
-          .single()
-        
-        if (verification) {
-          setTeacherVerification(verification)
-        }
-
-        // Fetch teacher's classes
-        const { data: classes } = await supabase
-          .from('classes')
-          .select('*')
-          .eq('teacher_id', user.id)
-          .order('created_at', { ascending: false })
-        
-        if (classes) {
-          setTeacherClasses(classes)
-        }
-      } else {
-        // Fetch class membership for students
-        const { data: classMember } = await supabase
-          .from('class_members')
-          .select('*')
-          .eq('user_id', user.id)
-          .maybeSingle()
-
-        if (classMember) {
-          // Fetch class details
-          const { data: classData } = await supabase
-            .from('classes')
-            .select('*')
-            .eq('id', classMember.class_id)
-            .single()
-          
-          if (classData) {
-            setUserClass(classData)
-          }
-        }
-      }
-    } catch (error) {
-      console.error('fetchUserData error:', error)
-    } finally {
-      setDataLoading(false) // always runs no matter what
-    }
-  }
 
   
   // Handle join class
@@ -160,7 +89,7 @@ export default function SchoolsClient() {
       return
     }
 
-    if (!user) {
+    if (!userId) {
       setJoinError('You must be logged in to join a class')
       return
     }
@@ -188,7 +117,7 @@ export default function SchoolsClient() {
         .from('class_members')
         .insert({
           class_id: classData.id,
-          user_id: user.id
+          user_id: userId
         })
 
       if (memberError) {
@@ -214,7 +143,7 @@ export default function SchoolsClient() {
   const handleTeacherApplication = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!user) {
+    if (!userId) {
       console.error('No user found')
       return
     }
@@ -233,7 +162,7 @@ export default function SchoolsClient() {
       const { error: verificationError } = await supabase
         .from('teacher_verifications')
         .insert({
-          user_id: user.id,
+          user_id: userId,
           full_name: teacherFormData.full_name,
           school_name: teacherFormData.school_name,
           role: teacherFormData.role,
@@ -253,7 +182,7 @@ export default function SchoolsClient() {
           is_teacher: true,
           teacher_verified: false // Requires admin approval
         })
-        .eq('id', user.id)
+        .eq('id', userId)
 
       if (profileError) {
         console.error('Error updating profile:', profileError)
@@ -265,13 +194,8 @@ export default function SchoolsClient() {
       setTeacherSuccess('Teacher application submitted! Awaiting verification - this typically takes 2-4 hours for approval.')
       setShowTeacherForm(false)
       
-      // Force refresh the user data to get updated is_teacher status
-      await refresh()
-      
-      // Refresh local data
-      await fetchUserData()
-      
-      console.log('Data refreshed, isTeacher:', profile?.is_teacher)
+      // Refresh the page to get updated data
+      window.location.reload()
     } catch (error) {
       console.error('Error submitting teacher application:', error)
     } finally {
@@ -283,7 +207,7 @@ export default function SchoolsClient() {
   const handleCreateClass = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!user) {
+    if (!userId) {
       return
     }
 
@@ -301,11 +225,11 @@ export default function SchoolsClient() {
       const { data: classData, error: classError } = await supabase
         .from('classes')
         .insert({
-          teacher_id: user.id,
+          teacher_id: userId,
           name: createClassFormData.name,
-          school_name: createClassFormData.school_name || teacherVerification?.school_name || '',
-          teacher_name: teacherVerification?.full_name || profile?.display_name || '',
-          role: teacherVerification?.role || 'Teacher',
+          school_name: createClassFormData.school_name || currentTeacherVerification?.school_name || '',
+          teacher_name: currentTeacherVerification?.full_name || profile?.username || '',
+          role: currentTeacherVerification?.role || 'Teacher',
           join_code: joinCodeData,
           student_count: 0
         })
@@ -320,7 +244,7 @@ export default function SchoolsClient() {
       // Reset form and refresh data
       setShowCreateClassForm(false)
       setCreateClassFormData({ name: '', school_name: '' })
-      await fetchUserData()
+      window.location.reload()
     } catch (error) {
       console.error('Error creating class:', error)
     }
@@ -328,7 +252,7 @@ export default function SchoolsClient() {
 
   // Handle leave class
   const handleLeaveClass = async () => {
-    if (!userClass || !user) return
+    if (!currentUserClass || !userId) return
     
     if (isTeacher) {
       console.error('Teachers should not be leaving classes as students')
@@ -340,15 +264,15 @@ export default function SchoolsClient() {
       await supabase
         .from('class_members')
         .delete()
-        .eq('user_id', user.id)
+        .eq('user_id', userId)
 
       // Update student count
       await supabase
         .from('classes')
-        .update({ student_count: Math.max(0, userClass.student_count - 1) })
-        .eq('id', userClass.id)
+        .update({ student_count: Math.max(0, currentUserClass.student_count - 1) })
+        .eq('id', currentUserClass.id)
 
-      setUserClass(null)
+      setCurrentUserClass(null)
     } catch (error) {
       console.error('Error leaving class:', error)
     }
@@ -356,54 +280,15 @@ export default function SchoolsClient() {
 
   // Debug log to diagnose frozen skeleton
   console.log('Render state:', {
-    authLoading,
-    dataLoading,
     isTeacher: profile?.is_teacher,
     isVerified: profile?.teacher_verified,
-    user: !!user
+    userId: !!userId
   })
 
-  // Show loading skeleton while EITHER auth OR data is loading
-  if (authLoading || dataLoading) {
-    return (
-      <div style={{ 
-        minHeight: '100vh',
-        background: 'var(--bg)',
-        backgroundImage: 'linear-gradient(rgba(21,128,61,.065) 1px, transparent 1px), linear-gradient(90deg, rgba(21,128,61,.065) 1px, transparent 1px)',
-        backgroundSize: '48px 48px',
-        padding: '40px 24px'
-      }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-          <div style={{ 
-            fontSize: '48px', 
-            fontWeight: 800, 
-            letterSpacing: '-2px', 
-            fontFamily: 'var(--font-display)', 
-            color: 'var(--text)', 
-            marginBottom: '32px',
-            background: 'var(--border)',
-            width: '300px',
-            height: '48px',
-            borderRadius: '8px'
-          }} />
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
-            {[1, 2].map((i) => (
-              <div key={i} style={{
-                background: 'var(--card)',
-                border: '1px solid var(--border)',
-                borderRadius: '16px',
-                padding: '32px',
-                height: '400px'
-              }} />
-            ))}
-          </div>
-        </div>
-      </div>
-    )
-  }
+  // No loading skeleton needed - data comes from server
 
-  // Show login screen if not authenticated
-  if (!user) {
+  // Show login screen if not authenticated - this should not happen with server redirect
+  if (!userId) {
     return (
       <div style={{ 
         minHeight: '100vh',
@@ -650,7 +535,7 @@ export default function SchoolsClient() {
                     <input
                       type="text"
                       placeholder="Full name"
-                      value={profile?.is_teacher && !profile?.teacher_verified ? teacherVerification?.full_name || '' : teacherFormData.full_name}
+                      value={profile?.is_teacher && !profile?.teacher_verified ? currentTeacherVerification?.full_name || '' : teacherFormData.full_name}
                       onChange={(e) => setTeacherFormData({...teacherFormData, full_name: e.target.value})}
                       disabled={profile?.is_teacher && !profile?.teacher_verified}
                       required
@@ -671,7 +556,7 @@ export default function SchoolsClient() {
                     <input
                       type="text"
                       placeholder="School name"
-                      value={profile?.is_teacher && !profile?.teacher_verified ? teacherVerification?.school_name || '' : teacherFormData.school_name}
+                      value={profile?.is_teacher && !profile?.teacher_verified ? currentTeacherVerification?.school_name || '' : teacherFormData.school_name}
                       onChange={(e) => setTeacherFormData({...teacherFormData, school_name: e.target.value})}
                       disabled={profile?.is_teacher && !profile?.teacher_verified}
                       required
@@ -690,7 +575,7 @@ export default function SchoolsClient() {
                     />
                     
                     <select
-                      value={profile?.is_teacher && !profile?.teacher_verified ? teacherVerification?.role || 'Teacher' : teacherFormData.role}
+                      value={profile?.is_teacher && !profile?.teacher_verified ? currentTeacherVerification?.role || 'Teacher' : teacherFormData.role}
                       onChange={(e) => setTeacherFormData({...teacherFormData, role: e.target.value})}
                       disabled={profile?.is_teacher && !profile?.teacher_verified}
                       style={{
@@ -890,7 +775,7 @@ export default function SchoolsClient() {
                       placeholder="School name"
                       value={createClassFormData.school_name}
                       onChange={(e) => setCreateClassFormData({...createClassFormData, school_name: e.target.value})}
-                      defaultValue={teacherVerification?.school_name || ''}
+                      defaultValue={currentTeacherVerification?.school_name || ''}
                       style={{
                         width: '100%',
                         padding: '12px',
@@ -953,7 +838,7 @@ export default function SchoolsClient() {
 
           {/* Classes Grid */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
-            {teacherClasses.map((classItem) => (
+            {currentTeacherClasses.map((classItem) => (
               <div key={classItem.id} style={{
                 background: 'var(--card)',
                 border: '1px solid var(--border)',
@@ -1018,7 +903,7 @@ export default function SchoolsClient() {
               </div>
             ))}
             
-            {teacherClasses.length === 0 && (
+            {currentTeacherClasses.length === 0 && (
               <div style={{
                 background: 'var(--card)',
                 border: '1px solid var(--border)',
@@ -1084,18 +969,18 @@ export default function SchoolsClient() {
               fontFamily: 'var(--font-display)',
               color: 'var(--text)'
             }}>
-              {userClass.name}
+              {currentUserClass.name}
             </h2>
             
             <div style={{ fontSize: '16px', color: 'var(--text2)', marginBottom: '24px' }}>
               <div style={{ marginBottom: '8px' }}>
-                <strong>Teacher:</strong> {userClass.teacher_name}
+                <strong>Teacher:</strong> {currentUserClass.teacher_name}
               </div>
               <div style={{ marginBottom: '8px' }}>
-                <strong>School:</strong> {userClass.school_name}
+                <strong>School:</strong> {currentUserClass.school_name}
               </div>
               <div>
-                <strong>Class Size:</strong> {userClass.student_count} students
+                <strong>Class Size:</strong> {currentUserClass.student_count} students
               </div>
             </div>
             
@@ -1122,7 +1007,7 @@ export default function SchoolsClient() {
             
             <div style={{ display: 'flex', gap: '16px' }}>
               <button
-                onClick={() => router.push(`/schools/${userClass.id}/student`)}
+                onClick={() => router.push(`/schools/${currentUserClass.id}/student`)}
                 style={{
                   flex: 1,
                   padding: '16px',
