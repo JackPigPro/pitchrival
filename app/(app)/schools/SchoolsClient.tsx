@@ -71,37 +71,13 @@ export default function SchoolsClient() {
   useEffect(() => {
     if (user && !authLoading) {
       fetchUserData()
-    } else if (!authLoading && !user) {
-      setLoading(false)
     }
-  }, [user, authLoading]) // Remove isTeacher dependency to prevent infinite loops
-
-  // Ensure loading is false after initial auth check
-  useEffect(() => {
-    if (!authLoading) {
-      const timer = setTimeout(() => {
-        setLoading(false)
-      }, 1000) // Give 1 second for data to load
-      return () => clearTimeout(timer)
-    }
-  }, [authLoading])
-
-  // Debug isTeacher changes
-  useEffect(() => {
-    console.log('isTeacher changed:', isTeacher, 'profile:', profile)
-  }, [isTeacher, profile])
-
-  // Debug loading state changes
-  useEffect(() => {
-    console.log('teacherSubmitting changed:', teacherSubmitting)
-  }, [teacherSubmitting])
+  }, [user, authLoading])
 
   const fetchUserData = async () => {
     if (!user) return
 
     try {
-      setLoading(true)
-      
       // Only check class_members for students (not teachers)
       if (!isTeacher) {
         // Check if user is in a class
@@ -153,23 +129,10 @@ export default function SchoolsClient() {
       }
     } catch (error) {
       console.error('Error fetching user data:', error)
-    } finally {
-      setLoading(false)
     }
   }
 
-  // Add a timeout to prevent infinite loading
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      if (loading) {
-        console.warn('Loading timeout - forcing loading to false')
-        setLoading(false)
-      }
-    }, 5000) // 5 second timeout
-
-    return () => clearTimeout(timeout)
-  }, [loading])
-
+  
   // Handle join class
   const handleJoinClass = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -374,8 +337,8 @@ export default function SchoolsClient() {
     }
   }
 
-  // Show loading skeleton
-  if (authLoading || loading) {
+  // Show loading skeleton only during initial auth loading
+  if (authLoading) {
     return (
       <div style={{ 
         minHeight: '100vh',
