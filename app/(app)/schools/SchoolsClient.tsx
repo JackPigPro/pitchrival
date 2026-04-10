@@ -61,7 +61,7 @@ export default function SchoolsClient() {
     school_name: ''
   })
 
-  // Determine user state
+  // Determine user state - ensure safe checks during loading
   const isTeacher = profile?.is_teacher === true
   const isVerifiedTeacher = profile?.teacher_verified === true
   const isInClass = !!userClass
@@ -73,7 +73,7 @@ export default function SchoolsClient() {
     } else if (!authLoading && !user) {
       setLoading(false)
     }
-  }, [user, authLoading])
+  }, [user, authLoading, isTeacher]) // Add isTeacher dependency
 
   const fetchUserData = async () => {
     if (!user) return
@@ -145,6 +145,11 @@ export default function SchoolsClient() {
 
     if (!user) {
       setJoinError('You must be logged in to join a class')
+      return
+    }
+
+    if (isTeacher) {
+      setJoinError('Teachers cannot join classes as students')
       return
     }
 
@@ -287,6 +292,11 @@ export default function SchoolsClient() {
   // Handle leave class
   const handleLeaveClass = async () => {
     if (!userClass || !user) return
+    
+    if (isTeacher) {
+      console.error('Teachers should not be leaving classes as students')
+      return
+    }
 
     try {
       // Remove from class_members
