@@ -10,11 +10,13 @@ interface ClassData {
   teacher_id: string
   name: string
   school_name: string
-  teacher_name: string
   role: string
   join_code: string
   student_count: number
   created_at: string
+  profiles: {
+    username: string
+  }
 }
 
 interface Prompt {
@@ -292,7 +294,6 @@ export default function StudentClassClient({ classData }: StudentClassClientProp
   const [pastPrompts, setPastPrompts] = useState<Prompt[]>([])
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([])
   const [userSubmissions, setUserSubmissions] = useState<Map<string, Submission>>(new Map())
-  const [teacherProfile, setTeacherProfile] = useState<{ username: string } | null>(null)
   const [loading, setLoading] = useState(true)
   const [livePrompt, setLivePrompt] = useState<Prompt | null>(null)
   const [timeRemaining, setTimeRemaining] = useState<number>(0)
@@ -471,25 +472,7 @@ export default function StudentClassClient({ classData }: StudentClassClientProp
     }
   }
 
-  // Fetch teacher profile
-  useEffect(() => {
-    const fetchTeacherProfile = async () => {
-      try {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('username')
-          .eq('id', classData.teacher_id)
-          .single()
-        
-        setTeacherProfile(profile)
-      } catch (error) {
-        console.error('Error fetching teacher profile:', error)
-      }
-    }
-
-    fetchTeacherProfile()
-  }, [classData.teacher_id])
-
+  
   const fetchActivePrompts = async () => {
     try {
       const { data, error } = await supabase
@@ -768,7 +751,7 @@ export default function StudentClassClient({ classData }: StudentClassClientProp
             color: 'var(--text-secondary)',
             marginBottom: '32px'
           }}>
-            {classData.school_name} · {classData.teacher_name}
+            Teacher: {classData.profiles.username} · School: {classData.school_name}
           </p>
         </div>
 

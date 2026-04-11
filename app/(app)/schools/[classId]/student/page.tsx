@@ -22,10 +22,15 @@ export default async function StudentClassPage({ params }: { params: Promise<{ c
 
   if (!profile?.onboarding_complete) redirect('/onboarding')
 
-  // Fetch the class
+  // Fetch the class with teacher name
   const { data: classData, error: classError } = await supabase
     .from('classes')
-    .select('*')
+    .select(`
+      *,
+      profiles!classes_teacher_id_fkey (
+        username
+      )
+    `)
     .eq('id', classId)
     .single()
 
