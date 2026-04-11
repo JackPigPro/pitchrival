@@ -33,15 +33,10 @@ export default async function StudentClassPage({ params }: { params: Promise<{ c
     redirect('/onboarding')
   }
 
-  // Fetch the class with teacher name
+  // First fetch the class
   const { data: classData, error: classError } = await supabase
     .from('classes')
-    .select(`
-      *,
-      profiles!classes_teacher_id_fkey (
-        username
-      )
-    `)
+    .select('*')
     .eq('id', classId)
     .single()
 
@@ -51,6 +46,22 @@ export default async function StudentClassPage({ params }: { params: Promise<{ c
   if (classError || !classData) {
     console.log('StudentClassPage - Redirecting to /schools: Class not found or error')
     redirect('/schools')
+  }
+
+  // Then fetch the teacher's profile separately using classData.teacher_id
+  const { data: teacherProfile, error: teacherError } = await supabase
+    .from('profiles')
+    .select('username')
+    .eq('id', classData.teacher_id)
+    .single()
+
+  console.log('StudentClassPage - Teacher profile data:', teacherProfile)
+  console.log('StudentClassPage - Teacher profile error:', teacherError)
+
+  // Merge the data in JavaScript
+  const mergedClassData = {
+    ...classData,
+    profiles: teacherProfile
   }
 
   // Check if user is a member of this class
@@ -69,5 +80,5 @@ export default async function StudentClassPage({ params }: { params: Promise<{ c
     redirect('/schools')
   }
 
-  return <StudentClassClient classData={classData} />
+  return <StudentClassClient classData={mergedClassData} />
 }
