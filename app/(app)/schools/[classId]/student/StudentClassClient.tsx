@@ -45,7 +45,36 @@ interface Submission {
 interface LeaderboardEntry {
   user_id: string
   username: string
-  total_elo_earned: number
+  elo: number
+  rank: string
+}
+
+const getRankColor = (rank: string) => {
+  switch (rank) {
+    case 'Trainee': return '#9ca3af' // grey
+    case 'Builder': return '#3b82f6' // blue
+    case 'Creator': return '#22c55e' // green
+    case 'Founder': return '#eab308' // gold
+    case 'Visionary': return '#a855f7' // purple
+    case 'Icon': return '#f97316' // orange
+    case 'Titan': return '#ef4444' // red
+    case 'Unicorn': return 'linear-gradient(135deg, #7c3aed, #ec4899, #10b981)' // rainbow gradient
+    default: return '#9ca3af'
+  }
+}
+
+const getRankFaintColor = (rank: string) => {
+  switch (rank) {
+    case 'Trainee': return 'rgba(156, 163, 175, 0.25)' // faint grey
+    case 'Builder': return 'rgba(59, 130, 246, 0.25)' // faint blue
+    case 'Creator': return 'rgba(34, 197, 94, 0.25)' // faint green
+    case 'Founder': return 'rgba(234, 179, 8, 0.25)' // faint gold
+    case 'Visionary': return 'rgba(168, 85, 247, 0.25)' // faint purple
+    case 'Icon': return 'rgba(249, 115, 22, 0.25)' // faint orange
+    case 'Titan': return 'rgba(239, 68, 68, 0.25)' // faint red
+    case 'Unicorn': return 'linear-gradient(135deg, rgba(168, 85, 247, 0.25), rgba(236, 72, 153, 0.25), rgba(16, 185, 129, 0.25))' // faint rainbow gradient
+    default: return 'rgba(156, 163, 175, 0.25)'
+  }
 }
 
 interface StudentClassClientProps {
@@ -387,29 +416,30 @@ export default function StudentClassClient({ classData }: StudentClassClientProp
     }
   }, [classData.id, activeTab])
 
+  // Check for live prompts function
+  const checkLivePrompt = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('class_prompts')
+        .select('*')
+        .eq('class_id', classData.id)
+        .eq('is_live', true)
+        .in('status', ['active', 'voting'])
+        .single()
+
+      if (data && !error) {
+        setLivePrompt(data)
+        if (data.status === 'voting') {
+          setVotingMode(true)
+        }
+      }
+    } catch (error) {
+      console.error('Error checking live prompt:', error)
+    }
+  }
+
   // Check for live prompts on mount and set up countdown
   useEffect(() => {
-    const checkLivePrompt = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('class_prompts')
-          .select('*')
-          .eq('class_id', classData.id)
-          .eq('is_live', true)
-          .in('status', ['active', 'voting'])
-          .single()
-
-        if (data && !error) {
-          setLivePrompt(data)
-          if (data.status === 'voting') {
-            setVotingMode(true)
-          }
-        }
-      } catch (error) {
-        console.error('Error checking live prompt:', error)
-      }
-    }
-
     checkLivePrompt()
   }, [classData.id])
 
@@ -422,13 +452,14 @@ export default function StudentClassClient({ classData }: StudentClassClientProp
 
     const updateCountdown = () => {
       const now = new Date()
+      const nowUTC = new Date(now.getTime() + now.getTimezoneOffset() * 60000)
       const endTime = new Date(livePrompt.end_time!)
-      const diff = endTime.getTime() - now.getTime()
+      const diff = endTime.getTime() - nowUTC.getTime()
       
       if (diff <= 0) {
         setTimeRemaining(0)
-        // Live session ended, clear live prompt
-        setLivePrompt(null)
+        // Automatically change status when timer hits zero
+        handleAutoStatusChange()
       } else {
         setTimeRemaining(Math.floor(diff / 1000))
       }
@@ -439,6 +470,31 @@ export default function StudentClassClient({ classData }: StudentClassClientProp
 
     return () => clearInterval(interval)
   }, [livePrompt])
+
+  const handleAutoStatusChange = async () => {
+    if (!livePrompt) return
+
+    try {
+      if (livePrompt.mode === 'competition') {
+        // Competition: set to voting
+        await supabase
+          .from('class_prompts')
+          .update({ status: 'voting' })
+          .eq('id', livePrompt.id)
+      } else {
+        // Bellringer: set to completed
+        await supabase
+          .from('class_prompts')
+          .update({ status: 'completed' })
+          .eq('id', livePrompt.id)
+      }
+
+      // Refresh the live prompt
+      await checkLivePrompt()
+    } catch (error) {
+      console.error('Error auto-changing prompt status:', error)
+    }
+  }
 
   // Vote cooldown timer
   useEffect(() => {
@@ -515,28 +571,21 @@ export default function StudentClassClient({ classData }: StudentClassClientProp
 
   const fetchLeaderboard = async () => {
     try {
-      // Fetch class ELO history
-      const { data: eloHistory, error: eloError } = await supabase
-        .from('class_elo_history')
-        .select('user_id, elo_change')
+      // Fetch all students in the class
+      const { data: members, error: membersError } = await supabase
+        .from('class_members')
+        .select('user_id')
         .eq('class_id', classData.id)
 
-      if (eloError) throw eloError
+      if (membersError) throw membersError
 
-      if (!eloHistory || eloHistory.length === 0) {
+      if (!members || members.length === 0) {
         setLeaderboard([])
         return
       }
 
-      // Calculate total ELO earned per user
-      const eloMap = new Map<string, number>()
-      eloHistory.forEach(entry => {
-        const current = eloMap.get(entry.user_id) || 0
-        eloMap.set(entry.user_id, current + entry.elo_change)
-      })
-
-      // Fetch user profiles
-      const userIds = Array.from(eloMap.keys())
+      // Fetch user profiles for all students
+      const userIds = members.map(m => m.user_id)
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
         .select('id, username')
@@ -544,17 +593,36 @@ export default function StudentClassClient({ classData }: StudentClassClientProp
 
       if (profilesError) throw profilesError
 
-      // Create leaderboard entries
-      const leaderboardEntries: LeaderboardEntry[] = Array.from(eloMap.entries())
-        .map(([userId, totalElo]) => {
-          const profile = profiles?.find(p => p.id === userId)
-          return {
-            user_id: userId,
-            username: profile?.username || 'Unknown',
-            total_elo_earned: totalElo
-          }
-        })
-        .sort((a, b) => b.total_elo_earned - a.total_elo_earned)
+      // Fetch ELO data for all students
+      const { data: eloData, error: eloError } = await supabase
+        .from('user_stats')
+        .select('user_id, elo')
+        .in('user_id', userIds)
+
+      if (eloError) throw eloError
+
+      // Merge data and create leaderboard entries
+      const leaderboardEntries: LeaderboardEntry[] = members.map(member => {
+        const profile = profiles?.find(p => p.id === member.user_id)
+        const elo = eloData?.find(e => e.user_id === member.user_id)?.elo || 0
+        
+        // Calculate rank based on ELO
+        let rank = 'Trainee'
+        if (elo >= 2000) rank = 'Unicorn'
+        else if (elo >= 1750) rank = 'Titan'
+        else if (elo >= 1500) rank = 'Icon'
+        else if (elo >= 1250) rank = 'Visionary'
+        else if (elo >= 1000) rank = 'Founder'
+        else if (elo >= 750) rank = 'Creator'
+        else if (elo >= 500) rank = 'Builder'
+
+        return {
+          user_id: member.user_id,
+          username: profile?.username || 'Unknown',
+          elo,
+          rank
+        }
+      }).sort((a, b) => b.elo - a.elo)
 
       setLeaderboard(leaderboardEntries)
     } catch (error) {
@@ -667,8 +735,9 @@ export default function StudentClassClient({ classData }: StudentClassClientProp
     if (!endTime) return 'No end time'
     
     const now = new Date()
+    const nowUTC = new Date(now.getTime() + now.getTimezoneOffset() * 60000)
     const end = new Date(endTime)
-    const diff = end.getTime() - now.getTime()
+    const diff = end.getTime() - nowUTC.getTime()
     
     if (diff <= 0) return 'Ended'
     
@@ -864,7 +933,7 @@ export default function StudentClassClient({ classData }: StudentClassClientProp
                 textAlign: 'center',
                 color: 'var(--text-secondary)'
               }}>
-                No leaderboard data available
+                No students have joined this class yet.
               </div>
             ) : (
               <div style={{
@@ -873,36 +942,143 @@ export default function StudentClassClient({ classData }: StudentClassClientProp
                 borderRadius: '12px',
                 overflow: 'hidden'
               }}>
-                {leaderboard.map((entry, index) => (
-                  <div key={entry.user_id} style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    padding: '16px 24px',
-                    borderBottom: index < leaderboard.length - 1 ? '1px solid var(--border)' : 'none'
+                {/* Column Headers */}
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: '48px 1fr auto auto',
+                  gap: '16px',
+                  padding: '16px 24px',
+                  borderBottom: '1px solid var(--border)',
+                  background: 'var(--surface)'
+                }}>
+                  <div style={{ 
+                    fontSize: '12px', 
+                    fontWeight: '600', 
+                    fontFamily: 'var(--font-display)', 
+                    color: 'var(--text2)', 
+                    letterSpacing: '0.5px', 
+                    textTransform: 'uppercase'
                   }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                      <span style={{
-                        width: '24px',
-                        height: '24px',
+                    #
+                  </div>
+                  <div style={{ 
+                    fontSize: '12px', 
+                    fontWeight: '600', 
+                    fontFamily: 'var(--font-display)', 
+                    color: 'var(--text2)', 
+                    letterSpacing: '0.5px', 
+                    textTransform: 'uppercase'
+                  }}>
+                    Username
+                  </div>
+                  <div style={{ 
+                    fontSize: '12px', 
+                    fontWeight: '600', 
+                    fontFamily: 'var(--font-display)', 
+                    color: 'var(--text2)', 
+                    letterSpacing: '0.5px', 
+                    textTransform: 'uppercase',
+                    textAlign: 'right'
+                  }}>
+                    ELO
+                  </div>
+                  <div style={{ 
+                    fontSize: '12px', 
+                    fontWeight: '600', 
+                    fontFamily: 'var(--font-display)', 
+                    color: 'var(--text2)',
+                    letterSpacing: '0.5px',
+                    textTransform: 'uppercase',
+                    textAlign: 'center'
+                  }}>
+                    Rank
+                  </div>
+                </div>
+
+                {/* Leaderboard Entries */}
+                {leaderboard.map((entry, index) => {
+                  const rank = index + 1
+                  const rankColor = getRankColor(entry.rank)
+                  
+                  return (
+                    <div
+                      key={entry.user_id}
+                      style={{
+                        display: 'grid',
+                        gridTemplateColumns: '48px 1fr auto auto',
+                        gap: '16px',
+                        padding: '16px 24px',
+                        borderBottom: index < leaderboard.length - 1 ? '1px solid var(--border)' : 'none',
+                        background: getRankFaintColor(entry.rank),
+                        transition: 'all 0.2s ease'
+                      }}
+                    >
+                      {/* Rank Number */}
+                      <div style={{
+                        width: '32px',
+                        height: '32px',
                         borderRadius: '50%',
-                        background: index === 0 ? 'var(--yellow)' : index === 1 ? 'var(--gray)' : index === 2 ? 'var(--orange)' : 'var(--border)',
-                        color: index < 3 ? 'white' : 'var(--text)',
+                        background: rank <= 3 ? 'linear-gradient(135deg, var(--gold), #f59e0b)' : 'var(--surface)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        fontSize: '12px',
-                        fontWeight: 600
+                        fontSize: '14px',
+                        fontWeight: '800',
+                        fontFamily: 'var(--font-display)',
+                        color: rank <= 3 ? '#fff' : 'var(--text2)'
                       }}>
-                        {index + 1}
-                      </span>
-                      <span style={{ fontWeight: 600 }}>{entry.username}</span>
+                        {rank}
+                      </div>
+
+                      {/* Username */}
+                      <a
+                        href={`/profile/${entry.username}`}
+                        style={{
+                          textDecoration: 'none',
+                          fontSize: '16px',
+                          fontWeight: '700',
+                          fontFamily: 'var(--font-display)',
+                          color: 'var(--text)',
+                          letterSpacing: '-0.1px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px'
+                        }}
+                      >
+                        @{entry.username}
+                      </a>
+
+                      {/* ELO Score */}
+                      <div style={{
+                        fontSize: '18px',
+                        fontWeight: '800',
+                        fontFamily: 'var(--font-display)',
+                        color: 'var(--green)',
+                        letterSpacing: '-0.2px',
+                        textAlign: 'right'
+                      }}>
+                        {entry.elo}
+                      </div>
+
+                      {/* Rank Title */}
+                      <div style={{
+                        fontSize: '13px',
+                        fontWeight: '600',
+                        fontFamily: 'var(--font-display)',
+                        padding: '4px 12px',
+                        borderRadius: '6px',
+                        background: getRankFaintColor(entry.rank),
+                        color: rankColor,
+                        border: `1px solid ${rankColor}20`,
+                        letterSpacing: '0.5px',
+                        textTransform: 'uppercase',
+                        textAlign: 'center'
+                      }}>
+                        {entry.rank}
+                      </div>
                     </div>
-                    <span style={{ color: 'var(--green)', fontWeight: 600 }}>
-                      +{entry.total_elo_earned} ELO
-                    </span>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             )}
           </div>
