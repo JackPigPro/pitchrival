@@ -538,19 +538,52 @@ export default function StudentClassClient({ classData }: StudentClassClientProp
   
   const fetchActivePrompts = async () => {
     try {
+      // Fetch all prompts that are not completed (active, scheduled, voting)
       const { data, error } = await supabase
         .from('class_prompts')
         .select('*')
         .eq('class_id', classData.id)
-        .eq('status', 'active')
+        .in('status', ['active', 'scheduled', 'voting'])
         .order('created_at', { ascending: false })
 
       if (error) throw error
-      setActivePrompts(data || [])
 
-      // Fetch user's submissions for these prompts
-      if (data && data.length > 0 && user) {
-        const promptIds = data.map(p => p.id)
+      if (!data || data.length === 0) {
+        setActivePrompts([])
+        setPastPrompts([])
+        return
+      }
+
+      // Get current UTC time
+      const now = new Date()
+      const nowUTC = new Date(now.getTime() + now.getTimezoneOffset() * 60000)
+
+      // Separate prompts based on end time (UTC comparison)
+      const active: Prompt[] = []
+      const past: Prompt[] = []
+
+      data.forEach(prompt => {
+        if (!prompt.end_time) {
+          // Prompts without end time are considered active
+          active.push(prompt)
+        } else {
+          const endTime = new Date(prompt.end_time)
+          if (endTime.getTime() > nowUTC.getTime()) {
+            // End time is in the future (UTC) - still active
+            active.push(prompt)
+          } else {
+            // End time is now or in the past (UTC) - ended/past
+            past.push(prompt)
+          }
+        }
+      })
+
+      setActivePrompts(active)
+      setPastPrompts(past)
+
+      // Fetch user's submissions for active prompts only
+      if (active.length > 0 && user) {
+        const promptIds = active.map(p => p.id)
         const { data: submissions, error: submissionsError } = await supabase
           .from('class_submissions')
           .select('*')
@@ -916,6 +949,43 @@ export default function StudentClassClient({ classData }: StudentClassClientProp
                 </div>
               ))
             )}
+          </div>
+        )}
+
+        {/* Past Prompts Section */}
+        {pastPrompts.length > 0 && (
+          <div style={{ marginTop: '32px' }}>
+            <h2 style={{ fontSize: '24px', fontWeight: 600, marginBottom: '24px' }}>
+              Past Prompts
+            </h2>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              {pastPrompts.map(prompt => (
+                <div key={prompt.id} style={{
+                  background: 'var(--card)',
+                  border: '1px solid var(--border)',
+                  borderRadius: '12px',
+                  padding: '24px',
+                  opacity: 0.8
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
+                    <div>
+                      <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '8px', color: 'var(--text-secondary)' }}>
+                        {prompt.title}
+                      </h3>
+                      <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                        {getModeBadge(prompt.mode)}
+                        <span style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>
+                          Ended {prompt.end_time ? new Date(prompt.end_time).toLocaleString() : 'Unknown time'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <p style={{ color: 'var(--text-secondary)', marginBottom: '0', lineHeight: '1.5' }}>
+                    {prompt.content}
+                  </p>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
