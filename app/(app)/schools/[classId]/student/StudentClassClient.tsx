@@ -294,7 +294,7 @@ export default function StudentClassClient({ classData }: StudentClassClientProp
   const [pastPrompts, setPastPrompts] = useState<Prompt[]>([])
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([])
   const [userSubmissions, setUserSubmissions] = useState<Map<string, Submission>>(new Map())
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
   const [livePrompt, setLivePrompt] = useState<Prompt | null>(null)
   const [timeRemaining, setTimeRemaining] = useState<number>(0)
   const [votingMode, setVotingMode] = useState(false)
@@ -305,10 +305,17 @@ export default function StudentClassClient({ classData }: StudentClassClientProp
   const [submissionTexts, setSubmissionTexts] = useState<Map<string, string>>(new Map())
   const [submitting, setSubmitting] = useState<Map<string, boolean>>(new Map())
 
-  // Fetch data on component mount and tab changes
+  // Fetch data on tab changes (not on mount since data comes from server)
   useEffect(() => {
-    fetchTabData()
+    if (activeTab !== 'prompts') {
+      fetchTabData()
+    }
   }, [activeTab])
+
+  // Initialize prompts data on mount
+  useEffect(() => {
+    fetchActivePrompts()
+  }, [])
 
   // Set up real-time subscriptions
   useEffect(() => {
@@ -693,51 +700,6 @@ export default function StudentClassClient({ classData }: StudentClassClientProp
     )
   }
 
-  if (loading) {
-    return (
-      <div style={{ 
-        minHeight: '100vh',
-        background: 'var(--bg)',
-        backgroundImage: 'linear-gradient(rgba(21,128,61,.065) 1px, transparent 1px), linear-gradient(90deg, rgba(21,128,61,.065) 1px, transparent 1px)',
-        backgroundSize: '48px 48px',
-        padding: '40px 24px'
-      }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-          <div style={{ 
-            background: 'var(--border)',
-            width: '300px',
-            height: '48px',
-            borderRadius: '8px',
-            marginBottom: '32px'
-          }} />
-          <div style={{ 
-            background: 'var(--card)',
-            border: '1px solid var(--border)',
-            borderRadius: '16px',
-            padding: '32px',
-            height: '600px'
-          }} />
-        </div>
-        <div style={{
-          position: 'fixed',
-          top: '80px',
-          right: '20px',
-          background: 'var(--green)',
-          color: 'white',
-          padding: '16px 24px',
-          borderRadius: '8px',
-          fontSize: '16px',
-          fontWeight: 600,
-          fontFamily: 'var(--font-display)',
-          boxShadow: 'var(--shadow)',
-          zIndex: 1000,
-          animation: 'slideInRight 0.3s ease'
-        }}>
-          Loading...
-        </div>
-      </div>
-    )
-  }
 
   return (
     <div style={{ 
@@ -1002,7 +964,7 @@ export default function StudentClassClient({ classData }: StudentClassClientProp
       {eloToast && (
         <div style={{
           position: 'fixed',
-          top: '20px',
+          top: '100px',
           right: '20px',
           background: 'var(--green)',
           color: 'white',
