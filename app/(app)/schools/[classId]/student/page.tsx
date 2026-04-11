@@ -11,7 +11,13 @@ export default async function StudentClassPage({ params }: { params: Promise<{ c
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  if (!user) redirect('/login')
+  console.log('StudentClassPage - User ID being checked:', user?.id)
+  console.log('StudentClassPage - Class ID:', classId)
+
+  if (!user) {
+    console.log('StudentClassPage - Redirecting to /login: No user found')
+    redirect('/login')
+  }
 
   // Check if user is authenticated and completed onboarding
   const { data: profile } = await supabase
@@ -20,7 +26,12 @@ export default async function StudentClassPage({ params }: { params: Promise<{ c
     .eq('id', user.id)
     .single()
 
-  if (!profile?.onboarding_complete) redirect('/onboarding')
+  console.log('StudentClassPage - Profile data:', profile)
+
+  if (!profile?.onboarding_complete) {
+    console.log('StudentClassPage - Redirecting to /onboarding: Onboarding not complete')
+    redirect('/onboarding')
+  }
 
   // Fetch the class with teacher name
   const { data: classData, error: classError } = await supabase
@@ -34,7 +45,13 @@ export default async function StudentClassPage({ params }: { params: Promise<{ c
     .eq('id', classId)
     .single()
 
-  if (classError || !classData) redirect('/schools')
+  console.log('StudentClassPage - Class data:', classData)
+  console.log('StudentClassPage - Class error:', classError)
+
+  if (classError || !classData) {
+    console.log('StudentClassPage - Redirecting to /schools: Class not found or error')
+    redirect('/schools')
+  }
 
   // Check if user is a member of this class
   const { data: classMember, error: memberError } = await supabase
@@ -44,7 +61,13 @@ export default async function StudentClassPage({ params }: { params: Promise<{ c
     .eq('user_id', user.id)
     .maybeSingle()
 
-  if (memberError || !classMember) redirect('/schools')
+  console.log('StudentClassPage - Class members query result:', classMember)
+  console.log('StudentClassPage - Class members query error:', memberError)
+
+  if (memberError || !classMember) {
+    console.log('StudentClassPage - Redirecting to /schools: Not a class member or query error')
+    redirect('/schools')
+  }
 
   return <StudentClassClient classData={classData} />
 }

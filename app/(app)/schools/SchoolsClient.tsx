@@ -298,6 +298,17 @@ export default function SchoolsClient({ userId, profile, userClass, teacherClass
         throw error
       }
 
+      // Update student count
+      console.log('Updating student count from', currentUserClass.student_count, 'to', Math.max(0, currentUserClass.student_count - 1))
+      const { error: updateError } = await supabase
+        .from('classes')
+        .update({ student_count: Math.max(0, currentUserClass.student_count - 1) })
+        .eq('id', currentUserClass.id)
+
+      if (updateError) {
+        console.error('Failed to update student count:', updateError)
+      }
+
       // Clear any client-side cache to ensure fresh data
       if (typeof window !== 'undefined') {
         // Clear any potential client-side state
