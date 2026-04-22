@@ -10,10 +10,10 @@ export default function LoginForm({ mode }: { mode: 'login' | 'signup' }) {
   const supabase = createClient()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
   const [code, setCode] = useState('')
-  const [authMethod, setAuthMethod] = useState<'google' | 'otp' | 'password'>('otp')
+  const [authMode, setAuthMode] = useState<'password' | 'magic'>('password')
   const [step, setStep] = useState<'email' | 'code'>('email')
+  const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
@@ -121,12 +121,6 @@ export default function LoginForm({ mode }: { mode: 'login' | 'signup' }) {
 
     try {
       if (mode === 'signup') {
-        // Validate passwords match
-        if (password !== confirmPassword) {
-          setError('Passwords do not match')
-          return
-        }
-
         if (password.length < 6) {
           setError('Password must be at least 6 characters')
           return
@@ -196,7 +190,7 @@ export default function LoginForm({ mode }: { mode: 'login' | 'signup' }) {
   }
 
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    if (authMethod === 'password') {
+    if (authMode === 'password') {
       await onPasswordAuth(event)
       return
     }
@@ -232,8 +226,70 @@ export default function LoginForm({ mode }: { mode: 'login' | 'signup' }) {
         Choose how you'd like to {mode === 'signup' ? 'sign up' : 'sign in'}.
       </p>
 
-      {step === 'email' && authMethod === 'password' ? (
-        <>
+      {/* Google Button - Always visible */}
+      <button
+        type="button"
+        onClick={onGoogleLogin}
+        disabled={googleLoading || loading}
+        style={{
+          width: '100%',
+          marginBottom: '14px',
+          padding: '11px 12px',
+          borderRadius: '10px',
+          border: '1px solid var(--border2)',
+          background: 'var(--surface)',
+          color: 'var(--text)',
+          fontWeight: 700,
+          cursor: 'pointer',
+          fontFamily: 'var(--font-display)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '10px',
+        }}
+      >
+        <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+          <path fill="#EA4335" d="M12 10.2v3.9h5.4c-.2 1.2-.9 2.2-1.9 2.9v2.4h3.1c1.8-1.7 2.9-4.2 2.9-7.1 0-.7-.1-1.4-.2-2H12Z" />
+          <path fill="#34A853" d="M12 21c2.6 0 4.7-.9 6.2-2.3l-3.1-2.4c-.9.6-1.9.9-3.1.9-2.4 0-4.5-1.6-5.2-3.9H3.6v2.5A9.4 9.4 0 0 0 12 21Z" />
+          <path fill="#4A90E2" d="M6.8 13.3a5.7 5.7 0 0 1 0-3.6V7.2H3.6a9.4 9.4 0 0 0 0 8.5l3.2-2.4Z" />
+          <path fill="#FBBC05" d="M12 6.8c1.4 0 2.6.5 3.5 1.4l2.6-2.6A9.2 9.2 0 0 0 12 3 9.4 9.4 0 0 0 3.6 7.2l3.2 2.5c.7-2.3 2.8-3.9 5.2-3.9Z" />
+        </svg>
+        {googleLoading ? 'Connecting to Google...' : 'Continue with Google'}
+      </button>
+
+      {/* Divider - Always visible */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '18px' }}>
+        <div style={{ height: '1px', flex: 1, background: 'var(--border2)' }} />
+        <span style={{ fontSize: '11px', color: 'var(--text3)', letterSpacing: '1px', textTransform: 'uppercase' }}>or</span>
+        <div style={{ height: '1px', flex: 1, background: 'var(--border2)' }} />
+      </div>
+
+      {/* Error/Success messages */}
+      {error && <p style={{ color: '#fca5a5', marginTop: 0, marginBottom: '14px', fontSize: '14px' }}>{error}</p>}
+      {success && (
+        <p
+          style={{
+            color: '#86efac',
+            marginTop: 0,
+            marginBottom: '14px',
+            fontSize: '14px',
+            background: 'rgba(22,163,74,.15)',
+            border: '1px solid rgba(22,163,74,.35)',
+            borderRadius: '10px',
+            padding: '10px 12px',
+          }}
+        >
+          {success}
+        </p>
+      )}
+
+      {/* Password Mode */}
+      {authMode === 'password' && step === 'email' && (
+        <div style={{
+          transition: 'opacity 0.2s ease-in-out, transform 0.2s ease-in-out',
+          opacity: 1,
+          transform: 'translateY(0)',
+        }}>
           <label style={{ display: 'block', marginBottom: '7px', color: 'var(--text)', fontWeight: 600, fontSize: '14px' }}>Email</label>
           <input
             type="email"
@@ -254,79 +310,52 @@ export default function LoginForm({ mode }: { mode: 'login' | 'signup' }) {
           />
 
           <label style={{ display: 'block', marginBottom: '7px', color: 'var(--text)', fontWeight: 600, fontSize: '14px' }}>Password</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            required
-            placeholder="••••••••"
-            style={{
-              width: '100%',
-              marginBottom: mode === 'signup' ? '14px' : '8px',
-              padding: '12px',
-              borderRadius: '10px',
-              border: '1px solid var(--border2)',
-              background: 'var(--surface)',
-              color: 'var(--text)',
-              outline: 'none',
-            }}
-          />
-
-          {mode === 'signup' && (
-            <>
-              <label style={{ display: 'block', marginBottom: '7px', color: 'var(--text)', fontWeight: 600, fontSize: '14px' }}>Confirm Password</label>
-              <input
-                type="password"
-                value={confirmPassword}
-                onChange={(event) => setConfirmPassword(event.target.value)}
-                required
-                placeholder="••••••••"
-                style={{
-                  width: '100%',
-                  marginBottom: '14px',
-                  padding: '12px',
-                  borderRadius: '10px',
-                  border: '1px solid var(--border2)',
-                  background: 'var(--surface)',
-                  color: 'var(--text)',
-                  outline: 'none',
-                }}
-              />
-            </>
-          )}
-
-          {mode === 'login' && (
-            <div style={{ textAlign: 'right', marginBottom: '14px' }}>
-              <Link
-                href="/forgot-password"
-                style={{
-                  color: 'var(--text2)',
-                  fontSize: '13px',
-                  textDecoration: 'none',
-                }}
-              >
-                Forgot password?
-              </Link>
-            </div>
-          )}
-
-          {error && <p style={{ color: '#fca5a5', marginTop: 0, marginBottom: '10px', fontSize: '14px' }}>{error}</p>}
-          {success && (
-            <p
+          <div style={{ position: 'relative', marginBottom: mode === 'login' ? '8px' : '14px' }}>
+            <input
+              type={showPassword ? 'text' : 'password'}
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              required
+              placeholder="••••••••"
               style={{
-                color: '#86efac',
-                marginTop: 0,
-                marginBottom: '10px',
-                fontSize: '14px',
-                background: 'rgba(22,163,74,.15)',
-                border: '1px solid rgba(22,163,74,.35)',
+                width: '100%',
+                padding: '12px',
+                paddingRight: '40px',
                 borderRadius: '10px',
-                padding: '10px 12px',
+                border: '1px solid var(--border2)',
+                background: 'var(--surface)',
+                color: 'var(--text)',
+                outline: 'none',
+              }}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              style={{
+                position: 'absolute',
+                right: '12px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                padding: '4px',
+                color: 'var(--text2)',
               }}
             >
-              {success}
-            </p>
-          )}
+              {showPassword ? (
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                  <line x1="1" y1="1" x2="23" y2="23"/>
+                </svg>
+              ) : (
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+              )}
+            </button>
+          </div>
 
           <button
             type="submit"
@@ -342,72 +371,58 @@ export default function LoginForm({ mode }: { mode: 'login' | 'signup' }) {
               cursor: 'pointer',
               fontFamily: 'var(--font-display)',
               boxShadow: '0 8px 20px rgba(59,130,246,.28)',
+              marginBottom: '8px',
             }}
           >
-            {loading ? (mode === 'signup' ? 'Creating account...' : 'Signing in...') : (mode === 'signup' ? 'Sign Up' : 'Sign In')}
+            {loading ? (mode === 'signup' ? 'Creating account...' : 'Signing in...') : (mode === 'signup' ? 'Create account' : 'Sign in')}
           </button>
 
-          <button
-            type="button"
-            onClick={() => {
-              setAuthMethod('otp')
-              setError(null)
-              setSuccess(null)
-            }}
-            style={{
-              width: '100%',
-              marginTop: '10px',
-              padding: '10px',
-              border: '1px solid var(--border2)',
-              borderRadius: '10px',
-              background: 'transparent',
-              color: 'var(--text2)',
-              fontWeight: 600,
-              cursor: 'pointer',
-              fontFamily: 'var(--font-display)',
-            }}
-          >
-            Use email code instead
-          </button>
-        </>
-      ) : step === 'email' ? (
-        <>
-          <button
-            type="button"
-            onClick={onGoogleLogin}
-            disabled={googleLoading || loading}
-            style={{
-              width: '100%',
-              marginBottom: '14px',
-              padding: '11px 12px',
-              borderRadius: '10px',
-              border: '1px solid var(--border2)',
-              background: 'var(--surface)',
-              color: 'var(--text)',
-              fontWeight: 700,
-              cursor: 'pointer',
-              fontFamily: 'var(--font-display)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '10px',
-            }}
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
-              <path fill="#EA4335" d="M12 10.2v3.9h5.4c-.2 1.2-.9 2.2-1.9 2.9v2.4h3.1c1.8-1.7 2.9-4.2 2.9-7.1 0-.7-.1-1.4-.2-2H12Z" />
-              <path fill="#34A853" d="M12 21c2.6 0 4.7-.9 6.2-2.3l-3.1-2.4c-.9.6-1.9.9-3.1.9-2.4 0-4.5-1.6-5.2-3.9H3.6v2.5A9.4 9.4 0 0 0 12 21Z" />
-              <path fill="#4A90E2" d="M6.8 13.3a5.7 5.7 0 0 1 0-3.6V7.2H3.6a9.4 9.4 0 0 0 0 8.5l3.2-2.4Z" />
-              <path fill="#FBBC05" d="M12 6.8c1.4 0 2.6.5 3.5 1.4l2.6-2.6A9.2 9.2 0 0 0 12 3 9.4 9.4 0 0 0 3.6 7.2l3.2 2.5c.7-2.3 2.8-3.9 5.2-3.9Z" />
-            </svg>
-            {googleLoading ? 'Connecting to Google...' : 'Continue with Google'}
-          </button>
+          {mode === 'login' && (
+            <div style={{ textAlign: 'right', marginBottom: '12px' }}>
+              <Link
+                href="/forgot-password"
+                style={{
+                  color: 'var(--text2)',
+                  fontSize: '13px',
+                  textDecoration: 'none',
+                }}
+              >
+                Forgot password?
+              </Link>
+            </div>
+          )}
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
-            <div style={{ height: '1px', flex: 1, background: 'var(--border2)' }} />
-            <span style={{ fontSize: '11px', color: 'var(--text3)', letterSpacing: '1px', textTransform: 'uppercase' }}>or</span>
-            <div style={{ height: '1px', flex: 1, background: 'var(--border2)' }} />
+          <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+            <button
+              type="button"
+              onClick={() => {
+                setAuthMode('magic')
+                setError(null)
+                setSuccess(null)
+              }}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: 'var(--text2)',
+                fontSize: '13px',
+                cursor: 'pointer',
+                textDecoration: 'none',
+                fontFamily: 'var(--font-display)',
+              }}
+            >
+              Send a magic link instead
+            </button>
           </div>
+        </div>
+      )}
 
+      {/* Magic Link Mode */}
+      {authMode === 'magic' && step === 'email' && (
+        <div style={{
+          transition: 'opacity 0.2s ease-in-out, transform 0.2s ease-in-out',
+          opacity: 1,
+          transform: 'translateY(0)',
+        }}>
           <label style={{ display: 'block', marginBottom: '7px', color: 'var(--text)', fontWeight: 600, fontSize: '14px' }}>Email</label>
           <input
             type="email"
@@ -427,24 +442,6 @@ export default function LoginForm({ mode }: { mode: 'login' | 'signup' }) {
             }}
           />
 
-          {error && <p style={{ color: '#fca5a5', marginTop: 0, marginBottom: '10px', fontSize: '14px' }}>{error}</p>}
-          {success && (
-            <p
-              style={{
-                color: '#86efac',
-                marginTop: 0,
-                marginBottom: '10px',
-                fontSize: '14px',
-                background: 'rgba(22,163,74,.15)',
-                border: '1px solid rgba(22,163,74,.35)',
-                borderRadius: '10px',
-                padding: '10px 12px',
-              }}
-            >
-              {success}
-            </p>
-          )}
-
           <button
             type="submit"
             disabled={loading || googleLoading}
@@ -459,36 +456,43 @@ export default function LoginForm({ mode }: { mode: 'login' | 'signup' }) {
               cursor: 'pointer',
               fontFamily: 'var(--font-display)',
               boxShadow: '0 8px 20px rgba(59,130,246,.28)',
+              marginBottom: '12px',
             }}
           >
-            {loading ? 'Sending code...' : 'Continue with Email Code'}
+            {loading ? 'Sending magic link...' : 'Send magic link'}
           </button>
 
-          <button
-            type="button"
-            onClick={() => {
-              setAuthMethod('password')
-              setError(null)
-              setSuccess(null)
-            }}
-            style={{
-              width: '100%',
-              marginTop: '10px',
-              padding: '10px',
-              border: '1px solid var(--border2)',
-              borderRadius: '10px',
-              background: 'transparent',
-              color: 'var(--text2)',
-              fontWeight: 600,
-              cursor: 'pointer',
-              fontFamily: 'var(--font-display)',
-            }}
-          >
-            Use password instead
-          </button>
-        </>
-      ) : (
-        <>
+          <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+            <button
+              type="button"
+              onClick={() => {
+                setAuthMode('password')
+                setError(null)
+                setSuccess(null)
+              }}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: 'var(--text2)',
+                fontSize: '13px',
+                cursor: 'pointer',
+                textDecoration: 'none',
+                fontFamily: 'var(--font-display)',
+              }}
+            >
+              Use password instead
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Code verification mode */}
+      {step === 'code' && (
+        <div style={{
+          transition: 'opacity 0.2s ease-in-out, transform 0.2s ease-in-out',
+          opacity: 1,
+          transform: 'translateY(0)',
+        }}>
           <div style={{ marginBottom: '20px' }}>
             <p style={{ color: 'var(--text2)', marginBottom: '14px' }}>
               We sent a 6-digit code to <strong>{email}</strong>
@@ -545,7 +549,7 @@ export default function LoginForm({ mode }: { mode: 'login' | 'signup' }) {
               setStep('email')
               setError(null)
               setSuccess(null)
-              setAuthMethod('otp')
+              setAuthMode('magic')
             }}
             style={{
               width: '100%',
@@ -562,8 +566,31 @@ export default function LoginForm({ mode }: { mode: 'login' | 'signup' }) {
           >
             Back to Email
           </button>
-        </>
+        </div>
       )}
+
+      {/* Bottom switcher */}
+      <div style={{
+        marginTop: '24px',
+        paddingTop: '20px',
+        borderTop: '1px solid var(--border2)',
+        textAlign: 'center',
+      }}>
+        <span style={{ color: 'var(--text2)', fontSize: '14px' }}>
+          {mode === 'signup' ? 'Already have an account? ' : "Don't have an account? "}
+        </span>
+        <Link
+          href={mode === 'signup' ? '/login?mode=login' : '/login?mode=signup'}
+          style={{
+            color: '#3b82f6',
+            fontSize: '14px',
+            fontWeight: 600,
+            textDecoration: 'none',
+          }}
+        >
+          {mode === 'signup' ? 'Sign in' : 'Sign up'}
+        </Link>
+      </div>
     </form>
   )
 }
