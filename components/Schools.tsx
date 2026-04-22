@@ -15,7 +15,7 @@ export default function Schools({ onComingSoon }: SchoolsProps) {
           <div className="schools-left">
             <div className="schools-label">For Educators</div>
             <div className="schools-title">
-              PitchRival<br />for <em>Schools.</em>{' '}
+              BizYip<br />for <em>Schools.</em>{' '}
               <span className="inline-coming-soon schools">Coming soon</span>
             </div>
             <p className="schools-sub">

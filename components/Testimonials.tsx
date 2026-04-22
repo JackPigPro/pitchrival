@@ -6,7 +6,7 @@ export default function Testimonials() {
           <div className="t-header-label">Community voices</div>
           <div className="t-header-title">What early users are saying</div>
           <div className="t-header-sub">
-            Real feedback from students, founders, and builders using PitchRival.
+            Real feedback from students, founders, and builders using BizYip.
           </div>
         </div>
 

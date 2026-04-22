@@ -44,20 +44,20 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
       // Fallback to localStorage if no Supabase theme
       if (!savedTheme) {
-        savedTheme = localStorage.getItem('pitchrival-theme') as Theme | null
+        savedTheme = localStorage.getItem('bizyip-theme') as Theme | null
       }
 
       // Default to light if no theme found
       const finalTheme = savedTheme || 'light'
       
       setThemeState(finalTheme)
-      localStorage.setItem('pitchrival-theme', finalTheme)
+      localStorage.setItem('bizyip-theme', finalTheme)
       document.body.setAttribute('data-theme', finalTheme)
     } catch (error) {
       console.error('Error initializing theme:', error)
       // Fallback to light theme
       setThemeState('light')
-      localStorage.setItem('pitchrival-theme', 'light')
+      localStorage.setItem('bizyip-theme', 'light')
       document.body.setAttribute('data-theme', 'light')
     } finally {
       setIsLoading(false)
@@ -66,7 +66,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   const setTheme = async (newTheme: Theme) => {
     setThemeState(newTheme)
-    localStorage.setItem('pitchrival-theme', newTheme)
+    localStorage.setItem('bizyip-theme', newTheme)
     document.body.setAttribute('data-theme', newTheme)
 
     // Save to Supabase if user is logged in

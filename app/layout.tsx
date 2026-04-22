@@ -7,9 +7,12 @@ import PageLayout from '@/components/PageLayout'
 import { ThemeProvider } from '@/components/ThemeProvider'
 
 export const metadata: Metadata = {
-  title: 'PitchRival — Where founders get good.',
+  title: 'BizYip — Where founders get good.',
   description:
     'Share your idea. Build your rank. Find your co-founder. Learn how to do it all — free.',
+  icons: {
+    icon: '/favicon.ico',
+  },
 }
 
 export default function RootLayout({

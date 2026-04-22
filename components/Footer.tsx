@@ -45,8 +45,8 @@ export default function Footer({ onComingSoon, onScrollTo, stats: serverStats }:
         {/* Brand column */}
         <div className="sf-brand">
           <div className="sf-brand-row">
-            <div className="nav-logo">P</div>
-            <span className="sf-brand-name">PitchRival</span>
+            <div className="nav-logo">B</div>
+            <span className="sf-brand-name">BizYip</span>
           </div>
           <div className="sf-brand-desc">
             Share your idea. Build your rank. Find your co-founder. Learn how to do it all — free.
@@ -82,7 +82,7 @@ export default function Footer({ onComingSoon, onScrollTo, stats: serverStats }:
         <div>
           <div className="sf-col-title">Company</div>
           <div className="sf-col-links">
-            <Link href="/about" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>About PitchRival</Link>
+            <Link href="/about" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>About BizYip</Link>
             <Link href="/privacy" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>Privacy Policy</Link>
             <Link href="/terms" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>Terms of Service</Link>
             <Link href="/contact" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>Contact</Link>
@@ -91,7 +91,7 @@ export default function Footer({ onComingSoon, onScrollTo, stats: serverStats }:
       </div>
 
       <div className="sf-bottom">
-        <div className="sf-copy">© 2026 PitchRival. All rights reserved.</div>
+        <div className="sf-copy">© 2026 BizYip. All rights reserved.</div>
         <div className="sf-tagline">Built by founders, for founders.</div>
         <div className="sf-socials">
           <a className="sf-social" href="#" onClick={(e) => { e.preventDefault(); onComingSoon() }} title="X">

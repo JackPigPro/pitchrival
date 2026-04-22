@@ -81,7 +81,7 @@ export default function SignupForm() {
       }}
     >
       <div style={{ fontSize: '11px', letterSpacing: '2px', textTransform: 'uppercase', color: 'rgba(96,165,250,.82)', marginBottom: '10px', fontFamily: 'var(--font-display)', fontWeight: 700 }}>
-        Join PitchRival
+        Join BizYip
       </div>
       <h1 style={{ margin: 0, fontSize: '34px', fontWeight: 800, letterSpacing: '-1px', fontFamily: 'var(--font-display)' }}>Create your account</h1>
       <p style={{ color: 'rgba(255,255,255,.62)', marginTop: '10px', marginBottom: '18px' }}>Sign up with your email and password to start building.</p>

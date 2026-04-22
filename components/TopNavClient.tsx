@@ -159,8 +159,8 @@ export default function TopNavClient({
         }}
         style={{ textDecoration: 'none' }}
       >
-        <div className="nav-logo">P</div>
-        <span className="nav-name">PitchRival</span>
+        <div className="nav-logo">B</div>
+        <span className="nav-name">BizYip</span>
       </Link>
 
       {/* Mobile Hamburger Menu Button */}

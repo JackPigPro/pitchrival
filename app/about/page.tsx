@@ -8,7 +8,7 @@ export default function AboutPage() {
       <main className="content-page">
         <div className="content-container">
           <div className="content-header">
-            <h1 className="content-title">About PitchRival</h1>
+            <h1 className="content-title">About BizYip</h1>
             <p className="content-subtitle">Where founders get good.</p>
           </div>
           
@@ -44,7 +44,7 @@ export default function AboutPage() {
                 </p>
                 <div className="mission-statement">
                   <p className="mission-text">
-                    PitchRival is where you compete to sharpen your thinking, connect with other founders your age, and learn what it actually takes to build something real. All in one place. All for free.
+                    BizYip is where you compete to sharpen your thinking, connect with other founders your age, and learn what it actually takes to build something real. All in one place. All for free.
                   </p>
                 </div>
               </div>
