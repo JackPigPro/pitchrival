@@ -84,7 +84,7 @@ export default function SignupForm() {
         Join BizYip
       </div>
       <h1 style={{ margin: 0, fontSize: '34px', fontWeight: 800, letterSpacing: '-1px', fontFamily: 'var(--font-display)' }}>Create your account</h1>
-      <p style={{ color: 'rgba(255,255,255,.62)', marginTop: '10px', marginBottom: '18px' }}>Sign up with your email and password to start building.</p>
+      <p style={{ color: 'rgba(255,255,255,.62)', marginTop: '10px', marginBottom: '18px' }}>Choose how you'd like to sign up.</p>
 
       <div
         style={{
@@ -240,7 +240,7 @@ export default function SignupForm() {
           boxShadow: '0 8px 20px rgba(21,128,61,.28)',
         }}
       >
-        {loading ? 'Creating account...' : 'Create account'}
+        {loading ? 'Creating account...' : 'Create account with Email'}
       </button>
 
       <p style={{ marginBottom: 0, marginTop: '14px', color: 'rgba(255,255,255,.62)' }}>

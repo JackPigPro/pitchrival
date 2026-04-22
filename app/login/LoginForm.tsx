@@ -139,48 +139,179 @@ export default function LoginForm({ mode }: { mode: 'login' | 'signup' }) {
         {mode === 'signup' ? 'Create Your Account' : 'Welcome Back'}
       </h1>
       <p style={{ color: 'var(--text2)', marginTop: '10px', marginBottom: '18px' }}>
-        Sign in with your Google account to continue.
+        Choose how you'd like to sign in.
       </p>
 
-      <button
-        type="button"
-        onClick={onGoogleLogin}
-        disabled={googleLoading || loading}
-        style={{
-          width: '100%',
-          marginBottom: '14px',
-          padding: '11px 12px',
-          borderRadius: '10px',
-          border: '1px solid var(--border2)',
-          background: 'var(--surface)',
-          color: 'var(--text)',
-          fontWeight: 700,
-          cursor: 'pointer',
-          fontFamily: 'var(--font-display)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '10px',
-        }}
-      >
-        <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
-          <path fill="#EA4335" d="M12 10.2v3.9h5.4c-.2 1.2-.9 2.2-1.9 2.9v2.4h3.1c1.8-1.7 2.9-4.2 2.9-7.1 0-.7-.1-1.4-.2-2H12Z" />
-          <path fill="#34A853" d="M12 21c2.6 0 4.7-.9 6.2-2.3l-3.1-2.4c-.9.6-1.9.9-3.1.9-2.4 0-4.5-1.6-5.2-3.9H3.6v2.5A9.4 9.4 0 0 0 12 21Z" />
-          <path fill="#4A90E2" d="M6.8 13.3a5.7 5.7 0 0 1 0-3.6V7.2H3.6a9.4 9.4 0 0 0 0 8.5l3.2-2.4Z" />
-          <path fill="#FBBC05" d="M12 6.8c1.4 0 2.6.5 3.5 1.4l2.6-2.6A9.2 9.2 0 0 0 12 3 9.4 9.4 0 0 0 3.6 7.2l3.2 2.5c.7-2.3 2.8-3.9 5.2-3.9Z" />
-        </svg>
-        {googleLoading ? 'Connecting to Google...' : 'Continue with Google'}
-      </button>
+      {step === 'email' ? (
+        <>
+          <button
+            type="button"
+            onClick={onGoogleLogin}
+            disabled={googleLoading || loading}
+            style={{
+              width: '100%',
+              marginBottom: '14px',
+              padding: '11px 12px',
+              borderRadius: '10px',
+              border: '1px solid var(--border2)',
+              background: 'var(--surface)',
+              color: 'var(--text)',
+              fontWeight: 700,
+              cursor: 'pointer',
+              fontFamily: 'var(--font-display)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '10px',
+            }}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+              <path fill="#EA4335" d="M12 10.2v3.9h5.4c-.2 1.2-.9 2.2-1.9 2.9v2.4h3.1c1.8-1.7 2.9-4.2 2.9-7.1 0-.7-.1-1.4-.2-2H12Z" />
+              <path fill="#34A853" d="M12 21c2.6 0 4.7-.9 6.2-2.3l-3.1-2.4c-.9.6-1.9.9-3.1.9-2.4 0-4.5-1.6-5.2-3.9H3.6v2.5A9.4 9.4 0 0 0 12 21Z" />
+              <path fill="#4A90E2" d="M6.8 13.3a5.7 5.7 0 0 1 0-3.6V7.2H3.6a9.4 9.4 0 0 0 0 8.5l3.2-2.4Z" />
+              <path fill="#FBBC05" d="M12 6.8c1.4 0 2.6.5 3.5 1.4l2.6-2.6A9.2 9.2 0 0 0 12 3 9.4 9.4 0 0 0 3.6 7.2l3.2 2.5c.7-2.3 2.8-3.9 5.2-3.9Z" />
+            </svg>
+            {googleLoading ? 'Connecting to Google...' : 'Continue with Google'}
+          </button>
 
-      <div style={{ 
-        textAlign: 'center', 
-        fontSize: '12px', 
-        color: 'var(--text3)', 
-        marginTop: '8px',
-        fontStyle: 'italic'
-      }}>
-        More sign in options coming soon.
-      </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
+            <div style={{ height: '1px', flex: 1, background: 'var(--border2)' }} />
+            <span style={{ fontSize: '11px', color: 'var(--text3)', letterSpacing: '1px', textTransform: 'uppercase' }}>or</span>
+            <div style={{ height: '1px', flex: 1, background: 'var(--border2)' }} />
+          </div>
+
+          <label style={{ display: 'block', marginBottom: '7px', color: 'var(--text)', fontWeight: 600, fontSize: '14px' }}>Email</label>
+          <input
+            type="email"
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+            required
+            placeholder="you@example.com"
+            style={{
+              width: '100%',
+              marginBottom: '14px',
+              padding: '12px',
+              borderRadius: '10px',
+              border: '1px solid var(--border2)',
+              background: 'var(--surface)',
+              color: 'var(--text)',
+              outline: 'none',
+            }}
+          />
+
+          {error && <p style={{ color: '#fca5a5', marginTop: 0, marginBottom: '10px', fontSize: '14px' }}>{error}</p>}
+          {success && (
+            <p
+              style={{
+                color: '#86efac',
+                marginTop: 0,
+                marginBottom: '10px',
+                fontSize: '14px',
+                background: 'rgba(22,163,74,.15)',
+                border: '1px solid rgba(22,163,74,.35)',
+                borderRadius: '10px',
+                padding: '10px 12px',
+              }}
+            >
+              {success}
+            </p>
+          )}
+
+          <button
+            type="submit"
+            disabled={loading || googleLoading}
+            style={{
+              width: '100%',
+              padding: '12px',
+              border: 'none',
+              borderRadius: '10px',
+              background: 'linear-gradient(135deg, #3b82f6, #60a5fa)',
+              color: '#fff',
+              fontWeight: 700,
+              cursor: 'pointer',
+              fontFamily: 'var(--font-display)',
+              boxShadow: '0 8px 20px rgba(59,130,246,.28)',
+            }}
+          >
+            {loading ? 'Sending code...' : 'Continue with Email'}
+          </button>
+        </>
+      ) : (
+        <>
+          <div style={{ marginBottom: '20px' }}>
+            <p style={{ color: 'var(--text2)', marginBottom: '14px' }}>
+              We sent a 6-digit code to <strong>{email}</strong>
+            </p>
+          </div>
+
+          <label style={{ display: 'block', marginBottom: '7px', color: 'var(--text)', fontWeight: 600, fontSize: '14px' }}>Verification Code</label>
+          <input
+            type="text"
+            value={code}
+            onChange={(event) => setCode(event.target.value)}
+            required
+            maxLength={6}
+            placeholder="123456"
+            style={{
+              width: '100%',
+              marginBottom: '14px',
+              padding: '12px',
+              borderRadius: '10px',
+              border: '1px solid var(--border2)',
+              background: 'var(--surface)',
+              color: 'var(--text)',
+              outline: 'none',
+              fontSize: '18px',
+              textAlign: 'center',
+              letterSpacing: '4px',
+            }}
+          />
+
+          {error && <p style={{ color: '#fca5a5', marginTop: 0, marginBottom: '10px', fontSize: '14px' }}>{error}</p>}
+
+          <button
+            type="submit"
+            disabled={loading}
+            style={{
+              width: '100%',
+              padding: '12px',
+              border: 'none',
+              borderRadius: '10px',
+              background: 'linear-gradient(135deg, #3b82f6, #60a5fa)',
+              color: '#fff',
+              fontWeight: 700,
+              cursor: 'pointer',
+              fontFamily: 'var(--font-display)',
+              boxShadow: '0 8px 20px rgba(59,130,246,.28)',
+            }}
+          >
+            {loading ? 'Verifying...' : 'Verify Code'}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              setStep('email')
+              setError(null)
+              setSuccess(null)
+            }}
+            style={{
+              width: '100%',
+              marginTop: '10px',
+              padding: '10px',
+              border: '1px solid var(--border2)',
+              borderRadius: '10px',
+              background: 'transparent',
+              color: 'var(--text2)',
+              fontWeight: 600,
+              cursor: 'pointer',
+              fontFamily: 'var(--font-display)',
+            }}
+          >
+            Back to Email
+          </button>
+        </>
+      )}
     </form>
   )
 }
