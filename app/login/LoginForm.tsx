@@ -208,7 +208,7 @@ export default function LoginForm({ mode }: { mode: 'login' | 'signup' }) {
       onSubmit={onSubmit}
       style={{
         width: '100%',
-        maxWidth: '420px',
+        maxWidth: '512px',
         border: '1px solid var(--border)',
         borderRadius: '16px',
         padding: '28px',
@@ -569,28 +569,6 @@ export default function LoginForm({ mode }: { mode: 'login' | 'signup' }) {
         </div>
       )}
 
-      {/* Bottom switcher */}
-      <div style={{
-        marginTop: '24px',
-        paddingTop: '20px',
-        borderTop: '1px solid var(--border2)',
-        textAlign: 'center',
-      }}>
-        <span style={{ color: 'var(--text2)', fontSize: '14px' }}>
-          {mode === 'signup' ? 'Already have an account? ' : "Don't have an account? "}
-        </span>
-        <Link
-          href={mode === 'signup' ? '/login?mode=login' : '/login?mode=signup'}
-          style={{
-            color: '#3b82f6',
-            fontSize: '14px',
-            fontWeight: 600,
-            textDecoration: 'none',
-          }}
-        >
-          {mode === 'signup' ? 'Sign in' : 'Sign up'}
-        </Link>
-      </div>
     </form>
   )
 }

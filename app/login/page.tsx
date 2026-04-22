@@ -60,7 +60,7 @@ export default async function LoginPage({
         </div>
         <div style={{ position: 'relative', zIndex: 2 }}>
           <LoginForm mode={mode} />
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '12px', width: '100%', maxWidth: '420px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '12px', width: '100%', maxWidth: '512px' }}>
             <Link href="/" className="auth-back-link">
               ← Back to home
             </Link>

@@ -32,7 +32,7 @@ export default function ForgotPasswordPage() {
       </div>
       <div style={{ position: 'relative', zIndex: 2 }}>
         <ForgotPasswordForm />
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '12px', width: '100%', maxWidth: '420px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '12px', width: '100%', maxWidth: '512px' }}>
           <Link href="/" className="auth-back-link">
             Back to home
           </Link>
@@ -50,7 +50,7 @@ function ForgotPasswordForm() {
     <div
       style={{
         width: '100%',
-        maxWidth: '420px',
+        maxWidth: '512px',
         border: '1px solid var(--border)',
         borderRadius: '16px',
         padding: '28px',
