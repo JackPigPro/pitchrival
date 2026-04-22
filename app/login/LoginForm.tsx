@@ -2,13 +2,17 @@
 
 import { FormEvent, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { createClient } from '@/utils/supabase/client'
 
 export default function LoginForm({ mode }: { mode: 'login' | 'signup' }) {
   const router = useRouter()
   const supabase = createClient()
   const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const [code, setCode] = useState('')
+  const [authMethod, setAuthMethod] = useState<'google' | 'otp' | 'password'>('otp')
   const [step, setStep] = useState<'email' | 'code'>('email')
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
@@ -110,7 +114,93 @@ export default function LoginForm({ mode }: { mode: 'login' | 'signup' }) {
     }
   }
 
+  const onPasswordAuth = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    setLoading(true)
+    setError(null)
+
+    try {
+      if (mode === 'signup') {
+        // Validate passwords match
+        if (password !== confirmPassword) {
+          setError('Passwords do not match')
+          return
+        }
+
+        if (password.length < 6) {
+          setError('Password must be at least 6 characters')
+          return
+        }
+
+        // Sign up with password
+        const { error: signUpError, data } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            emailRedirectTo: `${window.location.origin}/auth/callback?next=/`,
+          },
+        })
+
+        if (signUpError) {
+          // Handle case where email already exists with Google OAuth
+          if (signUpError.message.includes('already registered') || signUpError.message.includes('already been registered')) {
+            setError('This email is already registered with Google. Try signing in with Google instead.')
+          } else {
+            setError(signUpError.message)
+          }
+          return
+        }
+
+        setSuccess('Account created! Redirecting to dashboard...')
+        // Redirect to auth callback for consistent onboarding flow
+        setTimeout(() => {
+          router.push('/auth/callback')
+        }, 1500)
+      } else {
+        // Sign in with password
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        })
+
+        if (signInError) {
+          setError(signInError.message)
+          return
+        }
+
+        // Get current user and check onboarding
+        const { data: { user }, error: userError } = await supabase.auth.getUser()
+        
+        if (userError || !user) {
+          setError('Authentication error')
+          return
+        }
+
+        // Check if user has completed onboarding
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('onboarding_complete')
+          .eq('id', user.id)
+          .single()
+
+        const redirectTo = profile?.onboarding_complete ? '/' : '/onboarding'
+        router.push(redirectTo)
+        router.refresh()
+      }
+    } catch (unexpectedError) {
+      console.error('Unexpected error during password auth:', unexpectedError)
+      setError('An unexpected error occurred. Please try again.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    if (authMethod === 'password') {
+      await onPasswordAuth(event)
+      return
+    }
+
     if (step === 'email') {
       await onContinueWithEmail(event)
       return
@@ -139,10 +229,148 @@ export default function LoginForm({ mode }: { mode: 'login' | 'signup' }) {
         {mode === 'signup' ? 'Create Your Account' : 'Welcome Back'}
       </h1>
       <p style={{ color: 'var(--text2)', marginTop: '10px', marginBottom: '18px' }}>
-        Choose how you'd like to sign in.
+        Choose how you'd like to {mode === 'signup' ? 'sign up' : 'sign in'}.
       </p>
 
-      {step === 'email' ? (
+      {step === 'email' && authMethod === 'password' ? (
+        <>
+          <label style={{ display: 'block', marginBottom: '7px', color: 'var(--text)', fontWeight: 600, fontSize: '14px' }}>Email</label>
+          <input
+            type="email"
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+            required
+            placeholder="you@example.com"
+            style={{
+              width: '100%',
+              marginBottom: '14px',
+              padding: '12px',
+              borderRadius: '10px',
+              border: '1px solid var(--border2)',
+              background: 'var(--surface)',
+              color: 'var(--text)',
+              outline: 'none',
+            }}
+          />
+
+          <label style={{ display: 'block', marginBottom: '7px', color: 'var(--text)', fontWeight: 600, fontSize: '14px' }}>Password</label>
+          <input
+            type="password"
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            required
+            placeholder="••••••••"
+            style={{
+              width: '100%',
+              marginBottom: mode === 'signup' ? '14px' : '8px',
+              padding: '12px',
+              borderRadius: '10px',
+              border: '1px solid var(--border2)',
+              background: 'var(--surface)',
+              color: 'var(--text)',
+              outline: 'none',
+            }}
+          />
+
+          {mode === 'signup' && (
+            <>
+              <label style={{ display: 'block', marginBottom: '7px', color: 'var(--text)', fontWeight: 600, fontSize: '14px' }}>Confirm Password</label>
+              <input
+                type="password"
+                value={confirmPassword}
+                onChange={(event) => setConfirmPassword(event.target.value)}
+                required
+                placeholder="••••••••"
+                style={{
+                  width: '100%',
+                  marginBottom: '14px',
+                  padding: '12px',
+                  borderRadius: '10px',
+                  border: '1px solid var(--border2)',
+                  background: 'var(--surface)',
+                  color: 'var(--text)',
+                  outline: 'none',
+                }}
+              />
+            </>
+          )}
+
+          {mode === 'login' && (
+            <div style={{ textAlign: 'right', marginBottom: '14px' }}>
+              <Link
+                href="/forgot-password"
+                style={{
+                  color: 'var(--text2)',
+                  fontSize: '13px',
+                  textDecoration: 'none',
+                }}
+              >
+                Forgot password?
+              </Link>
+            </div>
+          )}
+
+          {error && <p style={{ color: '#fca5a5', marginTop: 0, marginBottom: '10px', fontSize: '14px' }}>{error}</p>}
+          {success && (
+            <p
+              style={{
+                color: '#86efac',
+                marginTop: 0,
+                marginBottom: '10px',
+                fontSize: '14px',
+                background: 'rgba(22,163,74,.15)',
+                border: '1px solid rgba(22,163,74,.35)',
+                borderRadius: '10px',
+                padding: '10px 12px',
+              }}
+            >
+              {success}
+            </p>
+          )}
+
+          <button
+            type="submit"
+            disabled={loading || googleLoading}
+            style={{
+              width: '100%',
+              padding: '12px',
+              border: 'none',
+              borderRadius: '10px',
+              background: 'linear-gradient(135deg, #3b82f6, #60a5fa)',
+              color: '#fff',
+              fontWeight: 700,
+              cursor: 'pointer',
+              fontFamily: 'var(--font-display)',
+              boxShadow: '0 8px 20px rgba(59,130,246,.28)',
+            }}
+          >
+            {loading ? (mode === 'signup' ? 'Creating account...' : 'Signing in...') : (mode === 'signup' ? 'Sign Up' : 'Sign In')}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              setAuthMethod('otp')
+              setError(null)
+              setSuccess(null)
+            }}
+            style={{
+              width: '100%',
+              marginTop: '10px',
+              padding: '10px',
+              border: '1px solid var(--border2)',
+              borderRadius: '10px',
+              background: 'transparent',
+              color: 'var(--text2)',
+              fontWeight: 600,
+              cursor: 'pointer',
+              fontFamily: 'var(--font-display)',
+            }}
+          >
+            Use email code instead
+          </button>
+        </>
+      ) : step === 'email' ? (
         <>
           <button
             type="button"
@@ -233,7 +461,30 @@ export default function LoginForm({ mode }: { mode: 'login' | 'signup' }) {
               boxShadow: '0 8px 20px rgba(59,130,246,.28)',
             }}
           >
-            {loading ? 'Sending code...' : 'Continue with Email'}
+            {loading ? 'Sending code...' : 'Continue with Email Code'}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              setAuthMethod('password')
+              setError(null)
+              setSuccess(null)
+            }}
+            style={{
+              width: '100%',
+              marginTop: '10px',
+              padding: '10px',
+              border: '1px solid var(--border2)',
+              borderRadius: '10px',
+              background: 'transparent',
+              color: 'var(--text2)',
+              fontWeight: 600,
+              cursor: 'pointer',
+              fontFamily: 'var(--font-display)',
+            }}
+          >
+            Use password instead
           </button>
         </>
       ) : (
@@ -294,6 +545,7 @@ export default function LoginForm({ mode }: { mode: 'login' | 'signup' }) {
               setStep('email')
               setError(null)
               setSuccess(null)
+              setAuthMethod('otp')
             }}
             style={{
               width: '100%',
