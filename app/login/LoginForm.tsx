@@ -208,7 +208,7 @@ export default function LoginForm({ mode }: { mode: 'login' | 'signup' }) {
       onSubmit={onSubmit}
       style={{
         width: '100%',
-        maxWidth: '512px',
+        maxWidth: '544px',
         border: '1px solid var(--border)',
         borderRadius: '16px',
         padding: '28px',
@@ -217,6 +217,7 @@ export default function LoginForm({ mode }: { mode: 'login' | 'signup' }) {
         color: 'var(--text)',
         position: 'relative',
         zIndex: 1,
+        transition: 'max-width 0.2s ease-in-out',
       }}
     >
       <h1 style={{ margin: 0, fontSize: '34px', fontWeight: 800, letterSpacing: '-1px', fontFamily: 'var(--font-display)' }}>
@@ -310,7 +311,7 @@ export default function LoginForm({ mode }: { mode: 'login' | 'signup' }) {
           />
 
           <label style={{ display: 'block', marginBottom: '7px', color: 'var(--text)', fontWeight: 600, fontSize: '14px' }}>Password</label>
-          <div style={{ position: 'relative', marginBottom: mode === 'login' ? '8px' : '14px' }}>
+          <div style={{ position: 'relative', marginBottom: '14px' }}>
             <input
               type={showPassword ? 'text' : 'password'}
               value={password}

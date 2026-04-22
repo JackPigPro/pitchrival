@@ -11,7 +11,7 @@ export default async function LoginPage({
 
   return (
     <main
-        className={mode === 'signup' ? 'signup-page' : 'login-page'}
+        className=""
         style={{
           minHeight: '100vh',
           display: 'grid',
@@ -60,7 +60,7 @@ export default async function LoginPage({
         </div>
         <div style={{ position: 'relative', zIndex: 2 }}>
           <LoginForm mode={mode} />
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '12px', width: '100%', maxWidth: '512px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '12px', width: '100%', maxWidth: '544px', margin: '0 auto' }}>
             <Link href="/" className="auth-back-link">
               ← Back to home
             </Link>

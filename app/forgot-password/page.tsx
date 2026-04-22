@@ -50,7 +50,7 @@ function ForgotPasswordForm() {
     <div
       style={{
         width: '100%',
-        maxWidth: '512px',
+        maxWidth: '480px',
         border: '1px solid var(--border)',
         borderRadius: '16px',
         padding: '28px',

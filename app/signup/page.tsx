@@ -8,7 +8,7 @@ export default function SignupPage() {
   return (
     <>
       <main
-        className="signup-page"
+        className=""
         style={{
           minHeight: '100vh',
           display: 'grid',
@@ -57,7 +57,7 @@ export default function SignupPage() {
         </div>
         <div style={{ position: 'relative', zIndex: 2 }}>
           <LoginForm mode="signup" />
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '12px', width: '100%', maxWidth: '512px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '12px', width: '100%', maxWidth: '544px', margin: '0 auto' }}>
             <Link href="/" className="auth-back-link">
               ← Back to home
             </Link>
