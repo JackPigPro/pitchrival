@@ -58,9 +58,9 @@ export default async function LoginPage({
           <div className="hdc-badge g">💬 Messages</div>
           <div className="hdc-text">5 new notifications</div>
         </div>
-        <div style={{ position: 'relative', zIndex: 2 }}>
+        <div style={{ position: 'relative', zIndex: 2, width: '100%', maxWidth: '544px' }}>
           <LoginForm mode={mode} />
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '12px', width: '100%', maxWidth: '544px', margin: '0 auto' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '12px', width: '100%' }}>
             <Link href="/" className="auth-back-link">
               ← Back to home
             </Link>
