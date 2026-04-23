@@ -131,7 +131,7 @@ export default function LoginForm({ mode }: { mode: 'login' | 'signup' }) {
           email,
           password,
           options: {
-            emailRedirectTo: `${window.location.origin}/auth/callback?next=/`,
+            emailRedirectTo: `${window.location.origin}/onboarding`,
           },
         })
 
@@ -145,11 +145,8 @@ export default function LoginForm({ mode }: { mode: 'login' | 'signup' }) {
           return
         }
 
-        setSuccess('Account created! Redirecting to dashboard...')
-        // Redirect to auth callback for consistent onboarding flow
-        setTimeout(() => {
-          router.push('/auth/callback')
-        }, 1500)
+        // Redirect directly to onboarding
+        router.push('/onboarding')
       } else {
         // Sign in with password
         const { error: signInError } = await supabase.auth.signInWithPassword({
