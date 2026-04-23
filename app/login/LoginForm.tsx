@@ -18,6 +18,8 @@ export default function LoginForm({ mode }: { mode: 'login' | 'signup' }) {
   const [success, setSuccess] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [googleLoading, setGoogleLoading] = useState(false)
+  const [showVerificationScreen, setShowVerificationScreen] = useState(false)
+  const [resendCooldown, setResendCooldown] = useState(0)
 
   const onContinueWithEmail = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -131,7 +133,7 @@ export default function LoginForm({ mode }: { mode: 'login' | 'signup' }) {
           email,
           password,
           options: {
-            emailRedirectTo: `${window.location.origin}/onboarding`,
+            emailRedirectTo: `${window.location.origin}/auth/callback`,
           },
         })
 
@@ -145,8 +147,19 @@ export default function LoginForm({ mode }: { mode: 'login' | 'signup' }) {
           return
         }
 
-        // Redirect directly to onboarding
-        router.push('/onboarding')
+        // Show verification screen instead of redirecting
+        setShowVerificationScreen(true)
+        // Start resend cooldown
+        setResendCooldown(60)
+        const cooldownInterval = setInterval(() => {
+          setResendCooldown((prev) => {
+            if (prev <= 1) {
+              clearInterval(cooldownInterval)
+              return 0
+            }
+            return prev - 1
+          })
+        }, 1000)
       } else {
         // Sign in with password
         const { error: signInError } = await supabase.auth.signInWithPassword({
@@ -200,6 +213,57 @@ export default function LoginForm({ mode }: { mode: 'login' | 'signup' }) {
     await onVerifyCode(event)
   }
 
+  const resendVerificationEmail = async () => {
+    if (resendCooldown > 0) return
+    
+    setLoading(true)
+    setError(null)
+    
+    try {
+      const { error: resendError } = await supabase.auth.resend({
+        email,
+        type: 'signup',
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+        },
+      })
+      
+      if (resendError) {
+        setError(resendError.message)
+        return
+      }
+      
+      // Restart cooldown
+      setResendCooldown(60)
+      const cooldownInterval = setInterval(() => {
+        setResendCooldown((prev) => {
+          if (prev <= 1) {
+            clearInterval(cooldownInterval)
+            return 0
+          }
+          return prev - 1
+        })
+      }, 1000)
+      
+      setSuccess('Verification email resent!')
+      setTimeout(() => setSuccess(null), 3000)
+    } catch (unexpectedError) {
+      console.error('Unexpected error during resend:', unexpectedError)
+      setError('An unexpected error occurred. Please try again.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const resetToSignupForm = () => {
+    setShowVerificationScreen(false)
+    setEmail('')
+    setPassword('')
+    setError(null)
+    setSuccess(null)
+    setResendCooldown(0)
+  }
+
   return (
     <form
       onSubmit={onSubmit}
@@ -217,6 +281,97 @@ export default function LoginForm({ mode }: { mode: 'login' | 'signup' }) {
         transition: 'max-width 0.2s ease-in-out',
       }}
     >
+      {showVerificationScreen ? (
+        <div style={{ textAlign: 'center', padding: '20px 0' }}>
+          {/* Email icon/checkmark */}
+          <div style={{
+            width: '64px',
+            height: '64px',
+            margin: '0 auto 20px',
+            borderRadius: '50%',
+            background: 'linear-gradient(135deg, #10b981, #34d399)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: '0 8px 20px rgba(16,185,129,.28)',
+          }}>
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+              <polyline points="22,6 12,13 2,6"/>
+            </svg>
+          </div>
+          
+          <h1 style={{ margin: 0, fontSize: '34px', fontWeight: 800, letterSpacing: '-1px', fontFamily: 'var(--font-display)', marginBottom: '12px' }}>
+            Check your inbox
+          </h1>
+          
+          <p style={{ color: 'var(--text2)', fontSize: '16px', lineHeight: '1.5', marginBottom: '32px' }}>
+            We sent a verification link to <strong>{email}</strong>.<br/>
+            Click it to activate your account.
+          </p>
+          
+          {error && (
+            <p style={{ color: '#fca5a5', marginTop: 0, marginBottom: '16px', fontSize: '14px' }}>
+              {error}
+            </p>
+          )}
+          
+          {success && (
+            <p style={{
+              color: '#86efac',
+              marginTop: 0,
+              marginBottom: '16px',
+              fontSize: '14px',
+              background: 'rgba(22,163,74,.15)',
+              border: '1px solid rgba(22,163,74,.35)',
+              borderRadius: '10px',
+              padding: '10px 12px',
+            }}>
+              {success}
+            </p>
+          )}
+          
+          <button
+            type="button"
+            onClick={resendVerificationEmail}
+            disabled={resendCooldown > 0 || loading}
+            style={{
+              padding: '10px 20px',
+              border: '1px solid var(--border2)',
+              borderRadius: '10px',
+              background: 'transparent',
+              color: resendCooldown > 0 ? 'var(--text3)' : 'var(--text)',
+              fontWeight: 600,
+              cursor: resendCooldown > 0 ? 'not-allowed' : 'pointer',
+              fontFamily: 'var(--font-display)',
+              fontSize: '14px',
+              marginBottom: '12px',
+              opacity: resendCooldown > 0 ? 0.6 : 1,
+            }}
+          >
+            {resendCooldown > 0 ? `Resend email (${resendCooldown}s)` : 'Resend email'}
+          </button>
+          
+          <div style={{ marginTop: '16px' }}>
+            <button
+              type="button"
+              onClick={resetToSignupForm}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: 'var(--text2)',
+                fontSize: '13px',
+                cursor: 'pointer',
+                textDecoration: 'none',
+                fontFamily: 'var(--font-display)',
+              }}
+            >
+              Wrong email? Go back
+            </button>
+          </div>
+        </div>
+      ) : (
+        <>
       <h1 style={{ margin: 0, fontSize: '34px', fontWeight: 800, letterSpacing: '-1px', fontFamily: 'var(--font-display)' }}>
         {mode === 'signup' ? 'Create Your Account' : 'Welcome Back'}
       </h1>
@@ -567,6 +722,8 @@ export default function LoginForm({ mode }: { mode: 'login' | 'signup' }) {
         </div>
       )}
 
+        </>
+      )}
     </form>
   )
 }
