@@ -39,73 +39,9 @@ export async function GET(request: Request) {
     })
 
     if (!error) {
-      // If this is a signup email confirmation, return closing HTML page
+      // If this is a signup email confirmation, redirect to verified page
       if (type === 'signup') {
-        return new Response(
-          `<!DOCTYPE html>
-<html>
-<head>
-    <title>Email Verified</title>
-    <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            margin: 0;
-            background: #f8fafc;
-            color: #1e293b;
-        }
-        .container {
-            text-align: center;
-            padding: 40px;
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-            max-width: 400px;
-        }
-        .icon {
-            width: 64px;
-            height: 64px;
-            margin: 0 auto 20px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #10b981, #34d399);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 24px;
-        }
-        h1 {
-            margin: 0 0 12px;
-            font-size: 28px;
-            font-weight: 700;
-        }
-        p {
-            margin: 0 0 24px;
-            color: #64748b;
-            line-height: 1.5;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="icon">✓</div>
-        <h1>You're verified!</h1>
-        <p>You can close this tab and return to the original tab to continue.</p>
-    </div>
-    <script>
-        setTimeout(() => {
-            window.close();
-        }, 3000);
-    </script>
-</body>
-</html>`,
-          {
-            headers: { 'Content-Type': 'text/html' },
-          }
-        )
+        return NextResponse.redirect(`${origin}/verified`)
       }
 
       // For other types (magic links, etc.), proceed with normal redirect
