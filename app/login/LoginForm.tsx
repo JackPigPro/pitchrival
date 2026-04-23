@@ -10,6 +10,7 @@ export default function LoginForm({ mode }: { mode: 'login' | 'signup' }) {
   const supabase = createClient()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const [code, setCode] = useState('')
   const [authMode, setAuthMode] = useState<'password' | 'magic'>('password')
   const [step, setStep] = useState<'email' | 'code'>('email')
@@ -125,6 +126,11 @@ export default function LoginForm({ mode }: { mode: 'login' | 'signup' }) {
       if (mode === 'signup') {
         if (password.length < 6) {
           setError('Password must be at least 6 characters')
+          return
+        }
+
+        if (password !== confirmPassword) {
+          setError('Passwords don\'t match')
           return
         }
 
@@ -259,6 +265,7 @@ export default function LoginForm({ mode }: { mode: 'login' | 'signup' }) {
     setShowVerificationScreen(false)
     setEmail('')
     setPassword('')
+    setConfirmPassword('')
     setError(null)
     setSuccess(null)
     setResendCooldown(0)
@@ -509,6 +516,58 @@ export default function LoginForm({ mode }: { mode: 'login' | 'signup' }) {
               )}
             </button>
           </div>
+
+          {mode === 'signup' && (
+            <>
+              <label style={{ display: 'block', marginBottom: '7px', color: 'var(--text)', fontWeight: 600, fontSize: '14px' }}>Confirm password</label>
+              <div style={{ position: 'relative', marginBottom: '14px' }}>
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={confirmPassword}
+                  onChange={(event) => setConfirmPassword(event.target.value)}
+                  required
+                  placeholder="••••••••"
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    paddingRight: '40px',
+                    borderRadius: '10px',
+                    border: '1px solid var(--border2)',
+                    background: 'var(--surface)',
+                    color: 'var(--text)',
+                    outline: 'none',
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  style={{
+                    position: 'absolute',
+                    right: '12px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    padding: '4px',
+                    color: 'var(--text2)',
+                  }}
+                >
+                  {showPassword ? (
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                      <line x1="1" y1="1" x2="23" y2="23"/>
+                    </svg>
+                  ) : (
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                      <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                  )}
+                </button>
+              </div>
+            </>
+          )}
 
           <button
             type="submit"
