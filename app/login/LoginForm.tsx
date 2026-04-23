@@ -1,6 +1,6 @@
 'use client'
 
-import { FormEvent, useState } from 'react'
+import { FormEvent, useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/utils/supabase/client'
@@ -21,6 +21,21 @@ export default function LoginForm({ mode }: { mode: 'login' | 'signup' }) {
   const [googleLoading, setGoogleLoading] = useState(false)
   const [showVerificationScreen, setShowVerificationScreen] = useState(false)
   const [resendCooldown, setResendCooldown] = useState(0)
+
+  // Listen for auth state changes when verification screen is showing
+  useEffect(() => {
+    if (!showVerificationScreen) return
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_IN' && session?.user) {
+        // User has verified their email, redirect to onboarding
+        router.push('/onboarding')
+        router.refresh()
+      }
+    })
+
+    return () => subscription.unsubscribe()
+  }, [showVerificationScreen, router, supabase])
 
   const onContinueWithEmail = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
