@@ -619,27 +619,29 @@ export default function LoginForm({ mode }: { mode: 'login' | 'signup' }) {
             </div>
           )}
 
-          <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-            <button
-              type="button"
-              onClick={() => {
-                setAuthMode('magic')
-                setError(null)
-                setSuccess(null)
-              }}
-              style={{
-                background: 'none',
-                border: 'none',
-                color: 'var(--text2)',
-                fontSize: '13px',
-                cursor: 'pointer',
-                textDecoration: 'none',
-                fontFamily: 'var(--font-display)',
-              }}
-            >
-              Send a magic link instead
-            </button>
-          </div>
+          {mode === 'login' && (
+            <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+              <button
+                type="button"
+                onClick={() => {
+                  setAuthMode('magic')
+                  setError(null)
+                  setSuccess(null)
+                }}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: 'var(--text2)',
+                  fontSize: '13px',
+                  cursor: 'pointer',
+                  textDecoration: 'none',
+                  fontFamily: 'var(--font-display)',
+                }}
+              >
+                Send a magic link instead
+              </button>
+            </div>
+          )}
         </div>
       )}
 
