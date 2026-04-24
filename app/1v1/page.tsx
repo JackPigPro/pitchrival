@@ -48,18 +48,16 @@ export default function OneVOnePage() {
   const router = useRouter()
   const supabase = createClient()
 
-  // Debug logging
-  console.log('1v1 state:', { authLoading, isAuthenticated, hasUser: !!user, username, hasProfile: !!profile, onboardingComplete: profile?.onboarding_complete })
-
-  // Temporary fix: if authLoading is true for more than 3 seconds, bypass it
-  const [forceBypass, setForceBypass] = useState(false)
+  // Fix for authLoading getting stuck - use a shorter timeout with proper fallback
+  const [authTimeout, setAuthTimeout] = useState(false)
   useEffect(() => {
     if (authLoading) {
       const timer = setTimeout(() => {
-        console.log('🔍 [1v1] Force bypassing authLoading after 3 seconds')
-        setForceBypass(true)
-      }, 3000)
+        setAuthTimeout(true)
+      }, 2000) // 2 second timeout
       return () => clearTimeout(timer)
+    } else {
+      setAuthTimeout(false)
     }
   }, [authLoading])
   const [selectedGameMode, setSelectedGameMode] = useState<'logo' | 'business_idea'>('logo')
@@ -115,7 +113,7 @@ export default function OneVOnePage() {
     }
   }, [currentMatch, username, router])
 
-  if (authLoading && !forceBypass) {
+  if (authLoading && !authTimeout) {
     return (
       <div style={{ 
         minHeight: '100vh',

@@ -55,20 +55,13 @@ export function useUser() {
 
     const getSessionWithRetry = async () => {
       try {
-        console.log('🔍 [useUser] Getting auth state...')
         // Use shared auth logic to get consistent state
         const authState = await getAuthStateClient()
-        console.log('🔍 [useUser] Auth state received:', { 
-          hasUser: !!authState.user, 
-          hasProfile: !!authState.profile, 
-          onboardingComplete: authState.profile?.onboarding_complete 
-        })
         
         if (mounted) {
           setUser(authState.user)
           setProfile(authState.profile)
           setAuthLoading(false)
-          console.log('🔍 [useUser] authLoading set to false')
           
           if (authState.user) {
             fetchUserData(authState.user.id)
@@ -83,7 +76,6 @@ export function useUser() {
         }
         
         retryCount++
-        console.log('🔍 [useUser] Retry count:', retryCount, 'Max retries:', maxRetries)
         
         if (retryCount < maxRetries && mounted) {
             setTimeout(getSessionWithRetry, 1000 * retryCount) // Exponential backoff
@@ -94,7 +86,6 @@ export function useUser() {
             setProfile(null)
             setAuthLoading(false)
             setLoading(false)
-            console.log('🔍 [useUser] Max retries reached, setting authLoading to false')
           }
         }
       }
