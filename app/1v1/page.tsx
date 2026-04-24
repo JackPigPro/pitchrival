@@ -90,6 +90,8 @@ export default function OneVOnePage() {
       return undefined
     }
 
+    console.log('Setting up realtime subscription for match:', currentMatch.id)
+
     const channel = supabase
       .channel('matches_changes')
       .on('postgres_changes', {
@@ -97,20 +99,39 @@ export default function OneVOnePage() {
         schema: 'public',
         table: 'matches'
       }, (payload) => {
-        // Only process updates for our specific match
-        if (payload.new && (payload.new as Match).id === currentMatch.id) {
+        console.log('Realtime event received:', payload)
+        
+        // Handle different event types
+        if (payload.eventType === 'UPDATE') {
           const updatedMatch = payload.new as Match
-          setCurrentMatch(updatedMatch)
+          console.log('UPDATE event for match:', updatedMatch.id, 'status:', updatedMatch.status)
           
-          // If match became active, redirect to game room
-          if (updatedMatch.status === 'active' && updatedMatch.player2_id) {
-            router.push(`/1v1/${updatedMatch.id}`)
+          // Only process updates for our specific match
+          if (updatedMatch.id === currentMatch.id) {
+            console.log('Processing update for our match:', currentMatch.id)
+            setCurrentMatch(updatedMatch)
+            
+            // If match became active, redirect to game room
+            if (updatedMatch.status === 'active' && updatedMatch.player2_id) {
+              console.log('Match is now active, redirecting to game room')
+              router.push(`/1v1/${updatedMatch.id}`)
+            }
+          }
+        } else if (payload.eventType === 'INSERT') {
+          const newMatch = payload.new as Match
+          console.log('INSERT event for match:', newMatch.id)
+          
+          // Only process inserts for our specific match
+          if (newMatch.id === currentMatch.id) {
+            console.log('Processing insert for our match:', currentMatch.id)
+            setCurrentMatch(newMatch)
           }
         }
       })
       .subscribe()
 
     return () => {
+      console.log('Cleaning up realtime subscription for match:', currentMatch.id)
       supabase.removeChannel(channel)
     }
   }, [currentMatch, username, router])
