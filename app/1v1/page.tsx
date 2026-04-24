@@ -44,9 +44,12 @@ const BUSINESS_IDEA_PROMPTS = [
 ]
 
 export default function OneVOnePage() {
-  const { isAuthenticated, authLoading, elo, username, display_name } = useUser()
+  const { authLoading, elo, username, display_name, user, profile } = useUser()
   const router = useRouter()
   const supabase = createClient()
+
+  // Calculate isAuthenticated the same way as dashboard
+  const isAuthenticated = !!user
   const [selectedGameMode, setSelectedGameMode] = useState<'logo' | 'business_idea'>('logo')
   const [roomCode, setRoomCode] = useState('')
   const [isCreatingRoom, setIsCreatingRoom] = useState(false)
