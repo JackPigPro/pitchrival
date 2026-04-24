@@ -291,6 +291,24 @@ export default function TopNavClient({
           {isLoggedIn ? (
             <>
               <Link 
+                href="/1v1" 
+                prefetch={true}
+                style={{
+                  ...dropdownLinkStyle,
+                  display: 'block',
+                  marginBottom: '8px',
+                  ...(hoveredItem === '1v1' ? dropdownLinkHoverStyle : {})
+                }} 
+                onClick={() => {
+                  handleNavPageClick()
+                  setMobileMenuOpen(false)
+                }}
+                onMouseEnter={() => setHoveredItem('1v1')}
+                onMouseLeave={() => setHoveredItem(null)}
+              >
+                1v1 Battles
+              </Link>
+              <Link 
                 href="/compete/daily-battle" 
                 prefetch={true}
                 style={{
@@ -663,6 +681,20 @@ export default function TopNavClient({
               pointerEvents: open === 'compete' ? 'auto' : 'none',
             }}
           >
+            <Link 
+              href={isLoggedIn ? "/1v1" : "/login?mode=signup"} 
+              prefetch={true}
+              className="topnav-dropdown-link" 
+              style={getActiveStyle('/1v1', {
+                ...dropdownLinkStyle, 
+                ...(hoveredItem === '1v1' ? dropdownLinkHoverStyle : {})
+              })} 
+              onClick={handleNavPageClick}
+              onMouseEnter={() => setHoveredItem('1v1')}
+              onMouseLeave={() => setHoveredItem(null)}
+            >
+              1v1 Battles
+            </Link>
             <Link 
               href={isLoggedIn ? "/compete/daily-battle" : "/login?mode=signup"} 
               prefetch={true}
