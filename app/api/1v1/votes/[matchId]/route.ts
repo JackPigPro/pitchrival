@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { matchId: string } }
+  { params }: { params: Promise<{ matchId: string }> }
 ) {
   try {
     const supabase = await createClient()
@@ -13,7 +13,7 @@ export async function GET(
       return NextResponse.json({ error: 'Authentication required' }, { status: 401 })
     }
 
-    const matchId = params.matchId
+    const { matchId } = await params
 
     // Fetch votes for this match
     const { data: votes, error } = await supabase
