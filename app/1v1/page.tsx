@@ -112,9 +112,22 @@ export default function OneVOnePage() {
             setCurrentMatch(updatedMatch)
             
             // If match became active, redirect to game room
+            console.log('Checking redirect conditions:')
+            console.log('- updatedMatch.status:', updatedMatch.status)
+            console.log('- updatedMatch.player2_id:', updatedMatch.player2_id)
+            console.log('- status === active:', updatedMatch.status === 'active')
+            console.log('- player2_id exists:', !!updatedMatch.player2_id)
+            
             if (updatedMatch.status === 'active' && updatedMatch.player2_id) {
-              console.log('Match is now active, redirecting to game room')
+              console.log('✅ All conditions met, redirecting to game room')
+              console.log('🎯 Redirect URL:', `/1v1/${updatedMatch.id}`)
               router.push(`/1v1/${updatedMatch.id}`)
+            } else if (updatedMatch.status === 'active') {
+              console.log('⚠️ Match is active but player2_id missing, redirecting anyway')
+              console.log('🎯 Redirect URL:', `/1v1/${updatedMatch.id}`)
+              router.push(`/1v1/${updatedMatch.id}`)
+            } else {
+              console.log('❌ Redirect conditions not met - status is not active')
             }
           }
         } else if (payload.eventType === 'INSERT') {
