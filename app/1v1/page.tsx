@@ -91,19 +91,21 @@ export default function OneVOnePage() {
     }
 
     const channel = supabase
-      .channel(`match-${currentMatch.id}`)
+      .channel('matches_changes')
       .on('postgres_changes', {
-        event: 'UPDATE',
+        event: '*',
         schema: 'public',
-        table: 'matches',
-        filter: `id=eq.${currentMatch.id}`
+        table: 'matches'
       }, (payload) => {
-        const updatedMatch = payload.new as Match
-        setCurrentMatch(updatedMatch)
-        
-        // If match became active, redirect to game room
-        if (updatedMatch.status === 'active' && updatedMatch.player2_id) {
-          router.push(`/1v1/${updatedMatch.id}`)
+        // Only process updates for our specific match
+        if (payload.new && (payload.new as Match).id === currentMatch.id) {
+          const updatedMatch = payload.new as Match
+          setCurrentMatch(updatedMatch)
+          
+          // If match became active, redirect to game room
+          if (updatedMatch.status === 'active' && updatedMatch.player2_id) {
+            router.push(`/1v1/${updatedMatch.id}`)
+          }
         }
       })
       .subscribe()
