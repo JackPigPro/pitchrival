@@ -159,7 +159,9 @@ export default function OneVOnePage() {
 
   // Realtime subscription for match updates
   useEffect(() => {
-    if (!currentMatch || !username) return
+    if (!currentMatch || !username) {
+      return undefined
+    }
 
     const channel = supabase
       .channel(`match-${currentMatch.id}`)

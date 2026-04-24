@@ -60,7 +60,9 @@ export default function ResultsPage() {
 
   // Fetch match data and submissions
   useEffect(() => {
-    if (!matchId || authLoading) return
+    if (!matchId || authLoading) {
+      return undefined
+    }
 
     const fetchData = async () => {
       try {
@@ -117,7 +119,9 @@ export default function ResultsPage() {
 
   // Realtime subscription for match updates
   useEffect(() => {
-    if (!matchId || !username) return
+    if (!matchId || !username) {
+      return undefined
+    }
 
     const channel = supabase
       .channel(`match-${matchId}`)
@@ -144,7 +148,9 @@ export default function ResultsPage() {
 
   // Realtime subscription for votes
   useEffect(() => {
-    if (!matchId || !username) return
+    if (!matchId || !username) {
+      return undefined
+    }
 
     const channel = supabase
       .channel(`votes-${matchId}`)

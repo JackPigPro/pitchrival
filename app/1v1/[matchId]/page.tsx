@@ -53,7 +53,9 @@ export default function GameRoomPage() {
 
   // Fetch match data
   useEffect(() => {
-    if (!matchId || authLoading) return
+    if (!matchId || authLoading) {
+      return undefined
+    }
 
     const fetchMatch = async () => {
       try {
@@ -99,7 +101,9 @@ export default function GameRoomPage() {
 
   // Realtime subscription for match updates
   useEffect(() => {
-    if (!matchId || !username) return
+    if (!matchId || !username) {
+      return undefined
+    }
 
     const channel = supabase
       .channel(`match-${matchId}`)

@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import { useSupabase } from '@/components/SupabaseProvider'
 
 interface Notification {
@@ -18,10 +18,14 @@ interface Notification {
 export default function NotificationsBell() {
   const { user, authLoading } = useSupabase()
   const router = useRouter()
+  const pathname = usePathname()
   const [open, setOpen] = useState(false)
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [loading, setLoading] = useState(true)
   const dropdownRef = useRef<HTMLDivElement>(null)
+
+  // Disable notifications on 1v1 pages to avoid API calls to non-existent endpoints
+  const isOn1V1Page = pathname?.startsWith('/1v1') || false
 
   const getNotificationIcon = (type: Notification['type']) => {
     switch (type) {
@@ -63,29 +67,34 @@ export default function NotificationsBell() {
     
     // For class notifications, we need to get the class_id from the prompt
     if (notification.type === 'class_prompt' || notification.type === 'class_results') {
-      try {
-        const response = await fetch(`/connect/notifications/api/notifications/class-route/${notification.reference_id}`)
-        if (response.ok) {
-          const data = await response.json()
-          route = `/schools/${data.classId}/student`
+      // Skip class route fetching on 1v1 pages
+      if (!isOn1V1Page) {
+        try {
+          const response = await fetch(`/connect/notifications/api/notifications/class-route/${notification.reference_id}`)
+          if (response.ok) {
+            const data = await response.json()
+            route = `/schools/${data.classId}/student`
+          }
+        } catch (error) {
+          console.error('Failed to get class route:', error)
         }
-      } catch (error) {
-        console.error('Failed to get class route:', error)
       }
     }
     
     // Mark notification as read
-    try {
-      await fetch(`/connect/notifications/api/notifications/${notification.id}`, {
-        method: 'PATCH'
-      })
-      
-      // Update local state
-      setNotifications(prev => prev.map(n => 
-        n.id === notification.id ? { ...n, read: true } : n
-      ))
-    } catch (error) {
-      console.error('Failed to mark notification as read:', error)
+    if (!isOn1V1Page) {
+      try {
+        await fetch(`/connect/notifications/api/notifications/${notification.id}`, {
+          method: 'PATCH'
+        })
+        
+        // Update local state
+        setNotifications(prev => prev.map(n => 
+          n.id === notification.id ? { ...n, read: true } : n
+        ))
+      } catch (error) {
+        console.error('Failed to mark notification as read:', error)
+      }
     }
     
     // Navigate and close dropdown
@@ -108,6 +117,12 @@ export default function NotificationsBell() {
   }
 
   const fetchNotifications = async () => {
+    // Skip fetching notifications on 1v1 pages
+    if (isOn1V1Page) {
+      setLoading(false)
+      return
+    }
+
     try {
       const response = await fetch('/connect/notifications/api/notifications')
       if (response.ok) {
@@ -122,6 +137,11 @@ export default function NotificationsBell() {
   }
 
   const markAllAsRead = async () => {
+    // Skip marking notifications as read on 1v1 pages
+    if (isOn1V1Page) {
+      return
+    }
+
     try {
       const response = await fetch('/connect/notifications/api/notifications', {
         method: 'PATCH'
@@ -135,6 +155,12 @@ export default function NotificationsBell() {
   }
 
   const clearAllNotifications = async () => {
+    // Skip clearing notifications on 1v1 pages
+    if (isOn1V1Page) {
+      setNotifications([])
+      return
+    }
+
     console.log('🔔 Clear All notifications clicked')
     
     try {
