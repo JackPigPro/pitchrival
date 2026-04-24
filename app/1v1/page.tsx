@@ -44,12 +44,24 @@ const BUSINESS_IDEA_PROMPTS = [
 ]
 
 export default function OneVOnePage() {
-  const { authLoading, elo, username, display_name, user, profile } = useUser()
+  const { isAuthenticated, authLoading, elo, username, display_name, user, profile } = useUser()
   const router = useRouter()
   const supabase = createClient()
 
-  // Calculate isAuthenticated the same way as dashboard
-  const isAuthenticated = !!user
+  // Debug logging
+  console.log('1v1 state:', { authLoading, isAuthenticated, hasUser: !!user, username, hasProfile: !!profile, onboardingComplete: profile?.onboarding_complete })
+
+  // Temporary fix: if authLoading is true for more than 3 seconds, bypass it
+  const [forceBypass, setForceBypass] = useState(false)
+  useEffect(() => {
+    if (authLoading) {
+      const timer = setTimeout(() => {
+        console.log('🔍 [1v1] Force bypassing authLoading after 3 seconds')
+        setForceBypass(true)
+      }, 3000)
+      return () => clearTimeout(timer)
+    }
+  }, [authLoading])
   const [selectedGameMode, setSelectedGameMode] = useState<'logo' | 'business_idea'>('logo')
   const [roomCode, setRoomCode] = useState('')
   const [isCreatingRoom, setIsCreatingRoom] = useState(false)
@@ -103,7 +115,7 @@ export default function OneVOnePage() {
     }
   }, [currentMatch, username, router])
 
-  if (authLoading) {
+  if (authLoading && !forceBypass) {
     return (
       <div style={{ 
         minHeight: '100vh',
