@@ -57,6 +57,49 @@ export default function OneVOnePage() {
   const [generatedRoomCode, setGeneratedRoomCode] = useState('')
   const [error, setError] = useState('')
 
+  // No stats to calculate since we have no battles yet
+  const totalMatches = 0
+  const wins = 0
+  const winRate = 0
+
+  const generateRoomCode = () => {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+    let code = ''
+    for (let i = 0; i < 6; i++) {
+      code += chars.charAt(Math.floor(Math.random() * chars.length))
+    }
+    return code
+  }
+
+  // Realtime subscription for match updates
+  useEffect(() => {
+    if (!currentMatch || !username) {
+      return undefined
+    }
+
+    const channel = supabase
+      .channel(`match-${currentMatch.id}`)
+      .on('postgres_changes', {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'matches',
+        filter: `id=eq.${currentMatch.id}`
+      }, (payload) => {
+        const updatedMatch = payload.new as Match
+        setCurrentMatch(updatedMatch)
+        
+        // If match became active, redirect to game room
+        if (updatedMatch.status === 'active' && updatedMatch.player2_id) {
+          router.push(`/1v1/${updatedMatch.id}`)
+        }
+      })
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [currentMatch, username, router])
+
   if (authLoading) {
     return (
       <div style={{ 
@@ -142,49 +185,6 @@ export default function OneVOnePage() {
       </div>
     )
   }
-
-  // No stats to calculate since we have no battles yet
-  const totalMatches = 0
-  const wins = 0
-  const winRate = 0
-
-  const generateRoomCode = () => {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
-    let code = ''
-    for (let i = 0; i < 6; i++) {
-      code += chars.charAt(Math.floor(Math.random() * chars.length))
-    }
-    return code
-  }
-
-  // Realtime subscription for match updates
-  useEffect(() => {
-    if (!currentMatch || !username) {
-      return undefined
-    }
-
-    const channel = supabase
-      .channel(`match-${currentMatch.id}`)
-      .on('postgres_changes', {
-        event: 'UPDATE',
-        schema: 'public',
-        table: 'matches',
-        filter: `id=eq.${currentMatch.id}`
-      }, (payload) => {
-        const updatedMatch = payload.new as Match
-        setCurrentMatch(updatedMatch)
-        
-        // If match became active, redirect to game room
-        if (updatedMatch.status === 'active' && updatedMatch.player2_id) {
-          router.push(`/1v1/${updatedMatch.id}`)
-        }
-      })
-      .subscribe()
-
-    return () => {
-      supabase.removeChannel(channel)
-    }
-  }, [currentMatch, username, router])
 
   const handleCreateRoom = async () => {
     if (!selectedGameMode || !username) return

@@ -128,6 +128,94 @@ export default function GameRoomPage() {
     }
   }, [matchId, username, router])
 
+  if (authLoading) {
+    return (
+      <div style={{ 
+        minHeight: '100vh',
+        background: 'var(--bg)',
+        backgroundImage: 'linear-gradient(rgba(21,128,61,.065) 1px, transparent 1px), linear-gradient(90deg, rgba(21,128,61,.065) 1px, transparent 1px)',
+        backgroundSize: '48px 48px',
+        padding: '40px 24px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: '48px', marginBottom: '16px' }}>⚔️</div>
+          <div style={{ fontSize: '18px', color: 'var(--text2)' }}>Loading battle...</div>
+        </div>
+      </div>
+    )
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div style={{ 
+        minHeight: '100vh',
+        background: 'var(--bg)',
+        backgroundImage: 'linear-gradient(rgba(21,128,61,.065) 1px, transparent 1px), linear-gradient(90deg, rgba(21,128,61,.065) 1px, transparent 1px)',
+        backgroundSize: '48px 48px',
+        padding: '40px 24px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}>
+        <div style={{ 
+          background: 'var(--card)', 
+          borderRadius: '16px', 
+          padding: '48px',
+          border: '1px solid var(--border)',
+          boxShadow: 'var(--shadow)',
+          textAlign: 'center',
+          maxWidth: '400px'
+        }}>
+          <h1 style={{ fontSize: '24px', fontWeight: 700, marginBottom: '16px', fontFamily: 'var(--font-display)' }}>
+            Please Log In
+          </h1>
+          <p style={{ color: 'var(--text2)', marginBottom: '24px', fontFamily: 'var(--font-body)' }}>
+            You need to be logged in to join battles.
+          </p>
+          <Link
+            href="/login?mode=login"
+            style={{
+              display: 'inline-block',
+              padding: '12px 24px',
+              background: 'var(--green)',
+              color: 'white',
+              textDecoration: 'none',
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontWeight: 600,
+              fontFamily: 'var(--font-display)'
+            }}
+          >
+            Log In
+          </Link>
+        </div>
+      </div>
+    )
+  }
+
+  if (!match) {
+    return (
+      <div style={{ 
+        minHeight: '100vh',
+        background: 'var(--bg)',
+        backgroundImage: 'linear-gradient(rgba(21,128,61,.065) 1px, transparent 1px), linear-gradient(90deg, rgba(21,128,61,.065) 1px, transparent 1px)',
+        backgroundSize: '48px 48px',
+        padding: '40px 24px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: '48px', marginBottom: '16px' }}>⚔️</div>
+          <div style={{ fontSize: '18px', color: 'var(--text2)' }}>Battle not found</div>
+        </div>
+      </div>
+    )
+  }
+
   // Handle image upload for logo mode
   const handleImageUpload = async (file: File) => {
     setImageFile(file)
