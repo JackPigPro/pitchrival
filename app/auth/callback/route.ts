@@ -39,7 +39,12 @@ export async function GET(request: Request) {
     })
 
     if (!error) {
-      // Check if user needs onboarding
+      // If this is a signup email confirmation, redirect to verified page
+      if (type === 'signup') {
+        return NextResponse.redirect(`${origin}/verified`)
+      }
+
+      // For other types (magic links, etc.), proceed with normal redirect
       const { data: { user } } = await supabase.auth.getUser()
       
       if (user) {
