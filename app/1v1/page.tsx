@@ -278,12 +278,8 @@ export default function OneVOnePage() {
       
       if (result.success) {
         setCurrentMatch(result.data)
-        // If match is active, redirect immediately
-        if (result.data.status === 'active') {
-          router.push(`/1v1/${result.data.id}`)
-        } else {
-          setWaitingForOpponent(true)
-        }
+        // Always show waiting popup - redirect will happen via realtime subscription
+        setWaitingForOpponent(true)
       } else {
         setError(result.error || 'Failed to join room')
       }
@@ -329,12 +325,8 @@ export default function OneVOnePage() {
       
       if (result.success) {
         setCurrentMatch(result.data)
-        // If match is active, redirect immediately
-        if (result.data.status === 'active') {
-          router.push(`/1v1/${result.data.id}`)
-        } else {
-          setWaitingForOpponent(true)
-        }
+        // Always show waiting popup - redirect will happen via realtime subscription
+        setWaitingForOpponent(true)
       } else {
         setError(result.error || 'Failed to join queue')
       }
