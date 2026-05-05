@@ -9,7 +9,7 @@ export default function PrivacyPage() {
         <div className="content-container">
           <div className="content-header">
             <h1 className="content-title">Privacy Policy</h1>
-            <p className="content-subtitle">This Privacy Policy explains how PitchRival collects, uses, and protects your information when you use our platform.</p>
+            <p className="content-subtitle">This Privacy Policy explains how BizYip collects, uses, and protects your information when you use our platform.</p>
           </div>
           
           <div className="legal-content">
@@ -21,7 +21,7 @@ export default function PrivacyPage() {
                 <strong>Account Information:</strong> When you create an account, we collect your email address, username, and any profile information you choose to provide such as your bio, location, skills, and social links.
               </p>
               <p>
-                <strong>Platform Activity:</strong> When you use PitchRival, we collect the content you post including ideas and Weekly Duel submissions, your activity on the platform including votes cast and competitions entered, and your ELO score and rank history.
+                <strong>Platform Activity:</strong> When you use BizYip, we collect the content you post including ideas and Weekly Duel submissions, your activity on the platform including votes cast and competitions entered, and your ELO score and rank history.
               </p>
             </div>
 
@@ -39,7 +39,7 @@ export default function PrivacyPage() {
               <h3>3. How We Use Your Information</h3>
               <p>We use your information to:</p>
               <ul>
-                <li>Operate and improve PitchRival</li>
+                <li>Operate and improve BizYip</li>
                 <li>Display your profile and content to other users</li>
                 <li>Calculate and display your ELO score and leaderboard ranking</li>
                 <li>Send you account-related emails such as login verification codes</li>
@@ -53,7 +53,7 @@ export default function PrivacyPage() {
             <div className="legal-section">
               <h3>4. Information We Share</h3>
               <p>
-                Your username, profile information, ideas, and Weekly Duel submissions may be visible to other users of PitchRival as part of the platform's core functionality. We do not share your email address with other users.
+                Your username, profile information, ideas, and Weekly Duel submissions may be visible to other users of BizYip as part of the platform's core functionality. We do not share your email address with other users.
               </p>
               <p>
                 We may share your information if required by law or to protect the rights and safety of our users.
@@ -70,7 +70,7 @@ export default function PrivacyPage() {
             <div className="legal-section">
               <h3>6. Children's Privacy</h3>
               <p>
-                PitchRival is available to users aged 13 and older. We do not knowingly collect personal information from children under 13. If you believe a child under 13 has provided us with personal information, please contact us and we will delete it promptly.
+                BizYip is available to users aged 13 and older. We do not knowingly collect personal information from children under 13. If you believe a child under 13 has provided us with personal information, please contact us and we will delete it promptly.
               </p>
             </div>
 
@@ -84,7 +84,7 @@ export default function PrivacyPage() {
             <div className="legal-section">
               <h3>8. Third-Party Services</h3>
               <p>
-                PitchRival uses the following third-party services:
+                BizYip uses the following third-party services:
               </p>
               <ul>
                 <li><strong>Supabase</strong> for database and authentication</li>
@@ -100,7 +100,7 @@ export default function PrivacyPage() {
             <div className="legal-section">
               <h3>9. Changes to This Policy</h3>
               <p>
-                We may update this Privacy Policy from time to time. We will notify users of significant changes by posting a notice on the platform. Continued use of PitchRival after changes constitutes acceptance of the updated policy.
+                We may update this Privacy Policy from time to time. We will notify users of significant changes by posting a notice on the platform. Continued use of BizYip after changes constitutes acceptance of the updated policy.
               </p>
             </div>
 
@@ -113,7 +113,7 @@ export default function PrivacyPage() {
           </div>
 
           <div className="legal-footer">
-            <p>PitchRival • Raleigh, North Carolina</p>
+            <p>BizYip • Raleigh, North Carolina</p>
           </div>
         </div>
       </main>

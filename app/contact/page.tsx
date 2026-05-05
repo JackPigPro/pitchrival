@@ -16,7 +16,7 @@ export default function ContactPage() {
             <div className="contact-card">
               <h3>📧 General Inquiries</h3>
               <p>
-                Have questions about PitchRival? Want to learn more about our platform or share your thoughts? We're here to help.
+                Have questions about BizYip? Want to learn more about our platform or share your thoughts? We're here to help.
               </p>
               <a href="mailto:jackpigpro@gmail.com" className="contact-email">
                 jackpigpro@gmail.com
@@ -29,7 +29,7 @@ export default function ContactPage() {
             <div className="contact-card">
               <h3>🐛 Report a Bug</h3>
               <p>
-                Found something broken? Help us improve PitchRival by reporting any issues you encounter.
+                Found something broken? Help us improve BizYip by reporting any issues you encounter.
               </p>
               <a href="mailto:jackpigpro@gmail.com?subject=Bug%20Report" className="contact-email">
                 jackpigpro@gmail.com
@@ -42,7 +42,7 @@ export default function ContactPage() {
             <div className="contact-card">
               <h3>🤝 Press & Partnerships</h3>
               <p>
-                Interested in working with PitchRival? Whether you're from the press, a school, or an organization, we'd love to explore collaboration opportunities.
+                Interested in working with BizYip? Whether you're from the press, a school, or an organization, we'd love to explore collaboration opportunities.
               </p>
               <a href="mailto:jackpigpro@gmail.com?subject=Partnership" className="contact-email">
                 jackpigpro@gmail.com
@@ -54,7 +54,7 @@ export default function ContactPage() {
           </div>
 
           <div className="legal-footer">
-            <p>PitchRival • Raleigh, North Carolina</p>
+            <p>BizYip • Raleigh, North Carolina</p>
           </div>
         </div>
       </main>
