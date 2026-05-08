@@ -43,7 +43,7 @@ export default function Footer({ onScrollTo, stats: serverStats }: FooterProps) 
             <span className="sf-brand-name">BizYip</span>
           </div>
           <div className="sf-brand-desc">
-            Share your idea. Build your rank. Find your co-founder. Compete and win — free.
+            Daily challenges, weekly duels, live 1v1s. Build your ELO. Climb the leaderboard.
           </div>
                   </div>
 
@@ -51,8 +51,34 @@ export default function Footer({ onScrollTo, stats: serverStats }: FooterProps) 
         <div>
           <div className="sf-col-title">Explore</div>
           <div className="sf-col-links">
-            <a href="#connect" onClick={(e) => { e.preventDefault(); handleLandingNavigation('connect') }}>Connect</a>
+            <Link href="/compete/leaderboard" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>Leaderboard</Link>
             <a href="#compete" onClick={(e) => { e.preventDefault(); handleLandingNavigation('compete') }}>Compete</a>
+            <Link href="/connect/ideas" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>Create</Link>
+            <a href="#connect" onClick={(e) => { e.preventDefault(); handleLandingNavigation('connect') }}>Connect</a>
+            <span style={{ 
+              color: 'rgba(255,255,255,.48)', 
+              cursor: 'not-allowed',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              fontSize: '13px',
+              textDecoration: 'none'
+            }}>
+              Learn
+              <span
+                style={{
+                  fontSize: '10px',
+                  background: 'var(--border)',
+                  color: 'rgba(255,255,255,.48)',
+                  padding: '2px 6px',
+                  borderRadius: '4px',
+                  fontWeight: 700,
+                  fontFamily: 'var(--font-display)'
+                }}
+              >
+                Coming Sep
+              </span>
+            </span>
           </div>
         </div>
 
@@ -70,7 +96,7 @@ export default function Footer({ onScrollTo, stats: serverStats }: FooterProps) 
 
       <div className="sf-bottom">
         <div className="sf-copy">© 2026 BizYip. All rights reserved.</div>
-        <div className="sf-tagline">Built by founders, for founders.</div>
+        <div className="sf-tagline">Where founders get good.</div>
         <div className="sf-socials">
           <a className="sf-social" href="https://x.com/BizYip" target="_blank" rel="noopener noreferrer" title="X">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">

@@ -602,7 +602,7 @@ export default function TopNavClient({
               fontWeight: 600
             }}
           >
-            Sep
+            Coming Sep
           </span>
         </span>
       </div>
