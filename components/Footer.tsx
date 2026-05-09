@@ -171,11 +171,11 @@ export default function Footer({ onScrollTo, stats: serverStats }: FooterProps) 
 
             <Link href="/about" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>About BizYip</Link>
 
+            <Link href="/contact" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>Contact</Link>
+
             <Link href="/privacy" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>Privacy Policy</Link>
 
             <Link href="/terms" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>Terms of Service</Link>
-
-            <Link href="/contact" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>Contact</Link>
 
           </div>
 
