@@ -53,11 +53,15 @@ export default function Footer({ onScrollTo, stats: serverStats }: FooterProps) 
 
       const elRect = el.getBoundingClientRect()
 
+      const navOffset = 76 // Same offset used in TopNavClient
+
+      const availableHeight = window.innerHeight - navOffset
+
       const elCenter = elRect.top + window.scrollY + elRect.height / 2
 
-      const viewportCenter = window.innerHeight / 2
+      const targetScrollTop = elCenter - (availableHeight / 2 + navOffset)
 
-      window.scrollTo({ top: elCenter - viewportCenter, behavior: 'smooth' })
+      window.scrollTo({ top: targetScrollTop, behavior: 'smooth' })
 
       // Add highlight animation for Learn section
       if (sectionId === 'learn') {
@@ -115,11 +119,11 @@ export default function Footer({ onScrollTo, stats: serverStats }: FooterProps) 
 
             <Link href="/compete/leaderboard" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>Leaderboard</Link>
 
-            <a href="#compete" onClick={(e) => { e.preventDefault(); handleLandingNavigation('compete') }}>Compete</a>
+            <a href="#platform" onClick={(e) => { e.preventDefault(); handleLandingNavigation('platform') }}>Compete</a>
 
-            <Link href="/connect/ideas" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>Create</Link>
+            <a href="#platform" onClick={(e) => { e.preventDefault(); handleLandingNavigation('platform') }}>Create</a>
 
-            <a href="#connect" onClick={(e) => { e.preventDefault(); handleLandingNavigation('connect') }}>Connect</a>
+            <a href="#platform" onClick={(e) => { e.preventDefault(); handleLandingNavigation('platform') }}>Connect</a>
 
             <a 
               href="#learn"

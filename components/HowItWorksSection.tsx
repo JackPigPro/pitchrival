@@ -34,7 +34,7 @@ export default function HowItWorksSection() {
           className="step-box"
           style={{
             flex: '0 0 312px',
-            background: activeStep === 1 ? 'rgba(107, 114, 128, 0.9)' : 'var(--card)',
+            background: activeStep === 1 ? 'rgba(107, 114, 128, 0.4)' : 'var(--card)',
             border: activeStep === 1 ? '2px solid rgba(107, 114, 128, 1)' : '1px solid var(--border)',
             borderRadius: '16px',
             padding: '50px 25px',
@@ -160,7 +160,7 @@ export default function HowItWorksSection() {
           className="step-box"
           style={{
             flex: '0 0 338px',
-            background: activeStep === 2 ? 'rgba(34, 197, 94, 0.9)' : 'var(--card)',
+            background: activeStep === 2 ? 'rgba(34, 197, 94, 0.4)' : 'var(--card)',
             border: activeStep === 2 ? '2px solid rgba(34, 197, 94, 1)' : '1px solid var(--border)',
             borderRadius: '16px',
             padding: '55px 30px',
@@ -341,7 +341,7 @@ export default function HowItWorksSection() {
           className="step-box"
           style={{
             flex: '0 0 364px',
-            background: activeStep === 3 ? 'rgba(168, 85, 247, 0.9)' : 'var(--card)',
+            background: activeStep === 3 ? 'rgba(168, 85, 247, 0.4)' : 'var(--card)',
             border: activeStep === 3 ? '2px solid rgba(168, 85, 247, 1)' : '1px solid var(--border)',
             borderRadius: '16px',
             padding: '85px 35px',
@@ -416,7 +416,7 @@ export default function HowItWorksSection() {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '30px',
+                gap: '10px',
                 marginBottom: '12px'
               }}>
                 <div style={{
@@ -496,10 +496,10 @@ export default function HowItWorksSection() {
           className="step-box"
           style={{
             flex: '0 0 390px',
-            background: activeStep === 4 ? 'linear-gradient(135deg, rgba(124, 58, 237, 0.9), rgba(236, 72, 153, 0.9), rgba(16, 185, 129, 0.9))' : 'var(--card)',
+            background: activeStep === 4 ? 'linear-gradient(135deg, rgba(124, 58, 237, 0.4), rgba(236, 72, 153, 0.4), rgba(16, 185, 129, 0.4))' : 'var(--card)',
             border: activeStep === 4 ? '2px solid rgba(124, 58, 237, 1)' : '1px solid var(--border)',
             borderRadius: '16px',
-            padding: '120px 40px',
+            padding: '80px 35px',
             textAlign: 'center',
             cursor: 'pointer',
             transition: 'all 0.3s ease',
@@ -521,7 +521,7 @@ export default function HowItWorksSection() {
               width: '39px',
               height: '39px',
               borderRadius: '50%',
-              background: activeStep === 4 ? 'white' : 'linear-gradient(135deg, rgba(124, 58, 237, 0.7), rgba(236, 72, 153, 0.7), rgba(16, 185, 129, 0.7))',
+              background: activeStep === 4 ? 'linear-gradient(135deg, rgba(124, 58, 237, 1), rgba(236, 72, 153, 1), rgba(16, 185, 129, 1))' : 'white',
               color: activeStep === 4 ? 'white' : 'linear-gradient(135deg, rgba(124, 58, 237, 1), rgba(236, 72, 153, 1), rgba(16, 185, 129, 1))',
               display: 'flex',
               alignItems: 'center',

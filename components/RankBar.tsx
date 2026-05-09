@@ -209,7 +209,7 @@ export default function RankBar() {
         .rank-container {
           width: 100%;
           display: flex;
-          height: 162px;
+          height: 194px;
           overflow: hidden;
           box-shadow: 0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.08);
           position: relative;
@@ -623,7 +623,7 @@ export default function RankBar() {
         
         @media (max-width: 768px) {
           .rank-container {
-            height: 130px;
+            height: 156px;
           }
           
           .walking-founder {
@@ -759,7 +759,7 @@ export default function RankBar() {
         
         @media (max-width: 480px) {
           .rank-container {
-            height: 114px;
+            height: 137px;
           }
           
           .walking-founder {

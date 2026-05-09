@@ -57,7 +57,7 @@ export default function ThreePillarSection() {
   ]
 
   return (
-    <div className="platform-bar">
+    <div id="platform" className="platform-bar">
       <div className="fs-label b" style={{ textAlign: 'center', marginBottom: '16px', color: 'var(--gold)' }}>🚀 Platform</div>
       <div className="platform-container">
         {platforms.map((platform, index) => (
@@ -118,7 +118,8 @@ export default function ThreePillarSection() {
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: '6px',
-                letterSpacing: '-.1px'
+                letterSpacing: '-.1px',
+                transform: 'translateY(-20px)'
               }}
               onMouseEnter={(e) => {
                 const target = e.target as HTMLElement
@@ -163,7 +164,7 @@ export default function ThreePillarSection() {
         .platform-container {
           width: 100%;
           display: flex;
-          height: 786px;
+          height: 668px;
           overflow: hidden;
           box-shadow: 0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.08);
           position: relative;
@@ -176,7 +177,7 @@ export default function ThreePillarSection() {
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          padding: 20px 16px;
+          padding: 12px 16px;
           text-align: center;
           transition: all 0.3s ease;
           cursor: pointer;
@@ -191,6 +192,7 @@ export default function ThreePillarSection() {
         .platform-icon {
           font-size: 36px;
           margin-bottom: 8px;
+          margin-top: 40px;
           filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
         }
         
@@ -199,8 +201,8 @@ export default function ThreePillarSection() {
           font-weight: 900;
           color: white;
           text-shadow: 0 3px 6px rgba(0,0,0,0.4);
-          margin-top: 32px;
-          margin-bottom: 8px;
+          margin-top: 56px;
+          margin-bottom: 6px;
           font-family: var(--font-display);
           letter-spacing: 1px;
           text-transform: uppercase;
@@ -212,7 +214,8 @@ export default function ThreePillarSection() {
           font-weight: 800;
           color: rgba(255,255,255,0.95);
           text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-          margin-bottom: 16px;
+          margin-top: 20px;
+          margin-bottom: 12px;
           font-family: var(--font-display);
           text-transform: uppercase;
           letter-spacing: 2px;
@@ -237,7 +240,7 @@ export default function ThreePillarSection() {
           font-weight: 600;
           color: rgba(255,255,255,0.9);
           text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-          margin-bottom: 24px;
+          margin-bottom: 16px;
           line-height: 1.5;
           font-family: var(--font-body);
           max-width: 280px;
@@ -249,8 +252,8 @@ export default function ThreePillarSection() {
           display: flex;
           flex-direction: column;
           align-items: center;
-          margin-bottom: 24px;
-          padding: 20px;
+          margin-bottom: 16px;
+          padding: 16px;
           background: linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0.05));
           border-radius: 16px;
           border: 1px solid rgba(255,255,255,0.25);
@@ -271,7 +274,7 @@ export default function ThreePillarSection() {
         
         .visual-icon {
           font-size: 64px;
-          margin-bottom: 16px;
+          margin-bottom: 12px;
           filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));
           animation: float 3s ease-in-out infinite;
         }
@@ -307,7 +310,7 @@ export default function ThreePillarSection() {
         }
         
         .platform-features {
-          margin-bottom: 20px;
+          margin-bottom: 12px;
           flex: 1;
           display: flex;
           flex-direction: column;
@@ -315,11 +318,11 @@ export default function ThreePillarSection() {
         }
         
         .platform-feature {
-          margin: 8px 0;
+          margin: 6px 0;
           text-align: left;
           background: rgba(255,255,255,0.05);
           border-radius: 8px;
-          padding: 12px;
+          padding: 10px;
           border: 1px solid rgba(255,255,255,0.1);
           transition: all 0.2s ease;
         }

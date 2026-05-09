@@ -103,7 +103,7 @@ export default function Landing({ onScrollTo, stats }: LandingProps = {}) {
               Start competing free →
             </Link>
             <Link
-              href="/compete/leaderboard"
+              href="/login"
               className="btn-cta-ghost"
               style={{
                 textDecoration: 'none',
@@ -112,7 +112,7 @@ export default function Landing({ onScrollTo, stats }: LandingProps = {}) {
                 justifyContent: 'center',
               }}
             >
-              See the leaderboard →
+              Sign in →
             </Link>
           </div>
         </div>

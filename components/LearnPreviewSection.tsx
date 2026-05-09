@@ -29,7 +29,7 @@ export default function LearnPreviewSection() {
           <span style={{ color: 'var(--gold)', fontWeight: 600 }}>Coming September</span>
         </div>
         <h2 className="ft-h2" style={{ fontSize: '64px', lineHeight: 1.1, marginBottom: '24px', fontWeight: 800 }}>
-          <span style={{ color: 'white' }}>BizYip</span>{' '}
+          <span style={{ color: 'var(--text)' }}>BizYip</span>{' '}
           <span style={{ color: 'var(--gold)' }}>for Schools</span>
         </h2>
         <p className="ft-desc" style={{ fontSize: '20px', lineHeight: 1.6, marginBottom: '40px', maxWidth: '90%' }}>
