@@ -34,8 +34,8 @@ export default function HowItWorksSection() {
           className="step-box"
           style={{
             flex: '0 0 312px',
-            background: activeStep === 1 ? 'rgba(34, 197, 94, 0.7)' : 'var(--card)',
-            border: activeStep === 1 ? '2px solid rgba(34, 197, 94, 1)' : '1px solid var(--border)',
+            background: activeStep === 1 ? 'rgba(107, 114, 128, 0.9)' : 'var(--card)',
+            border: activeStep === 1 ? '2px solid rgba(107, 114, 128, 1)' : '1px solid var(--border)',
             borderRadius: '16px',
             padding: '50px 25px',
             textAlign: 'center',
@@ -59,8 +59,8 @@ export default function HowItWorksSection() {
               width: '39px',
               height: '39px',
               borderRadius: '50%',
-              background: activeStep === 1 ? 'white' : 'rgba(34, 197, 94, 0.7)',
-              color: activeStep === 1 ? 'rgba(34, 197, 94, 1)' : 'white',
+              background: activeStep === 1 ? 'white' : 'rgba(107, 114, 128, 0.7)',
+              color: activeStep === 1 ? 'rgba(107, 114, 128, 1)' : 'white',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -106,14 +106,14 @@ export default function HowItWorksSection() {
             <button
               onClick={() => window.location.href = '/login?mode=signup'}
               style={{
-                background: activeStep === 1 ? 'white' : 'rgba(34, 197, 94, 0.7)',
-                color: activeStep === 1 ? 'rgba(34, 197, 94, 1)' : 'white',
+                background: activeStep === 1 ? 'rgba(107, 114, 128, 1)' : 'white',
+                color: activeStep === 1 ? 'white' : 'rgba(107, 114, 128, 1)',
                 padding: '14px 28px',
                 borderRadius: '8px',
                 fontSize: '18px',
                 fontWeight: 700,
                 fontFamily: 'var(--font-display)',
-                border: activeStep === 1 ? '2px solid rgba(34, 197, 94, 1)' : '2px solid rgba(34, 197, 94, 0.7)',
+                border: activeStep === 1 ? '2px solid rgba(107, 114, 128, 1)' : '2px solid rgba(107, 114, 128, 0.7)',
                 cursor: 'pointer',
                 boxShadow: '0 4px 16px rgba(0,0,0,0.15)',
                 transition: 'all 0.2s ease',
@@ -121,16 +121,16 @@ export default function HowItWorksSection() {
               }}
               onMouseEnter={(e) => {
                 const target = e.target as HTMLButtonElement;
-                target.style.background = 'rgba(34, 197, 94, 1)';
+                target.style.background = 'rgba(107, 114, 128, 1)';
                 target.style.color = 'white';
-                target.style.borderColor = 'rgba(34, 197, 94, 1)';
+                target.style.borderColor = 'rgba(107, 114, 128, 1)';
                 target.style.transform = 'translateY(-2px)';
               }}
               onMouseLeave={(e) => {
                 const target = e.target as HTMLButtonElement;
-                target.style.background = activeStep === 1 ? 'white' : 'rgba(34, 197, 94, 0.7)';
-                target.style.color = activeStep === 1 ? 'rgba(34, 197, 94, 1)' : 'white';
-                target.style.borderColor = activeStep === 1 ? 'rgba(34, 197, 94, 1)' : 'rgba(34, 197, 94, 0.7)';
+                target.style.background = activeStep === 1 ? 'white' : 'rgba(107, 114, 128, 0.7)';
+                target.style.color = activeStep === 1 ? 'rgba(107, 114, 128, 1)' : 'white';
+                target.style.borderColor = activeStep === 1 ? 'rgba(107, 114, 128, 1)' : 'rgba(107, 114, 128, 0.7)';
                 target.style.transform = 'translateY(0)';
               }}
             >
@@ -160,8 +160,8 @@ export default function HowItWorksSection() {
           className="step-box"
           style={{
             flex: '0 0 338px',
-            background: activeStep === 2 ? 'rgba(59, 130, 246, 0.7)' : 'var(--card)',
-            border: activeStep === 2 ? '2px solid rgba(59, 130, 246, 1)' : '1px solid var(--border)',
+            background: activeStep === 2 ? 'rgba(34, 197, 94, 0.9)' : 'var(--card)',
+            border: activeStep === 2 ? '2px solid rgba(34, 197, 94, 1)' : '1px solid var(--border)',
             borderRadius: '16px',
             padding: '55px 30px',
             textAlign: 'center',
@@ -185,8 +185,8 @@ export default function HowItWorksSection() {
               width: '39px',
               height: '39px',
               borderRadius: '50%',
-              background: activeStep === 2 ? 'white' : 'rgba(59, 130, 246, 0.7)',
-              color: activeStep === 2 ? 'rgba(59, 130, 246, 1)' : 'white',
+              background: activeStep === 2 ? 'white' : 'rgba(34, 197, 94, 0.7)',
+              color: activeStep === 2 ? 'rgba(34, 197, 94, 1)' : 'white',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -217,7 +217,7 @@ export default function HowItWorksSection() {
             lineHeight: 1.4,
             margin: '0 0 24px'
           }}>
-            Live 1v1 battles & bellringers
+            1v1 battles & bellringers
           </p>
 
           <div 
@@ -230,16 +230,6 @@ export default function HowItWorksSection() {
             }}
           >
             <div className="pc-battle" style={{ transform: 'scale(1.2)', transformOrigin: 'top center' }}>
-              <div className="pc-battle-title" style={{
-                fontSize: '14px',
-                fontWeight: 700,
-                color: 'var(--text)',
-                textAlign: 'center',
-                marginBottom: '8px',
-                fontFamily: 'var(--font-display)'
-              }}>
-                Live Battle
-              </div>
               
               <div style={{
                 display: 'flex',
@@ -351,8 +341,8 @@ export default function HowItWorksSection() {
           className="step-box"
           style={{
             flex: '0 0 364px',
-            background: activeStep === 3 ? 'rgba(249, 115, 22, 0.7)' : 'var(--card)',
-            border: activeStep === 3 ? '2px solid rgba(249, 115, 22, 1)' : '1px solid var(--border)',
+            background: activeStep === 3 ? 'rgba(168, 85, 247, 0.9)' : 'var(--card)',
+            border: activeStep === 3 ? '2px solid rgba(168, 85, 247, 1)' : '1px solid var(--border)',
             borderRadius: '16px',
             padding: '85px 35px',
             textAlign: 'center',
@@ -376,8 +366,8 @@ export default function HowItWorksSection() {
               width: '39px',
               height: '39px',
               borderRadius: '50%',
-              background: activeStep === 3 ? 'white' : 'rgba(249, 115, 22, 0.7)',
-              color: activeStep === 3 ? 'rgba(249, 115, 22, 1)' : 'white',
+              background: activeStep === 3 ? 'white' : 'rgba(168, 85, 247, 0.7)',
+              color: activeStep === 3 ? 'rgba(168, 85, 247, 1)' : 'white',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -408,7 +398,7 @@ export default function HowItWorksSection() {
             lineHeight: 1.4,
             margin: '0 0 24px'
           }}>
-            Community scoring & feedback
+            Scoring & feedback
           </p>
 
           <div 
@@ -420,17 +410,7 @@ export default function HowItWorksSection() {
               transition: 'all 0.3s ease'
             }}
           >
-            <div className="pc-voting" style={{ transform: 'scale(1.2)', transformOrigin: 'top center' }}>
-              <div className="pc-voting-title" style={{
-                fontSize: '14px',
-                fontWeight: 700,
-                color: 'var(--text)',
-                textAlign: 'center',
-                marginBottom: '8px',
-                fontFamily: 'var(--font-display)'
-              }}>
-                Community Voting
-              </div>
+            <div className="pc-voting" style={{ transform: 'scale(1.5)', transformOrigin: 'top center' }}>
               
               <div style={{
                 display: 'flex',
@@ -516,8 +496,8 @@ export default function HowItWorksSection() {
           className="step-box"
           style={{
             flex: '0 0 390px',
-            background: activeStep === 4 ? 'rgba(234, 179, 8, 0.7)' : 'var(--card)',
-            border: activeStep === 4 ? '2px solid rgba(234, 179, 8, 1)' : '1px solid var(--border)',
+            background: activeStep === 4 ? 'linear-gradient(135deg, rgba(124, 58, 237, 0.9), rgba(236, 72, 153, 0.9), rgba(16, 185, 129, 0.9))' : 'var(--card)',
+            border: activeStep === 4 ? '2px solid rgba(124, 58, 237, 1)' : '1px solid var(--border)',
             borderRadius: '16px',
             padding: '120px 40px',
             textAlign: 'center',
@@ -541,8 +521,8 @@ export default function HowItWorksSection() {
               width: '39px',
               height: '39px',
               borderRadius: '50%',
-              background: activeStep === 4 ? 'white' : 'rgba(234, 179, 8, 0.7)',
-              color: activeStep === 4 ? 'rgba(234, 179, 8, 1)' : 'white',
+              background: activeStep === 4 ? 'white' : 'linear-gradient(135deg, rgba(124, 58, 237, 0.7), rgba(236, 72, 153, 0.7), rgba(16, 185, 129, 0.7))',
+              color: activeStep === 4 ? 'white' : 'linear-gradient(135deg, rgba(124, 58, 237, 1), rgba(236, 72, 153, 1), rgba(16, 185, 129, 1))',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -611,7 +591,7 @@ export default function HowItWorksSection() {
                     fontWeight: 800
                   }}>D</div>
                   <div className="pc-lb-name" style={{ fontSize: '12px', fontWeight: 700 }}>DesignWolf</div>
-                  <div className="pc-lb-elo" style={{ fontSize: '12px', color: 'var(--gold)', fontWeight: 700 }}>1,891</div>
+                  <div className="pc-lb-elo" style={{ fontSize: '12px', color: activeStep === 4 ? 'white' : 'rgba(124, 58, 237, 1)', fontWeight: 700 }}>1,891</div>
                   <div className="pc-lb-delta" style={{ fontSize: '10px', color: 'var(--green)' }}>↑3</div>
                 </div>
                 <div className="pc-lb-row" style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
