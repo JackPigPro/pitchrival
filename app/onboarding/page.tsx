@@ -167,7 +167,7 @@ export default function OnboardingPage() {
         .from('profiles')
         .upsert({
           id: user.id,
-          username: username.trim().toLowerCase(),
+          username: username.trim(), // Preserve original case
           avatar: avatar,
           theme_preference: theme,
           skills: skills,

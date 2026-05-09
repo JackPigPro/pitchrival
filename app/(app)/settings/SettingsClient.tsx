@@ -80,7 +80,13 @@ export default function SettingsClient({ initialProfile }: { initialProfile: Pro
       setUsernameStatus('checking')
       
       try {
-        const response = await fetch(`/api/check-username?username=${encodeURIComponent(username.trim().toLowerCase())}`)
+        // Include current user ID to exclude current username from "taken" check
+        const currentUserId = user?.id
+        const url = currentUserId 
+          ? `/api/check-username?username=${encodeURIComponent(username.trim().toLowerCase())}&currentUserId=${encodeURIComponent(currentUserId)}`
+          : `/api/check-username?username=${encodeURIComponent(username.trim().toLowerCase())}`
+        
+        const response = await fetch(url)
         const result = await response.json()
 
         if (!response.ok) {
@@ -123,7 +129,7 @@ export default function SettingsClient({ initialProfile }: { initialProfile: Pro
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           type: 'update_username',
-          data: { username: username.trim().toLowerCase() }
+          data: { username: username.trim() } // Preserve original case
         })
       })
 

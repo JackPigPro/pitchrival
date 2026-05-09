@@ -5,6 +5,7 @@ import { containsBannedWord } from '@/lib/moderation'
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams
   const username = searchParams.get('username')
+  const currentUserId = searchParams.get('currentUserId')
 
   if (!username || typeof username !== 'string') {
     return NextResponse.json({ error: 'Username required' }, { status: 400 })
@@ -43,12 +44,18 @@ export async function GET(request: NextRequest) {
   try {
     const supabase = await createClient()
     
-    // Check if username exists (case-insensitive)
-    const { data, error } = await supabase
+    // Check if username exists (case-insensitive), excluding current user
+    let query = supabase
       .from('profiles')
       .select('username')
-      .eq('username', username.trim().toLowerCase())
-      .single()
+      .ilike('username', username.trim()) // Case-insensitive comparison
+    
+    // If currentUserId is provided, exclude the current user's record
+    if (currentUserId) {
+      query = query.neq('id', currentUserId)
+    }
+    
+    const { data, error } = await query.single()
 
     if (error && error.code !== 'PGRST116') { // PGRST116 is "not found"
       console.error('Error checking username:', error)

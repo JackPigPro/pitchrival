@@ -46,11 +46,11 @@ export async function POST(request: Request) {
           return NextResponse.json({ error: 'Username must be at least 3 characters' }, { status: 400 })
         }
 
-        // Check if username is already taken
+        // Check if username is already taken (case-insensitive)
         const { data: existingUser } = await supabase
           .from('profiles')
           .select('id')
-          .eq('username', username)
+          .ilike('username', username)
           .neq('id', user.id)
           .single()
 
