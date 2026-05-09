@@ -54,14 +54,26 @@ export default function AboutPage() {
                   </p>
                 </div>
                 <div style={{ flexShrink: 0 }}>
-                  <Image 
-                    src="/jack-segal.jpg" 
-                    alt="Jack Segal" 
-                    width={200}
-                    height={200}
-                    className="rounded-lg object-cover"
-                    priority
-                  />
+                  <div 
+                    style={{ 
+                      pointerEvents: 'none',
+                      userSelect: 'none',
+                      WebkitUserSelect: 'none',
+                      MozUserSelect: 'none',
+                      msUserSelect: 'none'
+                    }}
+                    onContextMenu={(e) => e.preventDefault()}
+                    onDragStart={(e) => e.preventDefault()}
+                  >
+                    <Image 
+                      src="/jack-segal.jpg" 
+                      alt="Jack Segal" 
+                      width={200}
+                      height={200}
+                      className="rounded-lg object-cover"
+                      priority
+                    />
+                  </div>
                 </div>
               </div>
             </div>
