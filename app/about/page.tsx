@@ -1,6 +1,7 @@
 'use client'
 
 import Footer from '@/components/Footer'
+import Image from 'next/image'
 
 export default function AboutPage() {
   return (
@@ -53,15 +54,13 @@ export default function AboutPage() {
                   </p>
                 </div>
                 <div style={{ flexShrink: 0 }}>
-                  <img 
+                  <Image 
                     src="/jack-segal.jpg" 
                     alt="Jack Segal" 
-                    style={{ 
-                      width: '180px', 
-                      height: '180px', 
-                      borderRadius: '8px',
-                      objectFit: 'cover'
-                    }}
+                    width={200}
+                    height={200}
+                    className="rounded-lg object-cover"
+                    priority
                   />
                 </div>
               </div>
