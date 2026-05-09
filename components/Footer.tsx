@@ -68,8 +68,8 @@ export default function Footer({ onScrollTo, stats: serverStats }: FooterProps) 
               <span
                 style={{
                   fontSize: '10px',
-                  background: 'var(--border)',
-                  color: 'rgba(255,255,255,.48)',
+                  background: 'rgba(0,0,0,0.3)',
+                  color: 'rgba(255,255,255,.8)',
                   padding: '2px 6px',
                   borderRadius: '4px',
                   fontWeight: 700,

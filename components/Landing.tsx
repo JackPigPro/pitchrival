@@ -3,8 +3,11 @@
 import { useState, useCallback, useEffect } from 'react'
 import Link from 'next/link'
 import Hero from './Hero'
-import ConnectSection from './ConnectSection'
-import CompeteSection from './CompeteSection'
+import LaunchBanner from './LaunchBanner'
+import RankBar from './RankBar'
+import HowItWorksSection from './HowItWorksSection'
+import ThreePillarSection from './ThreePillarSection'
+import LearnPreviewSection from './LearnPreviewSection'
 import { LiveStats } from '@/utils/stats'
 
 interface LandingProps {
@@ -41,9 +44,12 @@ export default function Landing({ onScrollTo, stats }: LandingProps = {}) {
 
   return (
     <div id="landing">
+      <LaunchBanner />
       <Hero onScrollTo={scrollToCenter} stats={stats} />
-      <ConnectSection />
-      <CompeteSection />
+      <RankBar />
+      <HowItWorksSection />
+      <ThreePillarSection />
+      <LearnPreviewSection />
       
       {/* Call-to-action section above footer */}
       <section
