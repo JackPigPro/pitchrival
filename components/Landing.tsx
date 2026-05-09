@@ -70,7 +70,7 @@ export default function Landing({ onScrollTo, stats }: LandingProps = {}) {
           }}
         >
           <div style={{ marginBottom: '10px', fontSize: '13px', letterSpacing: '2.4px', textTransform: 'uppercase', color: 'var(--text3)', fontFamily: 'var(--font-display)', fontWeight: 700 }}>
-            Built by founders, for founders
+            Where founders get good.
           </div>
           <h3
             style={{
@@ -83,11 +83,11 @@ export default function Landing({ onScrollTo, stats }: LandingProps = {}) {
               fontFamily: 'var(--font-display)',
             }}
           >
-            Stop watching,<br />
-            <span style={{ color: 'var(--green)' }}>start building.</span>
+            Stop watching.<br />
+            <span style={{ color: 'var(--green)' }}>Start competing.</span>
           </h3>
           <p style={{ color: 'var(--text2)', marginBottom: '28px', fontSize: '18px', lineHeight: 1.65 }}>
-            Compete in Daily Duels, climb the weekly tournaments, and prove you can build. Join thousands of founders turning ideas into reality.
+            Daily bellringers. Weekly duels. Live 1v1s. Build your ELO. Climb the leaderboard. Free forever.
           </p>
           <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center' }}>
             <Link
@@ -100,7 +100,7 @@ export default function Landing({ onScrollTo, stats }: LandingProps = {}) {
                 justifyContent: 'center',
               }}
             >
-              ⚡ Start Building Free
+              Start competing free →
             </Link>
             <Link
               href="/login"
