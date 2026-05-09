@@ -1,6 +1,9 @@
 'use client'
 
 import { FormEvent, useState, useEffect } from 'react'
+
+// Force dynamic rendering to prevent static generation issues
+export const dynamic = 'force-dynamic'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/utils/supabase/client'
