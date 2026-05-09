@@ -1,17 +1,21 @@
 'use client'
 
 import { useState } from 'react'
+import { containsBannedWord, validateAndLogContent } from '@/lib/moderation'
 
 interface CreateIdeaFormProps {
   onSubmit: (ideaData: { title: string; content: string; is_public: boolean }) => Promise<void>
+  userId?: string
 }
 
-export default function CreateIdeaForm({ onSubmit }: CreateIdeaFormProps) {
+export default function CreateIdeaForm({ onSubmit, userId }: CreateIdeaFormProps) {
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
   const [isPublic, setIsPublic] = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [titleError, setTitleError] = useState<string | null>(null)
+  const [contentError, setContentError] = useState<string | null>(null)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -21,9 +25,40 @@ export default function CreateIdeaForm({ onSubmit }: CreateIdeaFormProps) {
       return
     }
 
+    // Check for banned words in title
+    if (containsBannedWord(title)) {
+      setTitleError('Inappropriate content. Please rewrite.')
+      return
+    }
+
+    // Check for banned words in content
+    if (containsBannedWord(content)) {
+      setContentError('Inappropriate content. Please rewrite.')
+      return
+    }
+
+    // Clear errors
+    setTitleError(null)
+    setContentError(null)
+    setError(null)
+
     try {
       setSubmitting(true)
-      setError(null)
+      
+      // Log moderation checks and validate
+      if (userId) {
+        const titleModerationResult = await validateAndLogContent(userId, title.trim(), 'idea_title')
+        if (!titleModerationResult.isValid) {
+          setTitleError(titleModerationResult.error || 'Inappropriate content. Please rewrite.')
+          return
+        }
+
+        const contentModerationResult = await validateAndLogContent(userId, content.trim(), 'idea_content')
+        if (!contentModerationResult.isValid) {
+          setContentError(contentModerationResult.error || 'Inappropriate content. Please rewrite.')
+          return
+        }
+      }
       
       await onSubmit({
         title: title.trim(),
@@ -67,7 +102,10 @@ export default function CreateIdeaForm({ onSubmit }: CreateIdeaFormProps) {
             type="text"
             placeholder="Give your idea a catchy title..."
             value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            onChange={(e) => {
+              setTitle(e.target.value)
+              setTitleError(null)
+            }}
             style={{
               width: '100%',
               padding: '12px 16px',
@@ -80,13 +118,21 @@ export default function CreateIdeaForm({ onSubmit }: CreateIdeaFormProps) {
             }}
             maxLength={200}
           />
+          {titleError && (
+            <p style={{ color: '#fca5a5', marginTop: '4px', marginBottom: 0, fontSize: '12px' }}>
+              {titleError}
+            </p>
+          )}
         </div>
 
         <div>
           <textarea
             placeholder="Describe your idea in detail..."
             value={content}
-            onChange={(e) => setContent(e.target.value)}
+            onChange={(e) => {
+              setContent(e.target.value)
+              setContentError(null)
+            }}
             style={{
               width: '100%',
               minHeight: '120px',
@@ -101,6 +147,11 @@ export default function CreateIdeaForm({ onSubmit }: CreateIdeaFormProps) {
             }}
             maxLength={2000}
           />
+          {contentError && (
+            <p style={{ color: '#fca5a5', marginTop: '4px', marginBottom: 0, fontSize: '12px' }}>
+              {contentError}
+            </p>
+          )}
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>

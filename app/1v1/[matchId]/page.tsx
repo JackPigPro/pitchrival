@@ -5,6 +5,7 @@ import { useUser } from '@/hooks/useUser'
 import { useParams, useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
 import Link from 'next/link'
+import { containsBannedWord, validateAndLogContent } from '@/lib/moderation'
 
 interface Match {
   id: string
@@ -49,6 +50,7 @@ export default function GameRoomPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [timeLeft, setTimeLeft] = useState<number>(0)
   const [error, setError] = useState('')
+  const [moderationError, setModerationError] = useState<string | null>(null)
   const [opponent, setOpponent] = useState<{ username: string; display_name?: string } | null>(null)
 
   // Fetch match data
@@ -238,6 +240,14 @@ export default function GameRoomPage() {
       return
     }
 
+    // Check for banned words in text submissions
+    if (match.game_mode === 'business_idea' && containsBannedWord(submission)) {
+      setModerationError('Inappropriate content. Please rewrite.')
+      return
+    }
+
+    setModerationError(null)
+
     try {
       setIsSubmitting(true)
       setError('')
@@ -271,6 +281,12 @@ export default function GameRoomPage() {
           throw new Error('Failed to upload image')
         }
       } else if (match.game_mode === 'business_idea') {
+        // Log moderation check and validate
+        const moderationResult = await validateAndLogContent(username, submission.trim(), '1v1_answer')
+        if (!moderationResult.isValid) {
+          setModerationError(moderationResult.error || 'Inappropriate content. Please rewrite.')
+          return
+        }
         submissionData.content = submission.trim()
       }
 
@@ -516,7 +532,11 @@ export default function GameRoomPage() {
             ) : (
               <textarea
                 value={submission}
-                onChange={(e) => setSubmission(e.target.value)}
+                onChange={(e) => {
+                  setSubmission(e.target.value)
+                  setError('')
+                  setModerationError(null)
+                }}
                 placeholder="Type your business pitch here..."
                 disabled={hasSubmitted}
                 style={{
@@ -585,24 +605,41 @@ export default function GameRoomPage() {
           )}
         </div>
 
-        {/* Error Display */}
-        {error && (
-          <div style={{
-            position: 'fixed',
-            top: '20px',
-            right: '20px',
-            background: 'var(--red)',
-            color: 'white',
-            padding: '16px 20px',
-            borderRadius: '8px',
-            fontSize: '14px',
-            fontFamily: 'var(--font-body)',
-            zIndex: 1000,
-            boxShadow: 'var(--shadow)'
-          }}>
-            {error}
-          </div>
-        )}
+          {/* Error Display */}
+          {error && (
+            <div style={{
+              position: 'fixed',
+              top: '20px',
+              right: '20px',
+              background: 'var(--red)',
+              color: 'white',
+              padding: '16px 20px',
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontFamily: 'var(--font-body)',
+              zIndex: 1000,
+              boxShadow: 'var(--shadow)'
+            }}>
+              {error}
+            </div>
+          )}
+          {moderationError && (
+            <div style={{
+              position: 'fixed',
+              top: '70px',
+              right: '20px',
+              background: 'var(--red)',
+              color: 'white',
+              padding: '16px 20px',
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontFamily: 'var(--font-body)',
+              zIndex: 1000,
+              boxShadow: 'var(--shadow)'
+            }}>
+              {moderationError}
+            </div>
+          )}
       </div>
     </div>
   )

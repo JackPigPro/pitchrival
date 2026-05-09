@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import EloPopup from '@/components/EloPopup'
+import { containsBannedWord, validateAndLogContent } from '@/lib/moderation'
 
 interface WeeklyDuel {
   id: string
@@ -78,6 +79,7 @@ export default function WeeklyDuelClient({
   const [editValidationError, setEditValidationError] = useState('')
   const [showEloPopup, setShowEloPopup] = useState(false)
   const [eloPopupMessage, setEloPopupMessage] = useState('')
+  const [moderationError, setModerationError] = useState<string | null>(null)
 
   // Check if user is admin
   const ADMIN_USER_ID = 'a4dc1d84-fc05-4018-b3ce-7c60f3a4244c'
@@ -215,12 +217,27 @@ export default function WeeklyDuelClient({
       return
     }
 
+    // Check for banned words
+    if (containsBannedWord(submissionContent)) {
+      setValidationError('Inappropriate content. Please rewrite.')
+      return
+    }
+
+    setValidationError('')
+
     try {
       // Get session token properly
       const { data: { session } } = await supabase.auth.getSession()
 
       if (!session?.access_token) {
         setValidationError('Authentication required. Please log in.')
+        return
+      }
+
+      // Log moderation check and validate
+      const moderationResult = await validateAndLogContent(currentUserId, submissionContent.trim(), 'weekly_duel')
+      if (!moderationResult.isValid) {
+        setValidationError(moderationResult.error || 'Inappropriate content. Please rewrite.')
         return
       }
 
@@ -279,6 +296,12 @@ export default function WeeklyDuelClient({
       return
     }
 
+    // Check for banned words
+    if (containsBannedWord(editContent)) {
+      setEditValidationError('Inappropriate content. Please rewrite.')
+      return
+    }
+
     if (editContent.trim() === localUserSubmission?.content.trim()) {
       setIsEditing(false)
       setEditContent('')
@@ -291,6 +314,13 @@ export default function WeeklyDuelClient({
 
       if (!session?.access_token) {
         setEditValidationError('Authentication required. Please log in.')
+        return
+      }
+
+      // Log moderation check and validate
+      const moderationResult = await validateAndLogContent(currentUserId, editContent.trim(), 'weekly_duel')
+      if (!moderationResult.isValid) {
+        setEditValidationError(moderationResult.error || 'Inappropriate content. Please rewrite.')
         return
       }
 
@@ -593,6 +623,7 @@ export default function WeeklyDuelClient({
                   onChange={(e) => {
                     setSubmissionContent(e.target.value)
                     setValidationError('')
+                    setModerationError(null)
                   }}
                   placeholder="Type your submission here..."
                   style={{
@@ -652,6 +683,7 @@ export default function WeeklyDuelClient({
                       onChange={(e) => {
                         setEditContent(e.target.value)
                         setEditValidationError('')
+                        setModerationError(null)
                       }}
                       placeholder="Type your updated submission here..."
                       style={{

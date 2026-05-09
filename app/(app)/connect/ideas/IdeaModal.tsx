@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { IdeaWithDetails, CommentWithProfile } from '@/types/database'
+import { containsBannedWord, validateAndLogContent } from '@/lib/moderation'
 
 interface IdeaModalProps {
   idea: IdeaWithDetails
@@ -28,6 +29,7 @@ export default function IdeaModal({ idea, onClose, onUpdate, onDelete, currentUs
   const [isLiked, setIsLiked] = useState(idea.idea_likes?.some(like => like.user_id === currentUserId) || false)
   const [loadingComments, setLoadingComments] = useState(true)
   const [submittingComment, setSubmittingComment] = useState(false)
+  const [commentError, setCommentError] = useState<string | null>(null)
 
   useEffect(() => {
     fetchComments()
@@ -138,9 +140,23 @@ export default function IdeaModal({ idea, onClose, onUpdate, onDelete, currentUs
   const handleCommentSubmit = async () => {
     if (!newComment.trim()) return
 
+    // Check for banned words
+    if (containsBannedWord(newComment)) {
+      setCommentError('Inappropriate content. Please rewrite.')
+      return
+    }
+
+    setCommentError(null)
+
     try {
       setSubmittingComment(true)
       
+      // Log moderation check and validate
+      const moderationResult = await validateAndLogContent(currentUserId, newComment.trim(), 'idea_comment')
+      if (!moderationResult.isValid) {
+        setCommentError(moderationResult.error || 'Inappropriate content. Please rewrite.')
+        return
+      }
       
       const response = await fetch(`/connect/ideas/api/ideas/${idea.id}/comments`, {
         method: 'POST',
@@ -168,7 +184,22 @@ export default function IdeaModal({ idea, onClose, onUpdate, onDelete, currentUs
   const handleReplySubmit = async (parentId: string) => {
     if (!replyContent.trim()) return
 
+    // Check for banned words
+    if (containsBannedWord(replyContent)) {
+      setCommentError('Inappropriate content. Please rewrite.')
+      return
+    }
+
+    setCommentError(null)
+
     try {
+      // Log moderation check and validate
+      const moderationResult = await validateAndLogContent(currentUserId, replyContent.trim(), 'idea_comment')
+      if (!moderationResult.isValid) {
+        setCommentError(moderationResult.error || 'Inappropriate content. Please rewrite.')
+        return
+      }
+
       const response = await fetch(`/connect/ideas/api/ideas/${idea.id}/comments`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -213,7 +244,22 @@ export default function IdeaModal({ idea, onClose, onUpdate, onDelete, currentUs
   const handleCommentEdit = async (commentId: string) => {
     if (!editCommentContent.trim()) return
 
+    // Check for banned words
+    if (containsBannedWord(editCommentContent)) {
+      setCommentError('Inappropriate content. Please rewrite.')
+      return
+    }
+
+    setCommentError(null)
+
     try {
+      // Log moderation check and validate
+      const moderationResult = await validateAndLogContent(currentUserId, editCommentContent.trim(), 'idea_comment')
+      if (!moderationResult.isValid) {
+        setCommentError(moderationResult.error || 'Inappropriate content. Please rewrite.')
+        return
+      }
+
       const response = await fetch(`/connect/ideas/api/ideas/${idea.id}/comments/${commentId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -408,7 +454,10 @@ export default function IdeaModal({ idea, onClose, onUpdate, onDelete, currentUs
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '8px' }}>
               <textarea
                 value={replyContent}
-                onChange={(e) => setReplyContent(e.target.value)}
+                onChange={(e) => {
+                  setReplyContent(e.target.value)
+                  setCommentError(null)
+                }}
                 placeholder="Write a reply..."
                 style={{
                   width: '100%',
@@ -422,6 +471,11 @@ export default function IdeaModal({ idea, onClose, onUpdate, onDelete, currentUs
                   color: 'var(--text)',
                 }}
               />
+              {commentError && (
+                <p style={{ color: '#fca5a5', marginTop: '4px', marginBottom: 0, fontSize: '12px' }}>
+                  {commentError}
+                </p>
+              )}
               <div style={{ display: 'flex', gap: '8px' }}>
                 <button
                   onClick={() => handleReplySubmit(comment.id)}
@@ -772,7 +826,10 @@ export default function IdeaModal({ idea, onClose, onUpdate, onDelete, currentUs
               <div style={{ marginBottom: '20px' }}>
                 <textarea
                   value={newComment}
-                  onChange={(e) => setNewComment(e.target.value)}
+                  onChange={(e) => {
+                    setNewComment(e.target.value)
+                    setCommentError(null)
+                  }}
                   placeholder="Add a comment..."
                   style={{
                     width: '100%',
@@ -788,6 +845,11 @@ export default function IdeaModal({ idea, onClose, onUpdate, onDelete, currentUs
                     marginBottom: '8px',
                   }}
                 />
+                {commentError && (
+                  <p style={{ color: '#fca5a5', marginTop: '4px', marginBottom: 0, fontSize: '12px' }}>
+                    {commentError}
+                  </p>
+                )}
                 <button
                   onClick={handleCommentSubmit}
                   disabled={!newComment.trim() || submittingComment}

@@ -7,6 +7,7 @@ export const dynamic = 'force-dynamic'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/utils/supabase/client'
+import { containsBannedWord, validateAndLogContent } from '@/lib/moderation'
 
 const PRESET_AVATARS = [
   { id: 'avatar-1', color: '#6366F1' },
@@ -54,6 +55,7 @@ export default function OnboardingPage() {
   const [usernameError, setUsernameError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [moderationError, setModerationError] = useState<string | null>(null)
 
   // Check username availability in real-time
   useEffect(() => {
@@ -81,6 +83,16 @@ export default function OnboardingPage() {
       setUsernameError(failedRule.message)
       return
     }
+
+    // Check for banned words
+    if (containsBannedWord(username)) {
+      setUsernameStatus('invalid')
+      setUsernameError('Inappropriate content. Please rewrite.')
+      setModerationError('Inappropriate content. Please rewrite.')
+      return
+    }
+
+    setModerationError(null)
 
     setUsernameError(null)
 
@@ -141,6 +153,14 @@ export default function OnboardingPage() {
     try {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) throw new Error('User not authenticated')
+
+      // Final moderation check before saving
+      const moderationResult = await validateAndLogContent(user.id, username, 'username')
+      if (!moderationResult.isValid) {
+        setError(moderationResult.error || 'Inappropriate content. Please rewrite.')
+        setLoading(false)
+        return
+      }
 
       // Save all onboarding data
       await supabase
@@ -334,6 +354,11 @@ export default function OnboardingPage() {
                 {usernameStatus === 'invalid' && usernameError && (
                   <p style={{ color: '#fca5a5', marginTop: '4px', marginBottom: 0, fontSize: '12px' }}>
                     {usernameError}
+                  </p>
+                )}
+                {moderationError && (
+                  <p style={{ color: '#fca5a5', marginTop: '4px', marginBottom: 0, fontSize: '12px' }}>
+                    {moderationError}
                   </p>
                 )}
               </div>

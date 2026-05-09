@@ -5,6 +5,7 @@ import { useUser } from '@/hooks/useUser'
 import { createClient } from '@/utils/supabase/client'
 import Link from 'next/link'
 import EloPopup from '@/components/EloPopup'
+import { containsBannedWord, validateAndLogContent } from '@/lib/moderation'
 
 interface DailyBattle {
   id: string
@@ -53,6 +54,7 @@ export default function DailyBattleClient({ battle, userSubmission, userStreak, 
   const [eloPopupMessage, setEloPopupMessage] = useState('')
   const [localUserSubmission, setLocalUserSubmission] = useState<UserSubmission | null>(userSubmission)
   const [localUserStreak, setLocalUserStreak] = useState<DailyStreak | null>(userStreak)
+  const [moderationError, setModerationError] = useState<string | null>(null)
   const supabase = createClient()
 
   useEffect(() => {
@@ -85,8 +87,24 @@ export default function DailyBattleClient({ battle, userSubmission, userStreak, 
   const handleSubmit = async () => {
     if (!submission.trim() || submission.length > 500) return
 
+    // Check for banned words
+    if (containsBannedWord(submission)) {
+      setModerationError('Inappropriate content. Please rewrite.')
+      return
+    }
+
+    setModerationError(null)
+
     try {
       setSubmitting(true)
+      
+      // Log moderation check and validate
+      const moderationResult = await validateAndLogContent(userId, submission.trim(), 'daily_bellringer')
+      if (!moderationResult.isValid) {
+        setModerationError(moderationResult.error || 'Inappropriate content. Please rewrite.')
+        return
+      }
+      
       const response = await fetch('/compete/daily-battle/api/submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -324,7 +342,10 @@ export default function DailyBattleClient({ battle, userSubmission, userStreak, 
             <div style={{ marginBottom: '16px' }}>
               <textarea
                 value={submission}
-                onChange={(e) => setSubmission(e.target.value.slice(0, 500))}
+                onChange={(e) => {
+                  setSubmission(e.target.value.slice(0, 500))
+                  setModerationError(null) // Clear error when user types
+                }}
                 placeholder="Share your response..."
                 maxLength={500}
                 style={{
@@ -339,6 +360,11 @@ export default function DailyBattleClient({ battle, userSubmission, userStreak, 
                   color: 'var(--text-primary)'
                 }}
               />
+              {moderationError && (
+                <p style={{ color: '#fca5a5', marginTop: '8px', marginBottom: 0, fontSize: '14px' }}>
+                  {moderationError}
+                </p>
+              )}
               <div style={{
                 textAlign: 'right',
                 marginTop: '8px',
