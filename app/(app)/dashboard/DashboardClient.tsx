@@ -192,7 +192,7 @@ export default function DashboardClient({ initialProfile, initialStats, todayBat
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
             {[1, 2, 3, 4].map((i) => (
               <div key={i} style={{
-                background: 'var(--card)',
+                background: isLoading ? '#ccc' : 'var(--card)',
                 border: '1px solid var(--border)',
                 borderRadius: '16px',
                 padding: '32px',
@@ -283,11 +283,21 @@ export default function DashboardClient({ initialProfile, initialStats, todayBat
           
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div className="dashboard-subheader">
-          Welcome back{isLoading ? '' : username ? `, ${username}` : ''}!
+          {isLoading ? (
+            <div style={{ 
+              background: '#ccc', 
+              borderRadius: '8px', 
+              height: '20px', 
+              width: '200px', 
+              marginBottom: '8px' 
+            }} />
+          ) : (
+            `Welcome back, ${username || ''}!`
+          )}
         </div>
             <div style={{ 
               fontSize: '18px', 
-              fontWeight: '400', 
+              fontWeight: 400, 
               fontFamily: 'var(--font-body)', 
               color: 'var(--text2)' 
             }}>
@@ -386,7 +396,7 @@ export default function DashboardClient({ initialProfile, initialStats, todayBat
                   <span style={{
                     display: 'inline-block',
                     height: '14px',
-                    background: 'var(--border)',
+                    background: '#ccc',
                     borderRadius: '4px',
                     width: '80px',
                     verticalAlign: 'middle'

@@ -796,7 +796,7 @@ export default function TopNavClient({
                   <span style={{
                     display: 'inline-block',
                     height: '14px',
-                    background: 'var(--border)',
+                    background: '#ccc',
                     borderRadius: '4px',
                     width: '60px',
                     verticalAlign: 'middle'
