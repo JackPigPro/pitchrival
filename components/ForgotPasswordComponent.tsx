@@ -18,7 +18,33 @@ export default function ForgotPasswordComponent() {
     setError(null)
     setSuccess(null)
 
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(email)) {
+      setError('Please enter a valid email address.')
+      setLoading(false)
+      return
+    }
+
     try {
+      console.log('Checking if profile exists for email:', email)
+      
+      // First check if profile exists in our database
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('email', email.toLowerCase())
+        .single()
+
+      if (profileError || !profile) {
+        console.log('No profile found for email:', email)
+        setError('No account found with that email. Please sign up first.')
+        setLoading(false)
+        return
+      }
+
+      console.log('Profile found, sending password reset for email:', email)
+      
       const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/reset-password`,
       })
