@@ -183,6 +183,19 @@ export default function OnboardingPage() {
 
       if (error) {
         console.error('❌ Step 1 save failed:', error)
+        console.error('❌ SQL Error Details:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code
+        })
+        console.error('❌ Data being saved:', {
+          id: user.id,
+          username: username.trim(),
+          agreed_to_terms: agreedToTerms,
+          email: currentProfile?.email || user.email?.toLowerCase() || '',
+          auth_method: currentProfile?.auth_method || 'email',
+        })
         return false
       }
       
