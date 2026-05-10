@@ -10,6 +10,7 @@ export interface UserProfile {
   is_teacher?: boolean
   teacher_verified?: boolean
   created_at: string
+  elo?: number
 }
 
 export interface AuthResult {
@@ -84,7 +85,7 @@ export async function getAuthStateClient(): Promise<AuthResult> {
       // Get user profile
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
-        .select('id, username, display_name, status_tags, onboarding_complete, created_at')
+        .select('id, username, display_name, status_tags, onboarding_complete, created_at, elo')
         .eq('id', user.id)
         .single()
 

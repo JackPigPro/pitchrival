@@ -14,12 +14,13 @@ import { signOut } from '@/app/actions/auth'
 
 import { useTheme } from '@/components/ThemeProvider'
 import { useAppState } from '@/components/AppStateProvider'
+import { useUser } from '@/hooks/useUser'
 
 
 
 export default function TopNavClient({
 
-  user,
+  user: initialUser,
 
   forceLoggedOut,
 
@@ -36,6 +37,7 @@ export default function TopNavClient({
   const router = useRouter()
 
   const supabase = createClient()
+  const { username, isLoading, isAuthenticated } = useUser()
 
   const [open, setOpen] = useState<'connect' | 'compete' | 'create' | 'settings' | null>(null)
 
@@ -200,7 +202,7 @@ export default function TopNavClient({
 
 
 
-  const isLoggedIn = Boolean(user) && !forceLoggedOut
+  const isLoggedIn = isAuthenticated && !forceLoggedOut
 
   const isOnLanding = pathname === '/'
 
@@ -278,9 +280,9 @@ export default function TopNavClient({
 
         className="nav-brand"
 
-        href={user ? "/dashboard" : "/"}
+        href={isAuthenticated ? "/dashboard" : "/"}
 
-        prefetch={user ? true : false}
+        prefetch={isAuthenticated ? true : false}
 
         onClick={(e) => {
 
@@ -772,7 +774,7 @@ export default function TopNavClient({
 
         <div style={{ padding: '16px' }}>
 
-          {user ? (
+          {isAuthenticated ? (
 
             <>
 
@@ -790,13 +792,24 @@ export default function TopNavClient({
 
               }}>
 
-                {user.username ?? 'Account'}
+                {isLoading ? (
+                  <span style={{
+                    display: 'inline-block',
+                    height: '14px',
+                    background: 'var(--border)',
+                    borderRadius: '4px',
+                    width: '60px',
+                    verticalAlign: 'middle'
+                  }} />
+                ) : (
+                  username || 'Account'
+                )}
 
               </div>
 
               <Link 
 
-                href={user.username ? `/profile/${user.username}` : "/profile"} 
+                href={username ? `/profile/${username}` : "/profile"} 
 
                 prefetch={true}
 
@@ -1460,19 +1473,30 @@ export default function TopNavClient({
 
       <div className="nav-right" style={{ position: 'relative' }}>
 
-        {user ? (
+        {isAuthenticated ? (
 
           <>
 
                         <span style={{ fontSize: '13px', color: 'var(--text2)', fontWeight: 700 }}>
 
-              {user.name ?? user.email ?? 'Account'}
+              {isLoading ? (
+                <span style={{
+                  display: 'inline-block',
+                  height: '13px',
+                  background: 'var(--border)',
+                  borderRadius: '4px',
+                  width: '80px',
+                  verticalAlign: 'middle'
+                }} />
+              ) : (
+                username || 'Account'
+              )}
 
             </span>
 
             <Link
 
-              href={user.username ? `/profile/${user.username}` : "/profile"}
+              href={username ? `/profile/${username}` : "/profile"}
 
               prefetch={true}
 

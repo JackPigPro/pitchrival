@@ -80,7 +80,7 @@ const getTimeAgo = (timestamp: string) => {
 }
 
 export default function DashboardClient({ initialProfile, initialStats, todayBattle, userSubmission, userStreak }: DashboardClientProps) {
-  const { user, authLoading, profile: userProfile } = useUser()
+  const { user, authLoading, profile: userProfile, isLoading } = useUser()
   const [profile, setProfile] = useState<any>(initialProfile)
   const [elo, setElo] = useState<any>(initialStats)
   const [notifications, setNotifications] = useState<Notification[]>([])
@@ -93,7 +93,7 @@ export default function DashboardClient({ initialProfile, initialStats, todayBat
   const userRank = getRankByElo(userElo)
   const rankColor = getRankColor(userRank)
   const isAuthenticated = !!user
-  const username = userProfile?.username || profile?.username || 'User'
+  const username = userProfile?.username || profile?.username
 
   // Fetch notifications with pagination
   useEffect(() => {
@@ -283,7 +283,7 @@ export default function DashboardClient({ initialProfile, initialStats, todayBat
           
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div className="dashboard-subheader">
-          Welcome back, {username || 'User'}!
+          Welcome back{isLoading ? '' : username ? `, ${username}` : ''}!
         </div>
             <div style={{ 
               fontSize: '18px', 
@@ -370,7 +370,16 @@ export default function DashboardClient({ initialProfile, initialStats, todayBat
             
             <div style={{ fontSize: '14px', color: 'var(--text2)', fontFamily: 'var(--font-body)' }}>
               <div style={{ marginBottom: '8px' }}>
-                <strong>Username:</strong> @{username}
+                <strong>Username:</strong> {isLoading ? (
+                  <span style={{
+                    display: 'inline-block',
+                    height: '14px',
+                    background: 'var(--border)',
+                    borderRadius: '4px',
+                    width: '60px',
+                    verticalAlign: 'middle'
+                  }} />
+                ) : username ? `@${username}` : ''}
               </div>
               <div>
                 <strong>Member Since:</strong> {profile?.created_at ? formatDate(profile.created_at) : (
