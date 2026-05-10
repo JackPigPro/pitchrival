@@ -74,6 +74,7 @@ export default function LoginForm({ mode }: { mode: 'login' | 'signup' }) {
       
       // Check auth method using our new helper function
       const authMethod = await getAuthMethodForEmail(email)
+      console.log('🔍 Auth method result for', email, ':', authMethod)
       
       if (authMethod === null) {
         console.log('No account found for email:', email)
