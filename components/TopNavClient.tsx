@@ -790,7 +790,7 @@ export default function TopNavClient({
 
               }}>
 
-                {user.name ?? user.email ?? 'Account'}
+                {user.username ?? 'Account'}
 
               </div>
 
