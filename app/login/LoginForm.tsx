@@ -258,35 +258,63 @@ export default function LoginForm({ mode }: { mode: 'login' | 'signup' }) {
         }
 
         console.log('✅ Sign in successful, getting user data...')
+        console.log('📍 About to call supabase.auth.getUser()...')
         // Get current user and check onboarding
         const { data: { user }, error: userError } = await supabase.auth.getUser()
+        console.log('📍 supabase.auth.getUser() completed')
         
         if (userError || !user) {
+          console.log('📍 Entering user error branch')
           console.error('❌ Error getting user after sign in:', userError)
           setError('Authentication error')
           setLoading(false)
           return
         }
+        console.log('📍 Passed user error check')
 
         console.log('✅ User data retrieved:', user.id)
-        // Check if user has completed onboarding
-        const { data: onboardingProfile, error: onboardingError } = await supabase
-          .from('profiles')
-          .select('onboarding_complete')
-          .eq('id', user.id)
-          .single()
+        console.log('📍 About to query onboarding status...')
+        // Check if user has completed onboarding with timeout
+        let onboardingProfile, onboardingError
+        try {
+          const queryPromise = supabase
+            .from('profiles')
+            .select('onboarding_complete')
+            .eq('id', user.id)
+            .single()
+          
+          // Add 5 second timeout to prevent hanging
+          const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Query timeout')), 5000)
+          )
+          
+          const result = await Promise.race([queryPromise, timeoutPromise]) as { data: any, error: any }
+          onboardingProfile = result.data
+          onboardingError = result.error
+        } catch (error) {
+          console.error('❌ Onboarding query failed or timed out:', error)
+          onboardingError = error
+          onboardingProfile = null
+        }
+        console.log('📍 Onboarding query completed')
 
         if (onboardingError) {
+          console.log('📍 Entering onboarding error branch')
           console.error('❌ Error checking onboarding status:', onboardingError)
           setError('Error checking profile status')
           setLoading(false)
           return
         }
+        console.log('📍 Passed onboarding error check')
 
         const redirectTo = onboardingProfile?.onboarding_complete ? '/' : '/onboarding'
-        console.log('🔄 Redirecting to:', redirectTo, 'onboarding_complete:', onboardingProfile?.onboarding_complete)
+        console.log('🔄 About to redirect to:', redirectTo, 'onboarding_complete:', onboardingProfile?.onboarding_complete)
+        console.log('📍 About to call router.push()...')
         router.push(redirectTo)
+        console.log('📍 router.push() completed')
+        console.log('📍 About to call router.refresh()...')
         router.refresh()
+        console.log('📍 router.refresh() completed')
       }
     } catch (unexpectedError) {
       console.error('Unexpected error during password auth:', unexpectedError)
