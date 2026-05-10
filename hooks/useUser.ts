@@ -55,30 +55,45 @@ export function useUser() {
 
     const getSessionWithRetry = async () => {
       try {
-        // Use shared auth logic to get consistent state
-        const authState = await getAuthStateClient()
+        // First try getSession() for initial load - reads directly from cookie storage
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession()
         
-        if (mounted) {
-          setUser(authState.user)
-          setProfile(authState.profile)
-          setAuthLoading(false)
-          
-          if (authState.user) {
-            fetchUserData(authState.user.id)
-          } else {
-            setLoading(false)
+        if (sessionError) {
+          throw sessionError
+        }
+
+        if (session?.user) {
+          // Session exists, set user and fetch profile
+          if (mounted) {
+            setUser(session.user)
+            setAuthLoading(false)
+            await fetchUserData(session.user.id)
+          }
+        } else {
+          // No session, fall back to getAuthStateClient()
+          if (mounted) {
+            const authState = await getAuthStateClient()
+            setUser(authState.user)
+            setProfile(authState.profile)
+            setAuthLoading(false)
+            
+            if (authState.user) {
+              await fetchUserData(authState.user.id)
+            } else {
+              setLoading(false)
+            }
           }
         }
       } catch (err: any) {
         // Don't log lock conflicts as errors - they're expected with multiple tabs
         if (!err.message?.includes('lock')) {
-          console.error('❌ [useUser] Error getting auth state:', err)
+          console.error('❌ [useUser] Error getting session:', err)
         }
         
         // Only retry on lock conflicts, not on general auth errors
         if (err.message?.includes('lock') && retryCount < maxRetries && mounted) {
           retryCount++
-          setTimeout(getSessionWithRetry, 200 * retryCount) // Shorter retry delay
+          setTimeout(getSessionWithRetry, 200 * retryCount)
         } else {
           if (mounted) {
             // On auth errors, ensure user is treated as logged out
