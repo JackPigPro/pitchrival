@@ -1,12 +1,10 @@
-// Cache for banned words and regex patterns
+// Cache for banned words
 let bannedWords: string[] = [];
-let regexPatterns: RegExp[] = [];
 let cacheInitialized = false;
 
 // Banned words list - embedded directly to avoid file system access
 const BANNED_WORDS_CONTENT = `# BizYip Moderation — Banned Terms
-# Format: one base term per line (normalization handles case, leetspeak, spacing, repeated chars)
-# Normalizer must: lowercase, strip repeated chars, collapse spaces/dots/dashes, map @→a 3→e 1→i 0→o $→s 5→s 7→t 4→a
+# Format: one word per line
 # Last updated: 2026-05-06
 
 # ============================================================
@@ -23,14 +21,14 @@ wetback
 beaner
 towelhead
 raghead
-camel jockey
+cameljockey
 sandnigger
 zipperhead
-jungle bunny
+junglebunny
 coon
-porch monkey
+porchmonkey
 jigaboo
-tar baby
+tarbaby
 sambo
 pickaninny
 cracker
@@ -43,8 +41,8 @@ halfbreed
 mulatto
 gyp
 gypsy
-curry muncher
-paki
+currymuncher
+pakiboy
 negro
 colored
 jap
@@ -71,10 +69,10 @@ sissy
 pansy
 poofter
 poof
-batty boy
+battyboy
 battyboy
 bender
-carpet muncher
+carpetmuncher
 
 # ============================================================
 # ABLEIST SLURS
@@ -86,7 +84,7 @@ spaz
 cripple
 mongoloid
 mong
-psycho bitch
+psychobitch
 schizo
 
 # ============================================================
@@ -95,7 +93,7 @@ schizo
 jihadi
 jihadist
 infidel
-crusader killer
+crusaderkiller
 islamofascist
 christfag
 catholicunt
@@ -124,7 +122,6 @@ slut
 whore
 skank
 hoe
-ho
 twat
 tit
 tits
@@ -159,11 +156,11 @@ fisting
 dildo
 vibrator
 buttplug
-sex tape
+sextape
 nudes
-nude pic
-naked pic
-send nudes
+nudepic
+nakedpic
+sendnudes
 onlyfans
 porn
 porno
@@ -180,84 +177,79 @@ molester
 pedophile
 pedo
 groomer
-child porn
+childporn
 cp
-kiddie porn
+kiddieporn
 
 # ============================================================
 # SELF-HARM / SUICIDE / VIOLENCE
 # ============================================================
-kill yourself
+killyourself
 kys
-go kill yourself
-end your life
-you should die
-i want to die
-kill myself
-slit my wrist
-slit your wrist
-cut myself
-cutting myself
-hang yourself
-hang myself
-suicide method
-how to suicide
+gokillyourself
+endyourlife
+youshoulddie
+iwanttodie
+killmyself
+slitmywrist
+slityourwrist
+cutmyself
+cuttingmyself
+hangyourself
+hangmyself
+suicidemethod
+howtosuicide
 overdose
-shoot yourself
-shoot myself
-self harm
-i hate myself
-no one would miss you
-nobody would miss you
-drink bleach
-eat glass
-jump off a bridge
-jump off a building
-go die
-die already
-kill all
-murder everyone
-shoot up
-school shooting
-mass shooting
-bomb threat
-i will kill
-im going to kill
-gonna kill
-blow up the school
-stab you
-i will hurt you
+shootyourself
+shootmyself
+selfharm
+noonewouldmissyou
+nobodywouldmissyou
+drinkbleach
+eatglass
+jumpoffabridge
+jumpoffabuilding
+godie
+diealready
+killall
+murdereveryone
+shootup
+schoolshooting
+massshooting
+bombthreat
+iwillkill
+imgoingtokill
+gonnakill
+blowuptheschool
+stabyou
+iwillhurtyou
 
 # ============================================================
-# DOXXING / PERSONAL INFO PATTERNS
-# These are handled as regex patterns by the engineer, not plain words.
-# Format: [REGEX] prefix means pass to regex engine
+# DOXXING / PERSONAL INFO
 # ============================================================
-[REGEX] \b\d{3}[-.\s]?\d{3}[-.\s]?\d{4}\b
-[REGEX] \b\d{1,5}\s\w+\s(?:street|st|avenue|ave|road|rd|boulevard|blvd|drive|dr|lane|ln|court|ct)\b
-your address is
-i know where you live
-i know where you go to school
-i know your school
-i found your location
-your ip is
-your ip address
+youraddressis
+iknowwhereyoulive
+iknowwhereyougotoschool
+iknowyourschool
+ifoundyourlocation
+youripis
+youripaddress
 
 # ============================================================
 # DRUG DEALING / HARD DRUGS
 # ============================================================
-buy weed
-sell weed
-weed for sale
-buying drugs
-selling drugs
-drug dealer
-dm for drugs
-dm for weed
-hit my line for
-plug for
-the plug
-i got plugs
+buyweed
+sellweed
+weedforsale
+buyingdrugs
+sellingdrugs
+drugdealer
+dmfordrugs
+dmforweed
+hitmylinefor
+plugfor
+theplug
+igotplugs
 xanax
 xans
 percocet
@@ -268,54 +260,53 @@ heroin
 meth
 methamphetamine
 crystal meth
-crack cocaine
-crack rock
-coke for sale
-cocaine for sale
-mdma for sale
-molly for sale
-ecstasy for sale
-adderall for sale
-oxy for sale
+crackcocaine
+crackrock
+cokeforsale
+cocaineforsale
+mdmaforsale
+mollyforsale
+ecstasyforsale
+adderallforsale
+oxyforsale
 oxycontin
 oxys
-lean for sale
-syrup for sale
-dmt for sale
-lsd for sale
-acid for sale
-shrooms for sale
-ketamine for sale
-ket for sale
+leanforsale
+syrupforsale
+dmtforsale
+lsdforsale
+acidforsale
+shroomsforsale
+ketamineforsale
+ketforsale
 
 # ============================================================
 # HATE / EXTREMISM
 # ============================================================
-white power
-white supremacy
-white supremacist
-white nationalist
+whitepower
+whitesupremacy
+whitesupremacist
+whitenationalist
 nazis
-neo nazi
-heil hitler
-third reich
-kkk
-ku klux klan
-death to
-gas the
-ethnic cleansing
+neonazi
+heilhitler
+thirdreich
+kukluxklan
+deathto
+gasthe
+ethniccleansing
 genocide
-kill all blacks
-kill all jews
-kill all muslims
-kill all whites
-race war
-great replacement
-black lives dont matter
-all cops should die
-terrorist attack
+killallblacks
+killalljews
+killallmuslims
+killallwhites
+racewar
+greatreplacement
+blacklivesdontmatter
+allcopsshoulddie
+terroristattack
 jihad
-allahu akbar (in aggressive/threatening context — flagged, reviewed manually)`;
+allahuakbar`;
 
 // Initialize the banned words cache
 function initializeCache() {
@@ -325,7 +316,6 @@ function initializeCache() {
     const lines = BANNED_WORDS_CONTENT.split('\n');
     
     bannedWords = [];
-    regexPatterns = [];
     
     for (const line of lines) {
       const trimmedLine = line.trim();
@@ -335,46 +325,15 @@ function initializeCache() {
         continue;
       }
       
-      // Handle regex patterns
-      if (trimmedLine.startsWith('[REGEX]')) {
-        const pattern = trimmedLine.substring(7).trim();
-        try {
-          regexPatterns.push(new RegExp(pattern, 'i'));
-        } catch (e) {
-          console.warn('Invalid regex pattern:', pattern);
-        }
-      } else {
-        // Regular banned word
-        bannedWords.push(trimmedLine.toLowerCase());
-      }
+      // Add banned word (lowercase for case-insensitive matching)
+      bannedWords.push(trimmedLine.toLowerCase());
     }
     
     cacheInitialized = true;
   } catch (error) {
     console.error('Failed to load banned words:', error);
     bannedWords = [];
-    regexPatterns = [];
   }
-}
-
-// Normalize text for comparison
-function normalizeText(text: string): string {
-  return text
-    .toLowerCase()
-    // Map leetspeak characters
-    .replace(/@/g, 'a')
-    .replace(/3/g, 'e')
-    .replace(/1/g, 'i')
-    .replace(/0/g, 'o')
-    .replace(/\$/g, 's')
-    .replace(/5/g, 's')
-    .replace(/7/g, 't')
-    .replace(/4/g, 'a')
-    // Collapse repeated characters (more than 2 in a row)
-    .replace(/(.)\1{2,}/g, '$1')
-    // Collapse spaces, dots, and dashes
-    .replace(/[.\s-]+/g, ' ')
-    .trim();
 }
 
 // Check if text contains any banned words
@@ -385,21 +344,12 @@ export function containsBannedWord(text: string): boolean {
   
   initializeCache();
   
-  const normalizedText = normalizeText(text);
+  const lowerText = text.toLowerCase();
   
-  // Check regex patterns against original text
-  for (const regex of regexPatterns) {
-    if (regex.test(text)) {
-      return true;
-    }
-  }
-  
-  // Check banned words against normalized text for any substring match
+  // Check banned words against the text for any substring match
   for (const word of bannedWords) {
-    const normalizedWord = normalizeText(word);
-    
-    // Check if any banned word appears as a substring in the normalized text
-    if (normalizedText.includes(normalizedWord)) {
+    // Check if any banned word appears as a substring in the text
+    if (lowerText.includes(word)) {
       return true;
     }
   }
