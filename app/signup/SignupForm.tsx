@@ -111,10 +111,11 @@ export default function SignupForm() {
     const { error: oauthError } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        queryParams: {
-          prompt: 'select_account'
-        },
         redirectTo: `${window.location.origin}/auth/callback?next=/onboarding`,
+        queryParams: {
+          access_type: 'online',
+          prompt: 'select_account',
+        },
       },
     })
 
