@@ -30,7 +30,8 @@ export function useUser() {
   // Combined loading state for convenience
   const isLoading = loading || authLoading
   // Use the same logic as server-side - user is only authenticated if onboarding is complete
-  const isAuthenticated = !!user && !!profile && profile.onboarding_complete === true
+  // Treat null/undefined onboarding_complete as true for backwards compatibility
+  const isAuthenticated = !!user && !!profile && (profile.onboarding_complete === true || profile.onboarding_complete == null)
 
   // Convenience properties
   const username = profile?.username
