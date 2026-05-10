@@ -85,6 +85,10 @@ const getRankGradient = (rank: string) => {
   return getRankColor(rank)
 }
 
+const isUserInPodium = (podiumUser: any, currentUserId: string | null) => {
+  return podiumUser?.user_id === currentUserId
+}
+
 const rankTiers = [
   { name: 'Trainee', min: 0, max: 499 },
   { name: 'Builder', min: 500, max: 749 },
@@ -493,6 +497,21 @@ export default function LeaderboardClient({
                     >
                       {finalPodiumUsers[2] ? finalPodiumUsers[2].profiles.username : '--'}
                     {currentUserId && finalPodiumUsers[2]?.user_id === currentUserId && (
+                      <span style={{
+                        marginLeft: '8px',
+                        fontSize: '12px',
+                        color: 'var(--green)',
+                        fontWeight: '600'
+                      }}>
+                        (You)
+                      </span>
+                    )}
+                    {/* Also show "You" for 2nd place if user is not in top 3 but is in 2nd place */}
+                    {currentUserId && (
+                      !isUserInPodium(finalPodiumUsers[0], currentUserId) && 
+                      !isUserInPodium(finalPodiumUsers[1], currentUserId) && 
+                      !isUserInPodium(finalPodiumUsers[2], currentUserId)
+                    ) && (
                       <span style={{
                         marginLeft: '8px',
                         fontSize: '12px',
