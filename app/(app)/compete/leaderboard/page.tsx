@@ -135,7 +135,8 @@ export default async function LeaderboardPage() {
       created_at: new Date().toISOString(),
       profiles: user.profiles
     }
-  }).sort((a, b) => {
+  }).filter(user => user.new_elo !== 0) // Only include users who actually gained ELO
+  .sort((a, b) => {
     // Sort by period gain descending, then by user_id ascending to prevent ties
     if (b.new_elo !== a.new_elo) {
       return b.new_elo - a.new_elo
@@ -156,7 +157,8 @@ export default async function LeaderboardPage() {
       created_at: new Date().toISOString(),
       profiles: user.profiles
     }
-  }).sort((a, b) => {
+  }).filter(user => user.new_elo !== 0) // Only include users who actually gained ELO
+  .sort((a, b) => {
     // Sort by period gain descending, then by user_id ascending to prevent ties
     if (b.new_elo !== a.new_elo) {
       return b.new_elo - a.new_elo
@@ -177,7 +179,8 @@ export default async function LeaderboardPage() {
       created_at: new Date().toISOString(),
       profiles: user.profiles
     }
-  }).sort((a, b) => {
+  }).filter(user => user.new_elo !== 0) // Only include users who actually gained ELO
+  .sort((a, b) => {
     // Sort by period gain descending, then by user_id ascending to prevent ties
     if (b.new_elo !== a.new_elo) {
       return b.new_elo - a.new_elo
