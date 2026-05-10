@@ -8,6 +8,24 @@ import { createClient } from '@/utils/supabase/client'
 export default function LoginForm({ mode }: { mode: 'login' | 'signup' }) {
   const router = useRouter()
   const supabase = createClient()
+
+  // Helper function to check auth method using server API
+  const getAuthMethodForEmail = async (email: string): Promise<'email' | 'google' | null> => {
+    try {
+      const response = await fetch(`/api/auth/check-method?email=${encodeURIComponent(email.toLowerCase())}`)
+      
+      if (!response.ok) {
+        console.error('Failed to check auth method:', response.statusText)
+        return null
+      }
+      
+      const data = await response.json()
+      return data.authMethod as 'email' | 'google' | null
+    } catch (error) {
+      console.error('Error checking auth method:', error)
+      return null
+    }
+  }
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -52,24 +70,20 @@ export default function LoginForm({ mode }: { mode: 'login' | 'signup' }) {
     }
 
     try {
-      console.log('Checking if profile exists for email:', email)
+      console.log('Checking auth method for email:', email)
       
-      // First check if profile exists in our database
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('id, auth_method')
-        .eq('email', email.toLowerCase())
-        .single()
-
-      if (profileError || !profile) {
-        console.log('No profile found for email:', email)
+      // Check auth method using our new helper function
+      const authMethod = await getAuthMethodForEmail(email)
+      
+      if (authMethod === null) {
+        console.log('No account found for email:', email)
         setError('No account found with that email. Please sign up first.')
         setLoading(false)
         return
       }
 
       // Check auth method - magic links only for email accounts
-      if (profile.auth_method === 'google') {
+      if (authMethod === 'google') {
         console.log('Google account trying to use magic link:', email)
         setError('This account was created with Google. Please sign in with Google.')
         setLoading(false)
@@ -148,13 +162,9 @@ export default function LoginForm({ mode }: { mode: 'login' | 'signup' }) {
 
     // Check if email exists and was created with email/password
     if (email.trim()) {
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('id, auth_method')
-        .eq('email', email.toLowerCase())
-        .single()
-
-      if (profile && profile.auth_method === 'email') {
+      const authMethod = await getAuthMethodForEmail(email)
+      
+      if (authMethod === 'email') {
         setError('This account was created with email and password. Please sign in with your email and password.')
         setGoogleLoading(false)
         return
@@ -225,13 +235,9 @@ export default function LoginForm({ mode }: { mode: 'login' | 'signup' }) {
         }, 1000)
       } else {
         // Check auth method before signing in with password
-        const { data: profile, error: profileError } = await supabase
-          .from('profiles')
-          .select('id, auth_method')
-          .eq('email', email.toLowerCase())
-          .single()
+        const authMethod = await getAuthMethodForEmail(email)
 
-        if (profile && profile.auth_method === 'google') {
+        if (authMethod === 'google') {
           setError('This account was created with Google. Please sign in with Google.')
           setLoading(false)
           return
