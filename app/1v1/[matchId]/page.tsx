@@ -37,7 +37,7 @@ interface MatchSubmission {
 }
 
 export default function GameRoomPage() {
-  const { isAuthenticated, authLoading, username, display_name } = useUser()
+  const { isAuthenticated, authLoading, username, user, profile } = useUser()
   const params = useParams()
   const router = useRouter()
   const supabase = createClient()

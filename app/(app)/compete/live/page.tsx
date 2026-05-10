@@ -44,7 +44,7 @@ const BUSINESS_IDEA_PROMPTS = [
 ]
 
 export default function OneVOnePage() {
-  const { isAuthenticated, authLoading, elo, username, display_name, user, profile } = useUser()
+  const { isAuthenticated, authLoading, elo, username, user, profile } = useUser()
   const router = useRouter()
   const supabase = createClient()
 
@@ -1181,7 +1181,7 @@ export default function OneVOnePage() {
                 <div style={{ fontSize: '14px', color: 'var(--text2)', fontFamily: 'var(--font-body)' }}>
                   <div style={{ marginBottom: '12px', display: 'flex', justifyContent: 'space-between' }}>
                     <span>Username:</span>
-                    <span style={{ fontWeight: 600, color: 'var(--text)' }}>{display_name || username}</span>
+                    <span style={{ fontWeight: 600, color: 'var(--text)' }}>{username}</span>
                   </div>
                   <div style={{ marginBottom: '12px', display: 'flex', justifyContent: 'space-between' }}>
                     <span>Total Matches:</span>
