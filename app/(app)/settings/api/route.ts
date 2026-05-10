@@ -37,12 +37,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const body = await request.json()
-    const { type, data } = body
+    const formData = await request.formData()
+    const type = formData.get('type') as string
+    const password = formData.get('password') as string
 
     switch (type) {
       case 'update_username':
-        const { username } = data
+        const username = formData.get('username') as string
         if (!username || username.length < 3) {
           return NextResponse.json({ error: 'Username must be at least 3 characters' }, { status: 400 })
         }
@@ -71,7 +72,8 @@ export async function POST(request: Request) {
         return NextResponse.json({ success: true })
 
       case 'update_password':
-        const { currentPassword, newPassword } = data
+        const currentPassword = formData.get('currentPassword') as string
+        const newPassword = formData.get('newPassword') as string
         
         if (!currentPassword || !newPassword) {
           return NextResponse.json({ error: 'All password fields are required' }, { status: 400 })
@@ -104,7 +106,6 @@ export async function POST(request: Request) {
 
       
       case 'delete_account':
-        const { password } = data
 
         // For email users, verify password before deletion
         if (user.app_metadata?.provider === 'email') {

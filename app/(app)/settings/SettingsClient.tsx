@@ -133,13 +133,13 @@ export default function SettingsClient({ initialProfile }: { initialProfile: Pro
     setLoading(true)
     
     try {
+      const formData = new FormData()
+      formData.append('type', 'update_username')
+      formData.append('username', username.trim()) // Preserve original case
+
       const response = await fetch('/settings/api', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          type: 'update_username',
-          data: { username: username.trim() } // Preserve original case
-        })
+        body: formData
       })
 
       const result = await response.json()
@@ -173,13 +173,14 @@ export default function SettingsClient({ initialProfile }: { initialProfile: Pro
     setLoading(true)
     
     try {
+      const formData = new FormData()
+      formData.append('type', 'update_password')
+      formData.append('currentPassword', currentPassword)
+      formData.append('newPassword', newPassword)
+
       const response = await fetch('/settings/api', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          type: 'update_password',
-          data: { currentPassword, newPassword }
-        })
+        body: formData
       })
 
       const result = await response.json()
@@ -210,31 +211,31 @@ export default function SettingsClient({ initialProfile }: { initialProfile: Pro
     setLoading(true)
     
     try {
-      const response = await fetch('/settings/api', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          type: 'delete_account',
-          data: { password: deletePassword }
-        })
-      })
-
-      // Check if response is a redirect (successful deletion)
-      if (response.redirected) {
-        // Server will handle redirect, just wait for it
-        return
+      // Create a form and submit it to handle server redirect properly
+      const form = document.createElement('form')
+      form.method = 'POST'
+      form.action = '/settings/api'
+      
+      const formData = new FormData()
+      formData.append('type', 'delete_account')
+      formData.append('password', deletePassword)
+      
+      // Add form data to form
+      for (const [key, value] of formData.entries()) {
+        const input = document.createElement('input')
+        input.type = 'hidden'
+        input.name = key
+        input.value = value as string
+        form.appendChild(input)
       }
       
-      // If not redirected, handle error response
-      const result = await response.json()
-      showMessage('error', result.error || 'Failed to delete account')
-      setDeleteModalOpen(false)
-      setDeletePassword('')
+      // Submit form (this will follow server redirect)
+      document.body.appendChild(form)
+      form.submit()
     } catch (err) {
       showMessage('error', 'Failed to delete account')
       setDeleteModalOpen(false)
       setDeletePassword('')
-    } finally {
       setLoading(false)
     }
   }
